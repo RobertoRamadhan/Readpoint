@@ -124,8 +124,8 @@ export default function GuruDashboard() {
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
             {error && (
-              <div className="m-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-                <p className="font-bold">Error: {error}</p>
+              <div className="m-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
+                <p className="font-bold flex items-center gap-2"><span>⚠️</span> Error: {error}</p>
               </div>
             )}
 
@@ -253,14 +253,16 @@ function ProfileSettings() {
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Pengaturan Profil</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl text-red-700 text-sm shadow-sm">
+          <p className="font-semibold flex items-center gap-2"><span>⚠️</span> Terjadi Kesalahan</p>
+          <p className="mt-1">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
-          {success}
+        <div className="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-xl text-amber-800 text-sm shadow-sm">
+          <p className="font-semibold flex items-center gap-2"><span>✅</span> Berhasil</p>
+          <p className="mt-1">{success}</p>
         </div>
       )}
 
@@ -295,7 +297,7 @@ function ProfileSettings() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setFormData({ ...formData, avatar: e.target.files?.[0] || null })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gneen-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
               <p className="text-xs text-gray-500 mt-1">Format: JPG, PNG. Maksimal 5MB</p>
             </div>
@@ -307,7 +309,7 @@ function ProfileSettings() {
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gneen-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               required
             />
           </div>
@@ -317,7 +319,7 @@ function ProfileSettings() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gneen-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               required
             />
           </div>
@@ -325,7 +327,7 @@ function ProfileSettings() {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 bg-gneen-600 text-white rounded-lg font-bold hover:bg-gneen-700 transition-all disabled:opacity-50"
+              className="px-6 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all disabled:opacity-50"
             >
               {submitting ? 'Menyimpan...' : 'Simpan Profil'}
             </button>
@@ -402,25 +404,25 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
         <StatCard
-          title="Total Students"
+          title="Total Siswa"
           value={stats.total_siswa || 0}
-          color="border-blue-600"
+          color="border-amber-600"
           delay="0.1s"
         />
         <StatCard
-          title="Quizzes Created"
+          title="Kuis Dibuat"
           value={stats.total_kuis_dibuat || 0}
-          color="border-blue-500"
+          color="border-amber-500"
           delay="0.15s"
         />
         <StatCard
-          title="Pending Validation"
+          title="Validasi Pending"
           value={stats.validasi_pending || 0}
-          color="border-blue-400"
+          color="border-amber-400"
           delay="0.2s"
         />
         <StatCard
-          title="Students Active Today"
+          title="Siswa Aktif Hari Ini"
           value={stats.siswa_aktif_hari_ini || 0}
           color="border-amber-300"
           delay="0.25s"
@@ -433,11 +435,11 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
 function StatCard({ title, value, color = 'border-amber-600', delay = '0s' }: { title: string; value: number; color?: string; delay?: string }) {
   return (
     <div
-      className={`bg-white rounded-lg shadow-lg border-l-4 ${color} hover:shadow-xl transition-all p-6 transform hover:scale-105 animate-scale-up`}
+      className={`bg-white rounded-xl shadow-lg border-l-4 ${color} hover:shadow-xl hover:shadow-amber-500/20 transition-all p-6 transform hover:scale-105 animate-scale-up border border-amber-100`}
       style={{ animationDelay: delay }}
     >
-      <p className="text-gray-600 text-sm font-semibold mb-2">{title}</p>
-      <p className="text-4xl font-bold text-gray-900">{value}</p>
+      <p className="text-amber-700 text-sm font-semibold mb-2">{title}</p>
+      <p className="text-4xl font-bold text-amber-900">{value}</p>
     </div>
   );
 }

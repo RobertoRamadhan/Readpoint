@@ -4,34 +4,34 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50 to-slate-50">
+    <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-amber-50">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/50">
+      <nav className="sticky top-0 z-50 bg-amber-900/95 backdrop-blur-md border-b border-amber-800/50">
         <div className="w-full px-6 lg:px-8">
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="text-3xl font-bold bg-gradient-to-r from-amber-100 to-amber-200 bg-clip-text text-transparent">
                 READPOINT
               </span>
             </div>
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#fitur" className="text-base font-medium text-slate-600 hover:text-blue-600 transition-colors duration-300">
+              <a href="#fitur" className="text-base font-medium text-amber-100 hover:text-white transition-colors duration-300">
                 Fitur
               </a>
-              <a href="#alur" className="text-base font-medium text-slate-600 hover:text-blue-600 transition-colors duration-300">
+              <a href="#alur" className="text-base font-medium text-amber-100 hover:text-white transition-colors duration-300">
                 Cara Kerja
               </a>
             </div>
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-3">
-              <Link href="/login" className="text-base font-semibold text-slate-700 hover:text-blue-600 transition-colors duration-300 px-4 py-2">
+              <Link href="/login" className="text-base font-semibold text-amber-100 hover:text-white transition-colors duration-300 px-4 py-2">
                 Masuk
               </Link>
-              <Link href="/register" className="text-base font-semibold text-slate-700 hover:text-blue-600 transition-colors duration-300 px-4 py-2">
+              <Link href="/register" className="text-base font-semibold text-amber-100 hover:text-white transition-colors duration-300 px-4 py-2">
                 Daftar
               </Link>
             </div>
@@ -40,26 +40,26 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-screen py-40 lg:py-80 flex items-center justify-center mb-48 lg:mb-64 bg-gradient-to-br from-blue-50 via-white to-slate-50" style={{ backgroundImage: 'url(/smk-batam.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat' }}>
+      <section className="relative overflow-hidden min-h-screen py-40 lg:py-80 flex items-center justify-center mb-48 lg:mb-64 bg-gradient-to-br from-amber-100 via-orange-50 to-amber-50" style={{ backgroundImage: 'url(/smk-batam.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat' }}>
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
         {/* Decorative Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-20 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-          <div className="absolute bottom-20 left-20 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-20 right-20 w-72 h-72 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+          <div className="absolute bottom-20 left-20 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         </div>
 
         <div className="relative w-full max-w-5xl px-6 lg:px-8 text-center flex flex-col items-center z-10">
           {/* Badge */}
-          <div className="mb-8 inline-flex items-center gap-3 bg-white/95 backdrop-blur px-4 py-2 rounded-full border border-slate-200 shadow-sm hover-lift">
-            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-            <span className="text-sm font-semibold text-slate-700">Platform Literasi Digital Terpadu</span>
+          <div className="mb-8 inline-flex items-center gap-3 bg-white/95 backdrop-blur px-4 py-2 rounded-full border border-amber-200 shadow-sm hover-lift">
+            <div className="w-2 h-2 bg-amber-600 rounded-full"></div>
+            <span className="text-sm font-semibold text-amber-900">Platform Literasi Digital Terpadu</span>
           </div>
 
           {/* Heading */}
           <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight animate-slide-up drop-shadow-lg">
             Kelola Program Baca Siswa dengan
-            <span className="block bg-gradient-to-r from-blue-300 to-blue-200 bg-clip-text text-transparent drop-shadow-lg">
+            <span className="block bg-gradient-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent drop-shadow-lg">
               Sistem Terpadu & Terukur
             </span>
           </h1>
@@ -72,14 +72,14 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="fitur" className="bg-white py-32 lg:py-56 flex justify-center mb-32 lg:mb-48">
+      <section id="fitur" className="bg-gradient-to-b from-amber-50 via-orange-50 to-amber-50 py-32 lg:py-56 flex justify-center mb-32 lg:mb-48">
         <div className="w-full max-w-6xl px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-32 animate-slide-up flex flex-col items-center">
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-amber-900 mb-6">
               Fitur Lengkap Platform
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl">
+            <p className="text-lg text-amber-700 max-w-2xl">
               Semua yang Anda butuhkan untuk program literasi digital
             </p>
           </div>
@@ -114,11 +114,11 @@ export default function Home() {
             ].map((item, i) => (
               <div
                 key={i}
-                className="group p-8 border border-slate-200 rounded-2xl bg-gradient-to-br from-white to-slate-50 hover:shadow-xl transition-all duration-300 hover-lift text-center animate-slide-up"
+                className="group p-8 border border-amber-200 rounded-2xl bg-gradient-to-br from-white to-amber-50 hover:shadow-xl transition-all duration-300 hover-lift text-center animate-slide-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 {/* Top Accent Bar */}
-                <div className="w-12 h-1.5 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full mx-auto mb-6 group-hover:w-16 transition-all duration-300"></div>
+                <div className="w-12 h-1.5 bg-gradient-to-r from-amber-600 to-amber-700 rounded-full mx-auto mb-6 group-hover:w-16 transition-all duration-300"></div>
 
                 {/* Title */}
                 <h3 className="text-xl font-bold text-slate-900 mb-4">
@@ -136,13 +136,13 @@ export default function Home() {
       </section>
 
       {/* Alur */}
-      <section id="alur" className="bg-gradient-to-b from-slate-50 to-white border-y border-slate-200 pt-48 pb-32 lg:py-56 flex justify-center mb-32 lg:mb-48 mt-32 lg:mt-48">
+      <section id="alur" className="bg-gradient-to-b from-amber-100 via-orange-50 to-amber-50 border-y border-amber-200 pt-48 pb-32 lg:py-56 flex justify-center mb-32 lg:mb-48 mt-32 lg:mt-48">
         <div className="w-full max-w-6xl px-6 lg:px-8">
           <div className="text-center mb-24 animate-fade-in flex flex-col items-center">
-            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-amber-900 mb-6">
               Alur Sistem
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl">
+            <p className="text-xl text-amber-700 max-w-2xl">
               Dari siswa baca buku sampai klaim reward, semua tercatat otomatis
             </p>
           </div>
@@ -156,10 +156,10 @@ export default function Home() {
             ].map((item, idx) => (
               <div
                 key={item.no}
-                className="bg-white border-2 border-blue-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:scale-105 hover:border-blue-400 animate-scale-up text-center"
+                className="bg-white border-2 border-amber-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:scale-105 hover:border-amber-400 animate-scale-up text-center"
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
-                <div className="text-5xl font-bold text-blue-200 mb-6">{item.no}</div>
+                <div className="text-5xl font-bold text-amber-300 mb-6">{item.no}</div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
                 <p className="text-slate-600 leading-relaxed">{item.desc}</p>
               </div>
@@ -168,41 +168,41 @@ export default function Home() {
         </div>
       </section>
       {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800">
+      <footer className="bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border-t border-amber-700">
         <div className="mx-auto max-w-6xl px-6 lg:px-8 py-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16 text-center">
             <div>
-              <h4 className="text-sm font-bold text-white mb-8 uppercase tracking-wide">Produk</h4>
-              <ul className="space-y-4 text-sm text-slate-400">
+              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Produk</h4>
+              <ul className="space-y-4 text-sm text-amber-200">
                 <li><a href="#" className="hover:text-white transition-colors">Dashboard Admin</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Dashboard Guru</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">App Siswa</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white mb-8 uppercase tracking-wide">Panduan</h4>
-              <ul className="space-y-4 text-sm text-slate-400">
+              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Panduan</h4>
+              <ul className="space-y-4 text-sm text-amber-200">
                 <li><a href="#" className="hover:text-white transition-colors">Untuk Admin</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Untuk Guru</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Untuk Siswa</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white mb-8 uppercase tracking-wide">Perusahaan</h4>
-              <ul className="space-y-4 text-sm text-slate-400">
+              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Perusahaan</h4>
+              <ul className="space-y-4 text-sm text-amber-200">
                 <li><a href="#" className="hover:text-white transition-colors">Tentang</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Kontak</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white mb-8 uppercase tracking-wide">Legal</h4>
-              <ul className="space-y-4 text-sm text-slate-400">
+              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Legal</h4>
+              <ul className="space-y-4 text-sm text-amber-200">
                 <li><a href="#" className="hover:text-white transition-colors">Privasi</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Syarat</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-slate-800 pt-12 flex flex-col sm:flex-row justify-center items-center text-sm text-slate-500 gap-6">
+          <div className="border-t border-amber-800 pt-12 flex flex-col sm:flex-row justify-center items-center text-sm text-amber-300 gap-6">
             <p>© 2026 READPOINT</p>
             <p>Batam, Indonesia</p>
           </div>

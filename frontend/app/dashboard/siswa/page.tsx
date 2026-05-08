@@ -153,8 +153,11 @@ export default function SiswaDashboard() {
 
   if (!mounted || loading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+      <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 via-orange-50 to-amber-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin"></div>
+          <p className="text-amber-700 font-medium">Memuat dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -168,8 +171,11 @@ export default function SiswaDashboard() {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="w-full">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl text-red-700 text-sm shadow-sm">
+              <p className="font-semibold flex items-center gap-2">
+                <span>⚠️</span> Terjadi Kesalahan
+              </p>
+              <p className="mt-1">{error}</p>
             </div>
           )}
 
@@ -208,15 +214,16 @@ export default function SiswaDashboard() {
             </div>
           )}
 
-          {/* Separator Bar */}
-          <div className="w-full h-6 bg-gradient-to-r from-amber-800 via-amber-700 to-amber-900 mb-8 shadow-md"></div>
+          {/* Decorative Separator */}
+          <div className="w-full h-1 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 mb-8 rounded-full shadow-md shadow-amber-500/20"></div>
 
           {/* Content Sections */}
-          <div className="bg-amber-50 w-full p-6">
+          <div className="bg-white/80 backdrop-blur-sm w-full p-6 rounded-2xl border border-amber-200 shadow-lg">
             {loadingData ? (
-              <div className="text-center py-12">
-                <div className="inline-block">
-                  <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+              <div className="text-center py-16">
+                <div className="inline-flex flex-col items-center gap-4">
+                  <div className="w-14 h-14 border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin"></div>
+                  <p className="text-amber-700 font-medium">Memuat data...</p>
                 </div>
               </div>
             ) : (

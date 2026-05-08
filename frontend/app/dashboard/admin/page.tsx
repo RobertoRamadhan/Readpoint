@@ -110,7 +110,7 @@ export default function AdminDashboard() {
       {/* Hamburger Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="fixed top-16 left-4 z-40 p-2 bg-ulue990 text-white rounded-lg hover:bg-belu-08 transition-all md:hidden"
+          className="fixed top-16 left-4 z-40 p-2 bg-amber-900 text-white rounded-lg hover:bg-amber-800 transition-all md:hidden"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -269,14 +269,20 @@ function ProfileSettings() {
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Pengaturan Profil</h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl text-red-700 text-sm shadow-sm">
+          <p className="font-semibold flex items-center gap-2">
+            <span>⚠️</span> Terjadi Kesalahan
+          </p>
+          <p className="mt-1">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-          {success}
+        <div className="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-xl text-amber-800 text-sm shadow-sm">
+          <p className="font-semibold flex items-center gap-2">
+            <span>✅</span> Berhasil
+          </p>
+          <p className="mt-1">{success}</p>
         </div>
       )}
 
@@ -427,43 +433,48 @@ function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; t
     { name: 'Reward Tersisa', value: Math.max(0, (stats.total_reward || 0) - (stats.reward_diklaim_hari_ini || 0)) },
   ];
 
-  const COLORS = ['#3b82f6', '#f59e0b'];
+  const COLORS = ['#b45309', '#f59e0b'];
 
   return (
     <div className="p-8 space-y-8 w-full">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-amber-800 to-amber-900 text-white rounded-lg shadow-lg p-10 animate-slide-up">
-        <h2 className="text-4xl font-bold text-white mb-4">Admin Dashboard</h2>
-        <p className="text-lg text-white">Welcome back! Here's what's happening today.</p>
+      <div className="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-900 text-white rounded-none shadow-xl shadow-amber-500/30 p-10 animate-slide-up relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        </div>
+        <div className="relative z-10">
+          <h2 className="text-4xl font-bold text-white mb-4">Admin Dashboard</h2>
+          <p className="text-lg text-white">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
+        </div>
       </div>
 
       {/* Activity Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
-        <ActivityItem label="Active Students" value={stats.siswa_aktif_hari_ini || 0} delay="0.1s" />
-        <ActivityItem label="Books Read" value={stats.buku_dibaca_hari_ini || 0} delay="0.15s" />
-        <ActivityItem label="Quizzes Completed" value={stats.kuis_dikerjakan_hari_ini || 0} delay="0.2s" />
-        <ActivityItem label="Rewards Claimed" value={stats.reward_diklaim_hari_ini || 0} delay="0.25s" />
+        <ActivityItem label="Siswa Aktif" value={stats.siswa_aktif_hari_ini || 0} delay="0.1s" />
+        <ActivityItem label="Buku Dibaca" value={stats.buku_dibaca_hari_ini || 0} delay="0.15s" />
+        <ActivityItem label="Quiz Dikerjakan" value={stats.kuis_dikerjakan_hari_ini || 0} delay="0.2s" />
+        <ActivityItem label="Reward Diklaim" value={stats.reward_diklaim_hari_ini || 0} delay="0.25s" />
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart */}
-        <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-300 animate-scale-up" style={{ animationDelay: '0.2s' }}>
-          <h3 className="text-2xl font-bold text-gray-900 mb-8">System Statistics</h3>
+        <div className="bg-white rounded-xl shadow-lg p-8 border border-amber-200 animate-scale-up" style={{ animationDelay: '0.2s' }}>
+          <h3 className="text-2xl font-bold text-amber-900 mb-8">📊 Statistik Sistem</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#3b82f6" radius={[12, 12, 0, 0]} />
+              <Bar dataKey="value" fill="#b45309" radius={[12, 12, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-300 animate-scale-up" style={{ animationDelay: '0.3s' }}>
-          <h3 className="text-2xl font-bold text-gray-900 mb-8">Rewards Status Today</h3>
+        <div className="bg-white rounded-xl shadow-lg p-8 border border-amber-200 animate-scale-up" style={{ animationDelay: '0.3s' }}>
+          <h3 className="text-2xl font-bold text-amber-900 mb-8">🎁 Status Reward Hari Ini</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -493,12 +504,12 @@ function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; t
 function StatCard({ title, value, delay = '0s' }: { title: string; value: number; delay?: string }) {
   return (
     <div
-      className="bg-white rounded-lg shadow-md p-8 border border-gray-300 hover:shadow-lg transition-all hover:border-gray-400 flex justify-between items-center transform hover:scale-105 animate-scale-up"
+      className="bg-white rounded-xl shadow-md p-8 border border-amber-200 hover:shadow-xl hover:shadow-amber-500/20 transition-all hover:border-amber-300 flex justify-between items-center transform hover:scale-105 animate-scale-up"
       style={{ animationDelay: delay }}
     >
       <div>
-        <p className="text-gray-600 text-sm font-medium mb-2">{title}</p>
-        <p className="text-4xl font-bold text-gray-900">{value}</p>
+        <p className="text-amber-700 text-sm font-medium mb-2">{title}</p>
+        <p className="text-4xl font-bold text-amber-900">{value}</p>
       </div>
     </div>
   );
@@ -507,10 +518,10 @@ function StatCard({ title, value, delay = '0s' }: { title: string; value: number
 // Activity Item Component
 function ActivityItem({ label, value, delay = '0s' }: { label: string; value: number; delay?: string }) {
   const getIcon = (label: string) => {
-    if (label.includes('Active')) return '👥';
-    if (label.includes('Books')) return '📖';
-    if (label.includes('Quizzes')) return '✅';
-    if (label.includes('Rewards')) return '🎁';
+    if (label.includes('Siswa') || label.includes('Active')) return '👥';
+    if (label.includes('Buku') || label.includes('Books')) return '📖';
+    if (label.includes('Quiz') || label.includes('Quizzes')) return '✅';
+    if (label.includes('Reward') || label.includes('Rewards')) return '🎁';
     return '📊';
   };
 
@@ -1191,24 +1202,34 @@ function UserManagementTab() {
         <div className="p-8 space-y-4">
           {showForm && <UserForm onSuccess={() => { setShowForm(false); fetchUsers(); }} />}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Cari user..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            >
-              <option value="">Semua Role</option>
-              <option value="admin">Admin</option>
-              <option value="guru">Guru</option>
-              <option value="siswa">Siswa</option>
-            </select>
+          <div className="flex items-center justify-between gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+              <input
+                type="text"
+                placeholder="Cari user..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="">Semua Role</option>
+                <option value="admin">Admin</option>
+                <option value="guru">Guru</option>
+                <option value="siswa">Siswa</option>
+              </select>
+            </div>
+            {!showForm && (
+              <button
+                onClick={() => setShowForm(true)}
+                className="px-6 py-2 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg font-bold hover:shadow-lg transition-all"
+              >
+                + Tambah User
+              </button>
+            )}
           </div>
 
           {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
