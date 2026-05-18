@@ -5,12 +5,19 @@ import { api } from '@/lib/api';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface GuruStats {
   total_siswa?: number;
   total_kuis_dibuat?: number;
   validasi_pending?: number;
   siswa_aktif_hari_ini?: number;
+  monthly_stats?: {
+    month: string;
+    students_active: number;
+    books_read: number;
+    quizzes_completed: number;
+  }[];
 }
 
 interface ReadingActivity {
@@ -121,11 +128,11 @@ export default function GuruDashboard() {
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-b from-amber-50 via-amber-50 to-orange-50">
+          <div className="flex-1 overflow-y-auto px-6 lg:px-10 py-8">
             {error && (
-              <div className="m-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
-                <p className="font-bold flex items-center gap-2"><span>⚠️</span> Error: {error}</p>
+              <div className="mb-8 p-5 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
+                <p className="font-bold flex items-center gap-2"><span>⚠️</span> Kesalahan: {error}</p>
               </div>
             )}
 
@@ -249,7 +256,7 @@ function ProfileSettings() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Pengaturan Profil</h1>
 
       {error && (
@@ -390,17 +397,39 @@ function ProfileSettings() {
 function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boolean }) {
   if (dataLoading) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-20">
         <div className="inline-block">
-          <div className="w-12 h-12 border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin"></div>
+          <div className="w-14 h-14 border-4 border-amber-400 border-t-amber-700 rounded-full animate-spin"></div>
         </div>
-        <p className="text-gray-600 font-semibold mt-4">Memuat data...</p>
+        <p className="text-amber-700 font-bold mt-4 text-lg">Memuat data...</p>
       </div>
     );
   }
 
+  // Prepare data for bar chart (Monthly Stats)
+  const barChartData = stats.monthly_stats?.map(stat => ({
+    month: stat.month,
+    siswaAktif: stat.students_active,
+    bukuDibaca: stat.books_read,
+    kuisSelesai: stat.quizzes_completed,
+  })) || [];
+
+  // Prepare data for pie chart (Quiz Distribution)
+  const pieChartData = [
+    { name: 'Kuis Selesai', value: stats.total_kuis_dibuat || 0 },
+    { name: 'Validasi Pending', value: stats.validasi_pending || 0 },
+  ];
+
+  const COLORS = ['#b45309', '#f59e0b'];
+
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-8 lg:p-12 space-y-10 w-full">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl lg:text-4xl font-bold text-amber-900">Dashboard Guru</h2>
+        <p className="text-amber-700 font-semibold mt-2">Kelola pembelajaran siswa Anda</p>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
         <StatCard
@@ -418,15 +447,118 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
         <StatCard
           title="Validasi Pending"
           value={stats.validasi_pending || 0}
-          color="border-amber-400"
+          color="border-orange-500"
           delay="0.2s"
         />
         <StatCard
           title="Siswa Aktif Hari Ini"
           value={stats.siswa_aktif_hari_ini || 0}
-          color="border-amber-300"
+          color="border-amber-400"
           delay="0.25s"
         />
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bar Chart */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-amber-900 mb-2">📊 Statistik Bulanan</h3>
+            <p className="text-amber-700 text-sm font-semibold">Aktivitas siswa per bulan</p>
+            <div className="flex justify-center mt-3">
+              <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={barChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" stroke="#b45309" />
+              <YAxis stroke="#b45309" />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: '2px solid #b45309' }} />
+              <Legend />
+              <Bar dataKey="siswaAktif" fill="#b45309" name="Siswa Aktif" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="bukuDibaca" fill="#f59e0b" name="Buku Dibaca" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="kuisSelesai" fill="#d97706" name="Kuis Selesai" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Pie Chart */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-amber-900 mb-2">📈 Status Kuis</h3>
+            <p className="text-amber-700 text-sm font-semibold">Distribusi kuis</p>
+            <div className="flex justify-center mt-3">
+              <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={350}>
+            <PieChart>
+              <Pie
+                data={pieChartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, value }) => `${name}: ${value}`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {pieChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Monthly Table */}
+      <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.4s' }}>
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-amber-900 mb-2">📅 Detail Bulanan</h3>
+          <p className="text-amber-700 text-sm font-semibold">Ringkasan aktivitas bulanan</p>
+          <div className="flex justify-center mt-3">
+            <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-amber-200 bg-amber-50">
+                <th className="px-4 py-3 text-left font-bold text-amber-900">Bulan</th>
+                <th className="px-4 py-3 text-center font-bold text-amber-900">Siswa Aktif</th>
+                <th className="px-4 py-3 text-center font-bold text-amber-900">Buku Dibaca</th>
+                <th className="px-4 py-3 text-center font-bold text-amber-900">Kuis Selesai</th>
+              </tr>
+            </thead>
+            <tbody>
+              {barChartData.length > 0 ? (
+                barChartData.map((stat, index) => (
+                  <tr key={index} className="border-b border-amber-100 hover:bg-amber-50 transition-all">
+                    <td className="px-4 py-3 font-semibold text-amber-900">{stat.month}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="font-bold text-lg text-amber-600">{stat.siswaAktif}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="font-semibold text-amber-700">{stat.bukuDibaca}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="font-semibold text-amber-700">{stat.kuisSelesai}</span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-amber-600">
+                    Belum ada data bulanan
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -435,11 +567,11 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
 function StatCard({ title, value, color = 'border-amber-600', delay = '0s' }: { title: string; value: number; color?: string; delay?: string }) {
   return (
     <div
-      className={`bg-white rounded-xl shadow-lg border-l-4 ${color} hover:shadow-xl hover:shadow-amber-500/20 transition-all p-6 transform hover:scale-105 animate-scale-up border border-amber-100`}
+      className={`bg-white rounded-2xl shadow-lg border-l-4 ${color} hover:shadow-2xl hover:shadow-amber-400/20 transition-all p-8 transform hover:scale-105 animate-scale-up border-b-2 border-r-2 border-b-gray-100 border-r-gray-100`}
       style={{ animationDelay: delay }}
     >
-      <p className="text-amber-700 text-sm font-semibold mb-2">{title}</p>
-      <p className="text-4xl font-bold text-amber-900">{value}</p>
+      <p className="text-amber-700 text-sm font-bold mb-3 uppercase tracking-wide">{title}</p>
+      <p className="text-5xl font-bold text-amber-900">{value}</p>
     </div>
   );
 }
@@ -491,7 +623,7 @@ function ValidasiTab() {
     }
     try {
       setProcessingId(activityId);
-      await api.validations?.reject?.(activityId);
+      await api.validations?.reject?.(activityId, rejectionNotes.trim());
       setSelectedActivity(null);
       setRejectionNotes('');
       fetchPendingActivities();
@@ -795,8 +927,8 @@ function QuizTab() {
         <div className="card border-2 border-purple-200 shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-amber-800 to-amber-900 px-6 py-6 flex items-center gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-white">Create Quiz</h2>
-              <p className="text-purple-100 text-sm">Create a quiz with 5 multiple choice questions</p>
+              <h2 className="text-2xl font-bold text-white">Buat Kuis</h2>
+              <p className="text-purple-100 text-sm">Buat kuis dengan 5 pertanyaan pilihan ganda</p>
             </div>
           </div>
 
@@ -804,11 +936,11 @@ function QuizTab() {
             {!selectedEbook ? (
               <div className="space-y-4">
                 <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-8 text-center">
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Select E-Book</h3>
-                  <p className="text-slate-600 mb-6">Choose a book to create a new quiz</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Pilih E-Book</h3>
+                  <p className="text-slate-600 mb-6">Pilih buku untuk membuat kuis baru</p>
 
                   {loading ? (
-                    <p className="text-slate-600">Loading e-books...</p>
+                    <p className="text-slate-600">Memuat e-books...</p>
                   ) : (
                     <select
                       value=""
@@ -840,7 +972,7 @@ function QuizTab() {
                       onClick={() => setSelectedEbook(null)}
                       className="px-4 py-2 bg-white border-2 border-amber-300 text-amber-600 rounded-lg font-semibold hover:bg-amber-50 transition-all"
                     >
-                      Change
+                      Ubah
                     </button>
                   </div>
                 </div>
@@ -873,7 +1005,7 @@ function QuizTab() {
                         </div>
                         {q.question.trim() && (
                           <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
-                            Complete
+                            Selesai
                           </span>
                         )}
                       </div>
@@ -881,7 +1013,7 @@ function QuizTab() {
                       {/* Question Input */}
                       <div className="mb-6">
                         <label className="block text-sm font-bold text-slate-700 mb-2">
-                          Question <span className="text-red-500">*</span>
+                          Pertanyaan <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           placeholder={`Buat pertanyaan yang jelas dan menarik untuk nomor ${idx + 1}`}
@@ -895,7 +1027,7 @@ function QuizTab() {
                       {/* Options Input */}
                       <div className="mb-6">
                         <label className="block text-sm font-bold text-slate-700 mb-3">
-                          Answer Options <span className="text-red-500">*</span>
+                          Opsi Jawaban <span className="text-red-500">*</span>
                         </label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {[
@@ -923,7 +1055,7 @@ function QuizTab() {
                       {/* Correct Answer */}
                       <div className="bg-white border-2 border-gray-300 rounded-lg p-4">
                         <label className="block text-sm font-bold text-slate-700 mb-3">
-                          Correct Answer <span className="text-red-500">*</span>
+                          Jawaban Benar <span className="text-red-500">*</span>
                         </label>
                         <div className="grid grid-cols-4 gap-2">
                           {['a', 'b', 'c', 'd'].map((option) => (
@@ -956,7 +1088,7 @@ function QuizTab() {
                         : 'bg-amber-600 text-white hover:shadow-xl hover:scale-105'
                     }`}
                   >
-                    {submitting ? 'Saving...' : 'Save Quiz'}
+                    {submitting ? 'Menyimpan...' : 'Simpan Kuis'}
                   </button>
                   <button
                     onClick={() => {
@@ -965,7 +1097,7 @@ function QuizTab() {
                     }}
                     className="flex-1 bg-slate-200 text-slate-700 py-4 rounded-lg font-bold hover:bg-slate-300 transition-all"
                   >
-                    Cancel
+                    Batal
                   </button>
                 </div>
               </>

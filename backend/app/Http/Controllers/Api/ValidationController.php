@@ -153,7 +153,7 @@ class ValidationController extends Controller
     {
         try {
             $validated = $request->validate([
-                'notes' => 'required|string|max:500',
+                'notes' => 'nullable|string|max:500',
             ]);
 
             $activity = ReadingActivity::findOrFail($activityId);

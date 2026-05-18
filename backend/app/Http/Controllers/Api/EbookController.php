@@ -52,35 +52,139 @@ class EbookController extends Controller
                 ->findOrFail($id);
 
             // Check cache first
-            $cacheKey = 'ebook_text_' . $id;
+            $cacheKey = 'ebook_text_v2_' . $id;
             $text = Cache::get($cacheKey);
 
             if (!$text && $ebook->file_path) {
                 $pdfPath = storage_path('app/public/' . $ebook->file_path);
-                
+
                 if (!file_exists($pdfPath)) {
                     return response()->json(['error' => 'PDF file not found'], 404);
                 }
 
-                // Parse PDF
-                $parser = new PdfParser();
-                $pdf = $parser->parseFile($pdfPath);
-                $text = $pdf->getText();
+                $text = $this->extractPdfText($pdfPath);
 
-                // Cache for 24 hours
-                Cache::put($cacheKey, $text, 86400);
+                if ($text) {
+                    // Cache for 24 hours
+                    Cache::put($cacheKey, $text, 86400);
+                }
             }
 
             return response()->json([
                 'data' => [
                     'ebook_id' => $ebook->id,
-                    'title' => $ebook->title,
-                    'text' => $text,
+                    'title'    => $ebook->title,
+                    'text'     => $text ?? '',
                 ],
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Extract and clean text from a PDF file.
+     * Handles common encoding issues with Indonesian PDFs.
+     */
+    private function extractPdfText(string $pdfPath): string
+    {
+        try {
+            $config = new \Smalot\PdfParser\Config();
+            // Retain horizontal whitespace so words don't merge
+            $config->setRetainImageContent(false);
+            $config->setDecodeMemoryLimit(512 * 1024 * 1024); // 512 MB
+
+            $parser = new PdfParser([], $config);
+            $pdf    = $parser->parseFile($pdfPath);
+
+            // Try full-document extraction first
+            $rawText = $pdf->getText();
+
+            // If result looks garbled, try page-by-page with separator
+            if ($this->isGarbled($rawText)) {
+                $rawText = '';
+                foreach ($pdf->getPages() as $page) {
+                    $pageText = $page->getText();
+                    if (!$this->isGarbled($pageText)) {
+                        $rawText .= $pageText . "\n\n";
+                    }
+                }
+            }
+
+            return $this->cleanText($rawText);
+
+        } catch (\Exception $e) {
+            \Log::warning('[EbookController] PDF text extraction failed: ' . $e->getMessage());
+            return '';
+        }
+    }
+
+    /**
+     * Detect if extracted text is garbled/corrupted.
+     * Garbled text has a high ratio of non-printable or symbol characters.
+     */
+    private function isGarbled(string $text): bool
+    {
+        if (empty(trim($text))) {
+            return true;
+        }
+
+        // Count printable ASCII + common Unicode letters vs total chars
+        $total = mb_strlen($text);
+        if ($total < 10) {
+            return true;
+        }
+
+        // Count characters that are normal (letters, digits, spaces, punctuation)
+        $normalCount = preg_match_all(
+            '/[\p{L}\p{N}\p{Z}\p{P}\n\r\t]/u',
+            $text,
+            $matches
+        );
+
+        $ratio = $normalCount / $total;
+
+        // If less than 50% of chars are "normal", it's garbled
+        return $ratio < 0.50;
+    }
+
+    /**
+     * Clean and normalize extracted PDF text.
+     */
+    private function cleanText(string $text): string
+    {
+        if (empty($text)) {
+            return '';
+        }
+
+        // 1. Fix encoding — try to convert from various encodings to UTF-8
+        if (!mb_check_encoding($text, 'UTF-8')) {
+            $converted = mb_convert_encoding($text, 'UTF-8', 'Windows-1252, ISO-8859-1, UTF-8');
+            if ($converted !== false) {
+                $text = $converted;
+            }
+        }
+
+        // 2. Remove null bytes and control characters (except newlines/tabs)
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $text);
+
+        // 3. Remove or replace common garbled symbol patterns
+        //    These are typically caused by custom font glyph mappings
+        $text = preg_replace('/[^\p{L}\p{N}\p{Z}\p{P}\p{S}\n\r\t]/u', ' ', $text);
+
+        // 4. Collapse multiple spaces into one (but preserve newlines)
+        $text = preg_replace('/[ \t]{2,}/', ' ', $text);
+
+        // 5. Collapse more than 2 consecutive newlines into 2
+        $text = preg_replace('/\n{3,}/', "\n\n", $text);
+
+        // 6. Trim each line
+        $lines = explode("\n", $text);
+        $lines = array_map('trim', $lines);
+        $text  = implode("\n", $lines);
+
+        // 7. Final trim
+        return trim($text);
     }
 
     // Get file PDF (stream untuk reader)
@@ -89,7 +193,7 @@ class EbookController extends Controller
         $ebook = Ebook::where('is_active', true)
             ->findOrFail($id);
 
-        $filePath = storage_path('app/' . $ebook->file_path);
+        $filePath = storage_path('app/public/' . $ebook->file_path);
 
         if (!file_exists($filePath)) {
             return response()->json(['message' => 'File not found'], 404);

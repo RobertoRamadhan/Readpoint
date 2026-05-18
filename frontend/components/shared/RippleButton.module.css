@@ -1,0 +1,239 @@
+.button {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 600;
+  color: white;
+  background-color: #b45309;
+  padding: 1em 2em;
+  border: none;
+  border-radius: 0.6rem;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #92400e;
+  box-shadow: 0 6px 20px rgba(180, 83, 9, 0.4);
+  transform: translateY(-2px);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.3);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ripple Effect Spans */
+.button span:not(:nth-child(6)) {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 30px;
+  width: 30px;
+  background-color: #f59e0b;
+  border-radius: 50%;
+  transition: 0.6s ease;
+  opacity: 0.6;
+}
+
+.button span:nth-child(6) {
+  position: relative;
+  z-index: 1;
+}
+
+.button span:nth-child(1) {
+  transform: translate(-3.3em, -4em);
+}
+
+.button span:nth-child(2) {
+  transform: translate(-6em, 1.3em);
+}
+
+.button span:nth-child(3) {
+  transform: translate(-0.2em, 1.8em);
+}
+
+.button span:nth-child(4) {
+  transform: translate(3.5em, 1.4em);
+}
+
+.button span:nth-child(5) {
+  transform: translate(3.5em, -3.8em);
+}
+
+.button:hover:not(:disabled) span:not(:nth-child(6)) {
+  transform: translate(-50%, -50%) scale(4);
+  transition: 1.5s ease;
+}
+
+/* Variant Styles */
+.buttonPrimary {
+  background-color: #b45309;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: #92400e;
+}
+
+.buttonPrimary span:not(:nth-child(6)) {
+  background-color: #f59e0b;
+}
+
+.buttonSecondary {
+  background-color: #fff8e7;
+  color: #b45309;
+  border: 2px solid #fbbf24;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.buttonSecondary span:not(:nth-child(6)) {
+  background-color: #f59e0b;
+}
+
+.buttonSuccess {
+  background-color: #10b981;
+}
+
+.buttonSuccess:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.buttonSuccess span:not(:nth-child(6)) {
+  background-color: #34d399;
+}
+
+.buttonDanger {
+  background-color: #ef4444;
+}
+
+.buttonDanger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.buttonDanger span:not(:nth-child(6)) {
+  background-color: #f87171;
+}
+
+.buttonOutline {
+  background-color: transparent;
+  color: #b45309;
+  border: 2px solid #b45309;
+  box-shadow: none;
+}
+
+.buttonOutline:hover:not(:disabled) {
+  background-color: rgba(180, 83, 9, 0.05);
+  border-color: #92400e;
+}
+
+.buttonOutline span:not(:nth-child(6)) {
+  background-color: #f59e0b;
+}
+
+/* Size Variants */
+.buttonSmall {
+  padding: 0.6em 1.2em;
+  font-size: 12px;
+}
+
+.buttonSmall span:not(:nth-child(6)) {
+  height: 20px;
+  width: 20px;
+}
+
+.buttonSmall span:nth-child(1) {
+  transform: translate(-2.5em, -3em);
+}
+
+.buttonSmall span:nth-child(2) {
+  transform: translate(-4.5em, 0.8em);
+}
+
+.buttonSmall span:nth-child(3) {
+  transform: translate(-0.2em, 1.2em);
+}
+
+.buttonSmall span:nth-child(4) {
+  transform: translate(2.5em, 0.8em);
+}
+
+.buttonSmall span:nth-child(5) {
+  transform: translate(2.5em, -3em);
+}
+
+.buttonLarge {
+  padding: 1.2em 2.5em;
+  font-size: 16px;
+}
+
+.buttonLarge span:not(:nth-child(6)) {
+  height: 40px;
+  width: 40px;
+}
+
+.buttonLarge span:nth-child(1) {
+  transform: translate(-4em, -5em);
+}
+
+.buttonLarge span:nth-child(2) {
+  transform: translate(-7em, 1.5em);
+}
+
+.buttonLarge span:nth-child(3) {
+  transform: translate(-0.3em, 2.2em);
+}
+
+.buttonLarge span:nth-child(4) {
+  transform: translate(4.2em, 1.6em);
+}
+
+.buttonLarge span:nth-child(5) {
+  transform: translate(4.2em, -4.5em);
+}
+
+/* Full Width */
+.buttonFullWidth {
+  width: 100%;
+}
+
+/* Loading State */
+.buttonLoading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinnerIcon {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  width: 1em;
+  height: 1em;
+  margin-right: 4px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -13,6 +13,7 @@ class Reward extends Model
         'stock',
         'category',
         'icon',
+        'image',
         'is_active',
     ];
 

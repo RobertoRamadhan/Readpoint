@@ -96,20 +96,22 @@ export default function RegisterPage() {
           {/* Decorative Top Border */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-t-2xl"></div>
           
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5.5">
             {/* Name Input */}
             <div className="animate-slide-up animation-delay-300">
               <label className="block text-sm font-semibold text-amber-800 mb-2">
                 Nama Lengkap
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-500">👤</span>
+              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
+                  <span className="text-2xl text-amber-500">👤</span>
+                </div>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-amber-200 rounded-xl bg-white text-stone-800 placeholder-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3.5 bg-transparent text-stone-800 placeholder-amber-300 focus:outline-none transition-all duration-200"
                   placeholder="Nama Anda"
                   disabled={loading}
                   required
@@ -122,14 +124,16 @@ export default function RegisterPage() {
               <label className="block text-sm font-semibold text-amber-800 mb-2">
                 Email
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-500">✉</span>
+              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
+                  <span className="text-2xl text-amber-500">✉</span>
+                </div>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-amber-200 rounded-xl bg-white text-stone-800 placeholder-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3.5 bg-transparent text-stone-800 placeholder-amber-300 focus:outline-none transition-all duration-200"
                   placeholder="nama@email.com"
                   disabled={loading}
                   required
@@ -142,22 +146,26 @@ export default function RegisterPage() {
               <label className="block text-sm font-semibold text-amber-800 mb-2">
                 Kelas
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-500">🎓</span>
-                <select
-                  name="grade_level"
-                  value={formData.grade_level}
-                  onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-amber-200 rounded-xl bg-white text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 appearance-none cursor-pointer"
-                  disabled={loading}
-                  required
-                >
-                  <option value="" className="text-stone-500">Pilih Kelas Anda</option>
-                  <option value="1">Kelas X</option>
-                  <option value="2">Kelas XI</option>
-                  <option value="3">Kelas XII</option>
-                </select>
-                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-amber-500 pointer-events-none">▼</span>
+              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
+                  <span className="text-2xl text-amber-500">🎓</span>
+                </div>
+                <div className="relative flex-1">
+                  <select
+                    name="grade_level"
+                    value={formData.grade_level}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 bg-transparent text-stone-800 focus:outline-none appearance-none cursor-pointer transition-all duration-200"
+                    disabled={loading}
+                    required
+                  >
+                    <option value="" className="text-stone-500">Pilih Kelas Anda</option>
+                    <option value="1">Kelas X</option>
+                    <option value="2">Kelas XI</option>
+                    <option value="3">Kelas XII</option>
+                  </select>
+                  <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-amber-500 pointer-events-none text-lg">▼</span>
+                </div>
               </div>
             </div>
 
@@ -166,14 +174,16 @@ export default function RegisterPage() {
               <label className="block text-sm font-semibold text-amber-800 mb-2">
                 Password
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-500">🔒</span>
+              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
+                  <span className="text-2xl text-amber-500">🔒</span>
+                </div>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-amber-200 rounded-xl bg-white text-stone-800 placeholder-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3.5 bg-transparent text-stone-800 placeholder-amber-300 focus:outline-none transition-all duration-200"
                   placeholder="••••••••"
                   disabled={loading}
                   required
@@ -186,14 +196,16 @@ export default function RegisterPage() {
               <label className="block text-sm font-semibold text-amber-800 mb-2">
                 Konfirmasi Password
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-500">🔐</span>
+              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
+                  <span className="text-2xl text-amber-500">🔐</span>
+                </div>
                 <input
                   type="password"
                   name="password_confirmation"
                   value={formData.password_confirmation}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-amber-200 rounded-xl bg-white text-stone-800 placeholder-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3.5 bg-transparent text-stone-800 placeholder-amber-300 focus:outline-none transition-all duration-200"
                   placeholder="••••••••"
                   disabled={loading}
                   required
@@ -205,7 +217,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 bg-gradient-to-r from-amber-600 to-amber-800 text-white font-bold py-3.5 rounded-xl hover:from-amber-700 hover:to-amber-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-amber-500/30 animate-slide-up animation-delay-800 transform hover:-translate-y-0.5"
+              className="w-full mt-8 bg-gradient-to-r from-amber-600 to-amber-800 text-white font-bold py-3.5 rounded-xl hover:from-amber-700 hover:to-amber-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-amber-500/30 animate-slide-up animation-delay-800 transform hover:-translate-y-0.5"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

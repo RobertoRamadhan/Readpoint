@@ -160,7 +160,7 @@ export default function AdminAnalyticsPage() {
           {/* Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
-              title="Total Users"
+              title="Total Pengguna"
               value={currentStats.total_users}
               icon="👥"
               change={{ value: 12, type: 'increase', period: 'vs last month' }}
@@ -168,7 +168,7 @@ export default function AdminAnalyticsPage() {
               loading={loadingData}
             />
             <StatsCard
-              title="Total Books"
+              title="Total Buku"
               value={currentStats.total_books}
               icon="📚"
               change={{ value: 8, type: 'increase', period: 'vs last month' }}
@@ -176,7 +176,7 @@ export default function AdminAnalyticsPage() {
               loading={loadingData}
             />
             <StatsCard
-              title="Total Quizzes"
+              title="Total Kuis"
               value={currentStats.total_quizzes}
               icon="📝"
               change={{ value: 15, type: 'increase', period: 'vs last month' }}
@@ -184,7 +184,7 @@ export default function AdminAnalyticsPage() {
               loading={loadingData}
             />
             <StatsCard
-              title="Total Rewards"
+              title="Total Reward"
               value={currentStats.total_rewards}
               icon="🎁"
               change={{ value: 5, type: 'increase', period: 'vs last month' }}
@@ -196,13 +196,13 @@ export default function AdminAnalyticsPage() {
           {/* Activity Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <AnalyticsChart
-              title="User Activity Trend"
+              title="Tren Aktivitas Pengguna"
               type="line"
               data={[]}
               loading={loadingData}
             />
             <AnalyticsChart
-              title="Reading Progress"
+              title="Progres Membaca"
               type="area"
               data={[]}
               loading={loadingData}
@@ -212,7 +212,7 @@ export default function AdminAnalyticsPage() {
           {/* Today's Activity */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
-              title="Active Users Today"
+              title="Pengguna Aktif Hari Ini"
               value={currentStats.active_users_today}
               icon="🟢"
               change={{ value: 23, type: 'increase', period: 'vs yesterday' }}
@@ -220,7 +220,7 @@ export default function AdminAnalyticsPage() {
               loading={loadingData}
             />
             <StatsCard
-              title="Books Read Today"
+              title="Buku Dibaca Hari Ini"
               value={currentStats.books_read_today}
               icon="📖"
               change={{ value: 8, type: 'increase', period: 'vs yesterday' }}
@@ -228,7 +228,7 @@ export default function AdminAnalyticsPage() {
               loading={loadingData}
             />
             <StatsCard
-              title="Quizzes Completed Today"
+              title="Kuis Selesai Hari Ini"
               value={currentStats.quizzes_completed_today}
               icon="✅"
               change={{ value: 12, type: 'decrease', period: 'vs yesterday' }}
@@ -236,7 +236,7 @@ export default function AdminAnalyticsPage() {
               loading={loadingData}
             />
             <StatsCard
-              title="Rewards Redeemed Today"
+              title="Reward Ditukar Hari Ini"
               value={currentStats.rewards_redeemed_today}
               icon="🎉"
               change={{ value: 3, type: 'increase', period: 'vs yesterday' }}

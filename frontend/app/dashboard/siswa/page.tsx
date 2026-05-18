@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -11,6 +11,7 @@ import TabNavigation from '@/components/siswa/TabNavigation';
 import FavoriteBooksSlider from '@/components/siswa/FavoriteBooksSlider';
 import OverviewTab from '@/components/siswa/OverviewTab';
 import SearchBar from '@/components/shared/SearchBar';
+import { Loading, PageLoading } from '@/components/shared';
 
 interface SiswaStats {
   total_points: number;
@@ -50,88 +51,118 @@ interface Quiz {
   points_reward: number;
 }
 
-interface SiswaStats {
-  total_points: number;
-  books_read: number;
-  pages_read: number;
-  quizzes_taken: number;
-}
+// Module-level cache — survives navigation, cleared on logout
+let dashboardCache: {
+  stats: SiswaStats | null;
+  ebooks: Ebook[];
+  rewards: Reward[];
+  quizzes: Quiz[];
+  cachedAt: number;
+} | null = null;
+
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 export default function SiswaDashboard() {
-  const { user, loading, isAuthenticated, logout } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [stats, setStats] = useState<SiswaStats | null>(null);
-  const [ebooks, setEbooks] = useState<Ebook[]>([]);
-  const [favoriteBooks, setFavoriteBooks] = useState<Ebook[]>([]);
-  const [rewards, setRewards] = useState<Reward[]>([]);
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [stats, setStats] = useState<SiswaStats | null>(dashboardCache?.stats ?? null);
+  const [ebooks, setEbooks] = useState<Ebook[]>(dashboardCache?.ebooks ?? []);
+  const [favoriteBooks, setFavoriteBooks] = useState<Ebook[]>(dashboardCache?.ebooks ?? []);
+  const [rewards, setRewards] = useState<Reward[]>(dashboardCache?.rewards ?? []);
+  const [quizzes, setQuizzes] = useState<Quiz[]>(dashboardCache?.quizzes ?? []);
   const [activeTab, setActiveTab] = useState<'overview' | 'ebooks' | 'rewards' | 'quizzes'>('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [loadingData, setLoadingData] = useState(true);
+  // If cache is fresh, start with loadingData = false so page renders instantly
+  const isCacheFresh = dashboardCache && (Date.now() - dashboardCache.cachedAt) < CACHE_TTL_MS;
+  const [loadingData, setLoadingData] = useState(!isCacheFresh);
   const [error, setError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (!mounted || loading || !isAuthenticated) return;
+    if (!user || user.role !== 'siswa') { router.push('/login'); return; }
 
-    if (!user || user.role !== 'siswa') {
-      router.push('/login');
+    // If cache is fresh, skip fetching — render instantly
+    if (isCacheFresh) {
+      setStats(dashboardCache!.stats);
+      setEbooks(dashboardCache!.ebooks);
+      setFavoriteBooks(dashboardCache!.ebooks);
+      setRewards(dashboardCache!.rewards);
+      setQuizzes(dashboardCache!.quizzes);
+      setLoadingData(false);
       return;
     }
 
+    // Prevent double-fetch in StrictMode
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
     loadDashboardData();
-  }, [mounted, loading, isAuthenticated, user, router]);
+  }, [mounted, loading, isAuthenticated, user]);
 
   const loadDashboardData = async () => {
     try {
       setLoadingData(true);
       setError(null);
 
-      // Load stats
-      const statsRes = await api.dashboard.siswaStats();
-      setStats((statsRes as any) as SiswaStats | null);
+      // Run all requests in parallel — much faster than sequential
+      const [statsRes, ebooksRes, rewardsRes, quizzesRes] = await Promise.allSettled([
+        api.dashboard.siswaStats(),
+        api.ebooks.list(),
+        api.rewards.list(),
+        api.getAllQuizzes(),
+      ]);
 
-      // Load ebooks
-      const ebooksRes = await api.ebooks.list();
-      if (ebooksRes?.data) {
-        const ebooksArray = Array.isArray(ebooksRes.data) 
-          ? ebooksRes.data 
-          : (ebooksRes.data as Record<string, unknown>)?.data && Array.isArray((ebooksRes.data as Record<string, unknown>).data)
-            ? (ebooksRes.data as Record<string, unknown>).data as Ebook[]
-            : [];
-        setEbooks(ebooksArray as Ebook[]);
-        // Show all ebooks in slider (most popular/read books)
-        setFavoriteBooks(ebooksArray as Ebook[]);
-      }
+      // Stats
+      const newStats = statsRes.status === 'fulfilled'
+        ? (statsRes.value as any) as SiswaStats
+        : null;
+      setStats(newStats);
 
-      // Load rewards
-      const rewardsRes = await api.rewards.list();
-      if (rewardsRes?.data) {
-        const rewardsArray = Array.isArray(rewardsRes.data) 
-          ? rewardsRes.data 
-          : (rewardsRes.data as Record<string, unknown>)?.data && Array.isArray((rewardsRes.data as Record<string, unknown>).data)
-            ? (rewardsRes.data as Record<string, unknown>).data as Reward[]
-            : [];
-        setRewards(rewardsArray as Reward[]);
-      }
-
-      // Load quizzes from API
-      const quizzesRes = await api.getQuizzes(0); // Get all quizzes
-      if (quizzesRes?.data) {
-        const quizzesArray = Array.isArray(quizzesRes.data) 
-          ? quizzesRes.data 
+      // Ebooks
+      let newEbooks: Ebook[] = [];
+      if (ebooksRes.status === 'fulfilled' && ebooksRes.value?.data) {
+        const d = ebooksRes.value.data;
+        newEbooks = Array.isArray(d) ? d as Ebook[]
+          : Array.isArray((d as any)?.data) ? (d as any).data as Ebook[]
           : [];
-        setQuizzes(quizzesArray as Quiz[]);
       }
+      setEbooks(newEbooks);
+      setFavoriteBooks(newEbooks);
+
+      // Rewards
+      let newRewards: Reward[] = [];
+      if (rewardsRes.status === 'fulfilled' && rewardsRes.value?.data) {
+        const d = rewardsRes.value.data;
+        newRewards = Array.isArray(d) ? d as Reward[]
+          : Array.isArray((d as any)?.data) ? (d as any).data as Reward[]
+          : [];
+      }
+      setRewards(newRewards);
+
+      // Quizzes
+      let newQuizzes: Quiz[] = [];
+      if (quizzesRes.status === 'fulfilled' && quizzesRes.value?.data) {
+        const d = quizzesRes.value.data;
+        newQuizzes = Array.isArray(d) ? d as Quiz[] : [];
+      }
+      setQuizzes(newQuizzes);
+
+      // Save to cache
+      dashboardCache = {
+        stats: newStats,
+        ebooks: newEbooks,
+        rewards: newRewards,
+        quizzes: newQuizzes,
+        cachedAt: Date.now(),
+      };
 
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to load dashboard data';
+      const errorMsg = err instanceof Error ? err.message : 'Gagal memuat data dashboard';
       setError(errorMsg);
-      console.error('[Dashboard] Error:', errorMsg);
     } finally {
       setLoadingData(false);
     }
@@ -140,7 +171,9 @@ export default function SiswaDashboard() {
   const handleRedeemReward = async (rewardId: number) => {
     try {
       await api.rewards.redeem(rewardId);
-      // Refresh data after redemption
+      // Invalidate cache and reload
+      dashboardCache = null;
+      fetchedRef.current = false;
       await loadDashboardData();
     } catch (error) {
       console.error('Failed to redeem reward:', error);
@@ -151,15 +184,9 @@ export default function SiswaDashboard() {
     router.push(`/dashboard/siswa/quiz/${quizId}`);
   };
 
+  // Only show full-screen spinner on very first load (no cache at all)
   if (!mounted || loading) {
-    return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 via-orange-50 to-amber-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin"></div>
-          <p className="text-amber-700 font-medium">Memuat dashboard...</p>
-        </div>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (!isAuthenticated || !user || user.role !== 'siswa') {
@@ -167,28 +194,39 @@ export default function SiswaDashboard() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-amber-50 via-amber-100 to-amber-50 relative overflow-hidden">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+    <div className="w-full min-h-screen bg-gradient-to-b from-amber-50 via-amber-50 to-orange-50 relative overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-30">
+        <div className="absolute top-10 right-20 w-80 h-80 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        <div className="absolute bottom-10 left-20 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl"></div>
+      </div>
+
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-10 relative z-10">
         <div className="w-full">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl text-red-700 text-sm shadow-sm">
+            <div className="mb-8 p-5 bg-red-50 border-l-4 border-red-500 rounded-xl text-red-700 text-sm shadow-sm animate-slide-up">
               <p className="font-semibold flex items-center gap-2">
                 <span>⚠️</span> Terjadi Kesalahan
               </p>
-              <p className="mt-1">{error}</p>
+              <p className="mt-2">{error}</p>
             </div>
           )}
 
-          {/* Search Bar - Always visible */}
-          <div className="mb-6">
+          {/* Search Bar Section */}
+          <div className="mb-10">
             <SearchBar
               onSearch={setSearchQuery}
+              onBookClick={(book) => {
+                if (book.pdf_file) {
+                  window.open(book.pdf_file, '_blank');
+                }
+              }}
+              ebooks={ebooks}
               placeholder="Cari buku berdasarkan judul, penulis, atau kategori..."
             />
           </div>
 
-          {/* Tab Navigation */}
-          <div className="mb-8">
+          {/* Tab Navigation Section */}
+          <div className="mb-10">
             <TabNavigation
               activeTab={activeTab}
               onTabChange={setActiveTab}
@@ -198,33 +236,32 @@ export default function SiswaDashboard() {
             />
           </div>
 
-          {/* Frequently Read Books Slider - Always show below navigation */}
+          {/* Featured Books Slider */}
           {favoriteBooks.length > 0 && (
-            <div className="mb-8 bg-gradient-to-b from-amber-100 via-amber-50 to-amber-100">
-              <FavoriteBooksSlider
-                books={favoriteBooks}
-                onBookClick={(bookId) => {
-                  // Open PDF directly
-                  const book = favoriteBooks.find(b => b.id === bookId);
-                  if (book?.pdf_file) {
-                    window.open(book.pdf_file, '_blank');
-                  }
-                }}
-              />
+            <div className="mb-12">
+              <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8 shadow-lg border-2 border-amber-200">
+                <h2 className="text-2xl font-bold text-amber-900 mb-6 text-center">📚 Buku Populer</h2>
+                <FavoriteBooksSlider
+                  books={favoriteBooks}
+                  onBookClick={(bookId) => {
+                    const book = favoriteBooks.find(b => b.id === bookId);
+                    if (book?.pdf_file) {
+                      window.open(book.pdf_file, '_blank');
+                    }
+                  }}
+                />
+              </div>
             </div>
           )}
 
           {/* Decorative Separator */}
-          <div className="w-full h-1 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 mb-8 rounded-full shadow-md shadow-amber-500/20"></div>
+          <div className="w-full h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mb-12 rounded-full shadow-md shadow-amber-300/30"></div>
 
-          {/* Content Sections */}
-          <div className="bg-white/80 backdrop-blur-sm w-full p-6 rounded-2xl border border-amber-200 shadow-lg">
+          {/* Content Section */}
+          <div className="bg-white/85 backdrop-blur-sm w-full p-8 lg:p-10 rounded-2xl border-2 border-amber-200 shadow-xl">
             {loadingData ? (
-              <div className="text-center py-16">
-                <div className="inline-flex flex-col items-center gap-4">
-                  <div className="w-14 h-14 border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin"></div>
-                  <p className="text-amber-700 font-medium">Memuat data...</p>
-                </div>
+              <div className="text-center py-20">
+                <Loading size="lg" text="Memuat data..." />
               </div>
             ) : (
               <>

@@ -5,8 +5,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import { RippleButton } from '@/components/shared';
 
-export default function LoginPage() {
+/**
+ * CONTOH LOGIN PAGE MENGGUNAKAN RIPPLE BUTTON
+ * 
+ * Untuk menggunakan: copy kode ini ke file login/page.tsx
+ */
+
+export default function LoginPageWithRippleButton() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -115,21 +122,16 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
+            {/* Submit Button with RippleButton */}
+            <RippleButton
               type="submit"
-              disabled={loading}
-              className="w-full mt-8 bg-gradient-to-r from-amber-600 to-amber-800 text-white font-bold py-3.5 rounded-xl hover:from-amber-700 hover:to-amber-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-amber-500/30 animate-slide-up animation-delay-500 transform hover:-translate-y-0.5"
+              fullWidth
+              loading={loading}
+              size="large"
+              className="mt-8 animate-slide-up animation-delay-500"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Sedang memproses...
-                </span>
-              ) : (
-                'Masuk Sekarang'
-              )}
-            </button>
+              {loading ? 'Sedang memproses...' : 'Masuk Sekarang'}
+            </RippleButton>
           </form>
 
           {/* Divider */}
@@ -142,8 +144,26 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Social/Alternative Buttons */}
+          <div className="space-y-3 animate-slide-up animation-delay-600">
+            <RippleButton 
+              variant="secondary" 
+              fullWidth 
+              icon="👥"
+            >
+              Masuk sebagai Guru
+            </RippleButton>
+            <RippleButton 
+              variant="outline" 
+              fullWidth 
+              icon="🔑"
+            >
+              Masuk sebagai Admin
+            </RippleButton>
+          </div>
+
           {/* Register Link */}
-          <p className="text-center text-stone-600 text-sm animate-slide-up animation-delay-600">
+          <p className="text-center text-stone-600 text-sm mt-8 animate-slide-up animation-delay-700">
             Belum punya akun?{' '}
             <Link href="/register" className="text-amber-700 font-bold hover:text-amber-900 transition-colors duration-200 underline decoration-2 underline-offset-2 hover:decoration-amber-500">
               Daftar di sini

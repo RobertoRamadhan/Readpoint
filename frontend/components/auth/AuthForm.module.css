@@ -1,0 +1,232 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #ffffff;
+  padding: 32px;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  border: 1px solid #fef3c7;
+  box-shadow: 0 10px 40px rgba(245, 180, 0, 0.08);
+  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 243, 199, 0.3) 100%);
+}
+
+.form button {
+  align-self: stretch;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flexColumn > label {
+  color: #92400e;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.inputForm {
+  border: 1.5px solid #fbbf24;
+  border-radius: 12px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  transition: all 0.3s ease-in-out;
+  background-color: #fffbeb;
+}
+
+.inputForm:hover {
+  border-color: #f59e0b;
+  background-color: #fef3c7;
+}
+
+.inputForm:focus-within {
+  border: 1.5px solid #f59e0b;
+  background-color: #fef3c7;
+  box-shadow: 0 0 12px rgba(245, 159, 11, 0.2);
+}
+
+.inputForm.error {
+  border-color: #ef4444;
+  background-color: #fee2e2;
+}
+
+.inputForm.error:focus-within {
+  border-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+
+.iconInput {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #b45309;
+  flex-shrink: 0;
+}
+
+.input {
+  margin-left: 4px;
+  border-radius: 10px;
+  border: none;
+  width: 85%;
+  height: 100%;
+  background: transparent;
+  font-size: 15px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.input::placeholder {
+  color: #d97706;
+  font-weight: 400;
+}
+
+.input:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b45309' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.flexRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.flexRow > div > label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.flexRow > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.span {
+  font-size: 13px;
+  margin-left: 0px;
+  color: #f59e0b;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.span:hover {
+  color: #d97706;
+}
+
+.buttonSubmit {
+  margin: 20px 0 10px 0;
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+  border: none;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  height: 50px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 15px rgba(180, 83, 9, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.buttonSubmit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(180, 83, 9, 0.4);
+}
+
+.buttonSubmit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(180, 83, 9, 0.3);
+}
+
+.buttonSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.p {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.btn {
+  margin-top: 12px;
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  gap: 10px;
+  border: 1.5px solid #fde68a;
+  background-color: white;
+  color: #b45309;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-size: 14px;
+}
+
+.btn:hover {
+  border: 1.5px solid #f59e0b;
+  background-color: #fffbeb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 159, 11, 0.2);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.successMessage {
+  color: #10b981;
+  font-size: 13px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

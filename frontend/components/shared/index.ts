@@ -1,4 +1,6 @@
 export { default as Button } from './Button';
+export { default as RippleButton } from './RippleButton';
+export { default as ProfileCard } from './ProfileCard';
 export { default as Card, CardHeader, CardContent, CardFooter } from './Card';
 export { default as Loading, SkeletonCard, PageLoading } from './Loading';
 export { default as Modal } from './Modal';

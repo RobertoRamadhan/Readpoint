@@ -387,13 +387,13 @@ p {
   line-height: 1.7;
 }
 
-a {
+a:not([class*="text-"]) {
   color: var(--primary-700);
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
-a:hover {
+a:not([class*="text-"]):hover {
   color: var(--primary-900);
 }
 

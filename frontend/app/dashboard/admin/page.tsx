@@ -87,9 +87,11 @@ export default function AdminDashboard() {
             api.dashboard.adminStats(),
             api.dashboard.adminTopStudents(),
           ]);
+          // adminStats returns flat JSON, not wrapped in {data: ...}
           setStats((statsRes?.data as any) || statsRes || {});
-          setTopStudents((Array.isArray(topStudentsRes) ? topStudentsRes : 
-                        topStudentsRes?.data ? topStudentsRes.data : []) as TopStudent[]);
+          // adminTopStudents returns array directly at top level
+          const topStudentsData = (topStudentsRes as any)?.data || topStudentsRes;
+          setTopStudents((Array.isArray(topStudentsData) ? topStudentsData : []) as TopStudent[]);
         } catch (err) {
           console.error('Error fetching stats:', err);
           setError('Gagal memuat data');
@@ -136,11 +138,11 @@ export default function AdminDashboard() {
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-b from-amber-50 via-amber-50 to-orange-50">
+          <div className="flex-1 overflow-y-auto px-6 lg:px-10 py-8">
             {error && (
-              <div className="m-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-                <p className="font-bold">Error: {error}</p>
+              <div className="mb-8 p-5 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
+                <p className="font-bold">Kesalahan: {error}</p>
               </div>
             )}
 
@@ -265,7 +267,7 @@ function ProfileSettings() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Pengaturan Profil</h1>
 
       {error && (
@@ -410,11 +412,11 @@ function ProfileSettings() {
 function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; topStudents: TopStudent[]; dataLoading: boolean }) {
   if (dataLoading) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-20">
         <div className="inline-block">
-          <div className="border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin"></div>
+          <div className="w-14 h-14 border-4 border-amber-400 border-t-amber-700 rounded-full animate-spin"></div>
         </div>
-        <p className="text-gray-600 font-semibold mt-4">Memuat data...</p>
+        <p className="text-amber-700 font-bold mt-4 text-lg">Memuat data...</p>
       </div>
     );
   }
@@ -438,18 +440,24 @@ function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; t
   return (
     <div className="p-8 space-y-8 w-full">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-900 text-white rounded-none shadow-xl shadow-amber-500/30 p-10 animate-slide-up relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+      <div className="bg-gradient-to-br from-amber-800 via-amber-750 to-amber-950 text-white rounded-3xl shadow-2xl shadow-amber-600/40 p-10 animate-slide-up relative overflow-hidden border-2 border-amber-700">
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-300 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
         </div>
-        <div className="relative z-10">
-          <h2 className="text-4xl font-bold text-white mb-4">Admin Dashboard</h2>
-          <p className="text-lg text-white">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
+        
+        <div className="relative z-10 text-center">
+          <h2 className="text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-lg">Dashboard Admin</h2>
+          <p className="text-xl text-amber-50 font-semibold">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
+          <div className="flex justify-center mt-6">
+            <div className="h-1.5 w-20 bg-gradient-to-r from-amber-300 to-amber-500 rounded-full shadow-lg shadow-amber-400/50"></div>
+          </div>
         </div>
       </div>
 
       {/* Activity Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
         <ActivityItem label="Siswa Aktif" value={stats.siswa_aktif_hari_ini || 0} delay="0.1s" />
         <ActivityItem label="Buku Dibaca" value={stats.buku_dibaca_hari_ini || 0} delay="0.15s" />
         <ActivityItem label="Quiz Dikerjakan" value={stats.kuis_dikerjakan_hari_ini || 0} delay="0.2s" />
@@ -459,23 +467,35 @@ function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; t
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart */}
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-amber-200 animate-scale-up" style={{ animationDelay: '0.2s' }}>
-          <h3 className="text-2xl font-bold text-amber-900 mb-8">📊 Statistik Sistem</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-amber-900 mb-2">Statistik Sistem</h3>
+            <p className="text-amber-700 text-sm font-semibold">Total pengguna dan konten aktif</p>
+            <div className="flex justify-center mt-3">
+              <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={350}>
             <BarChart data={barChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#b45309" radius={[12, 12, 0, 0]} />
+              <XAxis dataKey="name" stroke="#b45309" />
+              <YAxis stroke="#b45309" />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: '2px solid #b45309' }} />
+              <Bar dataKey="value" fill="#b45309" radius={[16, 16, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-amber-200 animate-scale-up" style={{ animationDelay: '0.3s' }}>
-          <h3 className="text-2xl font-bold text-amber-900 mb-8">🎁 Status Reward Hari Ini</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-amber-900 mb-2">Status Reward Hari Ini</h3>
+            <p className="text-amber-700 text-sm font-semibold">Distribusi reward yang diklaim</p>
+            <div className="flex justify-center mt-3">
+              <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={pieChartData}
@@ -525,32 +545,21 @@ function ActivityItem({ label, value, delay = '0s' }: { label: string; value: nu
     return '📊';
   };
 
-  const getGradient = (label: string) => {
-    return 'from-amber-100 to-amber-200';
-  };
-
-  const getTextColor = (label: string) => {
-    return 'text-amber-900';
-  };
-
   return (
     <div
-      className={`bg-gradient-to-br ${getGradient(label)} rounded-2xl p-6 text-center ${getTextColor(label)} hover:shadow-2xl transition-all transform hover:scale-105 animate-scale-up relative overflow-hidden group`}
+      className="bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 rounded-2xl p-8 text-center text-amber-900 hover:shadow-2xl hover:from-amber-50 hover:to-amber-100 transition-all transform hover:scale-105 animate-scale-up relative overflow-hidden group border-2 border-amber-200"
       style={{ animationDelay: delay }}
     >
       {/* Icon */}
-      <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
+      <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
         {getIcon(label)}
       </div>
       
       {/* Label */}
-      <p className="text-xs font-bold mb-2 uppercase tracking-wider opacity-90">{label}</p>
+      <p className="text-xs font-bold mb-3 uppercase tracking-widest opacity-80">{label}</p>
       
       {/* Value */}
-      <p className="text-5xl font-black drop-shadow-lg">{value}</p>
-      
-      {/* Decorative element */}
-      <div className="h-1 w-16 bg-white/30 mx-auto rounded-full mt-4"></div>
+      <p className="text-5xl font-black drop-shadow-lg text-amber-900">{value}</p>
     </div>
   );
 }
@@ -761,6 +770,12 @@ function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editing
         uploadFormData.append('cover_image', formData.cover_image);
       }
 
+      // Log FormData for debugging
+      console.log('FormData entries:');
+      for (let [key, value] of uploadFormData.entries()) {
+        console.log(`${key}:`, value instanceof File ? `${value.name} (${value.size} bytes)` : value);
+      }
+
       if (editingEbook) {
         await api.ebooks.update?.(editingEbook.id, uploadFormData);
       } else {
@@ -768,6 +783,7 @@ function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editing
       }
       onSuccess();
     } catch (err) {
+      console.error('Error uploading ebook:', err);
       setError(err instanceof Error ? err.message : 'Gagal menyimpan');
     } finally {
       setSubmitting(false);
@@ -829,7 +845,7 @@ function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editing
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">🖼️ Cover Image</label>
+          <label className="block text-sm font-bold text-gray-700 mb-2">🖼️ Gambar Sampul</label>
           <input
             type="file"
             accept="image/*"
@@ -1162,6 +1178,7 @@ function UserManagementTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [error, setError] = useState('');
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -1189,6 +1206,11 @@ function UserManagementTab() {
     }
   };
 
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setShowForm(true);
+  };
+
   const filteredData = data.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -1200,7 +1222,7 @@ function UserManagementTab() {
     <div className="p-8 space-y-6">
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="p-8 space-y-4">
-          {showForm && <UserForm onSuccess={() => { setShowForm(false); fetchUsers(); }} />}
+          {showForm && <UserForm onSuccess={() => { setShowForm(false); setEditingUser(null); fetchUsers(); }} editingUser={editingUser} />}
 
           <div className="flex items-center justify-between gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
@@ -1260,12 +1282,20 @@ function UserManagementTab() {
                       </td>
                       <td className="px-4 py-3 text-gray-600">{user.class_name || '-'}</td>
                       <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-bold hover:bg-red-200 transition-all"
-                        >
-                          Hapus
-                        </button>
+                        <div className="flex gap-2 justify-center">
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="px-3 py-1 bg-amber-100 text-amber-600 rounded-lg text-sm font-bold hover:bg-amber-200 transition-all"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user.id)}
+                            className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-bold hover:bg-red-200 transition-all"
+                          >
+                            Hapus
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1279,7 +1309,7 @@ function UserManagementTab() {
   );
 }
 
-function UserForm({ onSuccess }: { onSuccess: () => void }) {
+function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUser: User | null }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -1291,23 +1321,54 @@ function UserForm({ onSuccess }: { onSuccess: () => void }) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (editingUser) {
+      setFormData({
+        name: editingUser.name,
+        email: editingUser.email,
+        password: '',
+        password_confirmation: '',
+        role: editingUser.role,
+        class_name: editingUser.class_name || '',
+      });
+    }
+  }, [editingUser]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.email || !formData.password) {
-      setError('Semua field harus diisi');
+    if (!formData.name || !formData.email) {
+      setError('Nama dan email harus diisi');
       return;
     }
 
-    if (formData.password !== formData.password_confirmation) {
+    if (!editingUser && (!formData.password || !formData.password_confirmation)) {
+      setError('Password harus diisi untuk user baru');
+      return;
+    }
+
+    if (formData.password && formData.password !== formData.password_confirmation) {
       setError('Password tidak cocok');
       return;
     }
 
     try {
       setSubmitting(true);
-      await api.users?.create?.(formData as any);
+      if (editingUser) {
+        await api.users?.update?.(editingUser.id, {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+          class_name: formData.class_name,
+          ...(formData.password && {
+            password: formData.password,
+            password_confirmation: formData.password_confirmation,
+          }),
+        });
+      } else {
+        await api.users?.create?.(formData as any);
+      }
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal menyimpan');
@@ -1317,7 +1378,10 @@ function UserForm({ onSuccess }: { onSuccess: () => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-purple-50 border border-purple-200 rounded-lg p-6 space-y-4">
+    <form onSubmit={handleSubmit} className="bg-amber-50 border border-amber-200 rounded-lg p-6 space-y-4">
+      <h3 className="text-xl font-bold text-gray-900">
+        {editingUser ? 'Edit User' : 'Tambah User Baru'}
+      </h3>
       {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold">{error}</div>}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

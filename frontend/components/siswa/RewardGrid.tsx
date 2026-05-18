@@ -41,7 +41,7 @@ export default function RewardGrid({ rewards, userPoints, loading, onRedeem }: R
 
   if (rewards.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-xl p-12 text-center border-2 border-purple-200">
+      <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl shadow-xl p-12 text-center border-2 border-gray-300">
         <p className="text-gray-800 font-black text-lg">🎁 Belum ada rewards tersedia</p>
       </div>
     );
@@ -70,7 +70,7 @@ function RewardCard({ reward, userPoints, onRedeem }: {
 
   return (
     <Card hover className="overflow-hidden group">
-      <div className="h-40 bg-gradient-to-br from-purple-300 via-pink-400 to-rose-500 flex items-center justify-center text-6xl relative overflow-hidden group-hover:scale-110 transition-transform duration-300">
+      <div className="h-40 bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 flex items-center justify-center text-6xl relative overflow-hidden group-hover:scale-110 transition-transform duration-300">
         🎁
       </div>
       
@@ -83,7 +83,7 @@ function RewardCard({ reward, userPoints, onRedeem }: {
             <span className="text-gray-800 font-black">💰 Cost</span>
             <span className="font-black text-purple-700">{reward.points_required} pts</span>
           </div>
-          <div className="flex items-center justify-between bg-pink-50 px-4 py-3 rounded-lg border border-pink-200">
+          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg border border-gray-200">
             <span className="text-gray-800 font-black">📦 Stock</span>
             <span className="font-black text-gray-900">{reward.stock} left</span>
           </div>

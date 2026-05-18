@@ -36,32 +36,33 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Reading Activities (Siswa: track reading)
     Route::post('reading-activities/start', [ReadingActivityController::class, 'startReading']);
-    Route::put('reading-activities/{id}/progress', [ReadingActivityController::class, 'updateProgress']);
-    Route::put('reading-activities/{id}/complete', [ReadingActivityController::class, 'completeReading']);
+    Route::get('reading-activities/frequently-read', [ReadingActivityController::class, 'getFrequentlyReadBooks']); // MUST be before {id}
     Route::get('reading-activities', [ReadingActivityController::class, 'getMyActivities']);
     Route::get('reading-activities/{id}', [ReadingActivityController::class, 'getActivity']);
-    Route::get('reading-activities/frequently-read', [ReadingActivityController::class, 'getFrequentlyReadBooks']);
+    Route::put('reading-activities/{id}/progress', [ReadingActivityController::class, 'updateProgress']);
+    Route::put('reading-activities/{id}/complete', [ReadingActivityController::class, 'completeReading']);
     
     // Quizzes (Siswa: take, Guru: create)
     Route::get('ebooks/{id}/quiz', [QuizController::class, 'getQuizForBook']);
     Route::post('quiz/submit', [QuizController::class, 'submitQuiz']);
     Route::get('quiz/my-attempts', [QuizController::class, 'getMyAttempts']);
+    Route::get('quizzes', [QuizController::class, 'getAllQuizzes']); // Get all quizzes for siswa
     
     Route::middleware('guru')->group(function () {
         Route::post('quiz/create', [QuizController::class, 'createQuiz']);
+        Route::get('quiz/my-quizzes', [QuizController::class, 'getMyQuizzes']); // MUST be before quiz/{id}
         Route::put('quiz/{id}', [QuizController::class, 'updateQuiz']);
         Route::delete('quiz/{id}', [QuizController::class, 'deleteQuiz']);
-        Route::get('quiz/my-quizzes', [QuizController::class, 'getMyQuizzes']);
     });
     
     // Validasi Pembacaan (Guru: validate, Admin: view)
     Route::middleware('guru')->group(function () {
         Route::get('validations/pending', [ValidationController::class, 'getPending']);
+        Route::get('validations/history', [ValidationController::class, 'getHistory']);   // MUST be before {id}
+        Route::get('validations/stats', [ValidationController::class, 'getStatistics']);  // MUST be before {id}
         Route::get('validations/{id}', [ValidationController::class, 'getDetail']);
         Route::put('validations/{id}/approve', [ValidationController::class, 'approve']);
         Route::put('validations/{id}/reject', [ValidationController::class, 'reject']);
-        Route::get('validations/history', [ValidationController::class, 'getHistory']);
-        Route::get('validations/stats', [ValidationController::class, 'getStatistics']);
     });
     
     // Rewards (Siswa: view & redeem, Admin: manage)
@@ -119,6 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('users/{id}', [UserController::class, 'show']);
         Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword']);
         Route::post('users/create', [UserController::class, 'createUser']);
+        Route::delete('users/{id}', [UserController::class, 'destroy']);
         Route::get('dashboard/admin/users-stats', [UserController::class, 'getStatistics']);
     });
 });

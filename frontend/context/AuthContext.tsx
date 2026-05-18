@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 
 interface User {
@@ -26,72 +26,91 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // Track if we already validated this session so we don't re-validate on every navigation
+  const validatedRef = useRef(false);
 
-  // Initialize user from localStorage and validate token
   useEffect(() => {
     const initializeAuth = async () => {
-      if (typeof window !== 'undefined') {
-        const savedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-
-        if (savedUser && token) {
-          try {
-            const parsedUser = JSON.parse(savedUser);
-            setUser(parsedUser);
-            
-            // Verify token is still valid by making a role-appropriate request
-            try {
-              if (parsedUser.role === 'siswa') {
-                await api.dashboard.siswaStats();
-              } else if (parsedUser.role === 'guru') {
-                await api.dashboard.guruStats();
-              } else if (parsedUser.role === 'admin') {
-                await api.dashboard.adminStats();
-              }
-              console.log('[AuthContext] Token validated for', parsedUser.role);
-            } catch (error) {
-              console.warn('[AuthContext] Token validation failed, clearing auth:', error);
-              logout();
-            }
-          } catch (error) {
-            console.error('[AuthContext] Failed to parse user:', error);
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
-          }
-        }
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
       }
+
+      const savedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+
+      if (!savedUser || !token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        // Set user immediately from localStorage — no API call needed
+        // This makes navigation instant
+        setUser(parsedUser);
+
+        // Only validate token once per browser session (not on every navigation)
+        if (!validatedRef.current) {
+          validatedRef.current = true;
+          // Validate in background — don't block rendering
+          validateTokenInBackground(parsedUser, token);
+        }
+      } catch {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+
+      // Set loading false immediately after reading localStorage
       setLoading(false);
     };
 
     initializeAuth();
   }, []);
 
-  const login = (newUser: User, token: string) => {
-    console.log('[AuthContext] Logging in user:', newUser);
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    localStorage.setItem('token', token);
+  const validateTokenInBackground = async (parsedUser: User, token: string) => {
+    try {
+      // Use a lightweight profile endpoint instead of heavy stats endpoint
+      const response = await api.me.getProfile();
+      if (response?.data) {
+        const updatedUser = response.data as User;
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error: any) {
+      // Only logout if it's a 401 (token expired/invalid)
+      // Don't logout on network errors or 500s
+      if (error?.status === 401 || (error instanceof Error && error.message.includes('401'))) {
+        console.warn('[AuthContext] Token expired, logging out');
+        logoutInternal();
+      }
+    }
   };
 
-  const logout = () => {
-    console.log('[AuthContext] Logging out');
+  const logoutInternal = () => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    
-    // Call API logout for server-side session cleanup (fire and forget)
-    api.logout().catch(error => {
-      // Silently ignore logout API errors - user is already logged out locally
-      console.debug('[AuthContext] API logout failed (expected if token was invalid):', error);
-    });
+    validatedRef.current = false;
+  };
+
+  const login = (newUser: User, token: string) => {
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
+    localStorage.setItem('token', token);
+    validatedRef.current = true; // Just logged in — token is fresh
+  };
+
+  const logout = () => {
+    logoutInternal();
+    // Fire-and-forget server logout
+    api.logout().catch(() => {});
   };
 
   const refreshUser = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
-
     try {
-      // Fetch current user data from API using non-admin endpoint
       const response = await api.me.getProfile();
       if (response?.data) {
         const updatedUser = response.data as User;

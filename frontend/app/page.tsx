@@ -11,27 +11,27 @@ export default function Home() {
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <span className="text-3xl font-bold bg-gradient-to-r from-amber-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="text-3xl font-bold text-white">
                 READPOINT
               </span>
             </div>
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#fitur" className="text-base font-medium text-amber-100 hover:text-white transition-colors duration-300">
+              <a href="#fitur" className="text-base font-medium text-white hover:text-amber-100 transition-colors duration-300">
                 Fitur
               </a>
-              <a href="#alur" className="text-base font-medium text-amber-100 hover:text-white transition-colors duration-300">
+              <a href="#alur" className="text-base font-medium text-white hover:text-amber-100 transition-colors duration-300">
                 Cara Kerja
               </a>
             </div>
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-3">
-              <Link href="/login" className="text-base font-semibold text-amber-100 hover:text-white transition-colors duration-300 px-4 py-2">
+              <Link href="/login" className="text-base font-semibold text-white hover:text-amber-100 transition-colors duration-300 px-4 py-2">
                 Masuk
               </Link>
-              <Link href="/register" className="text-base font-semibold text-amber-100 hover:text-white transition-colors duration-300 px-4 py-2">
+              <Link href="/register" className="text-base font-semibold text-white hover:text-amber-100 transition-colors duration-300 px-4 py-2">
                 Daftar
               </Link>
             </div>
@@ -168,43 +168,59 @@ export default function Home() {
         </div>
       </section>
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border-t border-amber-700">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8 py-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16 text-center">
+      <footer className="bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border-t-2 border-amber-700">
+        <div className="w-full px-6 lg:px-8 py-24">
+          {/* Footer Content */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16 mb-16 text-center md:text-left">
             <div>
-              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Produk</h4>
-              <ul className="space-y-4 text-sm text-amber-200">
-                <li><a href="#" className="hover:text-white transition-colors">Dashboard Admin</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Dashboard Guru</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">App Siswa</a></li>
+              <h4 className="text-sm font-black text-white mb-8 uppercase tracking-widest">Produk</h4>
+              <ul className="space-y-4 text-sm text-white">
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Dashboard Admin</a></li>
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Dashboard Guru</a></li>
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">App Siswa</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Panduan</h4>
-              <ul className="space-y-4 text-sm text-amber-200">
-                <li><a href="#" className="hover:text-white transition-colors">Untuk Admin</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Untuk Guru</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Untuk Siswa</a></li>
+              <h4 className="text-sm font-black text-white mb-8 uppercase tracking-widest">Panduan</h4>
+              <ul className="space-y-4 text-sm text-white">
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Untuk Admin</a></li>
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Untuk Guru</a></li>
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Untuk Siswa</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Perusahaan</h4>
-              <ul className="space-y-4 text-sm text-amber-200">
-                <li><a href="#" className="hover:text-white transition-colors">Tentang</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Kontak</a></li>
+              <h4 className="text-sm font-black text-white mb-8 uppercase tracking-widest">Perusahaan</h4>
+              <ul className="space-y-4 text-sm text-white">
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Tentang</a></li>
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Kontak</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-100 mb-8 uppercase tracking-wide">Legal</h4>
-              <ul className="space-y-4 text-sm text-amber-200">
-                <li><a href="#" className="hover:text-white transition-colors">Privasi</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Syarat</a></li>
+              <h4 className="text-sm font-black text-white mb-8 uppercase tracking-widest">Legal</h4>
+              <ul className="space-y-4 text-sm text-white">
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Privasi</a></li>
+                <li><a href="#" className="hover:text-amber-100 transition-colors duration-300 font-semibold">Syarat</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-amber-800 pt-12 flex flex-col sm:flex-row justify-center items-center text-sm text-amber-300 gap-6">
-            <p>© 2026 READPOINT</p>
-            <p>Batam, Indonesia</p>
+
+          {/* Divider */}
+          <div className="border-t-2 border-amber-700/50 pt-12">
+            {/* Footer Bottom */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+              <div className="flex flex-col sm:flex-row items-center text-sm text-white gap-6 font-semibold">
+                <p>© 2026 READPOINT - Platform Literasi Digital</p>
+                <p className="hidden sm:block text-white">•</p>
+                <p>Batam, Indonesia</p>
+              </div>
+              
+              {/* Footer Logo */}
+              <div className="text-center md:text-right">
+                <span className="text-2xl font-black text-white">
+                  READPOINT
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

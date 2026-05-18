@@ -5,30 +5,31 @@ import { Card, CardHeader, CardContent } from '@/components/shared';
 
 export default function OverviewTab() {
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-gray-200 shadow-lg">
-        <CardHeader>
-          <h3 className="text-2xl md:text-3xl font-black text-gray-900">🚀 Panduan Penggunaan</h3>
+    <div className="space-y-8">
+      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <CardHeader className="text-center pb-8">
+          <h3 className="text-3xl md:text-4xl font-black text-amber-900">🚀 Panduan Penggunaan</h3>
+          <p className="text-amber-700 font-semibold mt-2 text-base">Mulai petualangan literasi Anda sekarang</p>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <GuideCard
               icon="📚"
               title="Baca Buku"
               description="Pilih buku favorit dan mulai baca. Dapatkan poin untuk setiap halaman yang dibaca."
-              color="border-blue-200"
+              color="border-amber-200"
             />
             <GuideCard
               icon="❓"
               title="Selesaikan Quiz"
               description="Jawab pertanyaan tentang buku yang telah dibaca untuk mendapatkan bonus poin tambahan."
-              color="border-yellow-200"
+              color="border-orange-200"
             />
             <GuideCard
               icon="🎁"
               title="Tukar Rewards"
               description="Kumpulkan poin Anda dan tukarkan dengan rewards eksklusif yang tersedia."
-              color="border-pink-200"
+              color="border-amber-300"
             />
           </div>
         </CardContent>
@@ -51,22 +52,23 @@ function GuideCard({
   color: string;
 }) {
   return (
-    <Card className={`bg-white p-6 rounded-xl border-2 ${color}`}>
-      <div className="text-4xl mb-3">{icon}</div>
-      <h4 className="font-black text-gray-900 mb-2">{title}</h4>
-      <p className="text-sm text-gray-700 font-semibold">{description}</p>
+    <Card className={`bg-white p-8 rounded-2xl border-2 ${color} shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-center`}>
+      <div className="text-5xl mb-4 flex justify-center">{icon}</div>
+      <h4 className="font-black text-amber-900 mb-3 text-lg">{title}</h4>
+      <p className="text-sm text-amber-800 font-semibold leading-relaxed">{description}</p>
     </Card>
   );
 }
 
 function QuickStats() {
   return (
-    <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200">
-      <CardHeader>
-        <h3 className="text-xl font-black text-gray-900">📈 Tips Cepat Naik Level</h3>
+    <Card className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-orange-200 shadow-lg">
+      <CardHeader className="text-center pb-8">
+        <h3 className="text-2xl md:text-3xl font-black text-amber-900">📈 Tips Cepat Naik Level</h3>
+        <p className="text-amber-700 font-semibold mt-2">Ikuti tips ini untuk memaksimalkan poin Anda</p>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TipCard
             tip="Baca buku setiap hari minimal 30 menit"
             points="+50 Poin/Hari"
@@ -103,11 +105,11 @@ function TipCard({
   icon: string;
 }) {
   return (
-    <div className="bg-white p-4 rounded-lg border-2 border-gray-200 flex items-center gap-3">
-      <div className="text-2xl">{icon}</div>
+    <div className="bg-white p-5 rounded-xl border-2 border-amber-200 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+      <div className="text-3xl flex-shrink-0">{icon}</div>
       <div className="flex-1">
-        <p className="text-sm font-bold text-gray-900">{tip}</p>
-        <p className="text-xs font-black text-green-600">{points}</p>
+        <p className="text-sm font-bold text-amber-900 leading-tight">{tip}</p>
+        <p className="text-xs font-black text-amber-600 mt-1">{points}</p>
       </div>
     </div>
   );

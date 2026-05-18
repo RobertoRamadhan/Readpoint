@@ -242,4 +242,32 @@ class QuizController extends Controller
             'data' => $quizzes,
         ]);
     }
+
+    // Get all quizzes (for siswa - grouped by ebook)
+    public function getAllQuizzes(Request $request)
+    {
+        $quizzes = QuizQuestion::with('ebook:id,title,author')
+            ->orderBy('ebook_id')
+            ->get()
+            ->groupBy('ebook_id')
+            ->map(function ($questions, $ebookId) {
+                $ebook = $questions->first()->ebook;
+                if (!$ebook) return null;
+                return [
+                    'id' => $ebookId,
+                    'ebook_id' => $ebookId,
+                    'ebook_title' => $ebook->title,
+                    'title' => "Quiz: {$ebook->title}",
+                    'total_questions' => $questions->count(),
+                    'difficulty' => 'medium',
+                    'points_reward' => $questions->count() * 10,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'data' => $quizzes,
+        ]);
+    }
 }

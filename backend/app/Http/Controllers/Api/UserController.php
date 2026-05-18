@@ -171,19 +171,15 @@ class UserController extends Controller
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
         ]);
 
-        // Handle password change for self-update
+        // Handle password change
         if (isset($validated['password'])) {
-            if (!$isSelfUpdate) {
-                return response()->json([
-                    'message' => 'Cannot change password for other users',
-                ], 403);
-            }
-
-            // Verify current password
-            if (!Hash::check($validated['current_password'], $user->password)) {
-                return response()->json([
-                    'message' => 'Current password is incorrect',
-                ], 422);
+            // For self-update, verify current password
+            if ($isSelfUpdate) {
+                if (!isset($validated['current_password']) || !Hash::check($validated['current_password'], $user->password)) {
+                    return response()->json([
+                        'message' => 'Current password is incorrect',
+                    ], 422);
+                }
             }
 
             $user->password = Hash::make($validated['password']);
@@ -285,6 +281,32 @@ class UserController extends Controller
                 'total_admin' => $totalAdmin,
                 'total_users' => $totalSiswa + $totalGuru + $totalAdmin,
             ],
+        ]);
+    }
+
+    /**
+     * Delete user (Admin only)
+     */
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        // Prevent deleting self
+        if (auth()->id() === $user->id) {
+            return response()->json([
+                'message' => 'Cannot delete your own account',
+            ], 403);
+        }
+
+        // Delete avatar if exists
+        if ($user->profile_photo_url && file_exists(storage_path('app/public/' . $user->profile_photo_url))) {
+            unlink(storage_path('app/public/' . $user->profile_photo_url));
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'User deleted successfully',
         ]);
     }
 }
