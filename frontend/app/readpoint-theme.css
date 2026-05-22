@@ -212,7 +212,7 @@ select:focus {
   border-top-color: var(--rp-green) !important;
 }
 
-/* Recharts colors used in guru dashboard */
+/* Recharts colors used in guru/admin dashboards */
 .recharts-cartesian-grid line {
   stroke: rgba(230, 216, 184, 0.9) !important;
 }
@@ -234,4 +234,130 @@ select:focus {
 .admin-shell,
 .guru-shell {
   background: var(--rp-cream) !important;
+}
+
+/* Admin dashboard polish: cards, tables, forms, modals */
+.flex-1.overflow-y-auto {
+  background:
+    radial-gradient(circle at 85% 10%, rgba(244, 180, 0, 0.18), transparent 28%),
+    radial-gradient(circle at 15% 25%, rgba(46, 125, 50, 0.12), transparent 28%),
+    var(--rp-cream) !important;
+}
+
+.flex-1.overflow-y-auto > div,
+.flex-1.overflow-y-auto > section {
+  position: relative;
+}
+
+.bg-white.rounded-xl,
+.bg-white.rounded-2xl,
+.bg-white.rounded-3xl {
+  border-color: var(--rp-border) !important;
+  box-shadow: 0 18px 38px rgba(30, 58, 95, 0.08) !important;
+}
+
+.bg-white.rounded-xl:hover,
+.bg-white.rounded-2xl:hover,
+.bg-white.rounded-3xl:hover {
+  box-shadow: 0 24px 48px rgba(30, 58, 95, 0.13) !important;
+}
+
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+thead tr {
+  background: var(--rp-cream-soft) !important;
+}
+
+th {
+  color: var(--rp-navy) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em !important;
+}
+
+td {
+  color: var(--rp-text) !important;
+}
+
+tbody tr {
+  transition: background-color 180ms ease, transform 180ms ease !important;
+}
+
+tbody tr:hover {
+  background: rgba(255, 247, 230, 0.85) !important;
+}
+
+.fixed.inset-0.bg-black\/50 > .bg-white,
+.fixed.inset-0.bg-black\/50 .bg-white.rounded-2xl {
+  border: 1px solid var(--rp-border) !important;
+  box-shadow: 0 30px 70px rgba(30, 58, 95, 0.25) !important;
+}
+
+button.bg-amber-600,
+button.bg-amber-700,
+button.bg-amber-800,
+button.bg-amber-900,
+button[class*="from-amber"],
+a[class*="from-amber"] {
+  background: linear-gradient(135deg, var(--rp-green), var(--rp-navy)) !important;
+  color: white !important;
+  box-shadow: 0 12px 24px rgba(46, 125, 50, 0.18) !important;
+}
+
+button.bg-amber-600:hover,
+button.bg-amber-700:hover,
+button.bg-amber-800:hover,
+button.bg-amber-900:hover,
+button[class*="from-amber"]:hover,
+a[class*="from-amber"]:hover {
+  background: linear-gradient(135deg, var(--rp-green-dark), var(--rp-navy-dark)) !important;
+}
+
+button.bg-slate-300,
+button.bg-gray-300 {
+  background: var(--rp-cream-soft) !important;
+  color: var(--rp-navy) !important;
+  border: 1px solid var(--rp-border) !important;
+}
+
+.text-gray-900,
+.text-slate-900 {
+  color: var(--rp-navy) !important;
+}
+
+.text-gray-600,
+.text-slate-600,
+.text-gray-700,
+.text-slate-700 {
+  color: var(--rp-muted) !important;
+}
+
+.border-gray-200,
+.border-slate-200,
+.border-gray-300,
+.border-slate-300 {
+  border-color: var(--rp-border) !important;
+}
+
+.bg-gray-50,
+.bg-slate-50,
+.bg-gray-100,
+.bg-slate-100 {
+  background-color: var(--rp-cream-soft) !important;
+}
+
+/* Admin overview chart colors */
+.recharts-bar-rectangle path,
+.recharts-sector {
+  filter: drop-shadow(0 8px 12px rgba(30, 58, 95, 0.12));
+}
+
+/* Make admin/guru content spacing feel cleaner on desktop */
+@media (min-width: 1024px) {
+  .flex-1.overflow-y-auto {
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+  }
 }
