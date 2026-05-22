@@ -1,24 +1,16 @@
 /* READPOINT Professional Theme
-   Clean palette: navy, white, slate, light gray, green accent.
-   This file avoids aggressive overrides so layouts stay responsive. */
+   Global palette: slate, white, emerald. */
 
 :root {
   --rp-bg: #F8FAFC;
   --rp-surface: #FFFFFF;
   --rp-soft: #F1F5F9;
-  --rp-navy: #1E3A5F;
-  --rp-navy-dark: #172A45;
-  --rp-green: #2E7D32;
-  --rp-green-dark: #256A2A;
+  --rp-navy: #0F172A;
+  --rp-green: #047857;
+  --rp-green-dark: #065F46;
   --rp-text: #1F2937;
   --rp-muted: #64748B;
   --rp-border: #E2E8F0;
-
-  --background: var(--rp-bg);
-  --foreground: var(--rp-text);
-  --primary: var(--rp-green);
-  --primary-dark: var(--rp-green-dark);
-  --border: var(--rp-border);
 }
 
 html,
@@ -31,13 +23,9 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(circle at top right, rgba(46, 125, 50, 0.06), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(30, 58, 95, 0.06), transparent 30%),
-    var(--rp-bg) !important;
+  background: var(--rp-bg) !important;
 }
 
-/* Important responsive fix */
 main,
 section,
 nav,
@@ -60,7 +48,6 @@ footer {
   margin-right: auto !important;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -79,44 +66,61 @@ footer {
   background: var(--rp-navy) !important;
 }
 
-/* Old amber/orange classes converted to a calmer professional palette */
+/* Remove old cream / amber / orange theme */
 .bg-amber-50,
-.bg-orange-50,
 .bg-amber-100,
+.bg-orange-50,
 .bg-orange-100,
-.bg-yellow-50 {
+.bg-yellow-50,
+[class*="bg-[#FAF3E0]"],
+[class*="bg-[#FFF7E6]"],
+[class*="bg-[#FFFDF7]"] {
   background-color: var(--rp-bg) !important;
 }
 
 .bg-amber-200,
 .bg-orange-200,
-.bg-yellow-200 {
+.bg-yellow-100,
+.bg-yellow-200,
+[class*="bg-[#E6D8B8]"] {
   background-color: var(--rp-soft) !important;
 }
 
 .bg-amber-300,
 .bg-amber-400,
 .bg-amber-500,
+.bg-amber-600,
+.bg-amber-700,
 .bg-orange-300,
 .bg-orange-400,
 .bg-orange-500,
-.bg-amber-600,
-.bg-amber-700 {
+.bg-yellow-300,
+.bg-yellow-400,
+.bg-yellow-500,
+[class*="bg-[#F4B400]"],
+[class*="bg-[#D9A441]"],
+[class*="bg-[#2E7D32]"] {
   background-color: var(--rp-green) !important;
 }
 
 .bg-amber-800,
 .bg-amber-900,
-.bg-amber-950 {
+.bg-amber-950,
+[class*="bg-[#1E3A5F]"],
+[class*="bg-[#172F4D]"] {
   background-color: var(--rp-navy) !important;
 }
 
 .text-amber-300,
 .text-amber-400,
 .text-amber-500,
-.text-orange-500,
 .text-amber-600,
-.text-amber-700 {
+.text-amber-700,
+.text-orange-500,
+.text-yellow-500,
+[class*="text-[#F4B400]"],
+[class*="text-[#D9A441]"],
+[class*="text-[#2E7D32]"] {
   color: var(--rp-green) !important;
 }
 
@@ -124,7 +128,9 @@ footer {
 .text-amber-900,
 .text-stone-800,
 .text-gray-900,
-.text-slate-900 {
+.text-slate-900,
+[class*="text-[#1E3A5F]"],
+[class*="text-[#2D2D2D]"] {
   color: var(--rp-navy) !important;
 }
 
@@ -132,7 +138,9 @@ footer {
 .text-slate-600,
 .text-gray-700,
 .text-slate-700,
-.text-stone-600 {
+.text-stone-600,
+[class*="text-[#5A5146]"],
+[class*="text-[#9B8A72]"] {
   color: var(--rp-muted) !important;
 }
 
@@ -142,7 +150,8 @@ footer {
 .border-gray-200,
 .border-slate-200,
 .border-gray-300,
-.border-slate-300 {
+.border-slate-300,
+[class*="border-[#E6D8B8]"] {
   border-color: var(--rp-border) !important;
 }
 
@@ -150,19 +159,23 @@ footer {
 .border-amber-400,
 .border-amber-500,
 .border-orange-500,
-.border-amber-600,
-.border-amber-700,
-.border-amber-800 {
-  border-color: rgba(46, 125, 50, 0.35) !important;
+.border-yellow-400,
+[class*="border-[#F4B400]"],
+[class*="border-[#2E7D32]"] {
+  border-color: rgba(4, 120, 87, 0.35) !important;
 }
 
-/* Calm gradients */
+/* Gradients from old theme */
 .from-amber-50,
 .from-orange-50,
 .from-amber-100,
-.from-orange-100 {
+.from-orange-100,
+.to-amber-50,
+.to-orange-50,
+.to-amber-100,
+.to-orange-100 {
   --tw-gradient-from: var(--rp-bg) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: rgb(248 250 252 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-to: var(--rp-bg) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
@@ -172,13 +185,6 @@ footer {
 .via-orange-100 {
   --tw-gradient-to: rgb(241 245 249 / 0) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--rp-soft) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
-}
-
-.to-amber-50,
-.to-orange-50,
-.to-amber-100,
-.to-orange-100 {
-  --tw-gradient-to: var(--rp-bg) var(--tw-gradient-to-position) !important;
 }
 
 .from-amber-500,
@@ -197,28 +203,23 @@ footer {
 .from-amber-900,
 .to-amber-950 {
   --tw-gradient-from: var(--rp-navy) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: var(--rp-navy-dark) var(--tw-gradient-to-position) !important;
+  --tw-gradient-to: #111827 var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
-/* Cards */
+/* Cards and surfaces */
 .card,
 .card-gradient,
 .bg-white.rounded-xl,
 .bg-white.rounded-2xl,
-.bg-white.rounded-3xl {
+.bg-white.rounded-3xl,
+[class*="bg-white/75"],
+[class*="bg-white/80"],
+[class*="bg-white/85"],
+[class*="bg-white/90"] {
   background: var(--rp-surface) !important;
   border-color: var(--rp-border) !important;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
-}
-
-.card:hover,
-.card-gradient:hover,
-.bg-white.rounded-xl:hover,
-.bg-white.rounded-2xl:hover,
-.bg-white.rounded-3xl:hover {
-  border-color: rgba(46, 125, 50, 0.25) !important;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08) !important;
 }
 
 .card::before {
@@ -231,10 +232,11 @@ footer {
 button.bg-amber-600,
 button.bg-amber-700,
 button.bg-amber-800,
-button.bg-amber-900 {
+button.bg-amber-900,
+button[class*="bg-[#2E7D32]"] {
   background: var(--rp-green) !important;
   color: white !important;
-  box-shadow: 0 8px 18px rgba(46, 125, 50, 0.16) !important;
+  box-shadow: 0 8px 18px rgba(4, 120, 87, 0.16) !important;
 }
 
 .btn-primary:hover,
@@ -242,18 +244,13 @@ button.bg-amber-900 {
 button.bg-amber-600:hover,
 button.bg-amber-700:hover,
 button.bg-amber-800:hover,
-button.bg-amber-900:hover {
+button.bg-amber-900:hover,
+button[class*="bg-[#2E7D32]"]:hover {
   background: var(--rp-green-dark) !important;
 }
 
-button.bg-slate-300,
-button.bg-gray-300 {
-  background: var(--rp-soft) !important;
-  color: var(--rp-navy) !important;
-  border: 1px solid var(--rp-border) !important;
-}
-
 /* Forms */
+.input-professional,
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -261,16 +258,29 @@ input[type="number"],
 input[type="date"],
 textarea,
 select {
+  height: 3.5rem;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--rp-border) !important;
   background-color: #FFFFFF !important;
-  border-color: var(--rp-border) !important;
+  padding-left: 1rem;
+  padding-right: 1rem;
   color: var(--rp-text) !important;
+  outline: none !important;
 }
 
+textarea {
+  min-height: 8rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.input-professional:focus,
 input:focus,
 textarea:focus,
 select:focus {
   border-color: var(--rp-green) !important;
-  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.10) !important;
+  box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.10) !important;
 }
 
 /* Tables */
