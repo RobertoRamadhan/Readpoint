@@ -50,35 +50,34 @@ export default function FavoriteBooksSlider({ books, onBookClick }: FavoriteBook
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-xl font-black text-amber-900 mb-4">📚 Buku Populer</h2>
+    <div className="w-full">
       <div className="relative">
         {/* Navigation Buttons */}
         <button
           onClick={handlePrevious}
           disabled={currentIndex === 0}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 bg-white rounded-full shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all sm:h-10 sm:w-10"
         >
           ◀
         </button>
         <button
           onClick={handleNext}
           disabled={currentIndex >= maxIndex}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 bg-white rounded-full shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all sm:h-10 sm:w-10"
         >
           ▶
         </button>
 
         {/* Slider Container */}
-        <div className="overflow-hidden mx-12">
+        <div className="overflow-hidden mx-10 sm:mx-12">
           <div 
-            className="flex transition-transform duration-500 ease-in-out gap-4"
+            className="flex transition-transform duration-500 ease-in-out gap-3 sm:gap-4"
             style={{ transform: `translateX(-${currentIndex * itemWidth}px)` }}
           >
             {books.map((book) => (
               <div
                 key={book.id}
-                className="w-64 max-w-sm bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all cursor-pointer transform hover:scale-105 flex flex-col flex-shrink-0"
+                className="w-56 sm:w-64 bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer transform hover:scale-105 flex flex-col flex-shrink-0"
                 onClick={() => onBookClick?.(book.id)}
               >
                 <div className="aspect-[2/3] bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 relative overflow-hidden flex-shrink-0">
@@ -89,12 +88,12 @@ export default function FavoriteBooksSlider({ books, onBookClick }: FavoriteBook
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl opacity-50">📕</div>
+                    <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl opacity-50">📕</div>
                   )}
                 </div>
-                <div className="p-3 flex flex-col flex-shrink-0">
-                  <h3 className="font-black text-gray-900 text-sm line-clamp-1 mb-1">{book.title}</h3>
-                  <p className="text-xs text-gray-600">{book.author}</p>
+                <div className="p-3 flex flex-col flex-shrink-0 sm:p-4">
+                  <h3 className="font-black text-slate-900 text-xs line-clamp-2 mb-1 sm:text-sm">{book.title}</h3>
+                  <p className="text-[10px] text-slate-600 line-clamp-1 sm:text-xs">{book.author}</p>
                 </div>
               </div>
             ))}
@@ -102,13 +101,13 @@ export default function FavoriteBooksSlider({ books, onBookClick }: FavoriteBook
         </div>
 
         {/* Dots Indicator */}
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex justify-center gap-1.5 mt-4 sm:gap-2 sm:mt-6">
           {Array.from({ length: Math.ceil(books.length / itemsPerPage) }).map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index * itemsPerPage)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                Math.floor(currentIndex / itemsPerPage) === index ? 'bg-blue-600 w-4' : 'bg-gray-300'
+              className={`h-1.5 rounded-full transition-all sm:h-2 ${
+                Math.floor(currentIndex / itemsPerPage) === index ? 'bg-slate-900 w-3 sm:w-4' : 'bg-slate-300 w-1.5 sm:w-2'
               }`}
             />
           ))}

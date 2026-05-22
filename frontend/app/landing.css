@@ -1,0 +1,49 @@
+/* Landing Page Specific Styles - Override all conflicting styles */
+
+/* Reset any conflicting body/html styles for landing page */
+body:has(.landing-page) {
+  background: #f8fafc !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+html:has(.landing-page) {
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure landing page takes full width */
+.landing-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* Container centering */
+.landing-page .container {
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Section full width */
+.landing-page section {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Nav full width */
+.landing-page nav {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Footer full width */
+.landing-page footer {
+  width: 100% !important;
+  max-width: 100% !important;
+}

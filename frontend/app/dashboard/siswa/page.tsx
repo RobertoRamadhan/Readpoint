@@ -186,8 +186,8 @@ export default function SiswaDashboard() {
   const weeklyTargetProgress = Math.min(((stats?.books_read ?? 0) / 5) * 100, 100);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900">
-      <div className="mx-auto w-full max-w-7xl space-y-10 px-5 py-10 sm:px-8 lg:py-12">
+    <div className="min-h-screen w-full bg-slate-50 text-slate-900">
+      <div className="mx-auto w-full max-w-[1400px] space-y-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
         {error && (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700 shadow-sm">
             {error}
@@ -196,38 +196,20 @@ export default function SiswaDashboard() {
 
         <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/70">
           <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="p-7 sm:p-10 lg:p-12">
+            <div className="p-6 sm:p-8 lg:p-10">
               <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p>
-              <h1 className="mt-5 text-3xl font-black leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h1 className="mt-5 text-2xl font-black leading-tight text-slate-900 sm:text-3xl lg:text-4xl">
                 Halo, {user.name}! Siap lanjut membaca hari ini?
               </h1>
-              <p className="mt-5 max-w-2xl leading-8 text-slate-600">
-                Pantau aktivitas membaca, kuis, poin, dan reward dalam satu dashboard yang rapi.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <button
-                  onClick={() => setActiveTab('ebooks')}
-                  className="rounded-2xl bg-slate-900 px-6 py-3.5 text-sm font-black text-white transition hover:bg-slate-800"
-                >
-                  Lihat E-Book
-                </button>
-                <button
-                  onClick={() => setActiveTab('quizzes')}
-                  className="rounded-2xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-black text-slate-900 transition hover:bg-slate-100"
-                >
-                  Kerjakan Kuis
-                </button>
-              </div>
             </div>
 
-            <div className="bg-slate-900 p-7 text-white sm:p-10 lg:p-12">
+            <div className="bg-slate-900 p-6 text-white sm:p-8 lg:p-10">
               <p className="text-sm font-black uppercase tracking-widest text-emerald-300">Poin Kamu</p>
-              <p className="mt-5 text-5xl font-black text-white">{stats?.total_points ?? 0}</p>
-              <p className="mt-3 leading-7 text-slate-300">Poin dapat digunakan untuk menukar reward yang tersedia.</p>
+              <p className="mt-5 text-4xl font-black text-white sm:text-5xl">{stats?.total_points ?? 0}</p>
+              <p className="mt-3 text-sm leading-7 text-slate-300 sm:text-base">Poin dapat digunakan untuk menukar reward yang tersedia.</p>
 
-              <div className="mt-10 rounded-3xl border border-white/10 bg-white/10 p-6">
-                <div className="flex items-center justify-between gap-4 text-sm font-bold text-slate-200">
+              <div className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-5 lg:mt-10 lg:p-6">
+                <div className="flex items-center justify-between gap-4 text-xs font-bold text-slate-200 sm:text-sm">
                   <span>Target membaca mingguan</span>
                   <span>{Math.min(stats?.books_read ?? 0, 5)}/5 buku</span>
                 </div>
@@ -239,17 +221,17 @@ export default function SiswaDashboard() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
           {statCards.map((item) => (
-            <div key={item.label} className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-              <p className="text-sm font-black uppercase tracking-widest text-slate-500">{item.label}</p>
-              <p className="mt-4 text-4xl font-black text-slate-900">{item.value}</p>
-              <p className="mt-3 text-sm font-semibold leading-6 text-slate-500">{item.helper}</p>
+            <div key={item.label} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:p-6 lg:p-7">
+              <p className="text-xs font-black uppercase tracking-widest text-slate-500 sm:text-sm">{item.label}</p>
+              <p className="mt-3 text-3xl font-black text-slate-900 sm:mt-4 sm:text-4xl">{item.value}</p>
+              <p className="mt-2 text-xs font-semibold leading-6 text-slate-500 sm:mt-3 sm:text-sm">{item.helper}</p>
             </div>
           ))}
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
@@ -272,33 +254,7 @@ export default function SiswaDashboard() {
           />
         </section>
 
-        {favoriteBooks.length > 0 && activeTab === 'overview' && (
-          <section className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
-            <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-              <div>
-                <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Rekomendasi</p>
-                <h2 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">Buku Populer untuk Dibaca</h2>
-              </div>
-              <button
-                onClick={() => setActiveTab('ebooks')}
-                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-100"
-              >
-                Lihat semua buku
-              </button>
-            </div>
-            <FavoriteBooksSlider
-              books={favoriteBooks}
-              onBookClick={(bookId) => {
-                const book = favoriteBooks.find(b => b.id === bookId);
-                if (book?.pdf_file) {
-                  window.open(book.pdf_file, '_blank');
-                }
-              }}
-            />
-          </section>
-        )}
-
-        <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <section className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
           {loadingData ? (
             <div className="py-20 text-center">
               <Loading size="lg" text="Memuat data..." />

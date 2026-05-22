@@ -4,17 +4,17 @@ import React from 'react';
 
 export default function OverviewTab() {
   return (
-    <div className="space-y-10">
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="space-y-6 sm:space-y-8 lg:space-y-10">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6 lg:p-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Panduan Siswa</p>
-          <h3 className="mt-5 text-3xl font-black leading-tight text-slate-900 md:text-4xl">Mulai aktivitas literasi kamu</h3>
-          <p className="mt-5 leading-8 text-slate-600">
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Panduan Siswa</p>
+          <h3 className="mt-3 text-xl font-black leading-tight text-slate-900 sm:mt-4 sm:text-2xl lg:text-3xl">Mulai aktivitas literasi kamu</h3>
+          <p className="mt-3 text-sm leading-7 text-slate-600 sm:mt-4 sm:text-base">
             Baca buku, pahami isi bacaan lewat kuis, lalu kumpulkan poin untuk menukar reward.
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-6 md:grid-cols-3 lg:mt-10">
           <GuideCard
             title="Baca Buku"
             description="Pilih e-book favorit, lanjutkan progres membaca, dan nikmati pengalaman membaca yang nyaman."
@@ -37,9 +37,9 @@ export default function OverviewTab() {
 
 function GuideCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7 text-center shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-lg">
-      <h4 className="text-xl font-black text-slate-900">{title}</h4>
-      <p className="mt-4 text-sm font-medium leading-7 text-slate-600">{description}</p>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-md sm:p-5 lg:p-6">
+      <h4 className="text-base font-black text-slate-900 sm:text-lg lg:text-xl">{title}</h4>
+      <p className="mt-2 text-xs font-medium leading-6 text-slate-600 sm:mt-3 sm:text-sm sm:leading-7">{description}</p>
     </div>
   );
 }
@@ -53,14 +53,14 @@ function QuickTips() {
   ];
 
   return (
-    <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6 lg:p-8">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Tips Cepat</p>
-        <h3 className="mt-5 text-2xl font-black leading-tight text-slate-900 md:text-3xl">Cara membuat poin kamu cepat bertambah</h3>
-        <p className="mt-4 leading-7 text-slate-600">Ikuti kebiasaan kecil ini agar aktivitas membaca lebih terarah.</p>
+        <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Tips Cepat</p>
+        <h3 className="mt-3 text-xl font-black leading-tight text-slate-900 sm:mt-4 sm:text-2xl lg:text-3xl">Cara membuat poin kamu cepat bertambah</h3>
+        <p className="mt-3 text-sm leading-6 text-slate-600 sm:mt-4 sm:text-base sm:leading-7">Ikuti kebiasaan kecil ini agar aktivitas membaca lebih terarah.</p>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-6 md:grid-cols-2 lg:mt-10">
         {tips.map((item) => (
           <TipCard key={item.tip} {...item} />
         ))}
@@ -71,9 +71,9 @@ function QuickTips() {
 
 function TipCard({ tip, points }: { tip: string; points: string }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-md">
-      <p className="text-base font-black leading-7 text-slate-900">{tip}</p>
-      <p className="mt-3 text-xs font-black uppercase tracking-widest text-emerald-700">{points}</p>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-md sm:p-5 lg:p-6">
+      <p className="text-sm font-black leading-6 text-slate-900 sm:text-base sm:leading-7">{tip}</p>
+      <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 sm:mt-3 sm:text-xs">{points}</p>
     </div>
   );
 }

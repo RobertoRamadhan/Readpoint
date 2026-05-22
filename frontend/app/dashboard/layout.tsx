@@ -48,29 +48,29 @@ export default function DashboardLayout({
   const roleLabel = mounted && user?.role ? roleLabels[user.role] || 'User' : 'User';
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-slate-50 text-slate-900">
+    <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center justify-between px-4 sm:h-16 sm:px-6 lg:px-8">
           <button
             type="button"
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-3 text-left"
+            className="flex items-center gap-2 text-left sm:gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-sm font-black text-white">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-black text-white sm:h-9 sm:w-9 sm:rounded-xl sm:text-sm">
               RP
             </div>
-            <div>
-              <h1 className="text-lg font-black leading-none text-slate-900">READPOINT</h1>
-              <p className="mt-1 text-xs font-bold uppercase tracking-widest text-emerald-700">
+            <div className="min-w-0">
+              <h1 className="text-sm font-black leading-none text-slate-900 sm:text-base lg:text-lg">READPOINT</h1>
+              <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 sm:mt-1 sm:text-xs">
                 Dashboard {roleLabel}
               </p>
             </div>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0 sm:gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-black leading-5 text-slate-900">{mounted ? user?.name : 'Memuat...'}</p>
-              <p className="text-xs font-semibold text-slate-500">{roleLabel}</p>
+              <p className="text-xs font-black leading-5 text-slate-900 sm:text-sm">{mounted ? user?.name : 'Memuat...'}</p>
+              <p className="text-[10px] font-semibold text-slate-500 sm:text-xs">{roleLabel}</p>
             </div>
 
             {user?.role === 'siswa' ? (
@@ -80,7 +80,7 @@ export default function DashboardLayout({
                     e.stopPropagation();
                     setDropdownOpen(!dropdownOpen);
                   }}
-                  className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-100 text-sm font-black text-slate-900 transition hover:bg-slate-200"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 text-xs font-black text-slate-900 transition hover:bg-slate-200 sm:h-9 sm:w-9 sm:rounded-xl sm:text-sm"
                   aria-label="Menu profil"
                 >
                   {user?.profile_photo_url ? (
@@ -97,20 +97,20 @@ export default function DashboardLayout({
                 {dropdownOpen && (
                   <div
                     onClick={(e) => e.stopPropagation()}
-                    className="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl shadow-slate-200/70"
+                    className="absolute right-0 mt-2 w-48 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 shadow-xl shadow-slate-200/70 sm:mt-3 sm:w-56 sm:rounded-2xl sm:py-2"
                   >
                     <button
                       onClick={() => {
                         router.push('/dashboard/siswa/profile');
                         setDropdownOpen(false);
                       }}
-                      className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      className="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-3 sm:text-sm"
                     >
                       Pengaturan Profil
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="w-full px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                      className="w-full px-3 py-2 text-left text-xs font-semibold text-red-600 transition hover:bg-red-50 sm:px-4 sm:py-3 sm:text-sm"
                     >
                       Keluar
                     </button>
@@ -120,7 +120,7 @@ export default function DashboardLayout({
             ) : (
               <button
                 onClick={handleLogout}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-100"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-black text-slate-700 transition hover:bg-slate-100 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
                 title="Keluar"
               >
                 Keluar
@@ -130,13 +130,15 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full bg-slate-50">
-        {children}
+      <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden bg-slate-50">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          {children}
+        </div>
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-200 bg-white">
-        <div className="mx-auto w-full max-w-7xl px-5 py-6 text-center sm:px-8">
-          <p className="text-sm font-semibold text-slate-500">© 2026 READPOINT - Platform Literasi Digital Indonesia</p>
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-4 text-center sm:px-6 sm:py-5 lg:px-8 lg:py-6">
+          <p className="text-xs font-semibold text-slate-500 sm:text-sm">© 2026 READPOINT - Platform Literasi Digital Indonesia</p>
         </div>
       </footer>
     </div>

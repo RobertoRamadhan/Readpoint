@@ -72,8 +72,6 @@ export default function SearchBar({
 
 
 
-    // Filter books based on query
-
     if (value.trim().length > 0) {
 
       const filtered = ebooks.filter(book =>
@@ -162,19 +160,15 @@ export default function SearchBar({
 
     <div className={`w-full ${className}`}>
 
-      <div className="flex items-center gap-3">
-
-        {/* Icon on the left */}
+      <div className="flex items-center gap-2 sm:gap-3">
 
         <div className="flex-shrink-0">
 
-          <span className="text-3xl text-amber-500">🔍</span>
+          <span className="text-2xl sm:text-3xl text-slate-600">🔍</span>
 
         </div>
 
 
-
-        {/* Input field on the right with dropdown */}
 
         <div className="relative flex-1">
 
@@ -188,7 +182,7 @@ export default function SearchBar({
 
             placeholder={placeholder}
 
-            className="w-full px-4 py-3 pr-12 bg-white border-2 border-amber-200 rounded-xl shadow-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all text-gray-800 font-medium placeholder-gray-400"
+            className="w-full px-3 py-2 pr-10 bg-white border-2 border-slate-200 rounded-lg shadow-sm focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200 transition-all text-slate-800 font-medium placeholder-slate-400 text-sm sm:px-4 sm:py-3 sm:rounded-xl"
 
           />
 
@@ -198,13 +192,13 @@ export default function SearchBar({
 
               onClick={handleClear}
 
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors sm:right-4"
 
               title="Hapus pencarian"
 
             >
 
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 
@@ -216,19 +210,17 @@ export default function SearchBar({
 
 
 
-          {/* Dropdown */}
-
           {showDropdown && filteredBooks.length > 0 && (
 
             <div
 
               ref={dropdownRef}
 
-              className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-amber-200 rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto"
+              className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-slate-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto sm:rounded-xl"
 
             >
 
-              <div className="py-2">
+              <div className="py-1.5 sm:py-2">
 
                 {filteredBooks.map((book) => (
 
@@ -238,7 +230,7 @@ export default function SearchBar({
 
                     onClick={() => handleBookClick(book)}
 
-                    className="w-full px-4 py-3 flex items-center gap-3 hover:bg-amber-50 transition-colors text-left"
+                    className="w-full px-3 py-2 flex items-center gap-2 hover:bg-slate-50 transition-colors text-left sm:px-4 sm:py-3 sm:gap-3"
 
                   >
 
@@ -250,15 +242,15 @@ export default function SearchBar({
 
                         alt={book.title}
 
-                        className="w-10 h-14 object-cover rounded-lg flex-shrink-0"
+                        className="w-8 h-12 object-cover rounded-lg flex-shrink-0 sm:w-10 sm:h-14"
 
                       />
 
                     ) : (
 
-                      <div className="w-10 h-14 bg-amber-100 rounded-lg flex-shrink-0 flex items-center justify-center">
+                      <div className="w-8 h-12 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center sm:w-10 sm:h-14">
 
-                        <span className="text-amber-600 text-lg">📕</span>
+                        <span className="text-slate-600 text-sm sm:text-lg">📕</span>
 
                       </div>
 
@@ -266,9 +258,9 @@ export default function SearchBar({
 
                     <div className="flex-1 min-w-0">
 
-                      <p className="font-semibold text-gray-900 truncate">{book.title}</p>
+                      <p className="font-semibold text-slate-900 truncate text-xs sm:text-sm">{book.title}</p>
 
-                      <p className="text-sm text-gray-600 truncate">{book.author}</p>
+                      <p className="text-xs text-slate-600 truncate sm:text-sm">{book.author}</p>
 
                     </div>
 
@@ -278,9 +270,9 @@ export default function SearchBar({
 
               </div>
 
-              <div className="border-t border-amber-200 px-4 py-2 bg-amber-50">
+              <div className="border-t border-slate-200 px-3 py-1.5 bg-slate-50 sm:px-4 sm:py-2">
 
-                <p className="text-xs text-amber-700 font-medium">
+                <p className="text-xs text-slate-700 font-medium">
 
                   {filteredBooks.length} buku ditemukan
 

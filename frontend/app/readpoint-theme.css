@@ -21,39 +21,24 @@
   --border: var(--rp-border);
 }
 
-html,
-body {
-  width: 100%;
-  min-height: 100%;
-  overflow-x: hidden;
-  background: var(--rp-bg) !important;
-  color: var(--rp-text) !important;
-}
-
-body {
+/* Only apply theme to dashboard pages, not landing page */
+body:has(.dashboard-layout) {
   background:
     radial-gradient(circle at top right, rgba(46, 125, 50, 0.06), transparent 30%),
     radial-gradient(circle at bottom left, rgba(30, 58, 95, 0.06), transparent 30%),
     var(--rp-bg) !important;
 }
 
-/* Important responsive fix */
-main,
-section,
-nav,
-footer {
-  max-width: 100%;
-}
-
-.flex-1,
-.flex-1.flex,
-.flex-1.overflow-y-auto {
+/* Dashboard specific layout fixes */
+.dashboard-layout .flex-1,
+.dashboard-layout .flex-1.flex,
+.dashboard-layout .flex-1.overflow-y-auto {
   min-width: 0 !important;
   width: 100% !important;
 }
 
-.flex-1.overflow-y-auto > div,
-.flex-1.overflow-y-auto > section {
+.dashboard-layout .flex-1.overflow-y-auto > div,
+.dashboard-layout .flex-1.overflow-y-auto > section {
   width: 100% !important;
   max-width: 1440px !important;
   margin-left: auto !important;
