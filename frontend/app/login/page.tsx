@@ -21,7 +21,7 @@ export default function LoginPage() {
 
     try {
       const response = await api.login({ email, password });
-      
+
       if (response.user && response.token) {
         login(response.user, response.token);
         router.push('/dashboard');
@@ -37,125 +37,150 @@ export default function LoginPage() {
   };
 
   return (
-    <div 
-      className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100"
-    >
-      {/* Decorative Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-amber-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+    <main className="relative min-h-screen overflow-hidden bg-[#FAF3E0] px-4 py-8 text-[#2D2D2D] sm:px-6 lg:px-8">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-[#F4B400]/25 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-[#2E7D32]/20 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/45 blur-3xl" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-10 animate-slide-up">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl shadow-xl mb-6">
-            <span className="text-3xl font-bold text-white">R</span>
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent mb-3">Masuk</h1>
-          <p className="text-lg text-amber-700">Lanjutkan perjalanan literasi Anda</p>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl animate-slide-up shadow-sm">
-            <p className="font-semibold text-sm flex items-center gap-2">
-              <span>⚠️</span> Terjadi Kesalahan
-            </p>
-            <p className="text-sm mt-1">{error}</p>
-          </div>
-        )}
-
-        {/* Login Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 animate-slide-up animation-delay-200 border border-amber-200 hover:shadow-amber-500/20 transition-all duration-300">
-          {/* Decorative Top Border */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-t-2xl"></div>
-          
-          <form onSubmit={handleSubmit} className="space-y-7">
-            {/* Email Input */}
-            <div className="animate-slide-up animation-delay-300">
-              <label className="block text-sm font-semibold text-amber-800 mb-2">
-                Email
-              </label>
-              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
-                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
-                  <span className="text-2xl text-amber-500">✉</span>
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center justify-center">
+        <div className="grid w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 shadow-2xl shadow-[#1E3A5F]/15 backdrop-blur-xl lg:grid-cols-[0.95fr_1.05fr]">
+          <section className="hidden bg-[#1E3A5F] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+            <div>
+              <Link href="/" className="inline-flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-lg font-black text-[#1E3A5F]">
+                  RP
                 </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-transparent text-stone-800 placeholder-amber-300 focus:outline-none transition-all duration-200"
-                  placeholder="nama@email.com"
-                  disabled={loading}
-                  required
-                />
+                <div>
+                  <p className="text-2xl font-black">READPOINT</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#F4B400]">Literasi Digital</p>
+                </div>
+              </Link>
+
+              <div className="mt-16">
+                <p className="mb-4 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-black text-[#F4B400]">
+                  Baca • Kuis • Poin • Reward
+                </p>
+                <h1 className="text-5xl font-black leading-tight">
+                  Masuk dan lanjutkan perjalanan membaca kamu.
+                </h1>
+                <p className="mt-5 max-w-md leading-8 text-white/75">
+                  Akses dashboard sesuai role kamu: siswa membaca dan mengumpulkan poin, guru memantau aktivitas, admin mengelola sistem.
+                </p>
               </div>
             </div>
 
-            {/* Password Input */}
-            <div className="animate-slide-up animation-delay-400">
-              <label className="block text-sm font-semibold text-amber-800 mb-2">
-                Password
-              </label>
-              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
-                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
-                  <span className="text-2xl text-amber-500">🔒</span>
+            <div className="grid grid-cols-3 gap-3">
+              {['E-Book', 'Kuis', 'Reward'].map((item) => (
+                <div key={item} className="rounded-3xl bg-white/10 p-4 text-center backdrop-blur">
+                  <p className="text-sm font-black text-white">{item}</p>
                 </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-transparent text-stone-800 placeholder-amber-300 focus:outline-none transition-all duration-200"
-                  placeholder="••••••••"
-                  disabled={loading}
-                  required
-                />
-              </div>
+              ))}
             </div>
+          </section>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-8 bg-gradient-to-r from-amber-600 to-amber-800 text-white font-bold py-3.5 rounded-xl hover:from-amber-700 hover:to-amber-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-amber-500/30 animate-slide-up animation-delay-500 transform hover:-translate-y-0.5"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Sedang memproses...
-                </span>
-              ) : (
-                'Masuk Sekarang'
+          <section className="p-6 sm:p-8 lg:p-12">
+            <div className="mx-auto w-full max-w-md">
+              <div className="mb-8 text-center lg:text-left">
+                <Link href="/" className="mb-6 inline-flex items-center gap-3 lg:hidden">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1E3A5F] text-sm font-black text-white">
+                    RP
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xl font-black text-[#1E3A5F]">READPOINT</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2E7D32]">Literasi Digital</p>
+                  </div>
+                </Link>
+
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#E6D8B8] bg-[#FAF3E0] px-4 py-2 text-sm font-black text-[#1E3A5F]">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#2E7D32]" />
+                  Selamat datang kembali
+                </div>
+                <h2 className="text-3xl font-black text-[#1E3A5F] sm:text-4xl">Masuk ke akun</h2>
+                <p className="mt-3 leading-7 text-[#5A5146]">
+                  Gunakan email dan password yang sudah terdaftar untuk membuka dashboard READPOINT.
+                </p>
+              </div>
+
+              {error && (
+                <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+                  <p className="flex items-center gap-2 text-sm font-black">
+                    <span>⚠️</span> Terjadi Kesalahan
+                  </p>
+                  <p className="mt-1 text-sm font-medium">{error}</p>
+                </div>
               )}
-            </button>
-          </form>
 
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-amber-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-amber-600 font-medium rounded-full border border-amber-200">atau</span>
-            </div>
-          </div>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="mb-2 block text-sm font-black text-[#1E3A5F]">Email</label>
+                  <div className="flex items-center rounded-2xl border border-[#E6D8B8] bg-white transition-all focus-within:border-[#2E7D32] focus-within:ring-4 focus-within:ring-[#2E7D32]/10">
+                    <div className="flex h-14 w-14 items-center justify-center border-r border-[#E6D8B8] text-xl">✉️</div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-transparent px-4 py-4 text-[#2D2D2D] placeholder:text-[#9B8A72] focus:outline-none"
+                      placeholder="nama@email.com"
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                </div>
 
-          {/* Register Link */}
-          <p className="text-center text-stone-600 text-sm animate-slide-up animation-delay-600">
-            Belum punya akun?{' '}
-            <Link href="/register" className="text-amber-700 font-bold hover:text-amber-900 transition-colors duration-200 underline decoration-2 underline-offset-2 hover:decoration-amber-500">
-              Daftar di sini
-            </Link>
-          </p>
+                <div>
+                  <label className="mb-2 block text-sm font-black text-[#1E3A5F]">Password</label>
+                  <div className="flex items-center rounded-2xl border border-[#E6D8B8] bg-white transition-all focus-within:border-[#2E7D32] focus-within:ring-4 focus-within:ring-[#2E7D32]/10">
+                    <div className="flex h-14 w-14 items-center justify-center border-r border-[#E6D8B8] text-xl">🔒</div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-transparent px-4 py-4 text-[#2D2D2D] placeholder:text-[#9B8A72] focus:outline-none"
+                      placeholder="••••••••"
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-2xl bg-[#2E7D32] px-6 py-4 text-sm font-black text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:-translate-y-0.5 hover:bg-[#256A2A] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      Sedang memproses...
+                    </span>
+                  ) : (
+                    'Masuk Sekarang'
+                  )}
+                </button>
+              </form>
+
+              <div className="my-8 flex items-center gap-4">
+                <div className="h-px flex-1 bg-[#E6D8B8]" />
+                <span className="rounded-full bg-[#FAF3E0] px-4 py-1 text-xs font-black uppercase tracking-[0.2em] text-[#5A5146]">atau</span>
+                <div className="h-px flex-1 bg-[#E6D8B8]" />
+              </div>
+
+              <p className="text-center text-sm font-semibold text-[#5A5146]">
+                Belum punya akun?{' '}
+                <Link href="/register" className="font-black text-[#2E7D32] underline decoration-2 underline-offset-4 transition-colors hover:text-[#1E3A5F]">
+                  Daftar di sini
+                </Link>
+              </p>
+
+              <p className="mt-8 text-center text-xs font-semibold text-[#9B8A72]">
+                © 2026 READPOINT - Platform Literasi Digital
+              </p>
+            </div>
+          </section>
         </div>
-
-        {/* Footer Text */}
-        <p className="text-center text-amber-700/60 text-xs mt-8 animate-slide-up animation-delay-700">
-          © 2026 READPOINT - Platform Literasi Digital
-        </p>
       </div>
-    </div>
+    </main>
   );
 }
