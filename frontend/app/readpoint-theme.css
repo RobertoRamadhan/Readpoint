@@ -1,73 +1,105 @@
-/* READPOINT modern theme overrides
-   Cream + Green + Navy + Gold palette.
-   This file keeps older amber-based pages visually consistent without changing backend logic. */
+/* READPOINT Professional Theme
+   Clean palette: navy, white, slate, light gray, green accent.
+   This file avoids aggressive overrides so layouts stay responsive. */
 
 :root {
-  --rp-cream: #FAF3E0;
-  --rp-cream-soft: #FFF7E6;
+  --rp-bg: #F8FAFC;
+  --rp-surface: #FFFFFF;
+  --rp-soft: #F1F5F9;
   --rp-navy: #1E3A5F;
-  --rp-navy-dark: #172F4D;
+  --rp-navy-dark: #172A45;
   --rp-green: #2E7D32;
   --rp-green-dark: #256A2A;
-  --rp-gold: #F4B400;
-  --rp-text: #2D2D2D;
-  --rp-muted: #5A5146;
-  --rp-border: #E6D8B8;
+  --rp-text: #1F2937;
+  --rp-muted: #64748B;
+  --rp-border: #E2E8F0;
 
-  --background: var(--rp-cream);
+  --background: var(--rp-bg);
   --foreground: var(--rp-text);
   --primary: var(--rp-green);
   --primary-dark: var(--rp-green-dark);
-  --primary-light: var(--rp-gold);
   --border: var(--rp-border);
 }
 
+html,
 body {
-  background: radial-gradient(circle at top left, rgba(244, 180, 0, 0.16), transparent 32%),
-              radial-gradient(circle at top right, rgba(46, 125, 50, 0.14), transparent 32%),
-              var(--rp-cream) !important;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: var(--rp-bg) !important;
+  color: var(--rp-text) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(46, 125, 50, 0.06), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(30, 58, 95, 0.06), transparent 30%),
+    var(--rp-bg) !important;
+}
+
+/* Important responsive fix */
+main,
+section,
+nav,
+footer {
+  max-width: 100%;
+}
+
+.flex-1,
+.flex-1.flex,
+.flex-1.overflow-y-auto {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.flex-1.overflow-y-auto > div,
+.flex-1.overflow-y-auto > section {
+  width: 100% !important;
+  max-width: 1440px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E5E7EB !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--rp-navy) !important;
+  background: #94A3B8 !important;
+  border-radius: 999px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--rp-green) !important;
+  background: var(--rp-navy) !important;
 }
 
-::selection {
-  background: rgba(244, 180, 0, 0.35) !important;
-  color: var(--rp-navy) !important;
-}
-
-/* Compatibility for old amber/orange Tailwind classes used in dashboards */
+/* Old amber/orange classes converted to a calmer professional palette */
 .bg-amber-50,
-.bg-orange-50 {
-  background-color: var(--rp-cream) !important;
-}
-
+.bg-orange-50,
 .bg-amber-100,
-.bg-orange-100 {
-  background-color: var(--rp-cream-soft) !important;
+.bg-orange-100,
+.bg-yellow-50 {
+  background-color: var(--rp-bg) !important;
 }
 
-.bg-amber-200 {
-  background-color: var(--rp-border) !important;
+.bg-amber-200,
+.bg-orange-200,
+.bg-yellow-200 {
+  background-color: var(--rp-soft) !important;
 }
 
 .bg-amber-300,
-.bg-orange-300,
-.bg-yellow-200 {
-  background-color: rgba(244, 180, 0, 0.35) !important;
-}
-
 .bg-amber-400,
 .bg-amber-500,
-.bg-orange-500 {
-  background-color: var(--rp-gold) !important;
-}
-
+.bg-orange-300,
+.bg-orange-400,
+.bg-orange-500,
 .bg-amber-600,
 .bg-amber-700 {
   background-color: var(--rp-green) !important;
@@ -79,18 +111,10 @@ body {
   background-color: var(--rp-navy) !important;
 }
 
-.text-amber-50,
-.text-amber-100 {
-  color: var(--rp-cream-soft) !important;
-}
-
 .text-amber-300,
 .text-amber-400,
 .text-amber-500,
-.text-orange-500 {
-  color: var(--rp-gold) !important;
-}
-
+.text-orange-500,
 .text-amber-600,
 .text-amber-700 {
   color: var(--rp-green) !important;
@@ -98,68 +122,75 @@ body {
 
 .text-amber-800,
 .text-amber-900,
-.text-stone-800 {
+.text-stone-800,
+.text-gray-900,
+.text-slate-900 {
   color: var(--rp-navy) !important;
+}
+
+.text-gray-600,
+.text-slate-600,
+.text-gray-700,
+.text-slate-700,
+.text-stone-600 {
+  color: var(--rp-muted) !important;
 }
 
 .border-amber-100,
 .border-amber-200,
-.border-orange-200 {
+.border-orange-200,
+.border-gray-200,
+.border-slate-200,
+.border-gray-300,
+.border-slate-300 {
   border-color: var(--rp-border) !important;
 }
 
 .border-amber-300,
 .border-amber-400,
 .border-amber-500,
-.border-orange-500 {
-  border-color: var(--rp-gold) !important;
-}
-
+.border-orange-500,
 .border-amber-600,
 .border-amber-700,
 .border-amber-800 {
-  border-color: var(--rp-green) !important;
+  border-color: rgba(46, 125, 50, 0.35) !important;
 }
 
+/* Calm gradients */
 .from-amber-50,
-.from-orange-50 {
-  --tw-gradient-from: var(--rp-cream) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: rgb(250 243 224 / 0) var(--tw-gradient-to-position) !important;
+.from-orange-50,
+.from-amber-100,
+.from-orange-100 {
+  --tw-gradient-from: var(--rp-bg) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(248 250 252 / 0) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
 .via-amber-50,
-.via-orange-50 {
-  --tw-gradient-to: rgb(255 247 230 / 0) var(--tw-gradient-to-position) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--rp-cream-soft) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+.via-orange-50,
+.via-amber-100,
+.via-orange-100 {
+  --tw-gradient-to: rgb(241 245 249 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--rp-soft) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
 }
 
 .to-amber-50,
 .to-orange-50,
-.to-amber-100 {
-  --tw-gradient-to: var(--rp-cream-soft) var(--tw-gradient-to-position) !important;
-}
-
-.from-amber-100,
-.from-orange-100 {
-  --tw-gradient-from: var(--rp-cream-soft) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: rgb(255 247 230 / 0) var(--tw-gradient-to-position) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+.to-amber-100,
+.to-orange-100 {
+  --tw-gradient-to: var(--rp-bg) var(--tw-gradient-to-position) !important;
 }
 
 .from-amber-500,
 .from-amber-600,
-.from-orange-500 {
-  --tw-gradient-from: var(--rp-green) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: rgb(46 125 50 / 0) var(--tw-gradient-to-position) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
-}
-
+.from-orange-500,
 .to-amber-700,
 .to-amber-800,
 .to-amber-900,
 .to-orange-500 {
+  --tw-gradient-from: var(--rp-green) var(--tw-gradient-from-position) !important;
   --tw-gradient-to: var(--rp-navy) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
 .from-amber-800,
@@ -170,194 +201,143 @@ body {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
-.shadow-amber-300\/30,
-.shadow-amber-400\/20,
-.shadow-amber-500\/20,
-.shadow-amber-500\/30 {
-  --tw-shadow-color: rgba(30, 58, 95, 0.14) !important;
-}
-
+/* Cards */
 .card,
-.card-gradient {
+.card-gradient,
+.bg-white.rounded-xl,
+.bg-white.rounded-2xl,
+.bg-white.rounded-3xl {
+  background: var(--rp-surface) !important;
   border-color: var(--rp-border) !important;
-  background: rgba(255, 255, 255, 0.92) !important;
-  box-shadow: 0 16px 36px rgba(30, 58, 95, 0.08) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
 }
 
-.card:hover {
-  border-color: rgba(46, 125, 50, 0.35) !important;
-  box-shadow: 0 24px 48px rgba(30, 58, 95, 0.14) !important;
+.card:hover,
+.card-gradient:hover,
+.bg-white.rounded-xl:hover,
+.bg-white.rounded-2xl:hover,
+.bg-white.rounded-3xl:hover {
+  border-color: rgba(46, 125, 50, 0.25) !important;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08) !important;
 }
 
+.card::before {
+  display: none !important;
+}
+
+/* Buttons */
 .btn-primary,
-.btn-gradient {
-  background: linear-gradient(135deg, var(--rp-green), var(--rp-navy)) !important;
-  box-shadow: 0 12px 24px rgba(46, 125, 50, 0.2) !important;
+.btn-gradient,
+button.bg-amber-600,
+button.bg-amber-700,
+button.bg-amber-800,
+button.bg-amber-900 {
+  background: var(--rp-green) !important;
+  color: white !important;
+  box-shadow: 0 8px 18px rgba(46, 125, 50, 0.16) !important;
 }
 
 .btn-primary:hover,
-.btn-gradient:hover {
-  background: linear-gradient(135deg, var(--rp-green-dark), var(--rp-navy-dark)) !important;
+.btn-gradient:hover,
+button.bg-amber-600:hover,
+button.bg-amber-700:hover,
+button.bg-amber-800:hover,
+button.bg-amber-900:hover {
+  background: var(--rp-green-dark) !important;
+}
+
+button.bg-slate-300,
+button.bg-gray-300 {
+  background: var(--rp-soft) !important;
+  color: var(--rp-navy) !important;
+  border: 1px solid var(--rp-border) !important;
+}
+
+/* Forms */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+  background-color: #FFFFFF !important;
+  border-color: var(--rp-border) !important;
+  color: var(--rp-text) !important;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   border-color: var(--rp-green) !important;
-  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.12) !important;
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.10) !important;
 }
 
-.spinner {
-  border-color: rgba(46, 125, 50, 0.25) !important;
-  border-top-color: var(--rp-green) !important;
-}
-
-/* Recharts colors used in guru/admin dashboards */
-.recharts-cartesian-grid line {
-  stroke: rgba(230, 216, 184, 0.9) !important;
-}
-
-.recharts-cartesian-axis-tick-value,
-.recharts-legend-item-text {
-  fill: var(--rp-muted) !important;
-  color: var(--rp-muted) !important;
-}
-
-.recharts-tooltip-wrapper .recharts-default-tooltip {
-  border: 1px solid var(--rp-border) !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 16px 36px rgba(30, 58, 95, 0.14) !important;
-}
-
-/* Guru/Admin panel polish */
-.dashboard-shell,
-.admin-shell,
-.guru-shell {
-  background: var(--rp-cream) !important;
-}
-
-/* Admin dashboard polish: cards, tables, forms, modals */
-.flex-1.overflow-y-auto {
-  background:
-    radial-gradient(circle at 85% 10%, rgba(244, 180, 0, 0.18), transparent 28%),
-    radial-gradient(circle at 15% 25%, rgba(46, 125, 50, 0.12), transparent 28%),
-    var(--rp-cream) !important;
-}
-
-.flex-1.overflow-y-auto > div,
-.flex-1.overflow-y-auto > section {
-  position: relative;
-}
-
-.bg-white.rounded-xl,
-.bg-white.rounded-2xl,
-.bg-white.rounded-3xl {
-  border-color: var(--rp-border) !important;
-  box-shadow: 0 18px 38px rgba(30, 58, 95, 0.08) !important;
-}
-
-.bg-white.rounded-xl:hover,
-.bg-white.rounded-2xl:hover,
-.bg-white.rounded-3xl:hover {
-  box-shadow: 0 24px 48px rgba(30, 58, 95, 0.13) !important;
-}
-
+/* Tables */
 table {
+  width: 100% !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
 }
 
 thead tr {
-  background: var(--rp-cream-soft) !important;
+  background: var(--rp-soft) !important;
 }
 
 th {
   color: var(--rp-navy) !important;
-  font-weight: 900 !important;
-  letter-spacing: 0.02em !important;
+  font-weight: 800 !important;
 }
 
 td {
   color: var(--rp-text) !important;
 }
 
-tbody tr {
-  transition: background-color 180ms ease, transform 180ms ease !important;
-}
-
 tbody tr:hover {
-  background: rgba(255, 247, 230, 0.85) !important;
-}
-
-.fixed.inset-0.bg-black\/50 > .bg-white,
-.fixed.inset-0.bg-black\/50 .bg-white.rounded-2xl {
-  border: 1px solid var(--rp-border) !important;
-  box-shadow: 0 30px 70px rgba(30, 58, 95, 0.25) !important;
-}
-
-button.bg-amber-600,
-button.bg-amber-700,
-button.bg-amber-800,
-button.bg-amber-900,
-button[class*="from-amber"],
-a[class*="from-amber"] {
-  background: linear-gradient(135deg, var(--rp-green), var(--rp-navy)) !important;
-  color: white !important;
-  box-shadow: 0 12px 24px rgba(46, 125, 50, 0.18) !important;
-}
-
-button.bg-amber-600:hover,
-button.bg-amber-700:hover,
-button.bg-amber-800:hover,
-button.bg-amber-900:hover,
-button[class*="from-amber"]:hover,
-a[class*="from-amber"]:hover {
-  background: linear-gradient(135deg, var(--rp-green-dark), var(--rp-navy-dark)) !important;
-}
-
-button.bg-slate-300,
-button.bg-gray-300 {
-  background: var(--rp-cream-soft) !important;
-  color: var(--rp-navy) !important;
-  border: 1px solid var(--rp-border) !important;
-}
-
-.text-gray-900,
-.text-slate-900 {
-  color: var(--rp-navy) !important;
-}
-
-.text-gray-600,
-.text-slate-600,
-.text-gray-700,
-.text-slate-700 {
-  color: var(--rp-muted) !important;
-}
-
-.border-gray-200,
-.border-slate-200,
-.border-gray-300,
-.border-slate-300 {
-  border-color: var(--rp-border) !important;
+  background: #F8FAFC !important;
 }
 
 .bg-gray-50,
 .bg-slate-50,
 .bg-gray-100,
 .bg-slate-100 {
-  background-color: var(--rp-cream-soft) !important;
+  background-color: var(--rp-soft) !important;
 }
 
-/* Admin overview chart colors */
+/* Charts */
+.recharts-cartesian-grid line {
+  stroke: #E5E7EB !important;
+}
+
+.recharts-cartesian-axis-tick-value,
+.recharts-legend-item-text {
+  fill: var(--rp-muted) !important;
+  color: var(--rp-muted) !important;
+  font-size: 12px !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
+}
+
 .recharts-bar-rectangle path,
 .recharts-sector {
-  filter: drop-shadow(0 8px 12px rgba(30, 58, 95, 0.12));
+  filter: none !important;
 }
 
-/* Make admin/guru content spacing feel cleaner on desktop */
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .flex-1.overflow-y-auto {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
 @media (min-width: 1024px) {
   .flex-1.overflow-y-auto {
-    padding-left: 2.5rem !important;
-    padding-right: 2.5rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
   }
 }
