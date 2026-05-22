@@ -1,112 +1,79 @@
 'use client';
 
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/components/shared';
 
 export default function OverviewTab() {
   return (
-    <div className="space-y-8">
-      <Card className="overflow-hidden border border-[#E6D8B8] bg-gradient-to-br from-[#FFFDF7] via-white to-[#FAF3E0] shadow-xl shadow-[#1E3A5F]/10">
-        <CardHeader className="pb-6 text-center">
-          <p className="text-sm font-black uppercase tracking-[0.28em] text-[#2E7D32]">Panduan Siswa</p>
-          <h3 className="mt-3 text-3xl font-black text-[#1E3A5F] md:text-4xl">Mulai petualangan literasi kamu</h3>
-          <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-7 text-[#5A5146] md:text-base">
+    <div className="space-y-10">
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Panduan Siswa</p>
+          <h3 className="mt-5 text-3xl font-black leading-tight text-slate-900 md:text-4xl">Mulai aktivitas literasi kamu</h3>
+          <p className="mt-5 leading-8 text-slate-600">
             Baca buku, pahami isi bacaan lewat kuis, lalu kumpulkan poin untuk menukar reward.
           </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            <GuideCard
-              icon="📚"
-              title="Baca Buku"
-              description="Pilih e-book favorit, lanjutkan progres membaca, dan nikmati pengalaman membaca yang nyaman."
-              color="bg-[#2E7D32]"
-            />
-            <GuideCard
-              icon="🎯"
-              title="Selesaikan Kuis"
-              description="Jawab pertanyaan dari buku yang sudah dibaca untuk membuktikan pemahaman kamu."
-              color="bg-[#1E3A5F]"
-            />
-            <GuideCard
-              icon="🎁"
-              title="Tukar Reward"
-              description="Kumpulkan poin sebanyak mungkin dan tukarkan dengan reward yang tersedia di sekolah."
-              color="bg-[#F4B400]"
-            />
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <GuideCard
+            title="Baca Buku"
+            description="Pilih e-book favorit, lanjutkan progres membaca, dan nikmati pengalaman membaca yang nyaman."
+          />
+          <GuideCard
+            title="Selesaikan Kuis"
+            description="Jawab pertanyaan dari buku yang sudah dibaca untuk membuktikan pemahaman kamu."
+          />
+          <GuideCard
+            title="Tukar Reward"
+            description="Kumpulkan poin dan tukarkan dengan reward yang tersedia di sekolah."
+          />
+        </div>
+      </section>
 
       <QuickTips />
     </div>
   );
 }
 
-function GuideCard({
-  icon,
-  title,
-  description,
-  color,
-}: {
-  icon: string;
-  title: string;
-  description: string;
-  color: string;
-}) {
+function GuideCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="group rounded-[1.5rem] border border-[#E6D8B8] bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1E3A5F]/10">
-      <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-3xl ${color} text-3xl shadow-lg transition-transform group-hover:scale-105`}>
-        {icon}
-      </div>
-      <h4 className="mt-5 text-xl font-black text-[#1E3A5F]">{title}</h4>
-      <p className="mt-3 text-sm font-medium leading-7 text-[#5A5146]">{description}</p>
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7 text-center shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-lg">
+      <h4 className="text-xl font-black text-slate-900">{title}</h4>
+      <p className="mt-4 text-sm font-medium leading-7 text-slate-600">{description}</p>
     </div>
   );
 }
 
 function QuickTips() {
   const tips = [
-    { tip: 'Baca buku sedikit demi sedikit setiap hari', points: '+Konsistensi', icon: '⏰' },
-    { tip: 'Kerjakan kuis setelah selesai membaca', points: '+Bonus poin', icon: '🎯' },
-    { tip: 'Coba buku dari kategori berbeda', points: '+Wawasan baru', icon: '📚' },
-    { tip: 'Tukar poin saat reward masih tersedia', points: '+Hadiah', icon: '🏆' },
+    { tip: 'Baca buku sedikit demi sedikit setiap hari', points: 'Konsistensi' },
+    { tip: 'Kerjakan kuis setelah selesai membaca', points: 'Bonus poin' },
+    { tip: 'Coba buku dari kategori berbeda', points: 'Wawasan baru' },
+    { tip: 'Tukar poin saat reward masih tersedia', points: 'Hadiah' },
   ];
 
   return (
-    <Card className="border border-[#E6D8B8] bg-white shadow-lg shadow-[#1E3A5F]/5">
-      <CardHeader className="pb-6 text-center">
-        <p className="text-sm font-black uppercase tracking-[0.28em] text-[#2E7D32]">Tips cepat</p>
-        <h3 className="mt-3 text-2xl font-black text-[#1E3A5F] md:text-3xl">Cara membuat poin kamu cepat bertambah</h3>
-        <p className="mt-2 text-sm font-semibold text-[#5A5146]">Ikuti kebiasaan kecil ini agar aktivitas membaca lebih terarah.</p>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {tips.map((item) => (
-            <TipCard key={item.tip} {...item} />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Tips Cepat</p>
+        <h3 className="mt-5 text-2xl font-black leading-tight text-slate-900 md:text-3xl">Cara membuat poin kamu cepat bertambah</h3>
+        <p className="mt-4 leading-7 text-slate-600">Ikuti kebiasaan kecil ini agar aktivitas membaca lebih terarah.</p>
+      </div>
+
+      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {tips.map((item) => (
+          <TipCard key={item.tip} {...item} />
+        ))}
+      </div>
+    </section>
   );
 }
 
-function TipCard({
-  tip,
-  points,
-  icon,
-}: {
-  tip: string;
-  points: string;
-  icon: string;
-}) {
+function TipCard({ tip, points }: { tip: string; points: string }) {
   return (
-    <div className="flex items-center gap-4 rounded-3xl border border-[#E6D8B8] bg-[#FAF3E0] p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#FFFDF7] hover:shadow-md">
-      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">{icon}</div>
-      <div className="flex-1">
-        <p className="text-sm font-black leading-6 text-[#1E3A5F]">{tip}</p>
-        <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-[#2E7D32]">{points}</p>
-      </div>
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-md">
+      <p className="text-base font-black leading-7 text-slate-900">{tip}</p>
+      <p className="mt-3 text-xs font-black uppercase tracking-widest text-emerald-700">{points}</p>
     </div>
   );
 }
