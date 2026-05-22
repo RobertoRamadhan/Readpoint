@@ -149,7 +149,6 @@ export default function SiswaDashboard() {
         quizzes: newQuizzes,
         cachedAt: Date.now(),
       };
-
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Gagal memuat data dashboard';
       setError(errorMsg);
@@ -178,132 +177,79 @@ export default function SiswaDashboard() {
   }
 
   const statCards = [
-    {
-      label: 'Total Poin',
-      value: stats?.total_points ?? 0,
-      helper: 'Siap ditukar reward',
-      icon: '⭐',
-      color: 'bg-[#F4B400]',
-    },
-    {
-      label: 'Buku Dibaca',
-      value: stats?.books_read ?? 0,
-      helper: 'Koleksi selesai',
-      icon: '📚',
-      color: 'bg-[#2E7D32]',
-    },
-    {
-      label: 'Halaman Dibaca',
-      value: stats?.pages_read ?? 0,
-      helper: 'Progress literasi',
-      icon: '📖',
-      color: 'bg-[#1E3A5F]',
-    },
-    {
-      label: 'Kuis Selesai',
-      value: stats?.quizzes_taken ?? 0,
-      helper: 'Pemahaman bacaan',
-      icon: '🎯',
-      color: 'bg-[#2E7D32]',
-    },
+    { label: 'Total Poin', value: stats?.total_points ?? 0, helper: 'Saldo poin yang tersedia' },
+    { label: 'Buku Dibaca', value: stats?.books_read ?? 0, helper: 'Jumlah buku selesai dibaca' },
+    { label: 'Halaman Dibaca', value: stats?.pages_read ?? 0, helper: 'Total halaman yang dibaca' },
+    { label: 'Kuis Selesai', value: stats?.quizzes_taken ?? 0, helper: 'Kuis yang sudah dikerjakan' },
   ];
 
-  return (
-    <div className="min-h-screen overflow-hidden bg-[#FAF3E0] text-[#2D2D2D]">
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-80">
-        <div className="absolute -top-24 right-[-5rem] h-80 w-80 rounded-full bg-[#F4B400]/25 blur-3xl" />
-        <div className="absolute left-[-5rem] top-80 h-96 w-96 rounded-full bg-[#2E7D32]/15 blur-3xl" />
-        <div className="absolute bottom-0 right-1/3 h-72 w-72 rounded-full bg-[#1E3A5F]/10 blur-3xl" />
-      </div>
+  const weeklyTargetProgress = Math.min(((stats?.books_read ?? 0) / 5) * 100, 100);
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+  return (
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900">
+      <div className="mx-auto w-full max-w-7xl space-y-10 px-5 py-10 sm:px-8 lg:py-12">
         {error && (
-          <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-sm">
-            <p className="flex items-center gap-2 font-black">
-              <span>⚠️</span> Terjadi Kesalahan
-            </p>
-            <p className="mt-2 font-medium">{error}</p>
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700 shadow-sm">
+            {error}
           </div>
         )}
 
-        <section className="mb-8 overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 shadow-2xl shadow-[#1E3A5F]/10 backdrop-blur-xl">
-          <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="p-6 sm:p-8 lg:p-10">
-              <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-[#E6D8B8] bg-[#FAF3E0] px-4 py-2 text-sm font-black text-[#1E3A5F]">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#2E7D32]" />
-                Dashboard Siswa READPOINT
-              </div>
-
-              <h1 className="text-3xl font-black leading-tight text-[#1E3A5F] sm:text-4xl lg:text-5xl">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/70">
+          <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="p-7 sm:p-10 lg:p-12">
+              <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p>
+              <h1 className="mt-5 text-3xl font-black leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 Halo, {user.name}! Siap lanjut membaca hari ini?
               </h1>
-
-              <p className="mt-4 max-w-2xl text-base leading-8 text-[#5A5146]">
-                Pilih buku, selesaikan kuis, kumpulkan poin, lalu tukarkan reward. Semua aktivitas literasi kamu tercatat rapi di dashboard ini.
+              <p className="mt-5 max-w-2xl leading-8 text-slate-600">
+                Pantau aktivitas membaca, kuis, poin, dan reward dalam satu dashboard yang rapi.
               </p>
 
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <button
                   onClick={() => setActiveTab('ebooks')}
-                  className="rounded-2xl bg-[#2E7D32] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:-translate-y-0.5 hover:bg-[#256A2A]"
+                  className="rounded-2xl bg-slate-900 px-6 py-3.5 text-sm font-black text-white transition hover:bg-slate-800"
                 >
-                  📚 Lihat E-Book
+                  Lihat E-Book
                 </button>
                 <button
                   onClick={() => setActiveTab('quizzes')}
-                  className="rounded-2xl border border-[#E6D8B8] bg-[#FAF3E0] px-6 py-3.5 text-sm font-black text-[#1E3A5F] transition-all hover:-translate-y-0.5 hover:bg-white"
+                  className="rounded-2xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-black text-slate-900 transition hover:bg-slate-100"
                 >
-                  🎯 Kerjakan Kuis
+                  Kerjakan Kuis
                 </button>
               </div>
             </div>
 
-            <div className="bg-[#1E3A5F] p-6 text-white sm:p-8 lg:p-10">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-black uppercase tracking-[0.25em] text-[#F4B400]">Poin Kamu</p>
-                  <p className="mt-2 text-5xl font-black">{stats?.total_points ?? 0}</p>
-                </div>
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/10 text-3xl">🏆</div>
-              </div>
+            <div className="bg-slate-900 p-7 text-white sm:p-10 lg:p-12">
+              <p className="text-sm font-black uppercase tracking-widest text-emerald-300">Poin Kamu</p>
+              <p className="mt-5 text-5xl font-black text-white">{stats?.total_points ?? 0}</p>
+              <p className="mt-3 leading-7 text-slate-300">Poin dapat digunakan untuk menukar reward yang tersedia.</p>
 
-              <div className="mt-8 rounded-3xl bg-white/10 p-5 backdrop-blur">
-                <div className="mb-3 flex items-center justify-between text-sm font-bold text-white/80">
+              <div className="mt-10 rounded-3xl border border-white/10 bg-white/10 p-6">
+                <div className="flex items-center justify-between gap-4 text-sm font-bold text-slate-200">
                   <span>Target membaca mingguan</span>
                   <span>{Math.min(stats?.books_read ?? 0, 5)}/5 buku</span>
                 </div>
-                <div className="h-3 rounded-full bg-white/15">
-                  <div
-                    className="h-3 rounded-full bg-[#F4B400] transition-all"
-                    style={{ width: `${Math.min(((stats?.books_read ?? 0) / 5) * 100, 100)}%` }}
-                  />
+                <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/15">
+                  <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${weeklyTargetProgress}%` }} />
                 </div>
-                <p className="mt-3 text-sm leading-6 text-white/70">
-                  Terus membaca untuk membuka lebih banyak poin dan kesempatan menukar reward.
-                </p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {statCards.map((item) => (
-            <div key={item.label} className="rounded-3xl border border-[#E6D8B8] bg-white/85 p-5 shadow-sm backdrop-blur transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1E3A5F]/10">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#5A5146]">{item.label}</p>
-                  <p className="mt-2 text-3xl font-black text-[#1E3A5F]">{item.value}</p>
-                  <p className="mt-1 text-sm font-semibold text-[#5A5146]">{item.helper}</p>
-                </div>
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${item.color} text-xl shadow-lg`}>
-                  {item.icon}
-                </div>
-              </div>
+            <div key={item.label} className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <p className="text-sm font-black uppercase tracking-widest text-slate-500">{item.label}</p>
+              <p className="mt-4 text-4xl font-black text-slate-900">{item.value}</p>
+              <p className="mt-3 text-sm font-semibold leading-6 text-slate-500">{item.helper}</p>
             </div>
           ))}
         </section>
 
-        <section className="mb-8 rounded-[2rem] border border-[#E6D8B8] bg-white/80 p-4 shadow-sm backdrop-blur sm:p-5">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
@@ -316,7 +262,7 @@ export default function SiswaDashboard() {
           />
         </section>
 
-        <section className="mb-8">
+        <section>
           <TabNavigation
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -327,15 +273,15 @@ export default function SiswaDashboard() {
         </section>
 
         {favoriteBooks.length > 0 && activeTab === 'overview' && (
-          <section className="mb-8 overflow-hidden rounded-[2rem] border border-[#E6D8B8] bg-white/85 p-6 shadow-xl shadow-[#1E3A5F]/10 backdrop-blur sm:p-8">
-            <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <section className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
+            <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.25em] text-[#2E7D32]">Rekomendasi</p>
-                <h2 className="mt-2 text-2xl font-black text-[#1E3A5F] sm:text-3xl">Buku Populer untuk Dibaca</h2>
+                <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Rekomendasi</p>
+                <h2 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">Buku Populer untuk Dibaca</h2>
               </div>
               <button
                 onClick={() => setActiveTab('ebooks')}
-                className="rounded-2xl bg-[#FAF3E0] px-5 py-3 text-sm font-black text-[#1E3A5F] transition-all hover:bg-[#F4B400]/20"
+                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-100"
               >
                 Lihat semua buku
               </button>
@@ -352,7 +298,7 @@ export default function SiswaDashboard() {
           </section>
         )}
 
-        <section className="rounded-[2rem] border border-[#E6D8B8] bg-white/90 p-5 shadow-2xl shadow-[#1E3A5F]/10 backdrop-blur sm:p-7 lg:p-8">
+        <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           {loadingData ? (
             <div className="py-20 text-center">
               <Loading size="lg" text="Memuat data..." />
