@@ -51,7 +51,6 @@ interface Quiz {
   points_reward: number;
 }
 
-// Module-level cache — survives navigation, cleared on logout
 let dashboardCache: {
   stats: SiswaStats | null;
   ebooks: Ebook[];
@@ -60,7 +59,7 @@ let dashboardCache: {
   cachedAt: number;
 } | null = null;
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export default function SiswaDashboard() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -73,7 +72,6 @@ export default function SiswaDashboard() {
   const [quizzes, setQuizzes] = useState<Quiz[]>(dashboardCache?.quizzes ?? []);
   const [activeTab, setActiveTab] = useState<'overview' | 'ebooks' | 'rewards' | 'quizzes'>('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  // If cache is fresh, start with loadingData = false so page renders instantly
   const isCacheFresh = dashboardCache && (Date.now() - dashboardCache.cachedAt) < CACHE_TTL_MS;
   const [loadingData, setLoadingData] = useState(!isCacheFresh);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +83,6 @@ export default function SiswaDashboard() {
     if (!mounted || loading || !isAuthenticated) return;
     if (!user || user.role !== 'siswa') { router.push('/login'); return; }
 
-    // If cache is fresh, skip fetching — render instantly
     if (isCacheFresh) {
       setStats(dashboardCache!.stats);
       setEbooks(dashboardCache!.ebooks);
@@ -96,7 +93,6 @@ export default function SiswaDashboard() {
       return;
     }
 
-    // Prevent double-fetch in StrictMode
     if (fetchedRef.current) return;
     fetchedRef.current = true;
 
@@ -108,7 +104,6 @@ export default function SiswaDashboard() {
       setLoadingData(true);
       setError(null);
 
-      // Run all requests in parallel — much faster than sequential
       const [statsRes, ebooksRes, rewardsRes, quizzesRes] = await Promise.allSettled([
         api.dashboard.siswaStats(),
         api.ebooks.list(),
@@ -116,13 +111,11 @@ export default function SiswaDashboard() {
         api.getAllQuizzes(),
       ]);
 
-      // Stats
       const newStats = statsRes.status === 'fulfilled'
         ? (statsRes.value as any) as SiswaStats
         : null;
       setStats(newStats);
 
-      // Ebooks
       let newEbooks: Ebook[] = [];
       if (ebooksRes.status === 'fulfilled' && ebooksRes.value?.data) {
         const d = ebooksRes.value.data;
@@ -133,7 +126,6 @@ export default function SiswaDashboard() {
       setEbooks(newEbooks);
       setFavoriteBooks(newEbooks);
 
-      // Rewards
       let newRewards: Reward[] = [];
       if (rewardsRes.status === 'fulfilled' && rewardsRes.value?.data) {
         const d = rewardsRes.value.data;
@@ -143,7 +135,6 @@ export default function SiswaDashboard() {
       }
       setRewards(newRewards);
 
-      // Quizzes
       let newQuizzes: Quiz[] = [];
       if (quizzesRes.status === 'fulfilled' && quizzesRes.value?.data) {
         const d = quizzesRes.value.data;
@@ -151,7 +142,6 @@ export default function SiswaDashboard() {
       }
       setQuizzes(newQuizzes);
 
-      // Save to cache
       dashboardCache = {
         stats: newStats,
         ebooks: newEbooks,
@@ -171,7 +161,6 @@ export default function SiswaDashboard() {
   const handleRedeemReward = async (rewardId: number) => {
     try {
       await api.rewards.redeem(rewardId);
-      // Invalidate cache and reload
       dashboardCache = null;
       fetchedRef.current = false;
       await loadDashboardData();
@@ -180,11 +169,6 @@ export default function SiswaDashboard() {
     }
   };
 
-  const handleStartQuiz = (quizId: number) => {
-    router.push(`/dashboard/siswa/quiz/${quizId}`);
-  };
-
-  // Only show full-screen spinner on very first load (no cache at all)
   if (!mounted || loading) {
     return <PageLoading />;
   }
@@ -193,236 +177,220 @@ export default function SiswaDashboard() {
     return null;
   }
 
+  const statCards = [
+    {
+      label: 'Total Poin',
+      value: stats?.total_points ?? 0,
+      helper: 'Siap ditukar reward',
+      icon: '⭐',
+      color: 'bg-[#F4B400]',
+    },
+    {
+      label: 'Buku Dibaca',
+      value: stats?.books_read ?? 0,
+      helper: 'Koleksi selesai',
+      icon: '📚',
+      color: 'bg-[#2E7D32]',
+    },
+    {
+      label: 'Halaman Dibaca',
+      value: stats?.pages_read ?? 0,
+      helper: 'Progress literasi',
+      icon: '📖',
+      color: 'bg-[#1E3A5F]',
+    },
+    {
+      label: 'Kuis Selesai',
+      value: stats?.quizzes_taken ?? 0,
+      helper: 'Pemahaman bacaan',
+      icon: '🎯',
+      color: 'bg-[#2E7D32]',
+    },
+  ];
+
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-amber-50 via-amber-50 to-orange-50 relative overflow-hidden">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-30">
-        <div className="absolute top-10 right-20 w-80 h-80 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl"></div>
-        <div className="absolute bottom-10 left-20 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl"></div>
+    <div className="min-h-screen overflow-hidden bg-[#FAF3E0] text-[#2D2D2D]">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-80">
+        <div className="absolute -top-24 right-[-5rem] h-80 w-80 rounded-full bg-[#F4B400]/25 blur-3xl" />
+        <div className="absolute left-[-5rem] top-80 h-96 w-96 rounded-full bg-[#2E7D32]/15 blur-3xl" />
+        <div className="absolute bottom-0 right-1/3 h-72 w-72 rounded-full bg-[#1E3A5F]/10 blur-3xl" />
       </div>
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-10 relative z-10">
-        <div className="w-full">
-          {error && (
-            <div className="mb-8 p-5 bg-red-50 border-l-4 border-red-500 rounded-xl text-red-700 text-sm shadow-sm animate-slide-up">
-              <p className="font-semibold flex items-center gap-2">
-                <span>⚠️</span> Terjadi Kesalahan
-              </p>
-              <p className="mt-2">{error}</p>
-            </div>
-          )}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        {error && (
+          <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-sm">
+            <p className="flex items-center gap-2 font-black">
+              <span>⚠️</span> Terjadi Kesalahan
+            </p>
+            <p className="mt-2 font-medium">{error}</p>
+          </div>
+        )}
 
-          {/* Search Bar Section */}
-          <div className="mb-10">
-            <SearchBar
-              onSearch={setSearchQuery}
-              onBookClick={(book) => {
-                if (book.pdf_file) {
+        <section className="mb-8 overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 shadow-2xl shadow-[#1E3A5F]/10 backdrop-blur-xl">
+          <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="p-6 sm:p-8 lg:p-10">
+              <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-[#E6D8B8] bg-[#FAF3E0] px-4 py-2 text-sm font-black text-[#1E3A5F]">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#2E7D32]" />
+                Dashboard Siswa READPOINT
+              </div>
+
+              <h1 className="text-3xl font-black leading-tight text-[#1E3A5F] sm:text-4xl lg:text-5xl">
+                Halo, {user.name}! Siap lanjut membaca hari ini?
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-base leading-8 text-[#5A5146]">
+                Pilih buku, selesaikan kuis, kumpulkan poin, lalu tukarkan reward. Semua aktivitas literasi kamu tercatat rapi di dashboard ini.
+              </p>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={() => setActiveTab('ebooks')}
+                  className="rounded-2xl bg-[#2E7D32] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:-translate-y-0.5 hover:bg-[#256A2A]"
+                >
+                  📚 Lihat E-Book
+                </button>
+                <button
+                  onClick={() => setActiveTab('quizzes')}
+                  className="rounded-2xl border border-[#E6D8B8] bg-[#FAF3E0] px-6 py-3.5 text-sm font-black text-[#1E3A5F] transition-all hover:-translate-y-0.5 hover:bg-white"
+                >
+                  🎯 Kerjakan Kuis
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-[#1E3A5F] p-6 text-white sm:p-8 lg:p-10">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.25em] text-[#F4B400]">Poin Kamu</p>
+                  <p className="mt-2 text-5xl font-black">{stats?.total_points ?? 0}</p>
+                </div>
+                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/10 text-3xl">🏆</div>
+              </div>
+
+              <div className="mt-8 rounded-3xl bg-white/10 p-5 backdrop-blur">
+                <div className="mb-3 flex items-center justify-between text-sm font-bold text-white/80">
+                  <span>Target membaca mingguan</span>
+                  <span>{Math.min(stats?.books_read ?? 0, 5)}/5 buku</span>
+                </div>
+                <div className="h-3 rounded-full bg-white/15">
+                  <div
+                    className="h-3 rounded-full bg-[#F4B400] transition-all"
+                    style={{ width: `${Math.min(((stats?.books_read ?? 0) / 5) * 100, 100)}%` }}
+                  />
+                </div>
+                <p className="mt-3 text-sm leading-6 text-white/70">
+                  Terus membaca untuk membuka lebih banyak poin dan kesempatan menukar reward.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {statCards.map((item) => (
+            <div key={item.label} className="rounded-3xl border border-[#E6D8B8] bg-white/85 p-5 shadow-sm backdrop-blur transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1E3A5F]/10">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#5A5146]">{item.label}</p>
+                  <p className="mt-2 text-3xl font-black text-[#1E3A5F]">{item.value}</p>
+                  <p className="mt-1 text-sm font-semibold text-[#5A5146]">{item.helper}</p>
+                </div>
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${item.color} text-xl shadow-lg`}>
+                  {item.icon}
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <section className="mb-8 rounded-[2rem] border border-[#E6D8B8] bg-white/80 p-4 shadow-sm backdrop-blur sm:p-5">
+          <SearchBar
+            onSearch={setSearchQuery}
+            onBookClick={(book) => {
+              if (book.pdf_file) {
+                window.open(book.pdf_file, '_blank');
+              }
+            }}
+            ebooks={ebooks}
+            placeholder="Cari buku berdasarkan judul, penulis, atau kategori..."
+          />
+        </section>
+
+        <section className="mb-8">
+          <TabNavigation
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            ebooksCount={ebooks.length}
+            rewardsCount={rewards.length}
+            quizzesCount={quizzes.length}
+          />
+        </section>
+
+        {favoriteBooks.length > 0 && activeTab === 'overview' && (
+          <section className="mb-8 overflow-hidden rounded-[2rem] border border-[#E6D8B8] bg-white/85 p-6 shadow-xl shadow-[#1E3A5F]/10 backdrop-blur sm:p-8">
+            <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-[#2E7D32]">Rekomendasi</p>
+                <h2 className="mt-2 text-2xl font-black text-[#1E3A5F] sm:text-3xl">Buku Populer untuk Dibaca</h2>
+              </div>
+              <button
+                onClick={() => setActiveTab('ebooks')}
+                className="rounded-2xl bg-[#FAF3E0] px-5 py-3 text-sm font-black text-[#1E3A5F] transition-all hover:bg-[#F4B400]/20"
+              >
+                Lihat semua buku
+              </button>
+            </div>
+            <FavoriteBooksSlider
+              books={favoriteBooks}
+              onBookClick={(bookId) => {
+                const book = favoriteBooks.find(b => b.id === bookId);
+                if (book?.pdf_file) {
                   window.open(book.pdf_file, '_blank');
                 }
               }}
-              ebooks={ebooks}
-              placeholder="Cari buku berdasarkan judul, penulis, atau kategori..."
             />
-          </div>
+          </section>
+        )}
 
-          {/* Tab Navigation Section */}
-          <div className="mb-10">
-            <TabNavigation
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              ebooksCount={ebooks.length}
-              rewardsCount={rewards.length}
-              quizzesCount={quizzes.length}
-            />
-          </div>
+        <section className="rounded-[2rem] border border-[#E6D8B8] bg-white/90 p-5 shadow-2xl shadow-[#1E3A5F]/10 backdrop-blur sm:p-7 lg:p-8">
+          {loadingData ? (
+            <div className="py-20 text-center">
+              <Loading size="lg" text="Memuat data..." />
+            </div>
+          ) : (
+            <>
+              {activeTab === 'overview' && <OverviewTab />}
 
-          {/* Featured Books Slider */}
-          {favoriteBooks.length > 0 && (
-            <div className="mb-12">
-              <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8 shadow-lg border-2 border-amber-200">
-                <h2 className="text-2xl font-bold text-amber-900 mb-6 text-center">📚 Buku Populer</h2>
-                <FavoriteBooksSlider
-                  books={favoriteBooks}
-                  onBookClick={(bookId) => {
-                    const book = favoriteBooks.find(b => b.id === bookId);
-                    if (book?.pdf_file) {
-                      window.open(book.pdf_file, '_blank');
-                    }
+              {activeTab === 'ebooks' && (
+                <BookGrid
+                  ebooks={ebooks}
+                  loading={loadingData}
+                  searchQuery={searchQuery}
+                />
+              )}
+
+              {activeTab === 'rewards' && (
+                <RewardGrid
+                  rewards={rewards}
+                  userPoints={stats?.total_points || 0}
+                  loading={loadingData}
+                  onRedeem={handleRedeemReward}
+                />
+              )}
+
+              {activeTab === 'quizzes' && (
+                <QuizList
+                  quizzes={quizzes}
+                  loading={loadingData}
+                  onStartQuiz={(quizId: number) => {
+                    router.push(`/dashboard/siswa/quiz/${quizId}`);
                   }}
                 />
-              </div>
-            </div>
+              )}
+            </>
           )}
-
-          {/* Decorative Separator */}
-          <div className="w-full h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mb-12 rounded-full shadow-md shadow-amber-300/30"></div>
-
-          {/* Content Section */}
-          <div className="bg-white/85 backdrop-blur-sm w-full p-8 lg:p-10 rounded-2xl border-2 border-amber-200 shadow-xl">
-            {loadingData ? (
-              <div className="text-center py-20">
-                <Loading size="lg" text="Memuat data..." />
-              </div>
-            ) : (
-              <>
-                {activeTab === 'overview' && (
-                  <OverviewTab />
-                )}
-
-                {activeTab === 'ebooks' && (
-                  <BookGrid
-                    ebooks={ebooks}
-                    loading={loadingData}
-                    searchQuery={searchQuery}
-                  />
-                )}
-
-                {activeTab === 'rewards' && (
-                  <RewardGrid
-                    rewards={rewards}
-                    userPoints={stats?.total_points || 0}
-                    loading={loadingData}
-                    onRedeem={handleRedeemReward}
-                  />
-                )}
-
-                {activeTab === 'quizzes' && (
-                  <QuizList
-                    quizzes={quizzes}
-                    loading={loadingData}
-                    onStartQuiz={(quizId: number) => {
-                      router.push(`/dashboard/siswa/quiz/${quizId}`);
-                    }}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </div>
+        </section>
       </div>
-    </div>
-  );
-}
-
-function AnimatedBackground() {
-  return (
-    <>
-      <style>{`
-        @keyframes bubble {
-          0% {
-            transform: translateY(100vh) scale(0);
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-100vh) scale(1);
-            opacity: 0;
-          }
-        }
-        
-        @keyframes drift {
-          0%, 100% { transform: translateX(0px); }
-          50% { transform: translateX(30px); }
-        }
-        
-        .bubble {
-          position: fixed;
-          bottom: -100px;
-          border-radius: 50%;
-          background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(99,102,241,0.2));
-          border: 2px solid rgba(99,102,241,0.3);
-          pointer-events: none;
-          filter: blur(1px);
-        }
-        
-        .bubble:nth-child(1) { 
-          width: 80px; 
-          height: 80px; 
-          left: 10%; 
-          animation: bubble 15s infinite, drift 6s ease-in-out infinite;
-          animation-delay: 0s, 0s;
-        }
-        
-        .bubble:nth-child(2) { 
-          width: 60px; 
-          height: 60px; 
-          left: 20%; 
-          animation: bubble 17s infinite, drift 7s ease-in-out infinite;
-          animation-delay: 2s, 1s;
-        }
-        
-        .bubble:nth-child(3) { 
-          width: 100px; 
-          height: 100px; 
-          left: 30%; 
-          animation: bubble 18s infinite, drift 8s ease-in-out infinite;
-          animation-delay: 4s, 2s;
-        }
-        
-        .bubble:nth-child(4) { 
-          width: 50px; 
-          height: 50px; 
-          left: 45%; 
-          animation: bubble 16s infinite, drift 5s ease-in-out infinite;
-          animation-delay: 1s, 0.5s;
-        }
-        
-        .bubble:nth-child(5) { 
-          width: 70px; 
-          height: 70px; 
-          left: 60%; 
-          animation: bubble 19s infinite, drift 9s ease-in-out infinite;
-          animation-delay: 3s, 1.5s;
-        }
-        
-        .bubble:nth-child(6) { 
-          width: 90px; 
-          height: 90px; 
-          left: 75%; 
-          animation: bubble 17s infinite, drift 6s ease-in-out infinite;
-          animation-delay: 2.5s, 2s;
-        }
-        
-        .bubble:nth-child(7) { 
-          width: 55px; 
-          height: 55px; 
-          left: 85%; 
-          animation: bubble 16s infinite, drift 7s ease-in-out infinite;
-          animation-delay: 4.5s, 1s;
-        }
-        
-        .bubble:nth-child(8) { 
-          width: 75px; 
-          height: 75px; 
-          left: 50%; 
-          animation: bubble 18s infinite, drift 8s ease-in-out infinite;
-          animation-delay: 5s, 2.5s;
-        }
-      `}</style>
-
-      {/* Bubble Background */}
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-      <div className="bubble"></div>
-    </>
-  );
-}
-
-function SectionHeader({ title }: { title: string }) {
-  return (
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-2 h-12 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></div>
-      <h3 className="text-3xl md:text-4xl font-black text-gray-900">{title}</h3>
     </div>
   );
 }
