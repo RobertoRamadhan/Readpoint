@@ -194,26 +194,26 @@ export default function SiswaDashboard() {
           </div>
         )}
 
-        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/70">
+        <section className="rounded-lg border border-slate-200 bg-white shadow-sm sm:rounded-xl">
           <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="p-6 sm:p-8 lg:p-10">
-              <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p>
-              <h1 className="mt-5 text-2xl font-black leading-tight text-slate-900 sm:text-3xl lg:text-4xl">
+            <div className="p-4 sm:p-5 lg:p-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Dashboard Siswa</p>
+              <h1 className="mt-2 text-lg font-black leading-tight text-slate-900 sm:mt-3 sm:text-xl lg:text-2xl">
                 Halo, {user.name}! Siap lanjut membaca hari ini?
               </h1>
             </div>
 
-            <div className="bg-slate-900 p-6 text-white sm:p-8 lg:p-10">
-              <p className="text-sm font-black uppercase tracking-widest text-emerald-300">Poin Kamu</p>
-              <p className="mt-5 text-4xl font-black text-white sm:text-5xl">{stats?.total_points ?? 0}</p>
-              <p className="mt-3 text-sm leading-7 text-slate-300 sm:text-base">Poin dapat digunakan untuk menukar reward yang tersedia.</p>
+            <div className="bg-slate-900 p-4 text-white sm:p-5 lg:p-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-300 sm:text-sm">Poin Kamu</p>
+              <p className="mt-2 text-3xl font-black text-white sm:mt-3 sm:text-4xl">{stats?.total_points ?? 0}</p>
+              <p className="mt-2 text-xs leading-6 text-slate-300 sm:mt-3 sm:text-sm">Poin dapat digunakan untuk menukar reward.</p>
 
-              <div className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-5 lg:mt-10 lg:p-6">
-                <div className="flex items-center justify-between gap-4 text-xs font-bold text-slate-200 sm:text-sm">
+              <div className="mt-4 rounded-lg border border-white/10 bg-white/10 p-4 sm:mt-5 lg:mt-6 lg:p-5">
+                <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-200 sm:text-sm">
                   <span>Target membaca mingguan</span>
                   <span>{Math.min(stats?.books_read ?? 0, 5)}/5 buku</span>
                 </div>
-                <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/15">
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/15">
                   <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${weeklyTargetProgress}%` }} />
                 </div>
               </div>
@@ -221,17 +221,17 @@ export default function SiswaDashboard() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
           {statCards.map((item) => (
-            <div key={item.label} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:p-6 lg:p-7">
-              <p className="text-xs font-black uppercase tracking-widest text-slate-500 sm:text-sm">{item.label}</p>
-              <p className="mt-3 text-3xl font-black text-slate-900 sm:mt-4 sm:text-4xl">{item.value}</p>
-              <p className="mt-2 text-xs font-semibold leading-6 text-slate-500 sm:mt-3 sm:text-sm">{item.helper}</p>
+            <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5 lg:p-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 sm:text-sm">{item.label}</p>
+              <p className="mt-2 text-2xl font-black text-slate-900 sm:mt-3 sm:text-3xl">{item.value}</p>
+              <p className="mt-2 text-xs font-medium text-slate-500 sm:text-sm">{item.helper}</p>
             </div>
           ))}
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
+        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:rounded-xl sm:p-4 lg:p-5">
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
@@ -254,7 +254,7 @@ export default function SiswaDashboard() {
           />
         </section>
 
-        <section className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-6 lg:p-8">
           {loadingData ? (
             <div className="py-20 text-center">
               <Loading size="lg" text="Memuat data..." />
