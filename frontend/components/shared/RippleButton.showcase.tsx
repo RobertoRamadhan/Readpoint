@@ -7,7 +7,7 @@ import { RippleButton } from '@/components/shared';
  * CONTOH PENGGUNAAN RIPPLE BUTTON
  * 
  * RippleButton adalah komponen tombol dengan animasi ripple effect yang elegan
- * Disesuaikan dengan brand color READPOINT (amber/orange)
+ * Disesuaikan dengan brand color READPOINT (emerald/emerald)
  * 
  * Fitur:
  * - 5 variant: primary, secondary, success, danger, outline
@@ -29,17 +29,17 @@ export default function RippleButtonShowcase() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-100 p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-amber-900 mb-4">Ripple Button Showcase</h1>
-          <p className="text-amber-700 text-lg">Komponen button dengan animasi ripple effect elegan</p>
+          <h1 className="text-4xl font-bold text-emerald-900 mb-4">Ripple Button Showcase</h1>
+          <p className="text-emerald-700 text-lg">Komponen button dengan animasi ripple effect elegan</p>
         </div>
 
         {/* Variants */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">Variants</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">Variants</h2>
           <div className="flex flex-wrap gap-6 items-center">
             <RippleButton variant="primary">
               Primary Button
@@ -60,8 +60,8 @@ export default function RippleButtonShowcase() {
         </section>
 
         {/* Sizes */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">Sizes</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">Sizes</h2>
           <div className="flex flex-wrap gap-6 items-center">
             <RippleButton size="small">
               Small Button
@@ -76,8 +76,8 @@ export default function RippleButtonShowcase() {
         </section>
 
         {/* With Icons */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">With Icons</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">With Icons</h2>
           <div className="flex flex-wrap gap-6 items-center">
             <RippleButton icon="📚">
               Baca Buku
@@ -95,8 +95,8 @@ export default function RippleButtonShowcase() {
         </section>
 
         {/* Full Width */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">Full Width</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">Full Width</h2>
           <div className="space-y-4 max-w-md">
             <RippleButton fullWidth>
               Full Width Button
@@ -108,8 +108,8 @@ export default function RippleButtonShowcase() {
         </section>
 
         {/* Loading State */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">Loading State</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">Loading State</h2>
           <div className="flex flex-wrap gap-6 items-center">
             <RippleButton
               loading={loadingStates['btn1'] || false}
@@ -125,12 +125,12 @@ export default function RippleButtonShowcase() {
               {loadingStates['btn2'] ? 'Processing...' : 'Submit'}
             </RippleButton>
           </div>
-          <p className="text-sm text-amber-700 mt-4">Klik button untuk toggle loading state</p>
+          <p className="text-sm text-emerald-700 mt-4">Klik button untuk toggle loading state</p>
         </section>
 
         {/* Disabled State */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">Disabled State</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">Disabled State</h2>
           <div className="flex flex-wrap gap-6 items-center">
             <RippleButton disabled>
               Disabled Button
@@ -145,23 +145,23 @@ export default function RippleButtonShowcase() {
         </section>
 
         {/* Usage Examples */}
-        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8">Contoh Penggunaan</h2>
+        <section className="mb-16 bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-8">Contoh Penggunaan</h2>
           
           <div className="space-y-8">
             {/* Login Form Example */}
-            <div className="bg-amber-50 p-6 rounded-xl">
-              <h3 className="font-bold text-amber-900 mb-4">Login Form:</h3>
+            <div className="bg-emerald-50 p-6 rounded-xl">
+              <h3 className="font-bold text-emerald-900 mb-4">Login Form:</h3>
               <div className="space-y-4 max-w-sm">
                 <input 
                   type="email" 
                   placeholder="Email" 
-                  className="w-full px-4 py-2 border-2 border-amber-200 rounded-lg focus:outline-none focus:border-amber-500"
+                  className="w-full px-4 py-2 border-2 border-emerald-200 rounded-lg focus:outline-none focus:border-emerald-500"
                 />
                 <input 
                   type="password" 
                   placeholder="Password" 
-                  className="w-full px-4 py-2 border-2 border-amber-200 rounded-lg focus:outline-none focus:border-amber-500"
+                  className="w-full px-4 py-2 border-2 border-emerald-200 rounded-lg focus:outline-none focus:border-emerald-500"
                 />
                 <RippleButton fullWidth>
                   Masuk Sekarang
@@ -173,8 +173,8 @@ export default function RippleButtonShowcase() {
             </div>
 
             {/* Dashboard Actions Example */}
-            <div className="bg-amber-50 p-6 rounded-xl">
-              <h3 className="font-bold text-amber-900 mb-4">Dashboard Actions:</h3>
+            <div className="bg-emerald-50 p-6 rounded-xl">
+              <h3 className="font-bold text-emerald-900 mb-4">Dashboard Actions:</h3>
               <div className="flex flex-wrap gap-4">
                 <RippleButton icon="📚">
                   Baca Buku
@@ -189,8 +189,8 @@ export default function RippleButtonShowcase() {
             </div>
 
             {/* Confirmation Dialog Example */}
-            <div className="bg-amber-50 p-6 rounded-xl">
-              <h3 className="font-bold text-amber-900 mb-4">Confirmation Dialog:</h3>
+            <div className="bg-emerald-50 p-6 rounded-xl">
+              <h3 className="font-bold text-emerald-900 mb-4">Confirmation Dialog:</h3>
               <div className="flex gap-4">
                 <RippleButton variant="danger" icon="⚠️">
                   Hapus
@@ -204,8 +204,8 @@ export default function RippleButtonShowcase() {
         </section>
 
         {/* Code Example */}
-        <section className="bg-white rounded-2xl p-8 shadow-lg border border-amber-100">
-          <h2 className="text-2xl font-bold text-amber-900 mb-6">Kode Contoh</h2>
+        <section className="bg-white rounded-2xl p-8 shadow-lg border border-emerald-100">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-6">Kode Contoh</h2>
           <div className="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto">
             <pre className="text-sm">{`// Import
 import { RippleButton } from '@/components/shared';

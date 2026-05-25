@@ -25,7 +25,7 @@ export function SiswaProfileSection() {
         <ProfileCard
           variant="siswa"
           name={user.name}
-          role={`Siswa Kelas ${user.grade_level || '10'}`}
+          role={`Siswa Kelas 10`}
           avatar="👨‍🎓"
           buttonText="Edit Profile"
           onButtonClick={() => window.location.href = '/dashboard/siswa/profile'}
@@ -118,7 +118,7 @@ export function AdminProfileSection() {
 export function TeacherDirectorySection({ teachers = [] }) {
   return (
     <div className="mb-12">
-      <h3 className="text-2xl font-bold text-amber-900 mb-6">Daftar Guru</h3>
+      <h3 className="text-2xl font-bold text-emerald-900 mb-6">Daftar Guru</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {teachers.length > 0 ? (
           teachers.map((teacher: any) => (
@@ -134,7 +134,7 @@ export function TeacherDirectorySection({ teachers = [] }) {
             />
           ))
         ) : (
-          <div className="col-span-full text-center py-8 text-amber-700">
+          <div className="col-span-full text-center py-8 text-emerald-700">
             <p>Belum ada guru yang tersedia</p>
           </div>
         )}
@@ -248,7 +248,7 @@ export function AdminUsersSection({ users = [] }) {
           </div>
           {teachers.length > 8 && (
             <div className="text-center mt-4">
-              <a href="/admin/users?role=teacher" className="text-amber-700 hover:text-amber-900 font-bold">
+              <a href="/admin/users?role=teacher" className="text-emerald-700 hover:text-emerald-900 font-bold">
                 Lihat semua guru ({teachers.length})
               </a>
             </div>
@@ -276,7 +276,7 @@ export function AdminUsersSection({ users = [] }) {
           </div>
           {students.length > 10 && (
             <div className="text-center mt-4">
-              <a href="/admin/users?role=student" className="text-amber-700 hover:text-amber-900 font-bold">
+              <a href="/admin/users?role=student" className="text-emerald-700 hover:text-emerald-900 font-bold">
                 Lihat semua siswa ({students.length})
               </a>
             </div>
@@ -292,10 +292,10 @@ export function AdminUsersSection({ users = [] }) {
 // ============================================
 function StatCard({ icon, label, value }: { icon: string; label: string; value: string | number }) {
   return (
-    <div className="bg-white rounded-lg p-4 shadow-md border-l-4 border-amber-500 hover:shadow-lg transition-all">
+    <div className="bg-white rounded-lg p-4 shadow-md border-l-4 border-emerald-500 hover:shadow-lg transition-all">
       <div className="text-3xl mb-2">{icon}</div>
       <p className="text-gray-600 text-sm font-medium">{label}</p>
-      <p className="text-2xl font-bold text-amber-900">{value}</p>
+      <p className="text-2xl font-bold text-emerald-900">{value}</p>
     </div>
   );
 }

@@ -63,9 +63,12 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-5 py-12 sm:px-8">
-        <div className="grid w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/70 lg:grid-cols-[0.9fr_1.1fr]">
-          <section className="hidden bg-slate-900 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-            <div>
+        <div className="grid w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/70 lg:grid-cols-[1.2fr_0.8fr] gap-8">
+          <section className="hidden text-white lg:flex lg:flex-col lg:justify-between relative overflow-hidden" style={{backgroundImage: 'url(/perpus.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-800/75 to-slate-900/80"></div>
+
+            <div className="relative z-10 p-10">
               <Link href="/" className="inline-flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-sm font-black text-slate-900">RP</div>
                 <div>
@@ -75,23 +78,17 @@ export default function RegisterPage() {
               </Link>
 
               <div className="mt-20 max-w-md">
-                <p className="text-sm font-black uppercase tracking-widest text-emerald-300">Register</p>
-                <h1 className="mt-5 text-4xl font-black leading-tight text-white">Buat akun READPOINT.</h1>
-                <p className="mt-6 leading-8 text-slate-300">Daftar sebagai siswa untuk mulai membaca e-book, mengerjakan kuis, dan mengumpulkan poin.</p>
+                <h1 className="mt-5 text-5xl font-black leading-tight text-white lg:text-6xl">Buat akun READPOINT.</h1>
+                <p className="mt-6 leading-8 text-lg text-slate-300 lg:text-xl">Daftar untuk mulai petualangan literasi digital Anda.</p>
               </div>
             </div>
 
-            <div className="space-y-4">
-              {['Membaca e-book', 'Mengerjakan kuis', 'Mengumpulkan poin'].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                  <p className="text-sm font-black text-white">{item}</p>
-                </div>
-              ))}
+            <div className="relative z-10 p-10 space-y-4">
             </div>
           </section>
 
-          <section className="flex min-h-[760px] items-center justify-center px-5 py-12 sm:px-8 lg:px-14">
-            <div className="w-full max-w-xl">
+          <section className="flex min-h-[760px] items-center justify-center px-5 py-12 sm:px-8 lg:px-8">
+            <div className="w-full max-w-lg">
               <div className="mb-10 text-center lg:text-left">
                 <Link href="/" className="mb-8 inline-flex items-center gap-3 lg:hidden">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-sm font-black text-white">RP</div>
@@ -101,9 +98,9 @@ export default function RegisterPage() {
                   </div>
                 </Link>
 
-                <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Akun Siswa</p>
-                <h2 className="mt-4 text-3xl font-black leading-tight text-slate-900 sm:text-4xl">Daftar akun baru</h2>
-                <p className="mt-4 leading-7 text-slate-600">Lengkapi data berikut untuk membuat akun READPOINT.</p>
+                <p className="text-lg font-black uppercase tracking-widest text-emerald-700 sm:text-xl">Akun Siswa</p>
+                <h2 className="mt-4 text-4xl font-black leading-tight text-slate-900 sm:text-5xl lg:text-6xl">Daftar akun baru</h2>
+                <p className="mt-4 leading-7 text-lg text-slate-600 sm:text-xl">Lengkapi data berikut untuk membuat akun READPOINT.</p>
               </div>
 
               {error && (
@@ -120,7 +117,7 @@ export default function RegisterPage() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="input-professional"
+                      className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-16 sm:text-lg"
                       placeholder="Nama lengkap"
                       disabled={loading}
                       required
@@ -133,7 +130,7 @@ export default function RegisterPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="input-professional"
+                      className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-16 sm:text-lg"
                       placeholder="nama@email.com"
                       disabled={loading}
                       required
@@ -146,7 +143,7 @@ export default function RegisterPage() {
                     name="grade_level"
                     value={formData.grade_level}
                     onChange={handleChange}
-                    className="input-professional"
+                    className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-16 sm:text-lg"
                     disabled={loading}
                     required
                   >
@@ -164,7 +161,7 @@ export default function RegisterPage() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="input-professional"
+                      className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-16 sm:text-lg"
                       placeholder="Masukkan password"
                       disabled={loading}
                       required
@@ -177,7 +174,7 @@ export default function RegisterPage() {
                       name="password_confirmation"
                       value={formData.password_confirmation}
                       onChange={handleChange}
-                      className="input-professional"
+                      className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-16 sm:text-lg"
                       placeholder="Ulangi password"
                       disabled={loading}
                       required
@@ -188,7 +185,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="h-14 w-full rounded-2xl bg-emerald-700 px-6 text-sm font-black text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-16 w-full rounded-2xl bg-emerald-700 px-6 text-base font-black text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:text-lg"
                 >
                   {loading ? 'Memproses...' : 'Daftar'}
                 </button>
@@ -196,7 +193,7 @@ export default function RegisterPage() {
 
               <div className="my-8 h-px w-full bg-slate-200" />
 
-              <p className="text-center text-sm font-semibold text-slate-600">
+              <p className="text-center text-base font-semibold text-slate-600 sm:text-lg">
                 Sudah punya akun?{' '}
                 <Link href="/login" className="font-black text-emerald-700 hover:text-emerald-800">
                   Masuk di sini
@@ -213,7 +210,7 @@ export default function RegisterPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-black text-slate-800">{label}</label>
+      <label className="mb-2 block text-base font-black text-slate-800 sm:text-lg">{label}</label>
       {children}
     </div>
   );

@@ -39,6 +39,14 @@ class EbookController extends Controller
         $ebook = Ebook::where('is_active', true)
             ->findOrFail($id);
 
+        // Convert storage paths to full URLs
+        if ($ebook->cover_image) {
+            $ebook->cover_image = asset('storage/' . $ebook->cover_image);
+        }
+        if ($ebook->file_path) {
+            $ebook->pdf_file = asset('storage/' . $ebook->file_path);
+        }
+
         return response()->json([
             'data' => $ebook,
         ]);
@@ -85,6 +93,7 @@ class EbookController extends Controller
     /**
      * Extract and clean text from a PDF file.
      * Handles common encoding issues with Indonesian PDFs.
+     * Uses smart fallback strategies for PDFs with embedded fonts.
      */
     private function extractPdfText(string $pdfPath): string
     {
@@ -97,21 +106,40 @@ class EbookController extends Controller
             $parser = new PdfParser([], $config);
             $pdf    = $parser->parseFile($pdfPath);
 
-            // Try full-document extraction first
+            // Try Strategy 1: Full-document extraction
             $rawText = $pdf->getText();
+            $cleanedText = $this->cleanText($rawText);
 
-            // If result looks garbled, try page-by-page with separator
-            if ($this->isGarbled($rawText)) {
-                $rawText = '';
-                foreach ($pdf->getPages() as $page) {
+            // If full extraction produces good text (>200 chars), use it
+            if (!empty($cleanedText) && mb_strlen($cleanedText) > 200) {
+                return $cleanedText;
+            }
+
+            // Strategy 2: Page-by-page extraction with quality checking
+            $pageContents = [];
+            foreach ($pdf->getPages() as $pageNum => $page) {
+                try {
                     $pageText = $page->getText();
-                    if (!$this->isGarbled($pageText)) {
-                        $rawText .= $pageText . "\n\n";
+                    $cleanedPageText = $this->cleanText($pageText);
+                    
+                    // Only include pages that have substantial content (>50 chars)
+                    if (mb_strlen($cleanedPageText) > 50) {
+                        $pageContents[] = $cleanedPageText;
+                        \Log::debug("[EbookController] Page " . ($pageNum + 1) . " extracted: " . mb_strlen($cleanedPageText) . " chars");
+                    } else {
+                        \Log::debug("[EbookController] Page " . ($pageNum + 1) . " skipped (too short or corrupted)");
                     }
+                } catch (\Exception $e) {
+                    \Log::debug('[EbookController] Page extraction error: ' . $e->getMessage());
                 }
             }
 
-            return $this->cleanText($rawText);
+            if (!empty($pageContents)) {
+                return implode("\n\n", $pageContents);
+            }
+
+            // Fallback: return whatever we could extract (might be partial)
+            return $cleanedText;
 
         } catch (\Exception $e) {
             \Log::warning('[EbookController] PDF text extraction failed: ' . $e->getMessage());
@@ -150,6 +178,7 @@ class EbookController extends Controller
 
     /**
      * Clean and normalize extracted PDF text.
+     * VERY AGGRESSIVE cleaning to fix scattered/corrupted text from PDFs with embedded fonts.
      */
     private function cleanText(string $text): string
     {
@@ -157,7 +186,7 @@ class EbookController extends Controller
             return '';
         }
 
-        // 1. Fix encoding — try to convert from various encodings to UTF-8
+        // 1. Fix encoding first
         if (!mb_check_encoding($text, 'UTF-8')) {
             $converted = mb_convert_encoding($text, 'UTF-8', 'Windows-1252, ISO-8859-1, UTF-8');
             if ($converted !== false) {
@@ -165,27 +194,79 @@ class EbookController extends Controller
             }
         }
 
-        // 2. Remove null bytes and control characters (except newlines/tabs)
-        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $text);
+        // 2. Remove all control characters
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/u', '', $text);
 
-        // 3. Remove or replace common garbled symbol patterns
-        //    These are typically caused by custom font glyph mappings
-        $text = preg_replace('/[^\p{L}\p{N}\p{Z}\p{P}\p{S}\n\r\t]/u', ' ', $text);
-
-        // 4. Collapse multiple spaces into one (but preserve newlines)
-        $text = preg_replace('/[ \t]{2,}/', ' ', $text);
-
-        // 5. Collapse more than 2 consecutive newlines into 2
-        $text = preg_replace('/\n{3,}/', "\n\n", $text);
-
-        // 6. Trim each line
+        // 3. Split into lines and clean each one
         $lines = explode("\n", $text);
-        $lines = array_map('trim', $lines);
-        $text  = implode("\n", $lines);
+        $cleanedLines = [];
+        
+        foreach ($lines as $line) {
+            $line = trim($line);
+            
+            // Skip empty lines (but preserve them as paragraph breaks)
+            if (empty($line)) {
+                // Add empty line only if the previous line wasn't empty (avoid stacking)
+                if (!empty($cleanedLines) && !empty(end($cleanedLines))) {
+                    $cleanedLines[] = '';
+                }
+                continue;
+            }
+            
+            // AGGRESSIVE: Skip lines that look like corrupted/scattered text
+            // These have very few normal chars, lots of spacing, or are just single letters
+            
+            // Count actual word characters vs total
+            $wordChars = mb_strlen(preg_replace('/[^\p{L}\p{N}]/u', '', $line));
+            $totalChars = mb_strlen($line);
+            
+            // Skip if line is too short (likely a header or stray char)
+            if ($totalChars < 8) {
+                continue;
+            }
+            
+            // Skip if mostly spaces/punctuation (scattered text indicator)
+            if ($wordChars < ($totalChars * 0.4)) {
+                continue;
+            }
+            
+            // Skip if has weird Unicode symbols that indicate corrupted fonts
+            $symbolCount = preg_match_all('/[\p{So}\p{Sc}\p{Sk}\p{Cn}]/u', $line);
+            if ($symbolCount > ($totalChars * 0.1)) {
+                continue;
+            }
+            
+            // Clean: remove extra spaces but keep punctuation
+            $line = preg_replace('/[ \t]{2,}/', ' ', $line);
+            
+            // Only keep valid characters: letters, numbers, basic punctuation, spaces
+            $line = preg_replace(
+                '/[^\p{L}\p{N}\s.,!?;:\'"()\-]/u',
+                '',
+                $line
+            );
+            
+            $line = trim($line);
+            
+            // Final check: line should have some content
+            if (!empty($line) && mb_strlen($line) >= 8) {
+                $cleanedLines[] = $line;
+            }
+        }
 
+        // 4. Join lines, ensuring proper spacing between paragraphs
+        $text = implode("\n", $cleanedLines);
+        
+        // 5. Fix multiple consecutive spaces
+        $text = preg_replace('/[ \t]{2,}/', ' ', $text);
+        
+        // 6. Normalize paragraph breaks (max 2 newlines)
+        $text = preg_replace('/\n{3,}/', "\n\n", $text);
+        
         // 7. Final trim
         return trim($text);
     }
+
 
     // Get file PDF (stream untuk reader)
     public function getPDF($id)

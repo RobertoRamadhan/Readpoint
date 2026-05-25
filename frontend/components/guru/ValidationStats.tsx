@@ -36,8 +36,8 @@ export default function ValidationStats({ stats, loading }: ValidationStatsProps
     {
       title: '⏳ Pending',
       value: stats.pending_count,
-      color: 'from-yellow-400 to-orange-500',
-      textColor: 'text-yellow-700'
+      color: 'from-emerald-400 to-emerald-500',
+      textColor: 'text-emerald-700'
     },
     {
       title: '✅ Approved Today',

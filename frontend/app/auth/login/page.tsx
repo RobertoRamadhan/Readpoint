@@ -41,12 +41,12 @@ export default function LoginPage() {
       {/* Header / Branding */}
       <div className="mb-8 text-center">
         <div className="inline-flex items-center gap-3 mb-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-300/40">
+          <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-300/40">
             <span className="text-3xl">📚</span>
           </div>
           <div className="text-left">
-            <h1 className="text-3xl font-black text-amber-900 tracking-tight">READPOINT</h1>
-            <p className="text-xs text-amber-600 font-semibold">Platform Literasi Digital Siswa</p>
+            <h1 className="text-3xl font-black text-emerald-900 tracking-tight">READPOINT</h1>
+            <p className="text-xs text-emerald-600 font-semibold">Platform Literasi Digital Siswa</p>
           </div>
         </div>
         <p className="text-slate-600 text-sm leading-relaxed">
@@ -55,7 +55,7 @@ export default function LoginPage() {
       </div>
 
       {/* Login Card */}
-      <div className="bg-white rounded-3xl shadow-2xl shadow-amber-100/60 p-8 border border-amber-100">
+      <div className="bg-white rounded-3xl shadow-2xl shadow-emerald-100/60 p-8 border border-emerald-100">
 
         {/* Error Alert */}
         {error && (
@@ -68,7 +68,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-2">
+            <label className="block text-sm font-bold text-emerald-900 mb-2">
               Email Address
             </label>
             <div className="relative">
@@ -76,7 +76,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 pr-11 rounded-xl bg-amber-50 border-2 border-amber-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition duration-200 text-sm"
+                className="w-full px-4 py-3 pr-11 rounded-xl bg-emerald-50 border-2 border-emerald-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-amber-200 transition duration-200 text-sm"
                 placeholder="nama@email.com"
                 disabled={loading}
                 required
@@ -87,7 +87,7 @@ export default function LoginPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-2">
+            <label className="block text-sm font-bold text-emerald-900 mb-2">
               Password
             </label>
             <div className="relative">
@@ -95,7 +95,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 pr-11 rounded-xl bg-amber-50 border-2 border-amber-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition duration-200 text-sm"
+                className="w-full px-4 py-3 pr-11 rounded-xl bg-emerald-50 border-2 border-emerald-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-amber-200 transition duration-200 text-sm"
                 placeholder="••••••••"
                 disabled={loading}
                 required
@@ -109,11 +109,11 @@ export default function LoginPage() {
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
-                className="w-4 h-4 rounded border-2 border-amber-300 accent-amber-600"
+                className="w-4 h-4 rounded border-2 border-emerald-300 accent-amber-600"
               />
               <span className="text-slate-700 font-medium">Ingat saya</span>
             </label>
-            <a href="#" className="text-amber-600 hover:text-amber-800 font-semibold transition">
+            <a href="#" className="text-emerald-600 hover:text-emerald-800 font-semibold transition">
               Lupa password?
             </a>
           </div>
@@ -135,10 +135,10 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="relative my-2">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-amber-100"></div>
+              <div className="w-full border-t border-emerald-100"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-3 bg-white text-amber-500 text-xs font-bold">ATAU</span>
+              <span className="px-3 bg-white text-emerald-500 text-xs font-bold">ATAU</span>
             </div>
           </div>
 

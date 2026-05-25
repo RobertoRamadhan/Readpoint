@@ -108,7 +108,7 @@ export default function ValidationPage() {
   const handleReject = async (id: number) => {
     try {
       setActionLoading(true);
-      await api.validations.reject(id);
+      await api.validations.reject(id, '');
       
       // Refresh data
       await loadValidationData();

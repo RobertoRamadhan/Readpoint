@@ -102,7 +102,7 @@ export default function GuruDashboard() {
       {/* Hamburger Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="fixed top-16 left-4 z-40 p-2 bg-amber-800 text-white rounded-lg hover:bg-amber-700 transition-all md:hidden"
+          className="fixed top-16 left-4 z-40 p-2 bg-emerald-800 text-white rounded-lg hover:bg-emerald-700 transition-all md:hidden"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -128,7 +128,7 @@ export default function GuruDashboard() {
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-b from-amber-50 via-amber-50 to-orange-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           <div className="flex-1 overflow-y-auto px-6 lg:px-10 py-8">
             {error && (
               <div className="mb-8 p-5 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
@@ -267,7 +267,7 @@ function ProfileSettings() {
       )}
 
       {success && (
-        <div className="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-xl text-amber-800 text-sm shadow-sm">
+        <div className="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-xl text-emerald-800 text-sm shadow-sm">
           <p className="font-semibold flex items-center gap-2"><span>✅</span> Berhasil</p>
           <p className="mt-1">{success}</p>
         </div>
@@ -304,7 +304,7 @@ function ProfileSettings() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setFormData({ ...formData, avatar: e.target.files?.[0] || null })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <p className="text-xs text-gray-500 mt-1">Format: JPG, PNG. Maksimal 5MB</p>
             </div>
@@ -316,7 +316,7 @@ function ProfileSettings() {
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             />
           </div>
@@ -326,7 +326,7 @@ function ProfileSettings() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             />
           </div>
@@ -334,7 +334,7 @@ function ProfileSettings() {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all disabled:opacity-50"
+              className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all disabled:opacity-50"
             >
               {submitting ? 'Menyimpan...' : 'Simpan Profil'}
             </button>
@@ -352,7 +352,7 @@ function ProfileSettings() {
               type="password"
               value={formData.current_password}
               onChange={(e) => setFormData({ ...formData, current_password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             />
           </div>
@@ -362,7 +362,7 @@ function ProfileSettings() {
               type="password"
               value={formData.new_password}
               onChange={(e) => setFormData({ ...formData, new_password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
               minLength={6}
             />
@@ -373,7 +373,7 @@ function ProfileSettings() {
               type="password"
               value={formData.password_confirmation}
               onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
               minLength={6}
             />
@@ -382,7 +382,7 @@ function ProfileSettings() {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all disabled:opacity-50"
+              className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all disabled:opacity-50"
             >
               {submitting ? 'Menyimpan...' : 'Ubah Password'}
             </button>
@@ -399,9 +399,9 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
     return (
       <div className="text-center py-20">
         <div className="inline-block">
-          <div className="w-14 h-14 border-4 border-amber-400 border-t-amber-700 rounded-full animate-spin"></div>
+          <div className="w-14 h-14 border-4 border-emerald-400 border-t-emerald-700 rounded-full animate-spin"></div>
         </div>
-        <p className="text-amber-700 font-bold mt-4 text-lg">Memuat data...</p>
+        <p className="text-emerald-700 font-bold mt-4 text-lg">Memuat data...</p>
       </div>
     );
   }
@@ -426,8 +426,8 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
     <div className="p-8 lg:p-12 space-y-10 w-full">
       {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-3xl lg:text-4xl font-bold text-amber-900">Dashboard Guru</h2>
-        <p className="text-amber-700 font-semibold mt-2">Kelola pembelajaran siswa Anda</p>
+        <h2 className="text-3xl lg:text-4xl font-bold text-emerald-900">Dashboard Guru</h2>
+        <p className="text-emerald-700 font-semibold mt-2">Kelola pembelajaran siswa Anda</p>
       </div>
 
       {/* Stats Grid */}
@@ -435,25 +435,25 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
         <StatCard
           title="Total Siswa"
           value={stats.total_siswa || 0}
-          color="border-amber-600"
+          color="border-emerald-600"
           delay="0.1s"
         />
         <StatCard
           title="Kuis Dibuat"
           value={stats.total_kuis_dibuat || 0}
-          color="border-amber-500"
+          color="border-emerald-500"
           delay="0.15s"
         />
         <StatCard
           title="Validasi Pending"
           value={stats.validasi_pending || 0}
-          color="border-orange-500"
+          color="border-emerald-500"
           delay="0.2s"
         />
         <StatCard
           title="Siswa Aktif Hari Ini"
           value={stats.siswa_aktif_hari_ini || 0}
-          color="border-amber-400"
+          color="border-emerald-400"
           delay="0.25s"
         />
       </div>
@@ -461,12 +461,12 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
+        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-emerald-200 animate-scale-up hover:shadow-2xl hover:border-emerald-300 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-amber-900 mb-2">📊 Statistik Bulanan</h3>
-            <p className="text-amber-700 text-sm font-semibold">Aktivitas siswa per bulan</p>
+            <h3 className="text-2xl font-bold text-emerald-900 mb-2">📊 Statistik Bulanan</h3>
+            <p className="text-emerald-700 text-sm font-semibold">Aktivitas siswa per bulan</p>
             <div className="flex justify-center mt-3">
-              <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"></div>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={350}>
@@ -484,12 +484,12 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
+        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-emerald-200 animate-scale-up hover:shadow-2xl hover:border-emerald-300 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-amber-900 mb-2">📈 Status Kuis</h3>
-            <p className="text-amber-700 text-sm font-semibold">Distribusi kuis</p>
+            <h3 className="text-2xl font-bold text-emerald-900 mb-2">📈 Status Kuis</h3>
+            <p className="text-emerald-700 text-sm font-semibold">Distribusi kuis</p>
             <div className="flex justify-center mt-3">
-              <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"></div>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={350}>
@@ -515,43 +515,43 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
       </div>
 
       {/* Monthly Table */}
-      <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-amber-200 animate-scale-up hover:shadow-2xl hover:border-amber-300 transition-all duration-300" style={{ animationDelay: '0.4s' }}>
+      <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-emerald-200 animate-scale-up hover:shadow-2xl hover:border-emerald-300 transition-all duration-300" style={{ animationDelay: '0.4s' }}>
         <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold text-amber-900 mb-2">📅 Detail Bulanan</h3>
-          <p className="text-amber-700 text-sm font-semibold">Ringkasan aktivitas bulanan</p>
+          <h3 className="text-2xl font-bold text-emerald-900 mb-2">📅 Detail Bulanan</h3>
+          <p className="text-emerald-700 text-sm font-semibold">Ringkasan aktivitas bulanan</p>
           <div className="flex justify-center mt-3">
-            <div className="h-1 w-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
+            <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"></div>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-amber-200 bg-amber-50">
-                <th className="px-4 py-3 text-left font-bold text-amber-900">Bulan</th>
-                <th className="px-4 py-3 text-center font-bold text-amber-900">Siswa Aktif</th>
-                <th className="px-4 py-3 text-center font-bold text-amber-900">Buku Dibaca</th>
-                <th className="px-4 py-3 text-center font-bold text-amber-900">Kuis Selesai</th>
+              <tr className="border-b-2 border-emerald-200 bg-emerald-50">
+                <th className="px-4 py-3 text-left font-bold text-emerald-900">Bulan</th>
+                <th className="px-4 py-3 text-center font-bold text-emerald-900">Siswa Aktif</th>
+                <th className="px-4 py-3 text-center font-bold text-emerald-900">Buku Dibaca</th>
+                <th className="px-4 py-3 text-center font-bold text-emerald-900">Kuis Selesai</th>
               </tr>
             </thead>
             <tbody>
               {barChartData.length > 0 ? (
                 barChartData.map((stat, index) => (
-                  <tr key={index} className="border-b border-amber-100 hover:bg-amber-50 transition-all">
-                    <td className="px-4 py-3 font-semibold text-amber-900">{stat.month}</td>
+                  <tr key={index} className="border-b border-emerald-100 hover:bg-emerald-50 transition-all">
+                    <td className="px-4 py-3 font-semibold text-emerald-900">{stat.month}</td>
                     <td className="px-4 py-3 text-center">
-                      <span className="font-bold text-lg text-amber-600">{stat.siswaAktif}</span>
+                      <span className="font-bold text-lg text-emerald-600">{stat.siswaAktif}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="font-semibold text-amber-700">{stat.bukuDibaca}</span>
+                      <span className="font-semibold text-emerald-700">{stat.bukuDibaca}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="font-semibold text-amber-700">{stat.kuisSelesai}</span>
+                      <span className="font-semibold text-emerald-700">{stat.kuisSelesai}</span>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-amber-600">
+                  <td colSpan={4} className="px-4 py-8 text-center text-emerald-600">
                     Belum ada data bulanan
                   </td>
                 </tr>
@@ -564,14 +564,14 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
   );
 }
 
-function StatCard({ title, value, color = 'border-amber-600', delay = '0s' }: { title: string; value: number; color?: string; delay?: string }) {
+function StatCard({ title, value, color = 'border-emerald-600', delay = '0s' }: { title: string; value: number; color?: string; delay?: string }) {
   return (
     <div
-      className={`bg-white rounded-2xl shadow-lg border-l-4 ${color} hover:shadow-2xl hover:shadow-amber-400/20 transition-all p-8 transform hover:scale-105 animate-scale-up border-b-2 border-r-2 border-b-gray-100 border-r-gray-100`}
+      className={`bg-white rounded-2xl shadow-lg border-l-4 ${color} hover:shadow-2xl hover:shadow-emerald-400/20 transition-all p-8 transform hover:scale-105 animate-scale-up border-b-2 border-r-2 border-b-gray-100 border-r-gray-100`}
       style={{ animationDelay: delay }}
     >
-      <p className="text-amber-700 text-sm font-bold mb-3 uppercase tracking-wide">{title}</p>
-      <p className="text-5xl font-bold text-amber-900">{value}</p>
+      <p className="text-emerald-700 text-sm font-bold mb-3 uppercase tracking-wide">{title}</p>
+      <p className="text-5xl font-bold text-emerald-900">{value}</p>
     </div>
   );
 }
@@ -775,7 +775,7 @@ function ValidasiTab() {
 // Placeholder for other tabs
 function MonitoringTab() {
   return (
-    <div className="card border-2 border-amber-200 shadow-lg p-8 text-center animate-slide-up">
+    <div className="card border-2 border-emerald-200 shadow-lg p-8 text-center animate-slide-up">
       <p className="text-2xl font-bold text-slate-900">Monitoring tab coming soon</p>
     </div>
   );
@@ -887,7 +887,7 @@ function QuizTab() {
         </div>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="px-6 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all"
+          className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all"
         >
           {showCreateForm ? '← Lihat Daftar Kuis' : '+ Buat Kuis Baru'}
         </button>
@@ -905,13 +905,13 @@ function QuizTab() {
             ) : (
               <div className="space-y-3">
                 {quizzes.map((quiz) => (
-                  <div key={quiz.ebook_id} className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div key={quiz.ebook_id} className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
                     <div>
                       <h4 className="font-bold text-gray-900">{quiz.ebook_title}</h4>
                       <p className="text-sm text-gray-600">{quiz.question_count} pertanyaan</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-amber-600">{quiz.attempt_count}</p>
+                      <p className="text-2xl font-bold text-emerald-600">{quiz.attempt_count}</p>
                       <p className="text-xs text-gray-600">siswa menjawab</p>
                     </div>
                   </div>
@@ -925,7 +925,7 @@ function QuizTab() {
       {/* Create Quiz Form */}
       {showCreateForm && (
         <div className="card border-2 border-purple-200 shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-amber-800 to-amber-900 px-6 py-6 flex items-center gap-3">
+          <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 px-6 py-6 flex items-center gap-3">
             <div>
               <h2 className="text-2xl font-bold text-white">Buat Kuis</h2>
               <p className="text-purple-100 text-sm">Buat kuis dengan 5 pertanyaan pilihan ganda</p>
@@ -935,7 +935,7 @@ function QuizTab() {
           <div className="p-8 space-y-8">
             {!selectedEbook ? (
               <div className="space-y-4">
-                <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-8 text-center">
+                <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-8 text-center">
                   <h3 className="text-xl font-bold text-slate-900 mb-2">Pilih E-Book</h3>
                   <p className="text-slate-600 mb-6">Pilih buku untuk membuat kuis baru</p>
 
@@ -948,7 +948,7 @@ function QuizTab() {
                         const ebook = ebooks.find(b => b.id == parseInt(e.target.value));
                         setSelectedEbook(ebook);
                       }}
-                      className="w-full border-2 border-amber-300 rounded-lg px-6 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold text-slate-900 bg-white hover:border-amber-500 transition-all"
+                      className="w-full border-2 border-emerald-300 rounded-lg px-6 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold text-slate-900 bg-white hover:border-emerald-500 transition-all"
                     >
                       <option value="">Pilih e-book...</option>
                       {ebooks.map(b => (
@@ -961,7 +961,7 @@ function QuizTab() {
             ) : (
               <>
                 {/* Selected Book Info */}
-                <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
+                <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm font-semibold text-purple-600">📚 E-Book Terpilih</p>
@@ -970,7 +970,7 @@ function QuizTab() {
                     </div>
                     <button
                       onClick={() => setSelectedEbook(null)}
-                      className="px-4 py-2 bg-white border-2 border-amber-300 text-amber-600 rounded-lg font-semibold hover:bg-amber-50 transition-all"
+                      className="px-4 py-2 bg-white border-2 border-emerald-300 text-emerald-600 rounded-lg font-semibold hover:bg-emerald-50 transition-all"
                     >
                       Ubah
                     </button>
@@ -981,11 +981,11 @@ function QuizTab() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <p className="font-bold text-slate-900">Progres Pertanyaan</p>
-                    <p className="text-lg font-bold text-amber-600">{filledCount}/5</p>
+                    <p className="text-lg font-bold text-emerald-600">{filledCount}/5</p>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-amber-600 h-full transition-all duration-300"
+                      className="bg-emerald-600 h-full transition-all duration-300"
                       style={{ width: `${(filledCount / 5) * 100}%` }}
                     />
                   </div>
@@ -998,13 +998,13 @@ function QuizTab() {
                       {/* Question Number and Status */}
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                          <span className="flex items-center justify-center w-10 h-10 bg-amber-600 text-white rounded-full font-bold text-lg">
+                          <span className="flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-full font-bold text-lg">
                             {idx + 1}
                           </span>
                           <h4 className="font-bold text-lg text-slate-900">Pertanyaan {idx + 1}</h4>
                         </div>
                         {q.question.trim() && (
-                          <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                          <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
                             Selesai
                           </span>
                         )}
@@ -1045,7 +1045,7 @@ function QuizTab() {
                                 placeholder={`Opsi ${label}`}
                                 value={q[key as keyof QuestionForm] as string}
                                 onChange={(e) => handleQuestionChange(idx, key, e.target.value)}
-                                className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-slate-900"
+                                className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-slate-900"
                               />
                             </div>
                           ))}
@@ -1064,7 +1064,7 @@ function QuizTab() {
                               onClick={() => handleQuestionChange(idx, 'correct_answer', option)}
                               className={`py-2 px-3 rounded-lg font-bold transition-all ${
                                 q.correct_answer === option
-                                  ? 'bg-amber-600 text-white shadow-lg scale-105'
+                                  ? 'bg-emerald-600 text-white shadow-lg scale-105'
                                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                               }`}
                             >
@@ -1085,7 +1085,7 @@ function QuizTab() {
                     className={`flex-1 py-4 rounded-lg font-bold text-lg transition-all ${
                       submitting || filledCount < 5
                         ? 'bg-slate-300 text-slate-600 cursor-not-allowed opacity-60'
-                        : 'bg-amber-600 text-white hover:shadow-xl hover:scale-105'
+                        : 'bg-emerald-600 text-white hover:shadow-xl hover:scale-105'
                     }`}
                   >
                     {submitting ? 'Menyimpan...' : 'Simpan Kuis'}
@@ -1138,7 +1138,7 @@ function StudentListTab() {
   return (
     <div className="space-y-6 animate-slide-up">
       <div className="card border-2 border-cyan-200 shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-amber-800 to-amber-900 px-6 py-4 flex items-center gap-3">
+        <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 px-6 py-4 flex items-center gap-3">
           <h2 className="text-xl font-bold text-white">Student List</h2>
         </div>
 
@@ -1148,7 +1148,7 @@ function StudentListTab() {
             placeholder="Search student..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border-2 border-amber-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full border-2 border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
 
           {loading ? (
@@ -1157,7 +1157,7 @@ function StudentListTab() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b-2 border-amber-200 bg-amber-50">
+                  <tr className="border-b-2 border-emerald-200 bg-emerald-50">
                     <th className="px-4 py-2 text-left font-bold">Nama</th>
                     <th className="px-4 py-2 text-center font-bold">Poin</th>
                     <th className="px-4 py-2 text-center font-bold">Buku</th>
@@ -1168,7 +1168,7 @@ function StudentListTab() {
                 </thead>
                 <tbody>
                   {filteredData.map(student => (
-                    <tr key={student.id} className="border-b border-amber-100 hover:bg-amber-50 transition-all">
+                    <tr key={student.id} className="border-b border-emerald-100 hover:bg-emerald-50 transition-all">
                       <td className="px-4 py-3">
                         <div>
                           <p className="font-bold text-slate-900">{student.name}</p>
@@ -1176,7 +1176,7 @@ function StudentListTab() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="font-bold text-lg text-amber-600">{student.total_points || 0}</span>
+                        <span className="font-bold text-lg text-emerald-600">{student.total_points || 0}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className="font-semibold">{student.books_read || 0}</span>
@@ -1185,11 +1185,11 @@ function StudentListTab() {
                         <div className="flex flex-col items-center gap-1">
                           <div className="w-24 bg-gray-200 rounded-full h-2">
                             <div
-                              className="bg-amber-600 h-2 rounded-full"
+                              className="bg-emerald-600 h-2 rounded-full"
                               style={{ width: `${student.reading_progress || 0}%` }}
                             />
                           </div>
-                          <span className="text-xs font-semibold text-amber-700">{Math.round(student.reading_progress || 0)}%</span>
+                          <span className="text-xs font-semibold text-emerald-700">{Math.round(student.reading_progress || 0)}%</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">

@@ -78,10 +78,10 @@ export default function QuizInterface({
   // ── No questions ────────────────────────────────────────────────────────────
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-orange-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-emerald-50 p-4">
         <Card padding="lg" shadow="xl" className="max-w-md w-full text-center">
           <div className="text-6xl mb-4">❓</div>
-          <h2 className="text-2xl font-black text-amber-900 mb-2">Tidak Ada Kuis</h2>
+          <h2 className="text-2xl font-black text-emerald-900 mb-2">Tidak Ada Kuis</h2>
           <p className="text-slate-500 mb-6 text-sm">
             Tidak ada pertanyaan kuis yang tersedia untuk e-book ini.
           </p>
@@ -111,37 +111,37 @@ export default function QuizInterface({
       score >= 80
         ? 'text-green-600'
         : score >= 60
-        ? 'text-amber-600'
+        ? 'text-emerald-600'
         : 'text-red-500';
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-orange-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-emerald-50 p-4">
         <Card padding="lg" shadow="xl" className="max-w-md w-full">
           {/* Score */}
           <div className="text-center mb-6">
             <div className="text-6xl mb-3">{resultEmoji}</div>
-            <h2 className="text-2xl font-black text-amber-900 mb-1">Hasil Kuismu</h2>
+            <h2 className="text-2xl font-black text-emerald-900 mb-1">Hasil Kuismu</h2>
             <p className={`text-6xl font-black ${scoreColor} my-4`}>{score}%</p>
             <p className="text-slate-600 text-sm">{resultMessage}</p>
           </div>
 
           {/* Stats */}
-          <div className="bg-amber-50 rounded-xl border border-amber-200 p-4 mb-6 space-y-3">
+          <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-4 mb-6 space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-amber-800 font-semibold text-sm">Jawaban Benar</span>
+              <span className="text-emerald-800 font-semibold text-sm">Jawaban Benar</span>
               <Badge variant="success" size="sm">{correctAnswers}/{questions.length}</Badge>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-amber-800 font-semibold text-sm">Akurasi</span>
+              <span className="text-emerald-800 font-semibold text-sm">Akurasi</span>
               <Badge variant={score >= 60 ? 'success' : 'danger'} size="sm">
                 {Math.round((correctAnswers / questions.length) * 100)}%
               </Badge>
             </div>
             {/* Progress bar */}
-            <div className="w-full bg-amber-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-emerald-200 rounded-full h-3 overflow-hidden">
               <div
                 className={`h-3 rounded-full transition-all duration-500 ${
-                  score >= 80 ? 'bg-green-500' : score >= 60 ? 'bg-amber-500' : 'bg-red-400'
+                  score >= 80 ? 'bg-green-500' : score >= 60 ? 'bg-emerald-500' : 'bg-red-400'
                 }`}
                 style={{ width: `${(correctAnswers / questions.length) * 100}%` }}
               />
@@ -164,9 +164,9 @@ export default function QuizInterface({
 
   // ── Quiz ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50 flex flex-col">
       {/* Header */}
-      <header className="bg-gradient-to-r from-amber-800 to-amber-900 text-white px-4 sm:px-6 py-4 sticky top-0 z-20 shadow-md">
+      <header className="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white px-4 sm:px-6 py-4 sticky top-0 z-20 shadow-md">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-lg font-black truncate flex-1 mr-4">📝 {ebookTitle}</h1>
@@ -175,13 +175,13 @@ export default function QuizInterface({
             </Badge>
           </div>
           {/* Progress bar */}
-          <div className="w-full bg-amber-700 rounded-full h-2.5 overflow-hidden">
+          <div className="w-full bg-emerald-700 rounded-full h-2.5 overflow-hidden">
             <div
-              className="bg-amber-300 h-2.5 rounded-full transition-all duration-300"
+              className="bg-emerald-300 h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xs text-amber-200 mt-1.5 font-semibold">
+          <p className="text-xs text-emerald-200 mt-1.5 font-semibold">
             Soal {currentIndex + 1} dari {questions.length}
           </p>
         </div>
@@ -192,7 +192,7 @@ export default function QuizInterface({
         <div className="w-full max-w-3xl">
           {/* Question Card */}
           <Card padding="lg" shadow="lg" className="mb-6">
-            <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3">
+            <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-3">
               Soal {currentIndex + 1}
             </p>
             <h2 className="text-xl font-black text-gray-900 mb-6 leading-relaxed">
@@ -209,15 +209,15 @@ export default function QuizInterface({
                     onClick={() => handleSelectAnswer(option.key)}
                     className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 font-semibold flex items-center gap-3 hover:scale-[1.01] active:scale-[0.99] ${
                       isSelected
-                        ? 'border-amber-600 bg-amber-600 text-white shadow-md shadow-amber-200'
-                        : 'border-amber-200 bg-white text-gray-800 hover:border-amber-400 hover:bg-amber-50'
+                        ? 'border-emerald-600 bg-emerald-600 text-white shadow-md shadow-emerald-200'
+                        : 'border-emerald-200 bg-white text-gray-800 hover:border-emerald-400 hover:bg-emerald-50'
                     }`}
                   >
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 border-2 ${
                         isSelected
-                          ? 'border-white bg-white text-amber-700'
-                          : 'border-amber-300 bg-amber-50 text-amber-700'
+                          ? 'border-white bg-white text-emerald-700'
+                          : 'border-emerald-300 bg-emerald-50 text-emerald-700'
                       }`}
                     >
                       {option.key.toUpperCase()}
@@ -230,7 +230,7 @@ export default function QuizInterface({
             </div>
 
             {/* Hint */}
-            <p className="text-xs text-amber-500 font-medium mt-4 text-center">
+            <p className="text-xs text-emerald-500 font-medium mt-4 text-center">
               💡 Pilih satu jawaban terbaik dari opsi yang tersedia
             </p>
           </Card>
@@ -268,7 +268,7 @@ export default function QuizInterface({
           </div>
 
           {!allAnswered && currentIndex === questions.length - 1 && (
-            <p className="text-center text-amber-600 text-xs font-semibold mt-3">
+            <p className="text-center text-emerald-600 text-xs font-semibold mt-3">
               ⚠️ Jawab semua soal sebelum mengirim ({questions.length - answeredCount} soal belum dijawab)
             </p>
           )}
@@ -276,7 +276,7 @@ export default function QuizInterface({
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-amber-200 px-4 sm:px-6 py-4 text-center">
+      <footer className="bg-white border-t border-emerald-200 px-4 sm:px-6 py-4 text-center">
         <RippleButton variant="outline" size="small" onClick={onCancel}>
           ✕ Batal Kuis
         </RippleButton>

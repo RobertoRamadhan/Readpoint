@@ -34,8 +34,8 @@ export default function HistoryTabs({ activeTab, onTabChange, counts }: HistoryT
               transition-all duration-200
               hover:scale-[1.02] active:scale-[0.98]
               ${isActive
-                ? 'bg-amber-700 text-white border-amber-800 shadow-md shadow-amber-300/30'
-                : 'bg-white text-amber-800 border-amber-200 hover:border-amber-500 hover:bg-amber-50'
+                ? 'bg-emerald-700 text-white border-emerald-800 shadow-md shadow-emerald-300/30'
+                : 'bg-white text-emerald-800 border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50'
               }
             `}
           >

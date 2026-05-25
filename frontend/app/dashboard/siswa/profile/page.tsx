@@ -103,10 +103,10 @@ export default function SiswaProfilePage() {
   if (!mounted || loading) return <PageLoading />;
   if (!isAuthenticated || !user || user.role !== 'siswa') return null;
 
-  const inputClass = 'w-full px-4 py-2.5 rounded-xl bg-amber-50 border-2 border-amber-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition text-sm disabled:opacity-60';
+  const inputClass = 'w-full px-4 py-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-amber-200 transition text-sm disabled:opacity-60';
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
+    <div className="w-full min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Back button */}
@@ -150,19 +150,19 @@ export default function SiswaProfilePage() {
               className="hidden"
               onChange={handleAvatarChange}
             />
-            <p className="text-xs text-amber-600 text-center">Klik "Edit Foto" untuk mengganti foto profil</p>
+            <p className="text-xs text-emerald-600 text-center">Klik "Edit Foto" untuk mengganti foto profil</p>
           </div>
 
           {/* Right — Forms */}
           <div className="lg:col-span-2 space-y-6">
             {/* Profile Info */}
             <Card padding="lg" shadow="md">
-              <h2 className="text-xl font-black text-amber-900 mb-5 flex items-center gap-2">
+              <h2 className="text-xl font-black text-emerald-900 mb-5 flex items-center gap-2">
                 <span>👤</span> Informasi Profil
               </h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-amber-900 mb-1.5">Nama Lengkap</label>
+                  <label className="block text-sm font-bold text-emerald-900 mb-1.5">Nama Lengkap</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -172,7 +172,7 @@ export default function SiswaProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-amber-900 mb-1.5">Email</label>
+                  <label className="block text-sm font-bold text-emerald-900 mb-1.5">Email</label>
                   <input
                     type="email"
                     value={formData.email}
@@ -182,9 +182,9 @@ export default function SiswaProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-amber-900 mb-1.5">
+                  <label className="block text-sm font-bold text-emerald-900 mb-1.5">
                     Wali Kelas
-                    {loadingGuru && <span className="ml-2 text-xs text-amber-500 font-normal">Memuat...</span>}
+                    {loadingGuru && <span className="ml-2 text-xs text-emerald-500 font-normal">Memuat...</span>}
                   </label>
                   <select
                     value={formData.wali_kelas}
@@ -208,12 +208,12 @@ export default function SiswaProfilePage() {
 
             {/* Password */}
             <Card padding="lg" shadow="md">
-              <h2 className="text-xl font-black text-amber-900 mb-5 flex items-center gap-2">
+              <h2 className="text-xl font-black text-emerald-900 mb-5 flex items-center gap-2">
                 <span>🔐</span> Ubah Password
               </h2>
               <form onSubmit={handlePasswordUpdate} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-amber-900 mb-1.5">Password Saat Ini</label>
+                  <label className="block text-sm font-bold text-emerald-900 mb-1.5">Password Saat Ini</label>
                   <input
                     type="password"
                     value={formData.current_password}
@@ -223,7 +223,7 @@ export default function SiswaProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-amber-900 mb-1.5">Password Baru</label>
+                  <label className="block text-sm font-bold text-emerald-900 mb-1.5">Password Baru</label>
                   <input
                     type="password"
                     value={formData.new_password}
@@ -234,7 +234,7 @@ export default function SiswaProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-amber-900 mb-1.5">Konfirmasi Password Baru</label>
+                  <label className="block text-sm font-bold text-emerald-900 mb-1.5">Konfirmasi Password Baru</label>
                   <input
                     type="password"
                     value={formData.password_confirmation}

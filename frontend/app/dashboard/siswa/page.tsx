@@ -77,7 +77,11 @@ export default function SiswaDashboard() {
   const [error, setError] = useState<string | null>(null);
   const fetchedRef = useRef(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { 
+    setMounted(true);
+    // Clear cache on mount to force fresh data fetch
+    dashboardCache = null;
+  }, []);
 
   useEffect(() => {
     if (!mounted || loading || !isAuthenticated) return;
@@ -177,7 +181,6 @@ export default function SiswaDashboard() {
   }
 
   const statCards = [
-    { label: 'Total Poin', value: stats?.total_points ?? 0, helper: 'Saldo poin yang tersedia' },
     { label: 'Buku Dibaca', value: stats?.books_read ?? 0, helper: 'Jumlah buku selesai dibaca' },
     { label: 'Halaman Dibaca', value: stats?.pages_read ?? 0, helper: 'Total halaman yang dibaca' },
     { label: 'Kuis Selesai', value: stats?.quizzes_taken ?? 0, helper: 'Kuis yang sudah dikerjakan' },
@@ -187,28 +190,29 @@ export default function SiswaDashboard() {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 text-slate-900">
-      <div className="mx-auto w-full max-w-[1400px] space-y-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+      <div className="mx-auto w-full max-w-[1400px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {error && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700 shadow-sm">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700 shadow-sm">
             {error}
           </div>
         )}
 
         <section className="rounded-lg border border-slate-200 bg-white shadow-sm sm:rounded-xl">
           <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="p-4 sm:p-5 lg:p-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Dashboard Siswa</p>
-              <h1 className="mt-2 text-lg font-black leading-tight text-slate-900 sm:mt-3 sm:text-xl lg:text-2xl">
-                Halo, {user.name}! Siap lanjut membaca hari ini?
+            <div className="p-5 sm:p-6 lg:p-8">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Selamat Datang</p>
+              <h1 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:mt-4 sm:text-3xl lg:text-4xl">
+                Halo, {user.name}! 👋
               </h1>
+              <p className="mt-2 text-sm font-medium text-slate-600 sm:text-base">Siap lanjut membaca hari ini?</p>
             </div>
 
-            <div className="bg-slate-900 p-4 text-white sm:p-5 lg:p-6">
+            <div className="bg-slate-900 p-5 text-white sm:p-6 lg:p-8">
               <p className="text-xs font-bold uppercase tracking-wider text-emerald-300 sm:text-sm">Poin Kamu</p>
-              <p className="mt-2 text-3xl font-black text-white sm:mt-3 sm:text-4xl">{stats?.total_points ?? 0}</p>
+              <p className="mt-3 text-4xl font-black text-white sm:mt-4 sm:text-5xl">{stats?.total_points ?? 0}</p>
               <p className="mt-2 text-xs leading-6 text-slate-300 sm:mt-3 sm:text-sm">Poin dapat digunakan untuk menukar reward.</p>
 
-              <div className="mt-4 rounded-lg border border-white/10 bg-white/10 p-4 sm:mt-5 lg:mt-6 lg:p-5">
+              <div className="mt-5 rounded-lg border border-white/10 bg-white/10 p-4 sm:mt-6 lg:p-5">
                 <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-200 sm:text-sm">
                   <span>Target membaca mingguan</span>
                   <span>{Math.min(stats?.books_read ?? 0, 5)}/5 buku</span>
@@ -221,17 +225,35 @@ export default function SiswaDashboard() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 lg:gap-6">
           {statCards.map((item) => (
-            <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5 lg:p-6">
+            <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6 lg:p-7">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500 sm:text-sm">{item.label}</p>
-              <p className="mt-2 text-2xl font-black text-slate-900 sm:mt-3 sm:text-3xl">{item.value}</p>
-              <p className="mt-2 text-xs font-medium text-slate-500 sm:text-sm">{item.helper}</p>
+              <p className="mt-3 text-3xl font-black text-slate-900 sm:mt-4 sm:text-4xl">{item.value}</p>
+              <p className="mt-2 text-xs font-medium text-slate-600 sm:mt-3 sm:text-sm">{item.helper}</p>
             </div>
           ))}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:rounded-xl sm:p-4 lg:p-5">
+        {!loadingData && ebooks.length > 0 && (
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:rounded-xl sm:p-6 lg:p-8">
+            <div className="mb-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Rekomendasi</p>
+              <h2 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">Buku yang Direkomendasikan</h2>
+            </div>
+            <FavoriteBooksSlider 
+              books={ebooks} 
+              onBookClick={(bookId) => {
+                const book = ebooks.find(b => b.id === bookId);
+                if (book?.pdf_file) {
+                  window.open(book.pdf_file, '_blank');
+                }
+              }}
+            />
+          </section>
+        )}
+
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-6">
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
@@ -254,7 +276,7 @@ export default function SiswaDashboard() {
           />
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-6 lg:p-8">
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:rounded-xl sm:p-6 lg:p-8">
           {loadingData ? (
             <div className="py-20 text-center">
               <Loading size="lg" text="Memuat data..." />
@@ -264,30 +286,48 @@ export default function SiswaDashboard() {
               {activeTab === 'overview' && <OverviewTab />}
 
               {activeTab === 'ebooks' && (
-                <BookGrid
-                  ebooks={ebooks}
-                  loading={loadingData}
-                  searchQuery={searchQuery}
-                />
+                <div>
+                  <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Koleksi</p>
+                    <h2 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">Daftar E-Books</h2>
+                  </div>
+                  <BookGrid
+                    ebooks={ebooks}
+                    loading={loadingData}
+                    searchQuery={searchQuery}
+                  />
+                </div>
               )}
 
               {activeTab === 'rewards' && (
-                <RewardGrid
-                  rewards={rewards}
-                  userPoints={stats?.total_points || 0}
-                  loading={loadingData}
-                  onRedeem={handleRedeemReward}
-                />
+                <div>
+                  <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Hadiah</p>
+                    <h2 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">Daftar Rewards</h2>
+                  </div>
+                  <RewardGrid
+                    rewards={rewards}
+                    userPoints={stats?.total_points || 0}
+                    loading={loadingData}
+                    onRedeem={handleRedeemReward}
+                  />
+                </div>
               )}
 
               {activeTab === 'quizzes' && (
-                <QuizList
-                  quizzes={quizzes}
-                  loading={loadingData}
-                  onStartQuiz={(quizId: number) => {
-                    router.push(`/dashboard/siswa/quiz/${quizId}`);
-                  }}
-                />
+                <div>
+                  <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Evaluasi</p>
+                    <h2 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">Daftar Kuis</h2>
+                  </div>
+                  <QuizList
+                    quizzes={quizzes}
+                    loading={loadingData}
+                    onStartQuiz={(quizId: number) => {
+                      router.push(`/dashboard/siswa/quiz/${quizId}`);
+                    }}
+                  />
+                </div>
               )}
             </>
           )}

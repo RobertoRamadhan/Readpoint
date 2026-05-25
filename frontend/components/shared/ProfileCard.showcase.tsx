@@ -19,19 +19,19 @@ export default function ProfileCardShowcase() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-100 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
-          <h1 className="text-5xl font-bold text-amber-900 mb-4">ProfileCard Showcase</h1>
-          <p className="text-amber-700 text-lg">Komponen profil dengan animasi hover yang elegan</p>
+          <h1 className="text-5xl font-bold text-emerald-900 mb-4">ProfileCard Showcase</h1>
+          <p className="text-emerald-700 text-lg">Komponen profil dengan animasi hover yang elegan</p>
         </div>
 
         {/* Siswa Section */}
         <section className="mb-20">
           <div className="mb-10">
-            <h2 className="text-3xl font-bold text-amber-900 mb-2">👨‍🎓 Profil Siswa</h2>
-            <p className="text-amber-700">Profil untuk siswa dengan warna orange/merah</p>
+            <h2 className="text-3xl font-bold text-emerald-900 mb-2">👨‍🎓 Profil Siswa</h2>
+            <p className="text-emerald-700">Profil untuk siswa dengan warna emerald/merah</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <ProfileCard
@@ -148,14 +148,14 @@ export default function ProfileCardShowcase() {
         </section>
 
         {/* Usage Examples */}
-        <section className="bg-white rounded-2xl p-12 shadow-lg border border-amber-100">
-          <h2 className="text-3xl font-bold text-amber-900 mb-8">Contoh Penggunaan</h2>
+        <section className="bg-white rounded-2xl p-12 shadow-lg border border-emerald-100">
+          <h2 className="text-3xl font-bold text-emerald-900 mb-8">Contoh Penggunaan</h2>
 
           <div className="space-y-8">
             {/* Example 1: Dashboard Profile */}
             <div>
-              <h3 className="text-xl font-bold text-amber-800 mb-4">1. Dashboard Profile Section</h3>
-              <div className="bg-amber-50 p-6 rounded-xl">
+              <h3 className="text-xl font-bold text-emerald-800 mb-4">1. Dashboard Profile Section</h3>
+              <div className="bg-emerald-50 p-6 rounded-xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <ProfileCard
                     variant="siswa"
@@ -166,7 +166,7 @@ export default function ProfileCardShowcase() {
                     onButtonClick={() => alert('Edit profile clicked')}
                   />
                   <div className="bg-white p-6 rounded-lg">
-                    <h4 className="font-bold text-amber-900 mb-2">Statistik Siswa</h4>
+                    <h4 className="font-bold text-emerald-900 mb-2">Statistik Siswa</h4>
                     <ul className="space-y-2 text-sm text-gray-700">
                       <li>📚 Buku Dibaca: 5</li>
                       <li>🎯 Kuis Selesai: 12</li>
@@ -180,8 +180,8 @@ export default function ProfileCardShowcase() {
 
             {/* Example 2: Teacher Directory */}
             <div>
-              <h3 className="text-xl font-bold text-amber-800 mb-4">2. Teacher Directory</h3>
-              <div className="bg-amber-50 p-6 rounded-xl">
+              <h3 className="text-xl font-bold text-emerald-800 mb-4">2. Teacher Directory</h3>
+              <div className="bg-emerald-50 p-6 rounded-xl">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <ProfileCard
                     variant="guru"
@@ -210,8 +210,8 @@ export default function ProfileCardShowcase() {
 
             {/* Example 3: Admin Panel */}
             <div>
-              <h3 className="text-xl font-bold text-amber-800 mb-4">3. Admin Management</h3>
-              <div className="bg-amber-50 p-6 rounded-xl">
+              <h3 className="text-xl font-bold text-emerald-800 mb-4">3. Admin Management</h3>
+              <div className="bg-emerald-50 p-6 rounded-xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <ProfileCard
                     variant="admin"
@@ -295,70 +295,70 @@ export default function ProfileCardShowcase() {
         </section>
 
         {/* Props Documentation */}
-        <section className="mt-16 bg-white rounded-2xl p-12 shadow-lg border border-amber-100">
-          <h2 className="text-3xl font-bold text-amber-900 mb-8">Props Documentation</h2>
+        <section className="mt-16 bg-white rounded-2xl p-12 shadow-lg border border-emerald-100">
+          <h2 className="text-3xl font-bold text-emerald-900 mb-8">Props Documentation</h2>
           
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-amber-50">
+              <thead className="bg-emerald-50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-bold text-amber-900">Prop</th>
-                  <th className="px-4 py-3 text-left font-bold text-amber-900">Type</th>
-                  <th className="px-4 py-3 text-left font-bold text-amber-900">Default</th>
-                  <th className="px-4 py-3 text-left font-bold text-amber-900">Description</th>
+                  <th className="px-4 py-3 text-left font-bold text-emerald-900">Prop</th>
+                  <th className="px-4 py-3 text-left font-bold text-emerald-900">Type</th>
+                  <th className="px-4 py-3 text-left font-bold text-emerald-900">Default</th>
+                  <th className="px-4 py-3 text-left font-bold text-emerald-900">Description</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">name</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">name</td>
                   <td className="px-4 py-3 text-gray-600">string</td>
                   <td className="px-4 py-3 text-gray-600">-</td>
                   <td className="px-4 py-3 text-gray-600">Nama user</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">role</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">role</td>
                   <td className="px-4 py-3 text-gray-600">string</td>
                   <td className="px-4 py-3 text-gray-600">-</td>
                   <td className="px-4 py-3 text-gray-600">Role/posisi user</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">avatar</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">avatar</td>
                   <td className="px-4 py-3 text-gray-600">string | ReactNode</td>
                   <td className="px-4 py-3 text-gray-600">Inisial</td>
                   <td className="px-4 py-3 text-gray-600">Avatar emoji, SVG, atau URL image</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">variant</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">variant</td>
                   <td className="px-4 py-3 text-gray-600">'siswa' | 'guru' | 'admin'</td>
                   <td className="px-4 py-3 text-gray-600">'siswa'</td>
                   <td className="px-4 py-3 text-gray-600">Varian warna card</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">buttonText</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">buttonText</td>
                   <td className="px-4 py-3 text-gray-600">string</td>
                   <td className="px-4 py-3 text-gray-600">'Lihat Profile'</td>
                   <td className="px-4 py-3 text-gray-600">Text button</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">buttonHref</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">buttonHref</td>
                   <td className="px-4 py-3 text-gray-600">string</td>
                   <td className="px-4 py-3 text-gray-600">-</td>
                   <td className="px-4 py-3 text-gray-600">URL untuk link button</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">onButtonClick</td>
-                  <td className="px-4 py-3 text-gray-600">() => void</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">onButtonClick</td>
+                  <td className="px-4 py-3 text-gray-600">{`() => void`}</td>
                   <td className="px-4 py-3 text-gray-600">-</td>
                   <td className="px-4 py-3 text-gray-600">Handler saat button diklik</td>
                 </tr>
-                <tr className="border-b border-amber-100">
-                  <td className="px-4 py-3 font-mono text-amber-600">isOnline</td>
+                <tr className="border-b border-emerald-100">
+                  <td className="px-4 py-3 font-mono text-emerald-600">isOnline</td>
                   <td className="px-4 py-3 text-gray-600">boolean</td>
                   <td className="px-4 py-3 text-gray-600">true</td>
                   <td className="px-4 py-3 text-gray-600">Tampilkan status badge online</td>
                 </tr>
                 <tr>
-                  <td className="px-4 py-3 font-mono text-amber-600">className</td>
+                  <td className="px-4 py-3 font-mono text-emerald-600">className</td>
                   <td className="px-4 py-3 text-gray-600">string</td>
                   <td className="px-4 py-3 text-gray-600">''</td>
                   <td className="px-4 py-3 text-gray-600">Custom CSS class</td>
@@ -370,7 +370,7 @@ export default function ProfileCardShowcase() {
 
         {/* Footer */}
         <div className="mt-16 text-center">
-          <p className="text-amber-700 text-sm">
+          <p className="text-emerald-700 text-sm">
             © 2026 READPOINT - Platform Literasi Digital
           </p>
         </div>

@@ -82,7 +82,7 @@ export default function QuizPage() {
 
   if (loadingQuiz) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-orange-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-emerald-50">
         <Loading size="lg" text="Memuat soal quiz..." />
       </div>
     );
@@ -90,10 +90,10 @@ export default function QuizPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-50 to-orange-50 p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-emerald-50 to-emerald-50 p-4">
         <Card padding="lg" shadow="xl" className="max-w-md w-full text-center">
           <div className="text-6xl mb-4">❓</div>
-          <h2 className="text-2xl font-black text-amber-900 mb-3">Quiz Tidak Tersedia</h2>
+          <h2 className="text-2xl font-black text-emerald-900 mb-3">Quiz Tidak Tersedia</h2>
           <p className="text-slate-500 mb-6 text-sm">{error}</p>
           <RippleButton variant="secondary" fullWidth onClick={handleCancel}>
             ← Kembali ke Dashboard

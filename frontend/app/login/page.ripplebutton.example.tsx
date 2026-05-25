@@ -45,23 +45,23 @@ export default function LoginPageWithRippleButton() {
 
   return (
     <div 
-      className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100"
+      className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-100"
     >
       {/* Decorative Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-amber-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+        <div className="absolute top-20 right-20 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-10 animate-slide-up">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl shadow-xl mb-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl shadow-xl mb-6">
             <span className="text-3xl font-bold text-white">R</span>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent mb-3">Masuk</h1>
-          <p className="text-lg text-amber-700">Lanjutkan perjalanan literasi Anda</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-700 to-emerald-900 bg-clip-text text-transparent mb-3">Masuk</h1>
+          <p className="text-lg text-emerald-700">Lanjutkan perjalanan literasi Anda</p>
         </div>
 
         {/* Error Message */}
@@ -75,19 +75,19 @@ export default function LoginPageWithRippleButton() {
         )}
 
         {/* Login Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 animate-slide-up animation-delay-200 border border-amber-200 hover:shadow-amber-500/20 transition-all duration-300">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 md:p-10 animate-slide-up animation-delay-200 border border-emerald-200 hover:shadow-emerald-500/20 transition-all duration-300">
           {/* Decorative Top Border */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-t-2xl"></div>
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-emerald-500 to-emerald-600 rounded-t-2xl"></div>
           
           <form onSubmit={handleSubmit} className="space-y-7">
             {/* Email Input */}
             <div className="animate-slide-up animation-delay-300">
-              <label className="block text-sm font-semibold text-amber-800 mb-2">
+              <label className="block text-sm font-semibold text-emerald-800 mb-2">
                 Email
               </label>
-              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
-                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
-                  <span className="text-2xl text-amber-500">✉</span>
+              <div className="flex items-center border-2 border-emerald-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-emerald-200">
+                  <span className="text-2xl text-emerald-500">✉</span>
                 </div>
                 <input
                   type="email"
@@ -103,12 +103,12 @@ export default function LoginPageWithRippleButton() {
 
             {/* Password Input */}
             <div className="animate-slide-up animation-delay-400">
-              <label className="block text-sm font-semibold text-amber-800 mb-2">
+              <label className="block text-sm font-semibold text-emerald-800 mb-2">
                 Password
               </label>
-              <div className="flex items-center border-2 border-amber-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
-                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-amber-200">
-                  <span className="text-2xl text-amber-500">🔒</span>
+              <div className="flex items-center border-2 border-emerald-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all duration-200">
+                <div className="flex-shrink-0 flex items-center justify-center px-4 py-3.5 border-r border-emerald-200">
+                  <span className="text-2xl text-emerald-500">🔒</span>
                 </div>
                 <input
                   type="password"
@@ -137,10 +137,10 @@ export default function LoginPageWithRippleButton() {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-amber-200"></div>
+              <div className="w-full border-t border-emerald-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-amber-600 font-medium rounded-full border border-amber-200">atau</span>
+              <span className="px-4 bg-white text-emerald-600 font-medium rounded-full border border-emerald-200">atau</span>
             </div>
           </div>
 
@@ -165,14 +165,14 @@ export default function LoginPageWithRippleButton() {
           {/* Register Link */}
           <p className="text-center text-stone-600 text-sm mt-8 animate-slide-up animation-delay-700">
             Belum punya akun?{' '}
-            <Link href="/register" className="text-amber-700 font-bold hover:text-amber-900 transition-colors duration-200 underline decoration-2 underline-offset-2 hover:decoration-amber-500">
+            <Link href="/register" className="text-emerald-700 font-bold hover:text-emerald-900 transition-colors duration-200 underline decoration-2 underline-offset-2 hover:decoration-amber-500">
               Daftar di sini
             </Link>
           </p>
         </div>
 
         {/* Footer Text */}
-        <p className="text-center text-amber-700/60 text-xs mt-8 animate-slide-up animation-delay-700">
+        <p className="text-center text-emerald-700/60 text-xs mt-8 animate-slide-up animation-delay-700">
           © 2026 READPOINT - Platform Literasi Digital
         </p>
       </div>

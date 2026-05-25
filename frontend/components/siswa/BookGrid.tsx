@@ -140,22 +140,22 @@ function BookCard({ book }: { book: Ebook }) {
             <span className="text-gray-700 font-semibold text-xs">📄 Halaman</span>
             <span className="font-black text-gray-500 text-sm">{book.pages}</span>
           </div>
-          <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-2 rounded-lg border border-amber-100">
+          <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 to-emerald-50 px-3 py-2 rounded-lg border border-emerald-100">
             <span className="text-gray-700 font-semibold text-xs">⭐ Poin</span>
-            <span className="font-black text-amber-700 text-sm">{book.poin_per_halaman}/hal</span>
+            <span className="font-black text-emerald-700 text-sm">{book.poin_per_halaman}/hal</span>
           </div>
         </div>
         
         {book.pdf_file ? (
           <Link href={`/dashboard/siswa/read/${book.id}`} className="block">
-            <Button className="w-full bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-900 hover:to-amber-950 text-white font-bold shadow-md hover:shadow-lg transition-all border-0 py-4 px-8 text-base">
+            <Button className="w-full bg-gradient-to-r from-emerald-800 to-emerald-900 hover:from-emerald-900 hover:to-emerald-950 text-white font-bold shadow-md hover:shadow-lg transition-all border-0 py-4 px-8 text-base">
               📖 Baca Sekarang
             </Button>
           </Link>
         ) : (
-          <div className="text-center text-gray-500 text-sm py-2">
-            PDF tidak tersedia
-          </div>
+          <Button disabled className="w-full bg-gray-300 text-gray-500 font-bold py-4 px-8 text-base cursor-not-allowed">
+            📖 Belum Tersedia
+          </Button>
         )}
       </div>
     </Card>

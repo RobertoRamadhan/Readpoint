@@ -164,7 +164,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.total_users}
               icon="👥"
               change={{ value: 12, type: 'increase', period: 'vs last month' }}
-              color="blue"
+              color="accent"
               loading={loadingData}
             />
             <StatsCard
@@ -172,7 +172,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.total_books}
               icon="📚"
               change={{ value: 8, type: 'increase', period: 'vs last month' }}
-              color="green"
+              color="primary"
               loading={loadingData}
             />
             <StatsCard
@@ -180,7 +180,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.total_quizzes}
               icon="📝"
               change={{ value: 15, type: 'increase', period: 'vs last month' }}
-              color="purple"
+              color="secondary"
               loading={loadingData}
             />
             <StatsCard
@@ -188,7 +188,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.total_rewards}
               icon="🎁"
               change={{ value: 5, type: 'increase', period: 'vs last month' }}
-              color="yellow"
+              color="warning"
               loading={loadingData}
             />
           </div>
@@ -216,7 +216,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.active_users_today}
               icon="🟢"
               change={{ value: 23, type: 'increase', period: 'vs yesterday' }}
-              color="green"
+              color="success"
               loading={loadingData}
             />
             <StatsCard
@@ -224,7 +224,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.books_read_today}
               icon="📖"
               change={{ value: 8, type: 'increase', period: 'vs yesterday' }}
-              color="blue"
+              color="accent"
               loading={loadingData}
             />
             <StatsCard
@@ -232,7 +232,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.quizzes_completed_today}
               icon="✅"
               change={{ value: 12, type: 'decrease', period: 'vs yesterday' }}
-              color="purple"
+              color="secondary"
               loading={loadingData}
             />
             <StatsCard
@@ -240,7 +240,7 @@ export default function AdminAnalyticsPage() {
               value={currentStats.rewards_redeemed_today}
               icon="🎉"
               change={{ value: 3, type: 'increase', period: 'vs yesterday' }}
-              color="yellow"
+              color="warning"
               loading={loadingData}
             />
           </div>

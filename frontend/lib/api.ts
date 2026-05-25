@@ -837,6 +837,10 @@ export const api = {
 
       }),
 
+    getText: (id: number): Promise<ApiResponse> =>
+
+      apiCall(`/ebooks/${id}/text`),
+
   },
 
 

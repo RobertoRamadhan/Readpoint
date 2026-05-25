@@ -1,32 +1,46 @@
-/* READPOINT Professional Theme
-   Clean palette: navy, white, slate, light gray, green accent.
-   This file avoids aggressive overrides so layouts stay responsive. */
+/* READPOINT Professional Theme v2
+   Modern palette: Emerald (Primary), Slate (Secondary), Sky Blue (Accent)
+   Colors: Emerald (#10b981), Slate (#1e293b), Blue (#0ea5e9), White, Neutral grays */
 
 :root {
-  --rp-bg: #F8FAFC;
-  --rp-surface: #FFFFFF;
-  --rp-soft: #F1F5F9;
-  --rp-navy: #1E3A5F;
-  --rp-navy-dark: #172A45;
-  --rp-green: #2E7D32;
-  --rp-green-dark: #256A2A;
-  --rp-text: #1F2937;
-  --rp-muted: #64748B;
-  --rp-border: #E2E8F0;
+  /* Primary Colors - Emerald */
+  --rp-primary: #10b981;
+  --rp-primary-dark: #059669;
+  --rp-primary-light: #6ee7b7;
+  --rp-primary-50: #f0fdf4;
+  
+  /* Secondary Colors - Slate */
+  --rp-secondary: #1e293b;
+  --rp-secondary-light: #334155;
+  --rp-secondary-lighter: #475569;
+  --rp-secondary-50: #f1f5f9;
+  
+  /* Accent Colors - Sky Blue */
+  --rp-accent: #0ea5e9;
+  --rp-accent-dark: #0284c7;
+  --rp-accent-light: #7dd3fc;
+  --rp-accent-50: #f0f9ff;
+  
+  /* Neutral Colors */
+  --rp-bg: #f1f5f9;
+  --rp-surface: #ffffff;
+  --rp-soft: #f1f5f9;
+  --rp-text: #1f2937;
+  --rp-text-muted: #64748b;
+  --rp-border: #e2e8f0;
+  --rp-border-light: #f1f5f9;
+  
+  /* Status Colors */
+  --rp-success: #22c55e;
+  --rp-warning: #f59e0b;
+  --rp-danger: #ef4444;
+  --rp-info: #0ea5e9;
 
   --background: var(--rp-bg);
   --foreground: var(--rp-text);
-  --primary: var(--rp-green);
-  --primary-dark: var(--rp-green-dark);
+  --primary: var(--rp-primary);
+  --primary-dark: var(--rp-primary-dark);
   --border: var(--rp-border);
-}
-
-/* Only apply theme to dashboard pages, not landing page */
-body:has(.dashboard-layout) {
-  background:
-    radial-gradient(circle at top right, rgba(46, 125, 50, 0.06), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(30, 58, 95, 0.06), transparent 30%),
-    var(--rp-bg) !important;
 }
 
 /* Dashboard specific layout fixes */
@@ -45,38 +59,49 @@ body:has(.dashboard-layout) {
   margin-right: auto !important;
 }
 
-/* Scrollbar */
+/* Smooth scrollbar styling */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #E5E7EB !important;
+  background: var(--rp-border-light);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #94A3B8 !important;
-  border-radius: 999px !important;
+  background: var(--rp-border);
+  border-radius: 10px;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--rp-navy) !important;
+  background: var(--rp-secondary-lighter);
 }
 
-/* Old amber/orange classes converted to a calmer professional palette */
+/* ============ BACKGROUND GRADIENTS ============ */
+body:has(.dashboard-layout) {
+  background:
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.04), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.04), transparent 40%),
+    var(--rp-bg) !important;
+}
+
+/* ============ COLOR OVERRIDES ============ */
+/* Convert old amber/orange classes to new color scheme */
 .bg-amber-50,
 .bg-orange-50,
 .bg-amber-100,
 .bg-orange-100,
 .bg-yellow-50 {
-  background-color: var(--rp-bg) !important;
+  background-color: #ffffff !important;
 }
 
 .bg-amber-200,
 .bg-orange-200,
 .bg-yellow-200 {
-  background-color: var(--rp-soft) !important;
+  background-color: #f8fafc !important;
 }
 
 .bg-amber-300,
@@ -87,22 +112,23 @@ body:has(.dashboard-layout) {
 .bg-orange-500,
 .bg-amber-600,
 .bg-amber-700 {
-  background-color: var(--rp-green) !important;
+  background-color: var(--rp-primary) !important;
 }
 
 .bg-amber-800,
 .bg-amber-900,
 .bg-amber-950 {
-  background-color: var(--rp-navy) !important;
+  background-color: var(--rp-secondary) !important;
 }
 
+/* Text color overrides - ensure dark text on light backgrounds */
 .text-amber-300,
 .text-amber-400,
 .text-amber-500,
 .text-orange-500,
 .text-amber-600,
 .text-amber-700 {
-  color: var(--rp-green) !important;
+  color: var(--rp-primary) !important;
 }
 
 .text-amber-800,
@@ -110,7 +136,7 @@ body:has(.dashboard-layout) {
 .text-stone-800,
 .text-gray-900,
 .text-slate-900 {
-  color: var(--rp-navy) !important;
+  color: var(--rp-secondary) !important;
 }
 
 .text-gray-600,
@@ -118,9 +144,10 @@ body:has(.dashboard-layout) {
 .text-gray-700,
 .text-slate-700,
 .text-stone-600 {
-  color: var(--rp-muted) !important;
+  color: var(--rp-text-muted) !important;
 }
 
+/* Border color overrides */
 .border-amber-100,
 .border-amber-200,
 .border-orange-200,
@@ -138,10 +165,10 @@ body:has(.dashboard-layout) {
 .border-amber-600,
 .border-amber-700,
 .border-amber-800 {
-  border-color: rgba(46, 125, 50, 0.35) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
 }
 
-/* Calm gradients */
+/* ============ GRADIENT OVERRIDES ============ */
 .from-amber-50,
 .from-orange-50,
 .from-amber-100,
@@ -173,20 +200,20 @@ body:has(.dashboard-layout) {
 .to-amber-800,
 .to-amber-900,
 .to-orange-500 {
-  --tw-gradient-from: var(--rp-green) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: var(--rp-navy) var(--tw-gradient-to-position) !important;
+  --tw-gradient-from: var(--rp-primary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: var(--rp-secondary) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
 .from-amber-800,
 .from-amber-900,
 .to-amber-950 {
-  --tw-gradient-from: var(--rp-navy) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: var(--rp-navy-dark) var(--tw-gradient-to-position) !important;
+  --tw-gradient-from: var(--rp-secondary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: var(--rp-secondary-light) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
-/* Cards */
+/* ============ CARD STYLING ============ */
 .card,
 .card-gradient,
 .bg-white.rounded-xl,
@@ -194,7 +221,8 @@ body:has(.dashboard-layout) {
 .bg-white.rounded-3xl {
   background: var(--rp-surface) !important;
   border-color: var(--rp-border) !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+  transition: all 0.3s ease !important;
 }
 
 .card:hover,
@@ -202,24 +230,27 @@ body:has(.dashboard-layout) {
 .bg-white.rounded-xl:hover,
 .bg-white.rounded-2xl:hover,
 .bg-white.rounded-3xl:hover {
-  border-color: rgba(46, 125, 50, 0.25) !important;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(34, 197, 94, 0.2) !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08) !important;
+  transform: translateY(-2px) !important;
 }
 
 .card::before {
   display: none !important;
 }
 
-/* Buttons */
+/* ============ BUTTON STYLING ============ */
 .btn-primary,
 .btn-gradient,
 button.bg-amber-600,
 button.bg-amber-700,
 button.bg-amber-800,
 button.bg-amber-900 {
-  background: var(--rp-green) !important;
+  background: var(--rp-primary) !important;
   color: white !important;
-  box-shadow: 0 8px 18px rgba(46, 125, 50, 0.16) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
 }
 
 .btn-primary:hover,
@@ -228,17 +259,28 @@ button.bg-amber-600:hover,
 button.bg-amber-700:hover,
 button.bg-amber-800:hover,
 button.bg-amber-900:hover {
-  background: var(--rp-green-dark) !important;
+  background: var(--rp-primary-dark) !important;
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.btn-primary:active,
+.btn-gradient:active,
+button.bg-amber-600:active,
+button.bg-amber-700:active,
+button.bg-amber-800:active,
+button.bg-amber-900:active {
+  transform: translateY(0) !important;
 }
 
 button.bg-slate-300,
 button.bg-gray-300 {
   background: var(--rp-soft) !important;
-  color: var(--rp-navy) !important;
+  color: var(--rp-secondary) !important;
   border: 1px solid var(--rp-border) !important;
 }
 
-/* Forms */
+/* ============ FORM STYLING ============ */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -249,16 +291,17 @@ select {
   background-color: #FFFFFF !important;
   border-color: var(--rp-border) !important;
   color: var(--rp-text) !important;
+  transition: all 0.3s ease !important;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--rp-green) !important;
-  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.10) !important;
+  border-color: var(--rp-primary) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
 }
 
-/* Tables */
+/* ============ TABLE STYLING ============ */
 table {
   width: 100% !important;
   border-collapse: separate !important;
@@ -270,16 +313,24 @@ thead tr {
 }
 
 th {
-  color: var(--rp-navy) !important;
-  font-weight: 800 !important;
+  color: var(--rp-secondary) !important;
+  font-weight: 700 !important;
+  padding: 12px !important;
+  text-align: left !important;
 }
 
 td {
   color: var(--rp-text) !important;
+  padding: 12px !important;
+  border-bottom: 1px solid var(--rp-border) !important;
+}
+
+tbody tr {
+  transition: background 0.2s ease !important;
 }
 
 tbody tr:hover {
-  background: #F8FAFC !important;
+  background: var(--rp-bg) !important;
 }
 
 .bg-gray-50,
@@ -289,22 +340,24 @@ tbody tr:hover {
   background-color: var(--rp-soft) !important;
 }
 
-/* Charts */
+/* ============ CHART STYLING ============ */
 .recharts-cartesian-grid line {
-  stroke: #E5E7EB !important;
+  stroke: var(--rp-border) !important;
+  opacity: 0.5 !important;
 }
 
 .recharts-cartesian-axis-tick-value,
 .recharts-legend-item-text {
-  fill: var(--rp-muted) !important;
-  color: var(--rp-muted) !important;
+  fill: var(--rp-text-muted) !important;
+  color: var(--rp-text-muted) !important;
   font-size: 12px !important;
 }
 
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   border: 1px solid var(--rp-border) !important;
   border-radius: 0.75rem !important;
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1) !important;
+  background: var(--rp-surface) !important;
 }
 
 .recharts-bar-rectangle path,
@@ -312,7 +365,7 @@ tbody tr:hover {
   filter: none !important;
 }
 
-/* Responsive spacing */
+/* ============ RESPONSIVE SPACING ============ */
 @media (max-width: 768px) {
   .flex-1.overflow-y-auto {
     padding-left: 1rem !important;

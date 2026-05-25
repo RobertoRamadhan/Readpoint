@@ -122,18 +122,18 @@ export default function RegisterPageWithAuthForm() {
   ];
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
+    <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-100">
       {/* Decorative Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-10 right-10 w-96 h-96 bg-amber-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-10 right-10 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute top-1/3 right-1/3 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Header Logo */}
         <div className="flex justify-center mb-8 animate-slide-up">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl shadow-xl">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl shadow-xl">
             <span className="text-3xl font-bold text-white">R</span>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function RegisterPageWithAuthForm() {
         />
 
         {/* Footer */}
-        <p className="text-center text-amber-700/60 text-xs mt-8 animate-slide-up animation-delay-700">
+        <p className="text-center text-emerald-700/60 text-xs mt-8 animate-slide-up animation-delay-700">
           © 2026 READPOINT - Platform Literasi Digital
         </p>
       </div>

@@ -74,19 +74,19 @@ export default function RegisterPage() {
   };
 
   const inputClass =
-    'w-full px-4 py-2.5 rounded-xl bg-amber-50 border-2 border-amber-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition text-sm disabled:opacity-60';
+    'w-full px-4 py-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-amber-200 transition text-sm disabled:opacity-60';
 
   return (
     <div className="w-full max-w-md mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-7">
         <div className="inline-flex items-center gap-3 mb-3">
-          <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-300/40">
+          <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-300/40">
             <span className="text-3xl">📚</span>
           </div>
           <div className="text-left">
-            <h1 className="text-3xl font-black text-amber-900 tracking-tight">READPOINT</h1>
-            <p className="text-xs text-amber-600 font-semibold">Platform Literasi Digital Siswa</p>
+            <h1 className="text-3xl font-black text-emerald-900 tracking-tight">READPOINT</h1>
+            <p className="text-xs text-emerald-600 font-semibold">Platform Literasi Digital Siswa</p>
           </div>
         </div>
         <h2 className="text-xl font-black text-slate-800 mt-2">Buat Akun Baru</h2>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Card */}
-      <div className="bg-white rounded-3xl shadow-2xl shadow-amber-100/60 p-7 border border-amber-100">
+      <div className="bg-white rounded-3xl shadow-2xl shadow-emerald-100/60 p-7 border border-emerald-100">
 
         {/* Error */}
         {error && (
@@ -107,7 +107,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nama */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-1.5">Nama Lengkap</label>
+            <label className="block text-sm font-bold text-emerald-900 mb-1.5">Nama Lengkap</label>
             <input
               type="text"
               name="name"
@@ -122,7 +122,7 @@ export default function RegisterPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-1.5">Email</label>
+            <label className="block text-sm font-bold text-emerald-900 mb-1.5">Email</label>
             <input
               type="email"
               name="email"
@@ -137,7 +137,7 @@ export default function RegisterPage() {
 
           {/* Kelas */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-1.5">Kelas</label>
+            <label className="block text-sm font-bold text-emerald-900 mb-1.5">Kelas</label>
             <select
               name="grade_level"
               value={formData.grade_level}
@@ -155,10 +155,10 @@ export default function RegisterPage() {
 
           {/* Wali Kelas */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-1.5">
+            <label className="block text-sm font-bold text-emerald-900 mb-1.5">
               Wali Kelas
               {loadingGuru && (
-                <span className="ml-2 text-xs text-amber-500 font-normal">Memuat...</span>
+                <span className="ml-2 text-xs text-emerald-500 font-normal">Memuat...</span>
               )}
             </label>
             <select
@@ -179,7 +179,7 @@ export default function RegisterPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-1.5">Password</label>
+            <label className="block text-sm font-bold text-emerald-900 mb-1.5">Password</label>
             <input
               type="password"
               name="password"
@@ -195,7 +195,7 @@ export default function RegisterPage() {
 
           {/* Konfirmasi Password */}
           <div>
-            <label className="block text-sm font-bold text-amber-900 mb-1.5">Konfirmasi Password</label>
+            <label className="block text-sm font-bold text-emerald-900 mb-1.5">Konfirmasi Password</label>
             <input
               type="password"
               name="password_confirmation"
@@ -227,10 +227,10 @@ export default function RegisterPage() {
         {/* Divider */}
         <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-amber-100"></div>
+            <div className="w-full border-t border-emerald-100"></div>
           </div>
           <div className="relative flex justify-center">
-            <span className="px-3 bg-white text-amber-500 text-xs font-bold">ATAU</span>
+            <span className="px-3 bg-white text-emerald-500 text-xs font-bold">ATAU</span>
           </div>
         </div>
 
