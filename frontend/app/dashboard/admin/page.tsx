@@ -760,14 +760,21 @@ function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editing
       }
 
       if (editingEbook) {
-        await api.ebooks.update?.(editingEbook.id, uploadFormData);
+        console.log(`Updating ebook ${editingEbook.id}...`);
+        const result = await api.ebooks.update?.(editingEbook.id, uploadFormData);
+        console.log('Update result:', result);
       } else {
-        await api.ebooks.create(uploadFormData);
+        console.log('Creating new ebook...');
+        const result = await api.ebooks.create(uploadFormData);
+        console.log('Create result:', result);
       }
+      
+      setError('');
       onSuccess();
     } catch (err) {
       console.error('Error uploading ebook:', err);
-      setError(err instanceof Error ? err.message : 'Gagal menyimpan');
+      const errorMsg = err instanceof Error ? err.message : 'Gagal menyimpan';
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
