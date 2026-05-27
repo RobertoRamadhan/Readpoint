@@ -19,3 +19,16 @@ export function getDifficultyColor(difficulty: string): string {
       return 'text-gray-600 bg-gray-100 px-3 py-1 rounded-full'
   }
 }
+
+export function getRoleIcon(role: string): string {
+  switch (role?.toLowerCase()) {
+    case 'admin':
+      return '👨‍💼'
+    case 'guru':
+      return '👨‍🏫'
+    case 'siswa':
+      return '👨‍🎓'
+    default:
+      return '👤'
+  }
+}
