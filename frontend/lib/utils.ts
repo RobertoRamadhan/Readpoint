@@ -20,18 +20,18 @@ export function getDifficultyColor(difficulty: string): string {
   }
 }
 
-export function getDifficultyVariant(difficulty: string): string {
+export function getDifficultyVariant(difficulty: string): 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' {
   const level = difficulty?.toLowerCase() || 'mudah'
   
   switch (level) {
     case 'mudah':
-      return 'bg-green-100 text-green-700 border-green-300'
+      return 'success'
     case 'sedang':
-      return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+      return 'warning'
     case 'sulit':
-      return 'bg-red-100 text-red-700 border-red-300'
+      return 'danger'
     default:
-      return 'bg-gray-100 text-gray-700 border-gray-300'
+      return 'secondary'
   }
 }
 
@@ -65,19 +65,23 @@ export function getStatusIcon(status: string): string {
   }
 }
 
-export function getStatusVariant(status: string): string {
+export function getStatusVariant(status: string): 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' {
   switch (status?.toLowerCase()) {
     case 'completed':
-      return 'bg-green-100 text-green-700 border-green-300'
+      return 'success'
     case 'in_progress':
-      return 'bg-blue-100 text-blue-700 border-blue-300'
+      return 'accent'
     case 'pending':
-      return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+      return 'warning'
+    case 'pending_validation':
+      return 'warning'
     case 'approved':
-      return 'bg-green-100 text-green-700 border-green-300'
+      return 'success'
     case 'rejected':
-      return 'bg-red-100 text-red-700 border-red-300'
+      return 'danger'
+    case 'validated':
+      return 'success'
     default:
-      return 'bg-gray-100 text-gray-700 border-gray-300'
+      return 'secondary'
   }
 }
