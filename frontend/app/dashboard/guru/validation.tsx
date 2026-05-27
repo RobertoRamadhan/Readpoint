@@ -108,6 +108,7 @@ export default function ValidationPage() {
   const handleReject = async (id: number) => {
     try {
       setActionLoading(true);
+      // Reject with empty notes
       await api.validations.reject(id, '');
       
       // Refresh data
