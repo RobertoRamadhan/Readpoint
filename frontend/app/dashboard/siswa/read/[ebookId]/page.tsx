@@ -22,33 +22,31 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
 
   const [ebook, setEbook] = useState<Ebook | null>(null);
   const [loadingEbook, setLoadingEbook] = useState(true);
-  const [bookText, setBookText] = useState<string>('');
-  const [useTextMode, setUseTextMode] = useState(false); // Use PDF viewer (not text mode)
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [zoom, setZoom] = useState(100);
   const [readingActivityId, setReadingActivityId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showCoverModal, setShowCoverModal] = useState(true); // Show cover image modal on load
+  const [showCoverModal, setShowCoverModal] = useState(true);
+  const [readingProgress, setReadingProgress] = useState(0);
+  const [readingTime, setReadingTime] = useState(0);
+  const [lastScrollTime, setLastScrollTime] = useState(Date.now());
+  const [scrollSpeed, setScrollSpeed] = useState(0);
+  const [showPointsModal, setShowPointsModal] = useState(false);
+  const [earnedPoints, setEarnedPoints] = useState(0);
 
   const contentRef = useRef<HTMLDivElement>(null);
-  // Prevent loadEbook from running more than once
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const fetchedRef = useRef(false);
-  // Debounce scroll updates — only send to backend every 3 seconds
   const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSentProgressRef = useRef(0);
+  const lastSentPageRef = useRef(0);
 
   useEffect(() => {
-    // Wait until auth is resolved
     if (loading) return;
-
     if (!isAuthenticated || !user || user.role !== 'siswa') {
       router.push('/login');
       return;
     }
-
-    // Guard: only fetch once even if deps change
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-
     loadEbook();
   }, [loading, isAuthenticated, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -56,23 +54,13 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     try {
       setLoadingEbook(true);
       setError(null);
-
-      // Get ebook info
       const ebookRes = await api.ebooks.get(ebookId);
-      
       if (ebookRes?.data) {
         setEbook((ebookRes.data as Ebook) || null);
-        setUseTextMode(false); // Use PDF viewer
       } else {
         throw new Error('Gagal memuat data e-book');
       }
-
-      // Show cover modal for 2 seconds on load
-      setTimeout(() => {
-        setShowCoverModal(false);
-      }, 2000);
-
-      // Start reading activity after ebook is loaded (non-blocking)
+      setTimeout(() => setShowCoverModal(false), 2000);
       startReadingActivity();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat e-book');
@@ -81,85 +69,198 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     }
   };
 
-  // Text extraction function (optional, not used now but kept for future)
-  const fetchBookText = async (id: number): Promise<string> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-    const response = await fetch(`${apiUrl}/ebooks/${id}/text`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) return '';
-    const data = await response.json();
-    return data?.data?.text || '';
-  };
-
-
   const startReadingActivity = async () => {
     try {
       const response = await api.startReading(ebookId);
       const data = response as any;
       setReadingActivityId(data?.data?.id || null);
     } catch {
-      // Non-fatal — reading activity tracking is optional
+      // Non-fatal
     }
   };
 
-  // Debounced scroll handler — only sends to backend every 3s AND only if progress changed >2%
-  const handleScroll = useCallback(() => {
-    if (!contentRef.current) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
-    const maxScroll = scrollHeight - clientHeight;
-    const progress = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0;
-    setScrollProgress(progress);
-
-    // Debounce backend update
+  const updateProgress = useCallback(() => {
     if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);
     scrollDebounceRef.current = setTimeout(() => {
-      const delta = Math.abs(progress - lastSentProgressRef.current);
-      // Only send if progress changed by more than 2% and we have an activity
-      if (readingActivityId && delta >= 2) {
-        lastSentProgressRef.current = progress;
-        const estimatedPage = Math.max(1, Math.ceil((progress / 100) * (ebook?.pages || 1)));
+      if (readingActivityId && ebook) {
+        // Calculate actual pages read based on progress percentage
+        const pagesRead = Math.round((readingProgress / 100) * ebook.pages);
+        
+        // Update to backend with actual page values
         api.updateActivityProgress(readingActivityId, {
-          current_page: estimatedPage,
-          final_page: estimatedPage,
-        }).catch(() => {}); // fire-and-forget
+          current_page: 1,
+          final_page: pagesRead,
+        }).catch(() => {});
       }
-    }, 3000); // 3 second debounce
-  }, [readingActivityId, ebook?.pages]);
+    }, 2000);
+  }, [readingActivityId, readingProgress, ebook]);
 
-  // Cleanup debounce on unmount
   useEffect(() => {
+    updateProgress();
     return () => {
       if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);
+    };
+  }, [updateProgress, readingProgress]);
+
+  // Separate effect for reading time tracking
+  useEffect(() => {
+    const readingTimer = setInterval(() => {
+      setReadingTime(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(readingTimer);
+  }, []);
+
+  // Track iframe scroll progress with polling fallback
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    let pollInterval: NodeJS.Timeout | null = null;
+    let lastProgress = 0;
+
+    const checkIframeScroll = () => {
+      try {
+        // Try to access iframe content
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDoc) return;
+
+        const scrollTop = iframeDoc.documentElement.scrollTop || iframeDoc.body.scrollTop;
+        const clientHeight = iframeDoc.documentElement.clientHeight || iframeDoc.body.clientHeight;
+        const scrollHeight = iframeDoc.documentElement.scrollHeight || iframeDoc.body.scrollHeight;
+
+        if (scrollHeight > 0) {
+          // Calculate progress: (scrollTop + clientHeight) / scrollHeight * 100
+          const progress = Math.round(((scrollTop + clientHeight) / scrollHeight) * 100);
+          const finalProgress = Math.min(100, Math.max(0, progress));
+          
+          if (finalProgress !== lastProgress) {
+            setReadingProgress(finalProgress);
+            lastProgress = finalProgress;
+            console.log('[Reading] Iframe Progress:', finalProgress, '% | ScrollTop:', scrollTop, 'ClientHeight:', clientHeight, 'ScrollHeight:', scrollHeight);
+          }
+        }
+      } catch (e) {
+        // Cross-origin or other errors - fallback to container scroll
+        console.log('[Reading] Cannot access iframe (cross-origin), using container scroll');
+        
+        // Fallback: check container scroll
+        if (contentRef.current) {
+          const scrollTop = contentRef.current.scrollTop;
+          const clientHeight = contentRef.current.clientHeight;
+          const scrollHeight = contentRef.current.scrollHeight;
+          
+          if (scrollHeight > 0) {
+            const progress = Math.round(((scrollTop + clientHeight) / scrollHeight) * 100);
+            const finalProgress = Math.min(100, Math.max(0, progress));
+            
+            if (finalProgress !== lastProgress) {
+              setReadingProgress(finalProgress);
+              lastProgress = finalProgress;
+              console.log('[Reading] Container Progress:', finalProgress, '%');
+            }
+          }
+        }
+      }
+    };
+
+    // Start polling when iframe loads
+    const handleIframeLoad = () => {
+      console.log('[Reading] Iframe loaded, starting scroll tracking');
+      
+      // Try to attach scroll listener
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (iframeDoc) {
+          iframeDoc.addEventListener('scroll', checkIframeScroll, { passive: true });
+          console.log('[Reading] Scroll listener attached to iframe');
+        }
+      } catch (e) {
+        console.log('[Reading] Cannot attach scroll listener to iframe, using polling');
+      }
+      
+      // Also use polling as fallback (every 500ms)
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(checkIframeScroll, 500);
+    };
+
+    iframe.addEventListener('load', handleIframeLoad);
+
+    // Also check container scroll
+    const container = contentRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkIframeScroll, { passive: true });
+    }
+
+    return () => {
+      iframe.removeEventListener('load', handleIframeLoad);
+      if (pollInterval) clearInterval(pollInterval);
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (iframeDoc) {
+          iframeDoc.removeEventListener('scroll', checkIframeScroll);
+        }
+      } catch (e) {
+        // Ignore
+      }
+      if (container) {
+        container.removeEventListener('scroll', checkIframeScroll);
+      }
     };
   }, []);
 
   const completeReading = async () => {
+    // Calculate points based on pages read and progress
+    // Jika progress 50%, maka hanya 50% dari total halaman yang dihitung
+    const pagesRead = Math.round((readingProgress / 100) * (ebook?.pages || 10));
+    const points = pagesRead * 10; // 10 poin per halaman
+    setEarnedPoints(points);
+    
+    // Anti-cheat: Check if reading time is too short for the progress made
+    const estimatedReadingTimeNeeded = pagesRead * 30; // 30 detik per halaman
+    
+    if (readingTime < estimatedReadingTimeNeeded && readingProgress < 100) {
+      const confirmed = window.confirm(
+        `⚠️ Waktu membaca Anda terlalu singkat (${Math.round(readingTime / 60)} menit).\n\n` +
+        `Estimasi waktu yang diperlukan: ${Math.round(estimatedReadingTimeNeeded / 60)} menit.\n\n` +
+        `Progress: ${readingProgress}% | Halaman: ${pagesRead}/${ebook?.pages || 10}\n\n` +
+        `Apakah Anda yakin sudah membaca sampai sini?`
+      );
+      
+      if (!confirmed) {
+        return;
+      }
+    }
+    
     if (readingActivityId) {
       try {
-        const estimatedPage = Math.max(1, Math.ceil((scrollProgress / 100) * (ebook?.pages || 1)));
         await api.completeReading(readingActivityId, {
-          final_page: estimatedPage,
-          notes: '',
+          final_page: pagesRead,
+          notes: `Reading time: ${readingTime}s, Progress: ${readingProgress}%, Pages: ${pagesRead}/${ebook?.pages || 10}`,
         });
       } catch {
         // Non-fatal
       }
     }
-
-    const goToQuiz = window.confirm(
-      `Selesai membaca "${ebook?.title}"! 🎉\n\nMau kerjakan quiz untuk mendapatkan poin tambahan?`
-    );
-    if (goToQuiz) {
-      router.push(`/dashboard/siswa/quiz/${ebookId}`);
-    } else {
-      router.push('/dashboard/siswa');
-    }
+    
+    // Show points modal
+    setShowPointsModal(true);
+    
+    // Auto close after 3 seconds and ask about quiz
+    setTimeout(() => {
+      setShowPointsModal(false);
+      const goToQuiz = window.confirm(
+        `Selesai membaca "${ebook?.title}"! 🎉\n\n` +
+        `Progress: ${readingProgress}% | Poin: ${points}\n\n` +
+        `Mau kerjakan quiz untuk mendapatkan poin tambahan?`
+      );
+      if (goToQuiz) {
+        router.push(`/dashboard/siswa/quiz/${ebookId}`);
+      } else {
+        router.push('/dashboard/siswa');
+      }
+    }, 3000);
   };
-
-  // ── Loading states ──────────────────────────────────────────────────────────
 
   if (loading || loadingEbook) {
     return (
@@ -190,14 +291,21 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     );
   }
 
-  // ── Main render ─────────────────────────────────────────────────────────────
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <style>{`
+        /* Hide scrollbar for PDF viewer */
+        .pdf-viewer-container::-webkit-scrollbar {
+          display: none;
+        }
+        .pdf-viewer-container {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
       {/* Header */}
       <div className="bg-white border-b border-slate-200 p-4 shadow-sm flex-shrink-0">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-          {/* Back */}
           <button
             onClick={() => router.push('/dashboard/siswa')}
             className="flex items-center gap-1.5 hover:bg-slate-100 px-3 py-2 rounded-lg transition-colors text-sm font-semibold flex-shrink-0 text-slate-700"
@@ -207,14 +315,10 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
             </svg>
             <span className="hidden sm:inline">Kembali</span>
           </button>
-
-          {/* Title */}
           <div className="text-center flex-1 min-w-0">
             <h1 className="text-base sm:text-xl font-bold truncate text-slate-900">{ebook.title}</h1>
             <p className="text-xs text-slate-600 truncate">{ebook.author}</p>
           </div>
-
-          {/* Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => router.push(`/dashboard/siswa/quiz/${ebookId}`)}
@@ -239,72 +343,121 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       {/* Progress Bar */}
       <div className="bg-white border-b border-slate-200 px-4 py-3 flex-shrink-0">
         <div className="max-w-6xl mx-auto flex items-center gap-3">
-          <span className="text-xs font-semibold text-slate-600 flex-shrink-0">Progress</span>
-          <div className="flex-1 bg-slate-200 rounded-full h-2">
+          <span className="text-xs font-semibold text-slate-600 flex-shrink-0">Progress Baca</span>
+          <div className="flex-1 bg-slate-200 rounded-full h-3">
             <div
-              className="bg-emerald-600 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${scrollProgress}%` }}
-            />
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+              style={{ width: `${readingProgress}%` }}
+            >
+              {readingProgress > 10 && (
+                <span className="text-xs font-bold text-white">{readingProgress}%</span>
+              )}
+            </div>
           </div>
-          <span className="text-xs font-bold text-emerald-600 flex-shrink-0 w-10 text-right">
-            {Math.round(scrollProgress)}%
+          <span className="text-xs font-bold text-emerald-600 flex-shrink-0 w-12 text-right">
+            {readingProgress}%
           </span>
+        </div>
+        
+        {/* Reading time and speed info */}
+        <div className="max-w-6xl mx-auto mt-2 flex items-center gap-4 text-xs text-slate-600">
+          <span>⏱️ Waktu: {Math.floor(readingTime / 60)}m {readingTime % 60}s</span>
+          <span>📊 Kecepatan: {Math.round(scrollSpeed)} px/s</span>
+          {scrollSpeed > 500 && (
+            <span className="text-red-600 font-bold">⚠️ Scroll terlalu cepat!</span>
+          )}
         </div>
       </div>
 
-      {/* Book Content */}
-      <div className="flex-1 overflow-hidden relative">
-        {/* Cover Image Modal - Show on load */}
-        {showCoverModal && ebook && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-            <div className="flex flex-col items-center gap-4 p-8 max-w-sm animate-in fade-in duration-300">
-              {ebook.cover_image ? (
-                <img
-                  src={ebook.cover_image}
-                  alt={ebook.title}
-                  className="w-56 h-80 object-cover rounded-lg shadow-2xl"
-                />
-              ) : (
-                <div className="w-56 h-80 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg shadow-2xl flex flex-col items-center justify-center text-white p-6">
-                  <div className="text-5xl mb-3">📚</div>
-                  <div className="text-center">
-                    <h2 className="font-bold text-xl mb-2">{ebook.title}</h2>
-                    <p className="text-sm opacity-90">{ebook.author}</p>
-                  </div>
-                </div>
-              )}
-              <p className="text-white text-sm font-semibold animate-pulse">Tunggu sebentar...</p>
-            </div>
+      {/* Toolbar */}
+      <div className="bg-white border-b border-slate-200 px-4 py-3 flex-shrink-0">
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-4">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setZoom(Math.max(50, zoom - 10))}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-bold text-slate-700 transition-colors"
+            >
+              − Perkecil
+            </button>
+            <span className="text-sm font-bold text-slate-700 w-16 text-center">{zoom}%</span>
+            <button
+              onClick={() => setZoom(Math.min(300, zoom + 10))}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-bold text-slate-700 transition-colors"
+            >
+              + Perbesar
+            </button>
+            <button
+              onClick={() => setZoom(100)}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-bold text-slate-700 transition-colors"
+            >
+              ↺ Reset
+            </button>
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* PDF Viewer */}
-        {ebook?.pdf_file ? (
-          <div className="h-full flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
-            <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 flex items-center justify-between">
-              <p className="text-xs text-emerald-800 font-semibold">
-                📄 PDF Reader
+      {/* PDF Content */}
+      <div
+        ref={contentRef}
+        className="flex-1 overflow-auto bg-slate-100 w-full pdf-viewer-container"
+      >
+      {/* Points Modal */}
+      {showPointsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center animate-in fade-in duration-300">
+            <div className="text-6xl mb-4 animate-bounce">🎉</div>
+            <h2 className="text-3xl font-black text-emerald-600 mb-2">Selamat!</h2>
+            <p className="text-slate-600 mb-6">Anda telah menyelesaikan membaca</p>
+            
+            <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-6 mb-6 border-2 border-emerald-200">
+              <p className="text-sm text-slate-600 mb-2">Poin yang Anda Dapatkan</p>
+              <p className="text-5xl font-black text-emerald-600">{earnedPoints}</p>
+              <p className="text-xs text-slate-500 mt-2">
+                Progress: {readingProgress}% | {Math.round((readingProgress / 100) * (ebook?.pages || 10))}/{ebook?.pages || 10} halaman
               </p>
-              <a
-                href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/ebooks/${ebookId}/pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-emerald-700 underline hover:text-emerald-900"
-              >
-                Buka di tab baru
-              </a>
             </div>
-            <iframe
-              src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/ebooks/${ebookId}/pdf#toolbar=1&navpanes=0&zoom=page-fit`}
-              className="flex-1 w-full border-0"
-              title={ebook.title}
-              loading="eager"
-              allowFullScreen
-              sandbox="allow-same-origin allow-scripts"
-            />
+            
+            <p className="text-sm text-slate-600">Tunggu sebentar...</p>
           </div>
+        </div>
+      )}
+
+      {/* Cover Modal */}
+      {showCoverModal && ebook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 p-8 max-w-sm animate-in fade-in duration-300">
+            {ebook.cover_image ? (
+              <img
+                src={ebook.cover_image}
+                alt={ebook.title}
+                className="w-56 h-80 object-cover rounded-lg shadow-2xl"
+              />
+            ) : (
+              <div className="w-56 h-80 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg shadow-2xl flex flex-col items-center justify-center text-white p-6">
+                <div className="text-5xl mb-3">📚</div>
+                <div className="text-center">
+                  <h2 className="font-bold text-xl mb-2">{ebook.title}</h2>
+                  <p className="text-sm opacity-90">{ebook.author}</p>
+                </div>
+              </div>
+            )}
+            <p className="text-white text-sm font-semibold animate-pulse">Tunggu sebentar...</p>
+          </div>
+        </div>
+      )}
+
+        {ebook?.pdf_file ? (
+          <iframe
+            ref={iframeRef}
+            src={`${ebook.pdf_file}#zoom=${zoom}&toolbar=0&navpanes=0`}
+            className="w-full h-full border-0"
+            title={ebook.title}
+            loading="eager"
+            allowFullScreen
+            style={{ height: '100%', minHeight: '100vh' }}
+          />
         ) : (
-          <div className="h-full flex flex-col items-center justify-center gap-4 bg-slate-50" style={{ height: 'calc(100vh - 120px)' }}>
+          <div className="flex flex-col items-center justify-center gap-4 h-full">
             <div className="text-6xl">📚</div>
             <div className="text-center max-w-md">
               <p className="text-slate-600 font-semibold mb-2">PDF tidak tersedia</p>
@@ -316,5 +469,3 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     </div>
   );
 }
-
-

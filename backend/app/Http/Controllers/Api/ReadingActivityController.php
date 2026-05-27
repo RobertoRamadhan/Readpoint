@@ -35,7 +35,7 @@ class ReadingActivityController extends Controller
     {
         $validated = $request->validate([
             'current_page' => 'required|integer|min:1',
-            'duration_minutes' => 'required|integer|min:0',
+            'final_page' => 'required|integer|min:1',
         ]);
 
         $activity = ReadingActivity::where('id', $activityId)
@@ -44,7 +44,7 @@ class ReadingActivityController extends Controller
 
         $activity->update([
             'current_page' => $validated['current_page'],
-            'duration_minutes' => $validated['duration_minutes'],
+            'final_page' => $validated['final_page'],
         ]);
 
         return response()->json([

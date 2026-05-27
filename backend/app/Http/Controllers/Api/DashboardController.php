@@ -362,9 +362,26 @@ class DashboardController extends Controller
             }
 
             $activities = ReadingActivity::where('user_id', $user->id)
-                ->with('ebook:id,title,author,poin_per_halaman')
+                ->with('ebook:id,title,author,pages,poin_per_halaman')
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(function ($activity) {
+                    // Transform data to match frontend expectations
+                    return [
+                        'id' => $activity->id,
+                        'ebook_id' => $activity->ebook_id,
+                        'ebook_title' => $activity->ebook->title ?? 'Unknown',
+                        'ebook_author' => $activity->ebook->author ?? 'Unknown',
+                        'pages_read' => $activity->final_page ?? 0,
+                        'total_pages' => $activity->ebook->pages ?? 0,
+                        'reading_time_minutes' => $activity->duration_minutes ?? 0,
+                        'points_earned' => $activity->points_earned ?? 0,
+                        'status' => $activity->status,
+                        'started_at' => $activity->started_at,
+                        'completed_at' => $activity->completed_at,
+                        'validated_at' => $activity->validation?->validated_at ?? null,
+                    ];
+                });
 
             return response()->json([
                 'data' => $activities,
