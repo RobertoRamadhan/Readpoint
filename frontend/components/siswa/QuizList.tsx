@@ -78,7 +78,7 @@ function QuizCard({ quiz, onStartQuiz }: { quiz: Quiz; onStartQuiz: (quizId: num
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600 font-bold">📊 Level</span>
-            <span className={`font-black ${getDifficultyColor(quiz.difficulty)}`}>
+            <span className={getDifficultyColor(quiz.difficulty)}>
               {quiz.difficulty}
             </span>
           </div>
