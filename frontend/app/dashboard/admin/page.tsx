@@ -1055,14 +1055,28 @@ function RewardForm({ onSuccess, editingReward }: { onSuccess: () => void; editi
         uploadFormData.append('image', formData.image);
       }
 
-      if (editingReward) {
-        await api.rewards.update(editingReward.id, uploadFormData);
-      } else {
-        await api.rewards.create(uploadFormData);
+      // Log FormData for debugging
+      console.log('Reward FormData entries:');
+      for (let [key, value] of uploadFormData.entries()) {
+        console.log(`${key}:`, value instanceof File ? `${value.name} (${value.size} bytes)` : value);
       }
+
+      if (editingReward) {
+        console.log(`Updating reward ${editingReward.id}...`);
+        const result = await api.rewards.update(editingReward.id, uploadFormData);
+        console.log('Update result:', result);
+      } else {
+        console.log('Creating new reward...');
+        const result = await api.rewards.create(uploadFormData);
+        console.log('Create result:', result);
+      }
+      
+      setError('');
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal menyimpan');
+      console.error('Error uploading reward:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Gagal menyimpan';
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
