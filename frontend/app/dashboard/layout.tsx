@@ -97,20 +97,20 @@ export default function DashboardLayout({
                 {dropdownOpen && (
                   <div
                     onClick={(e) => e.stopPropagation()}
-                    className="absolute right-0 mt-2 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg sm:mt-2.5 sm:w-48 sm:py-1.5"
+                    className="absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg sm:mt-2.5 sm:w-60 sm:py-1.5"
                   >
                     <button
                       onClick={() => {
                         router.push('/dashboard/siswa/profile');
                         setDropdownOpen(false);
                       }}
-                      className="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2.5 sm:text-sm"
+                      className="w-full px-4 py-2.5 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
                       Pengaturan Profil
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="w-full px-3 py-2 text-left text-xs font-semibold text-red-600 transition hover:bg-red-50 sm:px-4 sm:py-2.5 sm:text-sm"
+                      className="w-full px-4 py-2.5 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50"
                     >
                       Keluar
                     </button>
