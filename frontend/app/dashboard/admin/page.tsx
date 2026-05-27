@@ -1187,7 +1187,7 @@ function UserManagementTab() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.users?.list?.();
+      const response = await api.users.list();
       setData((response?.data || []) as User[]);
     } catch (err) {
       setError('Gagal memuat data');
@@ -1199,7 +1199,7 @@ function UserManagementTab() {
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin akan menghapus user ini?')) return;
     try {
-      await api.users?.delete?.(id);
+      await api.users.delete(id);
       fetchUsers();
     } catch (err) {
       setError('Gagal menghapus user');
@@ -1356,7 +1356,7 @@ function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUs
     try {
       setSubmitting(true);
       if (editingUser) {
-        await api.users?.update?.(editingUser.id, {
+        await api.users.update(editingUser.id, {
           name: formData.name,
           email: formData.email,
           role: formData.role,
@@ -1367,7 +1367,7 @@ function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUs
           }),
         });
       } else {
-        await api.users?.create?.(formData as any);
+        await api.users.create(formData as any);
       }
       onSuccess();
     } catch (err) {

@@ -593,7 +593,7 @@ function ValidasiTab() {
   const fetchPendingActivities = async () => {
     try {
       setLoading(true);
-      const response = (await api.validations?.getPending?.()) as any;
+      const response = (await api.validations.getPending()) as any;
       setData(Array.isArray(response?.data) ? response.data : []);
     } catch (err) {
       setError('Gagal memuat data');
@@ -605,7 +605,7 @@ function ValidasiTab() {
   const handleApprove = async (activityId: number) => {
     try {
       setProcessingId(activityId);
-      await api.validations?.approve?.(activityId);
+      await api.validations.approve(activityId);
       setSelectedActivity(null);
       setApprovalNotes('');
       fetchPendingActivities();
@@ -623,7 +623,7 @@ function ValidasiTab() {
     }
     try {
       setProcessingId(activityId);
-      await api.validations?.reject?.(activityId, rejectionNotes.trim());
+      await api.validations.reject(activityId, rejectionNotes.trim());
       setSelectedActivity(null);
       setRejectionNotes('');
       fetchPendingActivities();
@@ -806,7 +806,7 @@ function QuizTab() {
   const fetchEbooks = async () => {
     try {
       setLoading(true);
-      const response = (await api.getEbooks?.()) as any;
+      const response = (await api.getEbooks()) as any;
       setEbooks(response?.data || []);
     } catch (err) {
       setError('Gagal memuat e-book');
@@ -845,7 +845,7 @@ function QuizTab() {
     try {
       setSubmitting(true);
       setError('');
-      await api.quiz?.create?.({
+      await api.quiz.create({
         ebook_id: selectedEbook.id,
         questions: questions,
       });
