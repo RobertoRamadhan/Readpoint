@@ -85,3 +85,48 @@ export function getStatusVariant(status: string): 'primary' | 'secondary' | 'acc
       return 'secondary'
   }
 }
+
+export function getTypeIcon(type: string): string {
+  switch (type?.toLowerCase()) {
+    case 'earned':
+      return '⬆️'
+    case 'spent':
+      return '⬇️'
+    case 'bonus':
+      return '🎁'
+    case 'penalty':
+      return '⚠️'
+    default:
+      return '•'
+  }
+}
+
+export function getTypeColor(type: string): string {
+  switch (type?.toLowerCase()) {
+    case 'earned':
+      return 'from-green-400 to-green-600'
+    case 'spent':
+      return 'from-red-400 to-red-600'
+    case 'bonus':
+      return 'from-yellow-400 to-yellow-600'
+    case 'penalty':
+      return 'from-orange-400 to-orange-600'
+    default:
+      return 'from-gray-400 to-gray-600'
+  }
+}
+
+export function getTypeBadge(type: string): 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' {
+  switch (type?.toLowerCase()) {
+    case 'earned':
+      return 'success'
+    case 'spent':
+      return 'danger'
+    case 'bonus':
+      return 'warning'
+    case 'penalty':
+      return 'danger'
+    default:
+      return 'secondary'
+  }
+}
