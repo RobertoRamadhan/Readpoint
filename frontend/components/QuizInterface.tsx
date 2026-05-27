@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, RippleButton, Badge } from '@/components/shared';
+import { Badge } from '@/components/shared';
 
 export interface QuizQuestion {
   id: number;
@@ -75,211 +75,168 @@ export default function QuizInterface({
   const answeredCount = Object.keys(selectedAnswers).length;
   const progress = Math.round(((currentIndex + 1) / questions.length) * 100);
 
-  // ── No questions ────────────────────────────────────────────────────────────
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-emerald-50 p-4">
-        <Card padding="lg" shadow="xl" className="max-w-md w-full text-center">
-          <div className="text-6xl mb-4">❓</div>
-          <h2 className="text-2xl font-black text-emerald-900 mb-2">Tidak Ada Kuis</h2>
-          <p className="text-slate-500 mb-6 text-sm">
-            Tidak ada pertanyaan kuis yang tersedia untuk e-book ini.
-          </p>
-          <RippleButton variant="secondary" fullWidth onClick={onCancel}>
-            ← Kembali
-          </RippleButton>
-        </Card>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
+        <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Kuis</p>
+          <h2 className="mt-4 text-2xl font-black text-slate-900">Tidak Ada Kuis</h2>
+          <p className="mt-4 leading-7 text-slate-600">Tidak ada pertanyaan kuis yang tersedia untuk e-book ini.</p>
+          <button onClick={onCancel} className="mt-8 h-12 w-full rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 transition hover:bg-slate-100">
+            Kembali
+          </button>
+        </div>
       </div>
     );
   }
 
-  // ── Results ─────────────────────────────────────────────────────────────────
   if (showResults) {
     const correctAnswers = questions.filter(
       (q) => selectedAnswers[q.id] === q.correct_answer.toLowerCase()
     ).length;
 
-    const resultEmoji = score >= 80 ? '🏆' : score >= 60 ? '👍' : '💪';
     const resultMessage =
       score >= 80
-        ? 'Luar Biasa! Kamu menguasai materi ini!'
+        ? 'Luar biasa, kamu menguasai materi ini.'
         : score >= 60
-        ? 'Bagus! Terus tingkatkan pengetahuanmu.'
-        : 'Ayo coba lagi untuk hasil yang lebih baik!';
+        ? 'Bagus, terus tingkatkan pemahamanmu.'
+        : 'Ayo coba lagi untuk hasil yang lebih baik.';
 
-    const scoreColor =
-      score >= 80
-        ? 'text-green-600'
-        : score >= 60
-        ? 'text-emerald-600'
-        : 'text-red-500';
+    const scoreColor = score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-slate-900' : 'text-red-600';
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-emerald-50 p-4">
-        <Card padding="lg" shadow="xl" className="max-w-md w-full">
-          {/* Score */}
-          <div className="text-center mb-6">
-            <div className="text-6xl mb-3">{resultEmoji}</div>
-            <h2 className="text-2xl font-black text-emerald-900 mb-1">Hasil Kuismu</h2>
-            <p className={`text-6xl font-black ${scoreColor} my-4`}>{score}%</p>
-            <p className="text-slate-600 text-sm">{resultMessage}</p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
+        <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="text-center">
+            <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Hasil Kuis</p>
+            <h2 className="mt-4 text-2xl font-black text-slate-900">Hasil Kuismu</h2>
+            <p className={`my-6 text-6xl font-black ${scoreColor}`}>{score}%</p>
+            <p className="leading-7 text-slate-600">{resultMessage}</p>
           </div>
 
-          {/* Stats */}
-          <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-4 mb-6 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-emerald-800 font-semibold text-sm">Jawaban Benar</span>
+          <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-black text-slate-700">Jawaban Benar</span>
               <Badge variant="success" size="sm">{correctAnswers}/{questions.length}</Badge>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-emerald-800 font-semibold text-sm">Akurasi</span>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-black text-slate-700">Akurasi</span>
               <Badge variant={score >= 60 ? 'success' : 'danger'} size="sm">
                 {Math.round((correctAnswers / questions.length) * 100)}%
               </Badge>
             </div>
-            {/* Progress bar */}
-            <div className="w-full bg-emerald-200 rounded-full h-3 overflow-hidden">
+            <div className="h-3 overflow-hidden rounded-full bg-slate-200">
               <div
-                className={`h-3 rounded-full transition-all duration-500 ${
-                  score >= 80 ? 'bg-green-500' : score >= 60 ? 'bg-emerald-500' : 'bg-red-400'
-                }`}
+                className={`h-full rounded-full transition-all duration-500 ${score >= 60 ? 'bg-emerald-700' : 'bg-red-500'}`}
                 style={{ width: `${(correctAnswers / questions.length) * 100}%` }}
               />
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col gap-3">
-            <RippleButton variant="primary" fullWidth onClick={handleTakeAgain}>
-              🔄 Coba Lagi
-            </RippleButton>
-            <RippleButton variant="secondary" fullWidth onClick={onCancel}>
-              ← Kembali ke Dashboard
-            </RippleButton>
+          <div className="mt-8 flex flex-col gap-3">
+            <button onClick={handleTakeAgain} className="h-12 rounded-2xl bg-emerald-700 px-5 text-sm font-black text-white transition hover:bg-emerald-800">
+              Coba Lagi
+            </button>
+            <button onClick={onCancel} className="h-12 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 transition hover:bg-slate-100">
+              Kembali ke Dashboard
+            </button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
-  // ── Quiz ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white px-4 sm:px-6 py-4 sticky top-0 z-20 shadow-md">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg font-black truncate flex-1 mr-4">📝 {ebookTitle}</h1>
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-5 py-5 shadow-sm backdrop-blur sm:px-8">
+        <div className="mx-auto w-full max-w-4xl">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Kuis E-Book</p>
+              <h1 className="mt-2 truncate text-xl font-black text-slate-900">{ebookTitle}</h1>
+            </div>
             <Badge variant="secondary" size="sm">
               {answeredCount}/{questions.length} Terjawab
             </Badge>
           </div>
-          {/* Progress bar */}
-          <div className="w-full bg-emerald-700 rounded-full h-2.5 overflow-hidden">
-            <div
-              className="bg-emerald-300 h-2.5 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-200">
+            <div className="h-full rounded-full bg-emerald-700 transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
-          <p className="text-xs text-emerald-200 mt-1.5 font-semibold">
-            Soal {currentIndex + 1} dari {questions.length}
-          </p>
+          <p className="mt-3 text-sm font-semibold text-slate-500">Soal {currentIndex + 1} dari {questions.length}</p>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="flex-1 flex items-start justify-center px-4 sm:px-6 py-8">
-        <div className="w-full max-w-3xl">
-          {/* Question Card */}
-          <Card padding="lg" shadow="lg" className="mb-6">
-            <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-3">
-              Soal {currentIndex + 1}
-            </p>
-            <h2 className="text-xl font-black text-gray-900 mb-6 leading-relaxed">
+      <main className="flex flex-1 items-start justify-center px-5 py-10 sm:px-8">
+        <div className="w-full max-w-4xl">
+          <section className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
+            <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Soal {currentIndex + 1}</p>
+            <h2 className="mt-5 text-2xl font-black leading-relaxed text-slate-900">
               {currentQuestion?.question_text}
             </h2>
 
-            {/* Answer Options */}
-            <div className="space-y-3">
+            <div className="mt-8 space-y-4">
               {options.map((option) => {
                 const isSelected = selectedAnswers[currentQuestion?.id] === option.key;
                 return (
                   <button
                     key={option.key}
                     onClick={() => handleSelectAnswer(option.key)}
-                    className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-200 font-semibold flex items-center gap-3 hover:scale-[1.01] active:scale-[0.99] ${
+                    className={`flex w-full items-center gap-4 rounded-2xl border p-5 text-left font-semibold transition ${
                       isSelected
-                        ? 'border-emerald-600 bg-emerald-600 text-white shadow-md shadow-emerald-200'
-                        : 'border-emerald-200 bg-white text-gray-800 hover:border-emerald-400 hover:bg-emerald-50'
+                        ? 'border-emerald-700 bg-emerald-700 text-white shadow-md'
+                        : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'
                     }`}
                   >
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 border-2 ${
-                        isSelected
-                          ? 'border-white bg-white text-emerald-700'
-                          : 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                      }`}
-                    >
+                    <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-sm font-black ${isSelected ? 'bg-white text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
                       {option.key.toUpperCase()}
-                    </div>
+                    </span>
                     <span className="flex-1">{option.label}</span>
-                    {isSelected && <span className="text-white text-lg">✓</span>}
                   </button>
                 );
               })}
             </div>
+          </section>
 
-            {/* Hint */}
-            <p className="text-xs text-emerald-500 font-medium mt-4 text-center">
-              💡 Pilih satu jawaban terbaik dari opsi yang tersedia
-            </p>
-          </Card>
-
-          {/* Navigation */}
-          <div className="flex gap-3 items-center">
-            <RippleButton
-              variant="secondary"
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
               onClick={handlePreviousQuestion}
               disabled={currentIndex === 0}
-              className="flex-1"
+              className="h-12 flex-1 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              ← Sebelumnya
-            </RippleButton>
+              Sebelumnya
+            </button>
 
             {currentIndex === questions.length - 1 ? (
-              <RippleButton
-                variant="success"
+              <button
                 onClick={handleSubmitQuiz}
                 disabled={!allAnswered}
-                className="flex-1"
+                className="h-12 flex-1 rounded-2xl bg-emerald-700 px-5 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                ✅ Selesai & Kirim
-              </RippleButton>
+                Selesai & Kirim
+              </button>
             ) : (
-              <RippleButton
-                variant="primary"
+              <button
                 onClick={handleNextQuestion}
                 disabled={!isAnswered}
-                className="flex-1"
+                className="h-12 flex-1 rounded-2xl bg-slate-900 px-5 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Selanjutnya →
-              </RippleButton>
+                Selanjutnya
+              </button>
             )}
           </div>
 
           {!allAnswered && currentIndex === questions.length - 1 && (
-            <p className="text-center text-emerald-600 text-xs font-semibold mt-3">
-              ⚠️ Jawab semua soal sebelum mengirim ({questions.length - answeredCount} soal belum dijawab)
+            <p className="mt-4 text-center text-sm font-semibold text-red-600">
+              Jawab semua soal sebelum mengirim. {questions.length - answeredCount} soal belum dijawab.
             </p>
           )}
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-emerald-200 px-4 sm:px-6 py-4 text-center">
-        <RippleButton variant="outline" size="small" onClick={onCancel}>
-          ✕ Batal Kuis
-        </RippleButton>
+      <footer className="border-t border-slate-200 bg-white px-5 py-5 text-center sm:px-8">
+        <button onClick={onCancel} className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-100">
+          Batal Kuis
+        </button>
       </footer>
     </div>
   );

@@ -1,160 +1,157 @@
-/* READPOINT Professional Theme v2
-   Modern palette: Emerald (Primary), Slate (Secondary), Sky Blue (Accent)
-   Colors: Emerald (#10b981), Slate (#1e293b), Blue (#0ea5e9), White, Neutral grays */
+/* READPOINT Professional Theme
+   Global palette: slate, white, emerald. */
 
 :root {
-  /* Primary Colors - Emerald */
-  --rp-primary: #10b981;
-  --rp-primary-dark: #059669;
-  --rp-primary-light: #6ee7b7;
-  --rp-primary-50: #f0fdf4;
-  
-  /* Secondary Colors - Slate */
-  --rp-secondary: #1e293b;
-  --rp-secondary-light: #334155;
-  --rp-secondary-lighter: #475569;
-  --rp-secondary-50: #f1f5f9;
-  
-  /* Accent Colors - Sky Blue */
-  --rp-accent: #0ea5e9;
-  --rp-accent-dark: #0284c7;
-  --rp-accent-light: #7dd3fc;
-  --rp-accent-50: #f0f9ff;
-  
-  /* Neutral Colors */
-  --rp-bg: #f1f5f9;
-  --rp-surface: #ffffff;
-  --rp-soft: #f1f5f9;
-  --rp-text: #1f2937;
-  --rp-text-muted: #64748b;
-  --rp-border: #e2e8f0;
-  --rp-border-light: #f1f5f9;
-  
-  /* Status Colors */
-  --rp-success: #22c55e;
-  --rp-warning: #f59e0b;
-  --rp-danger: #ef4444;
-  --rp-info: #0ea5e9;
-
-  --background: var(--rp-bg);
-  --foreground: var(--rp-text);
-  --primary: var(--rp-primary);
-  --primary-dark: var(--rp-primary-dark);
-  --border: var(--rp-border);
+  --rp-bg: #F8FAFC;
+  --rp-surface: #FFFFFF;
+  --rp-soft: #F1F5F9;
+  --rp-navy: #0F172A;
+  --rp-green: #047857;
+  --rp-green-dark: #065F46;
+  --rp-text: #1F2937;
+  --rp-muted: #64748B;
+  --rp-border: #E2E8F0;
 }
 
-/* Dashboard specific layout fixes */
-.dashboard-layout .flex-1,
-.dashboard-layout .flex-1.flex,
-.dashboard-layout .flex-1.overflow-y-auto {
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: var(--rp-bg) !important;
+  color: var(--rp-text) !important;
+}
+
+body {
+  background: var(--rp-bg) !important;
+}
+
+main,
+section,
+nav,
+footer {
+  max-width: 100%;
+}
+
+.flex-1,
+.flex-1.flex,
+.flex-1.overflow-y-auto {
   min-width: 0 !important;
   width: 100% !important;
 }
 
-.dashboard-layout .flex-1.overflow-y-auto > div,
-.dashboard-layout .flex-1.overflow-y-auto > section {
+.flex-1.overflow-y-auto > div,
+.flex-1.overflow-y-auto > section {
   width: 100% !important;
   max-width: 1440px !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 
-/* Smooth scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--rp-border-light);
-  border-radius: 10px;
+  background: #E5E7EB !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--rp-border);
-  border-radius: 10px;
-  transition: background 0.3s ease;
+  background: #94A3B8 !important;
+  border-radius: 999px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--rp-secondary-lighter);
+  background: var(--rp-navy) !important;
 }
 
-/* ============ BACKGROUND GRADIENTS ============ */
-body:has(.dashboard-layout) {
-  background:
-    radial-gradient(circle at top right, rgba(16, 185, 129, 0.04), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.04), transparent 40%),
-    var(--rp-bg) !important;
-}
-
-/* ============ COLOR OVERRIDES ============ */
-/* Convert old amber/orange classes to new color scheme */
+/* Remove old cream / amber / orange theme */
 .bg-amber-50,
-.bg-orange-50,
 .bg-amber-100,
+.bg-orange-50,
 .bg-orange-100,
-.bg-yellow-50 {
-  background-color: #ffffff !important;
+.bg-yellow-50,
+[class*="bg-[#FAF3E0]"],
+[class*="bg-[#FFF7E6]"],
+[class*="bg-[#FFFDF7]"] {
+  background-color: var(--rp-bg) !important;
 }
 
 .bg-amber-200,
 .bg-orange-200,
-.bg-yellow-200 {
-  background-color: #f8fafc !important;
+.bg-yellow-100,
+.bg-yellow-200,
+[class*="bg-[#E6D8B8]"] {
+  background-color: var(--rp-soft) !important;
 }
 
 .bg-amber-300,
 .bg-amber-400,
 .bg-amber-500,
+.bg-amber-600,
+.bg-amber-700,
 .bg-orange-300,
 .bg-orange-400,
 .bg-orange-500,
-.bg-amber-600,
-.bg-amber-700 {
-  background-color: var(--rp-primary) !important;
+.bg-yellow-300,
+.bg-yellow-400,
+.bg-yellow-500,
+[class*="bg-[#F4B400]"],
+[class*="bg-[#D9A441]"],
+[class*="bg-[#2E7D32]"] {
+  background-color: var(--rp-green) !important;
 }
 
 .bg-amber-800,
 .bg-amber-900,
-.bg-amber-950 {
-  background-color: var(--rp-secondary) !important;
+.bg-amber-950,
+[class*="bg-[#1E3A5F]"],
+[class*="bg-[#172F4D]"] {
+  background-color: var(--rp-navy) !important;
 }
 
-/* Text color overrides - ensure dark text on light backgrounds */
 .text-amber-300,
 .text-amber-400,
 .text-amber-500,
-.text-orange-500,
 .text-amber-600,
-.text-amber-700 {
-  color: var(--rp-primary) !important;
+.text-amber-700,
+.text-orange-500,
+.text-yellow-500,
+[class*="text-[#F4B400]"],
+[class*="text-[#D9A441]"],
+[class*="text-[#2E7D32]"] {
+  color: var(--rp-green) !important;
 }
 
 .text-amber-800,
 .text-amber-900,
 .text-stone-800,
 .text-gray-900,
-.text-slate-900 {
-  color: var(--rp-secondary) !important;
+.text-slate-900,
+[class*="text-[#1E3A5F]"],
+[class*="text-[#2D2D2D]"] {
+  color: var(--rp-navy) !important;
 }
 
 .text-gray-600,
 .text-slate-600,
 .text-gray-700,
 .text-slate-700,
-.text-stone-600 {
-  color: var(--rp-text-muted) !important;
+.text-stone-600,
+[class*="text-[#5A5146]"],
+[class*="text-[#9B8A72]"] {
+  color: var(--rp-muted) !important;
 }
 
-/* Border color overrides */
 .border-amber-100,
 .border-amber-200,
 .border-orange-200,
 .border-gray-200,
 .border-slate-200,
 .border-gray-300,
-.border-slate-300 {
+.border-slate-300,
+[class*="border-[#E6D8B8]"] {
   border-color: var(--rp-border) !important;
 }
 
@@ -162,19 +159,23 @@ body:has(.dashboard-layout) {
 .border-amber-400,
 .border-amber-500,
 .border-orange-500,
-.border-amber-600,
-.border-amber-700,
-.border-amber-800 {
-  border-color: rgba(34, 197, 94, 0.3) !important;
+.border-yellow-400,
+[class*="border-[#F4B400]"],
+[class*="border-[#2E7D32]"] {
+  border-color: rgba(4, 120, 87, 0.35) !important;
 }
 
-/* ============ GRADIENT OVERRIDES ============ */
+/* Gradients from old theme */
 .from-amber-50,
 .from-orange-50,
 .from-amber-100,
-.from-orange-100 {
+.from-orange-100,
+.to-amber-50,
+.to-orange-50,
+.to-amber-100,
+.to-orange-100 {
   --tw-gradient-from: var(--rp-bg) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: rgb(248 250 252 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-to: var(--rp-bg) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
@@ -186,13 +187,6 @@ body:has(.dashboard-layout) {
   --tw-gradient-stops: var(--tw-gradient-from), var(--rp-soft) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
 }
 
-.to-amber-50,
-.to-orange-50,
-.to-amber-100,
-.to-orange-100 {
-  --tw-gradient-to: var(--rp-bg) var(--tw-gradient-to-position) !important;
-}
-
 .from-amber-500,
 .from-amber-600,
 .from-orange-500,
@@ -200,57 +194,49 @@ body:has(.dashboard-layout) {
 .to-amber-800,
 .to-amber-900,
 .to-orange-500 {
-  --tw-gradient-from: var(--rp-primary) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: var(--rp-secondary) var(--tw-gradient-to-position) !important;
+  --tw-gradient-from: var(--rp-green) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: var(--rp-navy) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
 .from-amber-800,
 .from-amber-900,
 .to-amber-950 {
-  --tw-gradient-from: var(--rp-secondary) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: var(--rp-secondary-light) var(--tw-gradient-to-position) !important;
+  --tw-gradient-from: var(--rp-navy) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: #111827 var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
-/* ============ CARD STYLING ============ */
+/* Cards and surfaces */
 .card,
 .card-gradient,
 .bg-white.rounded-xl,
 .bg-white.rounded-2xl,
-.bg-white.rounded-3xl {
+.bg-white.rounded-3xl,
+[class*="bg-white/75"],
+[class*="bg-white/80"],
+[class*="bg-white/85"],
+[class*="bg-white/90"] {
   background: var(--rp-surface) !important;
   border-color: var(--rp-border) !important;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
-  transition: all 0.3s ease !important;
-}
-
-.card:hover,
-.card-gradient:hover,
-.bg-white.rounded-xl:hover,
-.bg-white.rounded-2xl:hover,
-.bg-white.rounded-3xl:hover {
-  border-color: rgba(34, 197, 94, 0.2) !important;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08) !important;
-  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
 }
 
 .card::before {
   display: none !important;
 }
 
-/* ============ BUTTON STYLING ============ */
+/* Buttons */
 .btn-primary,
 .btn-gradient,
 button.bg-amber-600,
 button.bg-amber-700,
 button.bg-amber-800,
-button.bg-amber-900 {
-  background: var(--rp-primary) !important;
+button.bg-amber-900,
+button[class*="bg-[#2E7D32]"] {
+  background: var(--rp-green) !important;
   color: white !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
-  transition: all 0.3s ease !important;
-  border: none !important;
+  box-shadow: 0 8px 18px rgba(4, 120, 87, 0.16) !important;
 }
 
 .btn-primary:hover,
@@ -258,29 +244,13 @@ button.bg-amber-900 {
 button.bg-amber-600:hover,
 button.bg-amber-700:hover,
 button.bg-amber-800:hover,
-button.bg-amber-900:hover {
-  background: var(--rp-primary-dark) !important;
-  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3) !important;
-  transform: translateY(-2px) !important;
+button.bg-amber-900:hover,
+button[class*="bg-[#2E7D32]"]:hover {
+  background: var(--rp-green-dark) !important;
 }
 
-.btn-primary:active,
-.btn-gradient:active,
-button.bg-amber-600:active,
-button.bg-amber-700:active,
-button.bg-amber-800:active,
-button.bg-amber-900:active {
-  transform: translateY(0) !important;
-}
-
-button.bg-slate-300,
-button.bg-gray-300 {
-  background: var(--rp-soft) !important;
-  color: var(--rp-secondary) !important;
-  border: 1px solid var(--rp-border) !important;
-}
-
-/* ============ FORM STYLING ============ */
+/* Forms */
+.input-professional,
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -288,20 +258,32 @@ input[type="number"],
 input[type="date"],
 textarea,
 select {
+  height: 3.5rem;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--rp-border) !important;
   background-color: #FFFFFF !important;
-  border-color: var(--rp-border) !important;
+  padding-left: 1rem;
+  padding-right: 1rem;
   color: var(--rp-text) !important;
-  transition: all 0.3s ease !important;
+  outline: none !important;
 }
 
+textarea {
+  min-height: 8rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.input-professional:focus,
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--rp-primary) !important;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+  border-color: var(--rp-green) !important;
+  box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.10) !important;
 }
 
-/* ============ TABLE STYLING ============ */
+/* Tables */
 table {
   width: 100% !important;
   border-collapse: separate !important;
@@ -313,24 +295,16 @@ thead tr {
 }
 
 th {
-  color: var(--rp-secondary) !important;
-  font-weight: 700 !important;
-  padding: 12px !important;
-  text-align: left !important;
+  color: var(--rp-navy) !important;
+  font-weight: 800 !important;
 }
 
 td {
   color: var(--rp-text) !important;
-  padding: 12px !important;
-  border-bottom: 1px solid var(--rp-border) !important;
-}
-
-tbody tr {
-  transition: background 0.2s ease !important;
 }
 
 tbody tr:hover {
-  background: var(--rp-bg) !important;
+  background: #F8FAFC !important;
 }
 
 .bg-gray-50,
@@ -340,24 +314,22 @@ tbody tr:hover {
   background-color: var(--rp-soft) !important;
 }
 
-/* ============ CHART STYLING ============ */
+/* Charts */
 .recharts-cartesian-grid line {
-  stroke: var(--rp-border) !important;
-  opacity: 0.5 !important;
+  stroke: #E5E7EB !important;
 }
 
 .recharts-cartesian-axis-tick-value,
 .recharts-legend-item-text {
-  fill: var(--rp-text-muted) !important;
-  color: var(--rp-text-muted) !important;
+  fill: var(--rp-muted) !important;
+  color: var(--rp-muted) !important;
   font-size: 12px !important;
 }
 
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   border: 1px solid var(--rp-border) !important;
   border-radius: 0.75rem !important;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1) !important;
-  background: var(--rp-surface) !important;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
 }
 
 .recharts-bar-rectangle path,
@@ -365,7 +337,7 @@ tbody tr:hover {
   filter: none !important;
 }
 
-/* ============ RESPONSIVE SPACING ============ */
+/* Responsive spacing */
 @media (max-width: 768px) {
   .flex-1.overflow-y-auto {
     padding-left: 1rem !important;
