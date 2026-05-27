@@ -251,9 +251,7 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
     
 
     // Suppress "Failed to fetch" errors - they're usually network timeouts
-    if (errorMessage !== 'Failed to fetch') {
-      console.error('[API] Error:', errorMessage);
-    }
+    console.error('[API] Error:', errorMessage);
 
     throw new Error(errorMessage);
 
