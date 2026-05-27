@@ -17,6 +17,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validation
+    if (!email || !password) {
+      setError('Email dan password harus diisi');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password minimal 8 karakter');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -29,8 +41,9 @@ export default function LoginPage() {
         throw new Error('Invalid response from server');
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Login failed';
+      const errorMsg = err instanceof Error ? err.message : 'Login gagal';
       setError(errorMsg);
+      console.error('[Login Error]', err);
     } finally {
       setLoading(false);
     }

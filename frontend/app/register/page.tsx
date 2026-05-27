@@ -31,13 +31,24 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    if (formData.password !== formData.password_confirmation) {
-      setError('Password tidak sesuai');
+    // Validation
+    if (!formData.name || !formData.email || !formData.password || !formData.grade_level) {
+      setError('Semua field harus diisi');
       return;
     }
 
-    if (!formData.grade_level) {
-      setError('Kelas harus dipilih');
+    if (formData.name.length < 3) {
+      setError('Nama minimal 3 karakter');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password minimal 8 karakter');
+      return;
+    }
+
+    if (formData.password !== formData.password_confirmation) {
+      setError('Password tidak sesuai');
       return;
     }
 
@@ -55,6 +66,7 @@ export default function RegisterPage() {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Pendaftaran gagal';
       setError(errorMsg);
+      console.error('[Register Error]', err);
     } finally {
       setLoading(false);
     }
