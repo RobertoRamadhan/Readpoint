@@ -79,6 +79,11 @@ class RewardController extends Controller
     {
         $reward = Reward::findOrFail($id);
 
+        // Convert storage path to full URL
+        if ($reward->image) {
+            $reward->image = asset('storage/' . $reward->image);
+        }
+
         return response()->json([
             'data' => $reward,
         ]);

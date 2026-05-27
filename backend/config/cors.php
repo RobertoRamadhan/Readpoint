@@ -18,6 +18,8 @@ return [
         'http://127.0.0.1:3001',
         'https://readpoint.vercel.app',
         'https://*.vercel.app',
+        'https://readpoint-backend-main-odr7ck.laravel.cloud',
+        'https://readpoint-apjvw08l3-robertoramadhans-projects.vercel.app',
     ],
 
     'allowed_origins_patterns' => [

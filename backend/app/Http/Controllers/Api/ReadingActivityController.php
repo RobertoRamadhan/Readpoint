@@ -36,6 +36,8 @@ class ReadingActivityController extends Controller
         $validated = $request->validate([
             'current_page' => 'required|integer|min:1',
             'final_page' => 'required|integer|min:1',
+            'scroll_speed' => 'nullable|numeric|min:0',
+            'reading_time' => 'nullable|integer|min:0',
         ]);
 
         $activity = ReadingActivity::where('id', $activityId)
@@ -45,6 +47,8 @@ class ReadingActivityController extends Controller
         $activity->update([
             'current_page' => $validated['current_page'],
             'final_page' => $validated['final_page'],
+            'scroll_speed' => $validated['scroll_speed'] ?? null,
+            'reading_time_seconds' => $validated['reading_time'] ?? 0,
         ]);
 
         return response()->json([

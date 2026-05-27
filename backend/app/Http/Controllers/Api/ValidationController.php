@@ -134,6 +134,17 @@ class ValidationController extends Controller
                 'description' => "Poin dari selesai membaca '{$activity->ebook->title}' ({$pagesRead} halaman)",
             ]);
 
+            // Log audit trail
+            \Log::info('Reading activity approved', [
+                'activity_id' => $activityId,
+                'user_id' => $activity->user_id,
+                'guru_id' => $request->user()->id,
+                'points_awarded' => $pointsToAward,
+                'pages_read' => $pagesRead,
+                'ebook_title' => $activity->ebook->title,
+                'timestamp' => now(),
+            ]);
+
             return response()->json([
                 'message' => 'Reading activity approved and points awarded',
                 'data' => [
@@ -142,6 +153,10 @@ class ValidationController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error approving reading activity', [
+                'activity_id' => $activityId,
+                'error' => $e->getMessage(),
+            ]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -181,6 +196,16 @@ class ValidationController extends Controller
                 ]
             );
 
+            // Log audit trail
+            \Log::info('Reading activity rejected', [
+                'activity_id' => $activityId,
+                'user_id' => $activity->user_id,
+                'guru_id' => $request->user()->id,
+                'reason' => $validated['notes'] ?? 'No reason provided',
+                'ebook_title' => $activity->ebook->title,
+                'timestamp' => now(),
+            ]);
+
             return response()->json([
                 'message' => 'Reading activity rejected',
                 'data' => [
@@ -189,6 +214,10 @@ class ValidationController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error rejecting reading activity', [
+                'activity_id' => $activityId,
+                'error' => $e->getMessage(),
+            ]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }

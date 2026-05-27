@@ -17,6 +17,9 @@ class ReadingActivity extends Model
         'notes',
         'status',
         'points_earned',
+        'scroll_speed',
+        'reading_time_seconds',
+        'reading_progress',
     ];
 
     protected $casts = [
