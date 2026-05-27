@@ -92,20 +92,8 @@ export default function AdminSidebar({
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >
-      <div className="border-b border-white/10 p-5">
-        <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-sm font-black text-slate-900">
-            RP
-          </div>
-          <div>
-            <h2 className="text-xl font-black tracking-tight text-white">READPOINT</h2>
-            <p className="text-xs font-black uppercase tracking-widest text-emerald-300">
-              {role === 'guru' ? 'Panel Guru' : 'Panel Admin'}
-            </p>
-          </div>
-        </div>
-
-        {user && (
+      {user && (
+        <div className="border-b border-white/10 p-5">
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/10 text-sm font-black text-white ring-1 ring-white/10">
@@ -125,8 +113,8 @@ export default function AdminSidebar({
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <nav className="flex-1 space-y-2 overflow-y-auto p-4 pb-24">
         {items.map((item) => {
