@@ -424,12 +424,6 @@ function BerandaTab({ stats, dataLoading }: { stats: GuruStats; dataLoading: boo
 
   return (
     <div className="p-8 lg:p-12 space-y-10 w-full">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl lg:text-4xl font-bold text-emerald-900">Dashboard Guru</h2>
-        <p className="text-emerald-700 font-semibold mt-2">Kelola pembelajaran siswa Anda</p>
-      </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
         <StatCard

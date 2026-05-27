@@ -439,23 +439,6 @@ function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; t
 
   return (
     <div className="p-8 space-y-8 w-full">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-emerald-800 via-emerald-750 to-emerald-950 text-white rounded-3xl shadow-2xl shadow-emerald-600/40 p-10 animate-slide-up relative overflow-hidden border-2 border-emerald-700">
-        {/* Decorative Background Elements */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-300 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
-        </div>
-        
-        <div className="relative z-10 text-center">
-          <h2 className="text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-lg">Dashboard Admin</h2>
-          <p className="text-xl text-emerald-50 font-semibold">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
-          <div className="flex justify-center mt-6">
-            <div className="h-1.5 w-20 bg-gradient-to-r from-emerald-300 to-emerald-500 rounded-full shadow-lg shadow-emerald-400/50"></div>
-          </div>
-        </div>
-      </div>
-
       {/* Activity Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
         <ActivityItem label="Siswa Aktif" value={stats.siswa_aktif_hari_ini || 0} delay="0.1s" />
