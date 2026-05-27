@@ -47,3 +47,37 @@ export function getRoleIcon(role: string): string {
       return '👤'
   }
 }
+
+export function getStatusIcon(status: string): string {
+  switch (status?.toLowerCase()) {
+    case 'completed':
+      return '✓'
+    case 'in_progress':
+      return '⏳'
+    case 'pending':
+      return '⏱️'
+    case 'approved':
+      return '✓'
+    case 'rejected':
+      return '✗'
+    default:
+      return '•'
+  }
+}
+
+export function getStatusVariant(status: string): string {
+  switch (status?.toLowerCase()) {
+    case 'completed':
+      return 'bg-green-100 text-green-700 border-green-300'
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-700 border-blue-300'
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+    case 'approved':
+      return 'bg-green-100 text-green-700 border-green-300'
+    case 'rejected':
+      return 'bg-red-100 text-red-700 border-red-300'
+    default:
+      return 'bg-gray-100 text-gray-700 border-gray-300'
+  }
+}
