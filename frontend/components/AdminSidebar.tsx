@@ -186,7 +186,7 @@ export default function AdminSidebar({
 
       <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/95 p-4">
         <p className="text-center text-xs font-bold text-slate-400">
-          READPOINT {role === 'guru' ? 'Guru' : 'Admin'} Panel
+          {role === 'guru' ? 'Panel Guru' : 'Panel Admin'}
         </p>
       </div>
     </aside>
