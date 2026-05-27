@@ -20,6 +20,21 @@ export function getDifficultyColor(difficulty: string): string {
   }
 }
 
+export function getDifficultyVariant(difficulty: string): string {
+  const level = difficulty?.toLowerCase() || 'mudah'
+  
+  switch (level) {
+    case 'mudah':
+      return 'bg-green-100 text-green-700 border-green-300'
+    case 'sedang':
+      return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+    case 'sulit':
+      return 'bg-red-100 text-red-700 border-red-300'
+    default:
+      return 'bg-gray-100 text-gray-700 border-gray-300'
+  }
+}
+
 export function getRoleIcon(role: string): string {
   switch (role?.toLowerCase()) {
     case 'admin':
