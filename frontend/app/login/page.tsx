@@ -52,13 +52,16 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 text-slate-900">
       <div
-        className="mx-auto flex min-h-screen w-full items-start justify-center px-6 py-6 sm:px-10 sm:py-8 lg:items-center lg:px-12 lg:py-12 xl:px-8"
-        style={{ maxWidth: '1080px' }}
+        className="mx-auto flex min-h-screen w-full items-start justify-center px-6 py-6 sm:px-10 sm:py-8 lg:items-center lg:px-12 lg:py-12 xl:px-10"
+        style={{ maxWidth: '1240px' }}
       >
-        <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[0.8fr_1.2fr] gap-0">
+        <div
+          className="mx-auto grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[0.82fr_1.18fr] gap-0"
+          style={{ maxWidth: '1180px' }}
+        >
           {/* Image Section - Top on mobile, left on desktop */}
           <section
-            className="relative flex min-h-[180px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[220px] lg:min-h-[540px]"
+            className="relative flex min-h-[180px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[220px] lg:min-h-[560px]"
             style={{ backgroundImage: 'url("/perpus.jpg")' }}
           >
             {/* Dark Overlay */}
@@ -81,8 +84,8 @@ export default function LoginPage() {
           </section>
 
           {/* Form Section */}
-          <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[540px] lg:px-12 lg:py-12 xl:px-14">
-            <div className="mx-auto w-full" style={{ maxWidth: '420px' }}>
+          <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[560px] lg:px-14 lg:py-12 xl:px-16">
+            <div className="mx-auto w-full" style={{ maxWidth: '440px' }}>
               {/* Mobile Header */}
               <div className="mb-7 text-center lg:hidden">
                 <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
@@ -105,7 +108,7 @@ export default function LoginPage() {
               )}
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" style={{ width: '100%', maxWidth: '420px' }}>
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" style={{ width: '100%', maxWidth: '440px' }}>
                 <div>
                   <label className="mb-2 block text-sm sm:text-base font-black text-slate-800">Email</label>
                   <input
