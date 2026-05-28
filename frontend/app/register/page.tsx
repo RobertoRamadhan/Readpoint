@@ -75,53 +75,45 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl items-start justify-center px-4 py-4 sm:px-6 sm:py-8 lg:items-center lg:px-8 lg:py-12">
         <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[1.2fr_0.8fr] gap-0">
-          {/* Left Section - Hidden on mobile, visible on lg */}
-          <section className="hidden text-white lg:flex lg:flex-col lg:justify-between relative overflow-hidden bg-cover bg-center" style={{backgroundImage: 'url("/perpus.jpg")', backgroundAttachment: 'fixed'}}>
+          {/* Image Section - Top on mobile, left on desktop */}
+          <section
+            className="relative flex min-h-[220px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[260px] lg:min-h-[760px]"
+            style={{ backgroundImage: 'url("/perpus.jpg")' }}
+          >
             {/* Dark Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70"></div>
 
-            <div className="relative z-10 p-8 lg:p-10">
+            <div className="relative z-10 p-5 sm:p-7 lg:p-10">
               <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
-                <div className="flex h-11 lg:h-12 w-11 lg:w-12 items-center justify-center rounded-xl bg-white text-xs lg:text-sm font-black text-emerald-700 shadow-lg">RP</div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-12 lg:w-12 lg:text-sm">RP</div>
                 <div>
-                  <p className="text-lg lg:text-xl font-black text-white">READPOINT</p>
+                  <p className="text-lg font-black text-white lg:text-xl">READPOINT</p>
                   <p className="text-xs font-bold uppercase tracking-widest text-emerald-100">Literasi Digital</p>
                 </div>
               </Link>
 
-              <div className="mt-16 lg:mt-20 max-w-md">
-                <h1 className="text-4xl lg:text-5xl font-black leading-tight text-white drop-shadow-lg">Buat akun READPOINT.</h1>
-                <p className="mt-4 lg:mt-6 leading-7 lg:leading-8 text-base lg:text-lg text-emerald-100 drop-shadow-md">Daftar untuk mulai petualangan literasi digital Anda.</p>
+              <div className="mt-8 max-w-md sm:mt-10 lg:mt-20">
+                <h1 className="text-2xl font-black leading-tight text-white drop-shadow-lg sm:text-3xl lg:text-5xl">Buat akun READPOINT.</h1>
+                <p className="mt-3 text-sm leading-6 text-emerald-100 drop-shadow-md sm:text-base lg:mt-6 lg:text-lg lg:leading-8">Daftar untuk mulai petualangan literasi digital Anda.</p>
               </div>
             </div>
 
-            {/* Bottom decoration */}
-            <div className="relative z-10 p-8 lg:p-10">
-              <div className="flex items-center gap-3 text-emerald-100">
-                <div className="text-3xl">🎓</div>
-                <div className="text-sm">Bergabunglah dengan ribuan siswa yang sudah membaca</div>
-              </div>
+            {/* Bottom decoration - desktop only */}
+            <div className="relative z-10 hidden p-8 lg:block lg:p-10">
+              <p className="text-sm text-emerald-100">Bergabunglah dengan ribuan siswa yang sudah membaca</p>
             </div>
           </section>
 
-          {/* Right Section - Form */}
-          <section className="flex min-h-screen sm:min-h-auto lg:min-h-[760px] items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-y-auto">
+          {/* Form Section */}
+          <section className="flex min-h-auto items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[760px] lg:px-8 lg:py-12">
             <div className="w-full max-w-lg">
               {/* Mobile Header */}
-              <div className="mb-8 sm:mb-10 text-center lg:text-left lg:hidden">
-                <Link href="/" className="mb-6 inline-flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white shadow-md">RP</div>
-                  <div className="text-left">
-                    <p className="text-lg font-black text-emerald-700">READPOINT</p>
-                    <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">Literasi Digital</p>
-                  </div>
-                </Link>
-
-                <p className="text-sm font-black uppercase tracking-widest text-emerald-600 mt-6">Akun Siswa</p>
-                <h2 className="mt-3 text-2xl sm:text-3xl font-black leading-tight text-slate-900">Daftar akun baru</h2>
-                <p className="mt-3 leading-6 text-sm sm:text-base text-slate-600">Lengkapi data berikut untuk membuat akun READPOINT.</p>
+              <div className="mb-7 text-center lg:hidden">
+                <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
+                <h2 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:text-3xl">Daftar akun baru</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Lengkapi data berikut untuk membuat akun READPOINT.</p>
               </div>
 
               {/* Desktop Header */}
@@ -139,8 +131,8 @@ export default function RegisterPage() {
               )}
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                   <Field label="Nama Lengkap">
                     <input
                       type="text"
@@ -196,7 +188,7 @@ export default function RegisterPage() {
                   />
                 </Field>
 
-                <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                   <Field label="Password">
                     <input
                       type="password"
