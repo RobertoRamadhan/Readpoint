@@ -838,55 +838,78 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold">{error}</div>}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          placeholder="Judul Buku"
-          value={formData.title}
-          onChange={(e) => setFormData({...formData, title: e.target.value})}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Pengarang"
-          value={formData.author}
-          onChange={(e) => setFormData({...formData, author: e.target.value})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Total Halaman"
-          value={formData.pages}
-          onChange={(e) => setFormData({...formData, pages: parseInt(e.target.value) || 1})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          min="1"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Kategori"
-          value={formData.category}
-          onChange={(e) => setFormData({...formData, category: e.target.value})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          required
-        />
-      </div>
-
+      {/* Row 1: Judul & Pengarang */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">📄 PDF File {editingEbook ? '(Opsional - kosongkan jika tidak ingin mengubah)' : '*'}</label>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Judul Buku *</label>
+          <input
+            type="text"
+            placeholder="Masukkan judul buku"
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Pengarang *</label>
+          <input
+            type="text"
+            placeholder="Masukkan nama pengarang"
+            value={formData.author}
+            onChange={(e) => setFormData({...formData, author: e.target.value})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Row 2: Halaman & Kategori */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Total Halaman *</label>
+          <input
+            type="number"
+            placeholder="Masukkan jumlah halaman"
+            value={formData.pages}
+            onChange={(e) => setFormData({...formData, pages: parseInt(e.target.value) || 1})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Kategori *</label>
+          <input
+            type="text"
+            placeholder="Masukkan kategori buku"
+            value={formData.category}
+            onChange={(e) => setFormData({...formData, category: e.target.value})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Row 3: PDF File & Gambar Sampul */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            📄 PDF File {editingEbook ? '(Opsional)' : '*'}
+          </label>
           <input
             type="file"
             accept=".pdf"
             onChange={(e) => setFormData({...formData, pdf_file: e.target.files?.[0] || null})}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             required={!editingEbook}
           />
+          {formData.pdf_file && (
+            <p className="text-xs text-gray-600 mt-1">✓ {formData.pdf_file.name}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">🖼️ Gambar Sampul</label>
@@ -894,25 +917,33 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
             type="file"
             accept="image/*"
             onChange={(e) => setFormData({...formData, cover_image: e.target.files?.[0] || null})}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           />
+          {formData.cover_image && (
+            <p className="text-xs text-gray-600 mt-1">✓ {formData.cover_image.name}</p>
+          )}
         </div>
       </div>
 
+      {/* Preview */}
       {formData.cover_image && (
         <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
-          <div className="w-16 h-20 bg-gray-300 rounded overflow-hidden">
+          <div className="w-16 h-20 bg-gray-300 rounded overflow-hidden flex-shrink-0">
             <img 
               src={URL.createObjectURL(formData.cover_image)} 
               alt="Preview" 
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-sm text-gray-700 font-medium">{formData.cover_image.name}</span>
+          <div>
+            <p className="text-sm font-bold text-gray-700">Preview Gambar</p>
+            <p className="text-xs text-gray-600">{formData.cover_image.name}</p>
+          </div>
         </div>
       )}
 
-      <div className="flex gap-2 justify-end">
+      {/* Buttons */}
+      <div className="flex gap-2 justify-end pt-4 border-t border-gray-200">
         {onCancel && (
           <button
             type="button"
@@ -925,7 +956,7 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
         <button
           type="submit"
           disabled={submitting}
-          className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
+          className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
         >
           {submitting ? 'Menyimpan...' : 'Simpan'}
         </button>
@@ -992,17 +1023,23 @@ function RewardManagementTab() {
     <div className="p-8 space-y-6">
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="p-8 space-y-4">
+          {/* Form Section */}
           {showForm && (
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingReward(null);
-                }}
-                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ✕
-              </button>
+            <div className="mb-8 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {editingReward ? 'Edit Reward' : 'Tambah Reward Baru'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingReward(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                >
+                  ✕
+                </button>
+              </div>
               <RewardForm 
                 onSuccess={() => { setShowForm(false); setEditingReward(null); fetchRewards(); }} 
                 editingReward={editingReward}
@@ -1011,23 +1048,26 @@ function RewardManagementTab() {
             </div>
           )}
 
-        <div className="flex gap-3 mb-4">
+          {/* Search and Add Button */}
+          <div className="flex gap-3 mb-4">
             <input
               type="text"
               placeholder="Cari reward..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
-            <button
-              onClick={() => {
-                setEditingReward(null);
-                setShowForm(!showForm);
-              }}
-              className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all"
-            >
-              {showForm ? 'Tutup' : '+ Tambah'}
-            </button>
+            {!showForm && (
+              <button
+                onClick={() => {
+                  setEditingReward(null);
+                  setShowForm(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg transition-all"
+              >
+                + Tambah Reward
+              </button>
+            )}
           </div>
 
           {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
@@ -1046,6 +1086,10 @@ function RewardManagementTab() {
                           src={reward.image}
                           alt={reward.name}
                           className="w-24 h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            console.error('[RewardDisplay] Image failed to load:', reward.image);
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
                         />
                       ) : (
                         <div className="w-24 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
@@ -1178,85 +1222,109 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 space-y-4">
-      <h3 className="text-xl font-bold text-gray-900">
-        {editingReward ? 'Edit Reward' : 'Tambah Reward Baru'}
-      </h3>
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold">{error}</div>}
       
+      {/* Row 1: Nama & Kategori */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          placeholder="Nama Reward"
-          value={formData.name}
-          onChange={(e) => setFormData({...formData, name: e.target.value})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Kategori"
-          value={formData.category}
-          onChange={(e) => setFormData({...formData, category: e.target.value})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Nama Reward *</label>
+          <input
+            type="text"
+            placeholder="Masukkan nama reward"
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Kategori *</label>
+          <input
+            type="text"
+            placeholder="Masukkan kategori reward"
+            value={formData.category}
+            onChange={(e) => setFormData({...formData, category: e.target.value})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Row 2: Deskripsi */}
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-2">Deskripsi *</label>
+        <textarea
+          placeholder="Masukkan deskripsi reward"
+          value={formData.description}
+          onChange={(e) => setFormData({...formData, description: e.target.value})}
+          rows={3}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           required
         />
       </div>
 
-      <textarea
-        placeholder="Deskripsi Reward"
-        value={formData.description}
-        onChange={(e) => setFormData({...formData, description: e.target.value})}
-        rows={3}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-        required
-      />
-
+      {/* Row 3: Poin & Stok */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="number"
-          placeholder="Poin Diperlukan"
-          value={formData.points_required}
-          onChange={(e) => setFormData({...formData, points_required: parseInt(e.target.value) || 1})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          min="1"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Stok Tersedia"
-          value={formData.stock}
-          onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value) || 1})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          min="0"
-          required
-        />
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Poin Diperlukan *</label>
+          <input
+            type="number"
+            placeholder="Masukkan poin yang diperlukan"
+            value={formData.points_required}
+            onChange={(e) => setFormData({...formData, points_required: parseInt(e.target.value) || 1})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Stok Tersedia *</label>
+          <input
+            type="number"
+            placeholder="Masukkan stok reward"
+            value={formData.stock}
+            onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value) || 1})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            min="0"
+            required
+          />
+        </div>
       </div>
 
+      {/* Row 4: Gambar */}
       <div>
         <label className="block text-sm font-bold text-gray-700 mb-2">🖼️ Gambar Reward</label>
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setFormData({...formData, image: e.target.files?.[0] || null})}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
         />
+        {formData.image && (
+          <p className="text-xs text-gray-600 mt-1">✓ {formData.image.name}</p>
+        )}
       </div>
 
+      {/* Preview */}
       {formData.image && (
         <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
-          <div className="w-16 h-20 bg-gray-300 rounded overflow-hidden">
+          <div className="w-16 h-20 bg-gray-300 rounded overflow-hidden flex-shrink-0">
             <img 
               src={URL.createObjectURL(formData.image)} 
               alt="Preview" 
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-sm text-gray-700 font-medium">{formData.image.name}</span>
+          <div>
+            <p className="text-sm font-bold text-gray-700">Preview Gambar</p>
+            <p className="text-xs text-gray-600">{formData.image.name}</p>
+          </div>
         </div>
       )}
 
-      <div className="flex gap-2 justify-end">
+      {/* Buttons */}
+      <div className="flex gap-2 justify-end pt-4 border-t border-gray-200">
         {onCancel && (
           <button
             type="button"
@@ -1269,7 +1337,7 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
         <button
           type="submit"
           disabled={submitting}
-          className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
+          className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
         >
           {submitting ? 'Menyimpan...' : 'Simpan'}
         </button>
