@@ -202,9 +202,7 @@ export default function SiswaDashboard() {
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
-              if (book.pdf_file) {
-                window.open(book.pdf_file, '_blank');
-              }
+              router.push(`/dashboard/siswa/read/${book.id}`);
             }}
             ebooks={ebooks}
             placeholder="Cari buku berdasarkan judul, penulis, atau kategori..."
@@ -221,10 +219,7 @@ export default function SiswaDashboard() {
             <FavoriteBooksSlider
               books={favoriteBooks}
               onBookClick={(bookId) => {
-                const book = ebooks.find(b => b.id === bookId);
-                if (book?.pdf_file) {
-                  window.open(book.pdf_file, '_blank');
-                }
+                router.push(`/dashboard/siswa/read/${bookId}`);
               }}
             />
           </section>
