@@ -54,7 +54,7 @@ export default function Home() {
 
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
             {/* Section 1: Hero */}
-            <section className="py-12 sm:py-16 lg:py-24 flex items-center min-h-screen lg:min-h-screen sm:min-h-auto">
+            <section className="py-16 sm:py-24 lg:py-32 flex items-center min-h-screen lg:min-h-screen sm:min-h-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 w-full items-center">
                 <div className="order-2 lg:order-1">
                   <span className="inline-block rounded-full bg-emerald-100 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-emerald-700 mb-4 sm:mb-6">Platform Literasi Digital</span>
@@ -76,7 +76,7 @@ export default function Home() {
             </section>
 
             {/* Section 2: Our Clients */}
-            <section className="py-12 sm:py-16 lg:py-24 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
+            <section className="py-16 sm:py-24 lg:py-32 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 w-full items-center">
                 <div className="flex items-center justify-center order-2 lg:order-1">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-slate-100 rounded-xl flex items-center justify-center">
@@ -92,7 +92,7 @@ export default function Home() {
             </section>
 
             {/* Section 3: Features */}
-            <section className="py-12 sm:py-16 lg:py-24 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
+            <section className="py-16 sm:py-24 lg:py-32 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 w-full items-center">
                 <div className="order-2 lg:order-1">
                   <h2 className="text-3xl sm:text-4xl lg:text-4xl font-black text-slate-900 mb-6 sm:mb-8">Fitur Unggulan</h2>
@@ -123,7 +123,7 @@ export default function Home() {
             </section>
 
             {/* Section 4: Statistics */}
-            <section className="py-12 sm:py-16 lg:py-24 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
+            <section className="py-16 sm:py-24 lg:py-32 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 w-full items-center">
                 <div className="order-2 lg:order-1">
                   <h2 className="text-3xl sm:text-4xl lg:text-4xl font-black text-slate-900 mb-6 sm:mb-8">Hasil yang Terbukti</h2>
@@ -153,7 +153,7 @@ export default function Home() {
             </section>
 
             {/* Section 5: How It Works */}
-            <section className="py-12 sm:py-16 lg:py-24 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
+            <section className="py-16 sm:py-24 lg:py-32 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 w-full items-center">
                 <div className="flex items-center justify-center order-2 lg:order-1">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center border-2 border-emerald-200">
@@ -190,7 +190,7 @@ export default function Home() {
             </section>
 
             {/* Section 6: Testimonial */}
-            <section className="py-12 sm:py-16 lg:py-24 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
+            <section className="py-16 sm:py-24 lg:py-32 flex items-center min-h-screen lg:min-h-auto sm:min-h-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 w-full items-center">
                 <div className="flex items-center justify-center order-2 lg:order-1">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-slate-200 rounded-2xl flex items-center justify-center">
