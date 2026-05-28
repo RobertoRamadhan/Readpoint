@@ -18,9 +18,9 @@ export default function Home() {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden sm:flex items-center gap-3">
-            <Link href="/login" className="rounded-lg px-4 sm:px-6 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">Masuk</Link>
-            <Link href="/register" className="rounded-lg bg-emerald-600 px-4 sm:px-6 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-md">Daftar</Link>
+          <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+            <Link href="/login" className="rounded-lg px-4 sm:px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border-2 border-emerald-700 hover:border-emerald-800">Masuk</Link>
+            <Link href="/register" className="rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 sm:px-6 py-2.5 text-sm font-bold text-white hover:shadow-lg transition-all shadow-md hover:from-emerald-700 hover:to-emerald-800">Daftar</Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -38,8 +38,8 @@ export default function Home() {
         {mobileMenuOpen && (
           <div className="sm:hidden border-t border-slate-200 bg-white">
             <div className="px-4 py-3 space-y-2">
-              <Link href="/login" className="block rounded-lg px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">Masuk</Link>
-              <Link href="/register" className="block rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-all text-center">Daftar</Link>
+              <Link href="/login" className="block rounded-lg px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border-2 border-emerald-700 text-center">Masuk</Link>
+              <Link href="/register" className="block rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2.5 text-sm font-bold text-white hover:shadow-lg transition-all text-center shadow-md">Daftar</Link>
             </div>
           </div>
         )}
