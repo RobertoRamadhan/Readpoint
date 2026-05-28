@@ -563,9 +563,14 @@ function EbookManagementTab() {
   const fetchEbooks = async () => {
     try {
       setLoading(true);
+      console.log('[EbookManagementTab] Fetching ebooks...');
       const response = await api.dashboard.adminBooks();
-      setData((response.data || []) as Ebook[]);
+      console.log('[EbookManagementTab] Response:', response);
+      const ebookList = (response.data || []) as Ebook[];
+      console.log('[EbookManagementTab] Ebooks loaded:', ebookList.length);
+      setData(ebookList);
     } catch (err) {
+      console.error('[EbookManagementTab] Error fetching ebooks:', err);
       setError('Gagal memuat data');
     } finally {
       setLoading(false);
@@ -579,7 +584,7 @@ function EbookManagementTab() {
       const result = await api.ebooks.delete?.(id);
       console.log('[EbookDelete] Delete result:', result);
       setError('');
-      fetchEbooks();
+      await fetchEbooks();
     } catch (err) {
       console.error('[EbookDelete] Error:', err);
       const errorMsg = err instanceof Error ? err.message : 'Gagal menghapus e-book';
@@ -589,8 +594,16 @@ function EbookManagementTab() {
   };
 
   const handleEdit = (ebook: Ebook) => {
+    console.log('[EbookManagementTab] Editing ebook:', ebook);
     setEditingEbook(ebook);
     setShowForm(true);
+  };
+
+  const handleFormSuccess = async () => {
+    console.log('[EbookManagementTab] Form success, refreshing ebooks...');
+    setShowForm(false);
+    setEditingEbook(null);
+    await fetchEbooks();
   };
 
   const filteredData = data.filter(item =>
@@ -602,25 +615,32 @@ function EbookManagementTab() {
     <div className="p-8 space-y-6">
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="p-8 space-y-4">
+          {/* Form Section */}
           {showForm && (
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingEbook(null);
-                }}
-                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ✕
-              </button>
+            <div className="mb-8 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {editingEbook ? 'Edit E-Book' : 'Tambah E-Book Baru'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingEbook(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                >
+                  ✕
+                </button>
+              </div>
               <EbookForm 
-                onSuccess={() => { setShowForm(false); setEditingEbook(null); fetchEbooks(); }} 
+                onSuccess={handleFormSuccess}
                 editingEbook={editingEbook}
                 onCancel={() => { setShowForm(false); setEditingEbook(null); }}
               />
             </div>
           )}
 
+          {/* Search and Add Button */}
           <div className="flex gap-3 mb-4">
             <input
               type="text"
@@ -629,12 +649,17 @@ function EbookManagementTab() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
-            <button
-              onClick={() => setShowForm(true)}
-              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg transition-all"
-            >
-              + Tambah E-Book
-            </button>
+            {!showForm && (
+              <button
+                onClick={() => {
+                  setEditingEbook(null);
+                  setShowForm(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg transition-all"
+              >
+                + Tambah E-Book
+              </button>
+            )}
           </div>
 
           {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
@@ -653,6 +678,10 @@ function EbookManagementTab() {
                           src={ebook.cover_image}
                           alt={ebook.title}
                           className="w-24 h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            console.error('[EbookDisplay] Image failed to load:', ebook.cover_image);
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
                         />
                       ) : (
                         <div className="w-24 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
