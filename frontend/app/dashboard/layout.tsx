@@ -51,7 +51,7 @@ export default function DashboardLayout({
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="flex h-14 w-full items-center justify-between sm:h-16">
-          <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full items-center justify-between px-6 sm:px-10 lg:px-16" style={{ maxWidth: '1180px' }}>
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
@@ -144,13 +144,13 @@ export default function DashboardLayout({
       </header>
 
       <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden bg-slate-50">
-        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-16" style={{ maxWidth: '1180px' }}>
           {children}
         </div>
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-200 bg-white">
-        <div className="mx-auto w-full max-w-[1400px] px-4 py-4 text-center sm:px-6 sm:py-5 lg:px-8 lg:py-6">
+        <div className="mx-auto w-full px-6 py-4 text-center sm:px-10 sm:py-5 lg:px-16 lg:py-6" style={{ maxWidth: '1180px' }}>
           <p className="text-xs font-semibold text-slate-500 sm:text-sm">© 2026 READPOINT - Platform Literasi Digital Indonesia</p>
         </div>
       </footer>
