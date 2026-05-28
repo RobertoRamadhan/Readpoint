@@ -88,7 +88,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed z-40 flex h-[calc(100vh-64px)] w-72 flex-col overflow-hidden border-r border-slate-200 bg-slate-900 text-white shadow-xl transition-transform duration-300 md:relative ${
+      className={`fixed z-40 flex h-[calc(100vh-56px)] sm:h-[calc(100vh-64px)] w-64 sm:w-72 flex-col overflow-hidden border-r border-slate-200 bg-slate-900 text-white shadow-xl transition-transform duration-300 md:relative ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >

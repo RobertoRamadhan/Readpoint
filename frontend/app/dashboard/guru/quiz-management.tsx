@@ -89,6 +89,9 @@ export default function QuizManagementPage() {
       setActionLoading(true);
       await api.quiz.create(quizData as unknown as Record<string, unknown>);
       
+      // Wait 1 second to ensure database is updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Refresh data
       await loadQuizData();
       setShowFormModal(false);
@@ -105,6 +108,9 @@ export default function QuizManagementPage() {
     try {
       setActionLoading(true);
       await api.quiz.update(quizData.id!, quizData as unknown as Record<string, unknown>);
+      
+      // Wait 1 second to ensure database is updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Refresh data
       await loadQuizData();
@@ -124,6 +130,9 @@ export default function QuizManagementPage() {
         setActionLoading(true);
         await api.quiz.delete(quizId);
         
+        // Wait 1 second to ensure database is updated
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Refresh data
         await loadQuizData();
       } catch (error) {
@@ -139,6 +148,9 @@ export default function QuizManagementPage() {
     try {
       setActionLoading(true);
       await api.quiz.update(quizId, { is_active: active });
+      
+      // Wait 1 second to ensure database is updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Refresh data
       await loadQuizData();

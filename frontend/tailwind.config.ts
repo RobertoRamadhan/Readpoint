@@ -355,6 +355,86 @@ const config: Config = {
           '@apply py-16 md:py-24': {},
         },
 
+        // ============ RESPONSIVE GRID ============
+        '.grid-responsive': {
+          '@apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6': {},
+        },
+        '.grid-responsive-2': {
+          '@apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6': {},
+        },
+        '.grid-responsive-4': {
+          '@apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6': {},
+        },
+
+        // ============ TOUCH-FRIENDLY BUTTONS ============
+        '.btn-touch': {
+          '@apply min-h-12 sm:min-h-14 px-4 sm:px-6': {},
+        },
+        '.input-touch': {
+          '@apply min-h-12 sm:min-h-14 px-3 sm:px-4': {},
+        },
+
+        // ============ MOBILE PADDING ============
+        '.p-mobile': {
+          '@apply p-4 sm:p-6 lg:p-8': {},
+        },
+        '.px-mobile': {
+          '@apply px-4 sm:px-6 lg:px-8': {},
+        },
+        '.py-mobile': {
+          '@apply py-4 sm:py-6 lg:py-8': {},
+        },
+
+        // ============ RESPONSIVE TEXT ============
+        '.text-responsive-sm': {
+          '@apply text-xs sm:text-sm lg:text-base': {},
+        },
+        '.text-responsive-base': {
+          '@apply text-sm sm:text-base lg:text-lg': {},
+        },
+        '.text-responsive-lg': {
+          '@apply text-base sm:text-lg lg:text-xl': {},
+        },
+        '.text-responsive-xl': {
+          '@apply text-lg sm:text-xl lg:text-2xl': {},
+        },
+        '.text-responsive-2xl': {
+          '@apply text-xl sm:text-2xl lg:text-3xl': {},
+        },
+        '.text-responsive-3xl': {
+          '@apply text-2xl sm:text-3xl lg:text-4xl': {},
+        },
+        '.text-responsive-4xl': {
+          '@apply text-3xl sm:text-4xl lg:text-5xl': {},
+        },
+
+        // ============ RESPONSIVE SPACING ============
+        '.gap-responsive': {
+          '@apply gap-3 sm:gap-4 lg:gap-6': {},
+        },
+        '.gap-responsive-lg': {
+          '@apply gap-4 sm:gap-6 lg:gap-8': {},
+        },
+        '.space-responsive': {
+          '@apply space-y-3 sm:space-y-4 lg:space-y-6': {},
+        },
+        '.space-responsive-lg': {
+          '@apply space-y-4 sm:space-y-6 lg:space-y-8': {},
+        },
+
+        // ============ RESPONSIVE ROUNDED ============
+        '.rounded-responsive': {
+          '@apply rounded-lg sm:rounded-xl lg:rounded-2xl': {},
+        },
+        '.rounded-responsive-sm': {
+          '@apply rounded-md sm:rounded-lg lg:rounded-xl': {},
+        },
+
+        // ============ RESPONSIVE SHADOW ============
+        '.shadow-responsive': {
+          '@apply shadow-sm sm:shadow-md lg:shadow-lg': {},
+        },
+
         // ============ GRADIENT COMPONENTS ============
         '.gradient-text': {
           '@apply bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent': {},

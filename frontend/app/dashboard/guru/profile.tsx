@@ -80,7 +80,7 @@ export default function GuruProfilePage() {
   const inputClass = 'w-full px-4 py-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-amber-200 transition text-sm disabled:opacity-60';
 
   return (
-    <div className="w-full">
+    <div className="w-full min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-3xl font-black text-emerald-900 mb-6 flex items-center gap-2">
           <span>⚙️</span> Pengaturan Profil

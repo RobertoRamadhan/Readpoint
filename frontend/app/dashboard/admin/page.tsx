@@ -413,89 +413,159 @@ function OverviewTab({ stats, topStudents, dataLoading }: { stats: AdminStats; t
     return (
       <div className="text-center py-20">
         <div className="inline-block">
-          <div className="w-14 h-14 border-4 border-emerald-400 border-t-emerald-700 rounded-full animate-spin"></div>
+          <div className="w-14 h-14 border-4 border-blue-400 border-t-blue-700 rounded-full animate-spin"></div>
         </div>
-        <p className="text-emerald-700 font-bold mt-4 text-lg">Memuat data...</p>
+        <p className="text-blue-700 font-bold mt-4 text-lg">Memuat data...</p>
       </div>
     );
   }
 
-  // Prepare data for bar chart
-  const barChartData = [
-    { name: 'Siswa', value: stats.total_siswa || 0 },
-    { name: 'Guru', value: stats.total_guru || 0 },
-    { name: 'Buku', value: stats.total_ebook || 0 },
-    { name: 'Reward', value: stats.total_reward || 0 },
-  ];
-
-  // Prepare data for pie chart (Reward)
-  const pieChartData = [
-    { name: 'Reward Diklaim', value: stats.reward_diklaim_hari_ini || 0 },
-    { name: 'Reward Tersisa', value: Math.max(0, (stats.total_reward || 0) - (stats.reward_diklaim_hari_ini || 0)) },
-  ];
-
-  const COLORS = ['#b45309', '#f59e0b'];
-
   return (
     <div className="p-8 space-y-8 w-full">
-      {/* Activity Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
-        <ActivityItem label="Siswa Aktif" value={stats.siswa_aktif_hari_ini || 0} delay="0.1s" />
-        <ActivityItem label="Buku Dibaca" value={stats.buku_dibaca_hari_ini || 0} delay="0.15s" />
-        <ActivityItem label="Quiz Dikerjakan" value={stats.kuis_dikerjakan_hari_ini || 0} delay="0.2s" />
-        <ActivityItem label="Reward Diklaim" value={stats.reward_diklaim_hari_ini || 0} delay="0.25s" />
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-emerald-200 animate-scale-up hover:shadow-2xl hover:border-emerald-300 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-emerald-900 mb-2">Statistik Sistem</h3>
-            <p className="text-emerald-700 text-sm font-semibold">Total pengguna dan konten aktif</p>
-            <div className="flex justify-center mt-3">
-              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"></div>
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Total Siswa */}
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-700 text-sm font-bold mb-1">Total Siswa</p>
+              <p className="text-4xl font-black text-blue-900">{stats.total_siswa || 0}</p>
             </div>
+            <div className="text-5xl opacity-30">👨‍🎓</div>
           </div>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={barChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" stroke="#b45309" />
-              <YAxis stroke="#b45309" />
-              <Tooltip contentStyle={{ borderRadius: '12px', border: '2px solid #b45309' }} />
-              <Bar dataKey="value" fill="#b45309" radius={[16, 16, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
         </div>
 
-        {/* Pie Chart */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 border-2 border-emerald-200 animate-scale-up hover:shadow-2xl hover:border-emerald-300 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-emerald-900 mb-2">Status Reward Hari Ini</h3>
-            <p className="text-emerald-700 text-sm font-semibold">Distribusi reward yang diklaim</p>
-            <div className="flex justify-center mt-3">
-              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"></div>
+        {/* Total Guru */}
+        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-6 border-2 border-emerald-200 shadow-lg hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-emerald-700 text-sm font-bold mb-1">Total Guru</p>
+              <p className="text-4xl font-black text-emerald-900">{stats.total_guru || 0}</p>
             </div>
+            <div className="text-5xl opacity-30">👨‍🏫</div>
           </div>
-          <ResponsiveContainer width="100%" height={350}>
-            <PieChart>
-              <Pie
-                data={pieChartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, value }) => `${name}: ${value}`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+        </div>
+
+        {/* Total Buku */}
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 border-2 border-amber-200 shadow-lg hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-amber-700 text-sm font-bold mb-1">Total Buku</p>
+              <p className="text-4xl font-black text-amber-900">{stats.total_ebook || 0}</p>
+            </div>
+            <div className="text-5xl opacity-30">📚</div>
+          </div>
+        </div>
+
+        {/* Total Kuis */}
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-700 text-sm font-bold mb-1">Total Kuis</p>
+              <p className="text-4xl font-black text-purple-900">0</p>
+            </div>
+            <div className="text-5xl opacity-30">✅</div>
+          </div>
+        </div>
+
+        {/* Total Reward */}
+        <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-6 border-2 border-pink-200 shadow-lg hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-pink-700 text-sm font-bold mb-1">Total Hadiah</p>
+              <p className="text-4xl font-black text-pink-900">{stats.total_reward || 0}</p>
+            </div>
+            <div className="text-5xl opacity-30">🎁</div>
+          </div>
+        </div>
+
+        {/* Penukaran Reward Pending */}
+        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 border-2 border-red-200 shadow-lg hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-red-700 text-sm font-bold mb-1">Penukaran Pending</p>
+              <p className="text-4xl font-black text-red-900">0</p>
+            </div>
+            <div className="text-5xl opacity-30">⏳</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity Today Section */}
+      <div className="bg-white rounded-2xl p-6 border-2 border-blue-200 shadow-lg">
+        <h3 className="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+          <span>📊</span> Aktivitas Hari Ini
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <p className="text-blue-700 text-xs font-bold mb-1">Siswa Aktif</p>
+            <p className="text-3xl font-bold text-blue-900">{stats.siswa_aktif_hari_ini || 0}</p>
+          </div>
+          <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+            <p className="text-emerald-700 text-xs font-bold mb-1">Buku Dibaca</p>
+            <p className="text-3xl font-bold text-emerald-900">{stats.buku_dibaca_hari_ini || 0}</p>
+          </div>
+          <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+            <p className="text-amber-700 text-xs font-bold mb-1">Kuis Dikerjakan</p>
+            <p className="text-3xl font-bold text-amber-900">{stats.kuis_dikerjakan_hari_ini || 0}</p>
+          </div>
+          <div className="bg-pink-50 rounded-xl p-4 border border-pink-200">
+            <p className="text-pink-700 text-xs font-bold mb-1">Reward Diklaim</p>
+            <p className="text-3xl font-bold text-pink-900">{stats.reward_diklaim_hari_ini || 0}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Students Section */}
+      <div className="bg-white rounded-2xl p-6 border-2 border-blue-200 shadow-lg">
+        <h3 className="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+          <span>🏆</span> Siswa Terbaik
+        </h3>
+        {topStudents.length > 0 ? (
+          <div className="space-y-3">
+            {topStudents.slice(0, 5).map((student, index) => (
+              <div key={student.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-emerald-50 rounded-xl border border-blue-200 hover:shadow-md transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900">{student.name}</p>
+                    <p className="text-xs text-slate-600">{student.email}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-black text-blue-900">{student.total_points || 0}</p>
+                  <p className="text-xs text-slate-600">poin</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-slate-600">
+            <p>Belum ada data siswa</p>
+          </div>
+        )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-2xl p-6 border-2 border-blue-200 shadow-lg">
+        <h3 className="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+          <span>⚡</span> Akses Cepat
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button className="bg-white border-2 border-blue-200 rounded-xl p-4 hover:bg-blue-50 transition-all text-left font-bold text-blue-900">
+            📚 Kelola Buku
+          </button>
+          <button className="bg-white border-2 border-emerald-200 rounded-xl p-4 hover:bg-emerald-50 transition-all text-left font-bold text-emerald-900">
+            🎁 Kelola Reward
+          </button>
+          <button className="bg-white border-2 border-amber-200 rounded-xl p-4 hover:bg-amber-50 transition-all text-left font-bold text-amber-900">
+            👥 Kelola User
+          </button>
+          <button className="bg-white border-2 border-purple-200 rounded-xl p-4 hover:bg-purple-50 transition-all text-left font-bold text-purple-900">
+            📋 Lihat Laporan
+          </button>
         </div>
       </div>
     </div>
@@ -583,6 +653,8 @@ function EbookManagementTab() {
       const result = await api.ebooks.delete?.(id);
       console.log('[EbookDelete] Delete result:', result);
       setError('');
+      // Wait 1 second to ensure database is updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fetchEbooks();
     } catch (err) {
       console.error('[EbookDelete] Error:', err);
@@ -1059,7 +1131,9 @@ function RewardManagementTab() {
       const result = await api.rewards.delete?.(id);
       console.log('[RewardDelete] Delete result:', result);
       setError('');
-      fetchRewards();
+      // Wait 1 second to ensure database is updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await fetchRewards();
     } catch (err) {
       console.error('[RewardDelete] Error:', err);
       const errorMsg = err instanceof Error ? err.message : 'Gagal menghapus reward';
