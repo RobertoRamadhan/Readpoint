@@ -602,7 +602,20 @@ function EbookManagementTab() {
     <div className="p-8 space-y-6">
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="p-8 space-y-4">
-          {showForm && <EbookForm onSuccess={() => { setShowForm(false); setEditingEbook(null); fetchEbooks(); }} editingEbook={editingEbook} />}
+          {showForm && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingEbook(null);
+                }}
+                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+              <EbookForm onSuccess={() => { setShowForm(false); setEditingEbook(null); fetchEbooks(); }} editingEbook={editingEbook} />
+            </div>
+          )}
 
           <div className="flex gap-3 mb-4">
             <input
@@ -935,7 +948,20 @@ function RewardManagementTab() {
     <div className="p-8 space-y-6">
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="p-8 space-y-4">
-          {showForm && <RewardForm onSuccess={() => { setShowForm(false); setEditingReward(null); fetchRewards(); }} editingReward={editingReward} />}
+          {showForm && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingReward(null);
+                }}
+                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+              <RewardForm onSuccess={() => { setShowForm(false); setEditingReward(null); fetchRewards(); }} editingReward={editingReward} />
+            </div>
+          )}
 
         <div className="flex gap-3 mb-4">
             <input
@@ -1247,7 +1273,20 @@ function UserManagementTab() {
     <div className="p-8 space-y-6">
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="p-8 space-y-4">
-          {showForm && <UserForm onSuccess={() => { setShowForm(false); setEditingUser(null); fetchUsers(); }} editingUser={editingUser} />}
+          {showForm && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingUser(null);
+                }}
+                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+              <UserForm onSuccess={() => { setShowForm(false); setEditingUser(null); fetchUsers(); }} editingUser={editingUser} />
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">

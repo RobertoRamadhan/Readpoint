@@ -23,7 +23,8 @@ export default function TestCRUD() {
     try {
       addLog('Testing: GET /users');
       const response = await api.users.list();
-      addLog(`✓ GET /users: ${response.data?.length || 0} users`);
+      const count = Array.isArray(response.data) ? response.data.length : 0;
+      addLog(`✓ GET /users: ${count} users`);
     } catch (err) {
       addLog(`✗ GET /users: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
@@ -33,7 +34,8 @@ export default function TestCRUD() {
     try {
       addLog('Testing: GET /ebooks');
       const response = await api.ebooks.list();
-      addLog(`✓ GET /ebooks: ${response.data?.length || 0} ebooks`);
+      const count = Array.isArray(response.data) ? response.data.length : 0;
+      addLog(`✓ GET /ebooks: ${count} ebooks`);
     } catch (err) {
       addLog(`✗ GET /ebooks: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
@@ -43,7 +45,8 @@ export default function TestCRUD() {
     try {
       addLog('Testing: GET /rewards');
       const response = await api.rewards.list();
-      addLog(`✓ GET /rewards: ${response.data?.length || 0} rewards`);
+      const count = Array.isArray(response.data) ? response.data.length : 0;
+      addLog(`✓ GET /rewards: ${count} rewards`);
     } catch (err) {
       addLog(`✗ GET /rewards: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
