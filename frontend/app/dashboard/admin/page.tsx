@@ -575,10 +575,15 @@ function EbookManagementTab() {
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin?')) return;
     try {
-      await api.ebooks.delete?.(id);
+      console.log(`[EbookDelete] Deleting ebook ${id}...`);
+      const result = await api.ebooks.delete?.(id);
+      console.log('[EbookDelete] Delete result:', result);
+      setError('');
       fetchEbooks();
     } catch (err) {
-      setError('Gagal menghapus e-book');
+      console.error('[EbookDelete] Error:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Gagal menghapus e-book';
+      setError(errorMsg);
     }
   };
 
@@ -904,10 +909,15 @@ function RewardManagementTab() {
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin?')) return;
     try {
-      await api.rewards.delete?.(id);
+      console.log(`[RewardDelete] Deleting reward ${id}...`);
+      const result = await api.rewards.delete?.(id);
+      console.log('[RewardDelete] Delete result:', result);
+      setError('');
       fetchRewards();
     } catch (err) {
-      setError('Gagal menghapus reward');
+      console.error('[RewardDelete] Error:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Gagal menghapus reward';
+      setError(errorMsg);
     }
   };
 
