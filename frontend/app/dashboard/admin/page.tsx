@@ -36,7 +36,6 @@ interface Reward {
   description: string;
   points_required: number;
   stock: number;
-  category: string;
   is_active: boolean;
   image?: string;
 }
@@ -1200,7 +1199,6 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
     description: '',
     points_required: 100,
     stock: 10,
-    category: '',
     image: null as File | null,
   });
   const [error, setError] = useState('');
@@ -1213,7 +1211,6 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
         description: editingReward.description,
         points_required: editingReward.points_required,
         stock: editingReward.stock,
-        category: editingReward.category,
         image: null,
       });
     }
@@ -1223,7 +1220,7 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.description || !formData.category) {
+    if (!formData.name || !formData.description) {
       setError('Semua field harus diisi');
       return;
     }
@@ -1236,7 +1233,6 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
       uploadFormData.append('description', formData.description);
       uploadFormData.append('points_required', formData.points_required.toString());
       uploadFormData.append('stock', formData.stock.toString());
-      uploadFormData.append('category', formData.category);
       if (formData.image) {
         uploadFormData.append('image', formData.image);
       }
@@ -1277,30 +1273,17 @@ function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => v
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold">{error}</div>}
       
-      {/* Row 1: Nama & Kategori */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Nama Reward *</label>
-          <input
-            type="text"
-            placeholder="Masukkan nama reward"
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Kategori *</label>
-          <input
-            type="text"
-            placeholder="Masukkan kategori reward"
-            value={formData.category}
-            onChange={(e) => setFormData({...formData, category: e.target.value})}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            required
-          />
-        </div>
+      {/* Row 1: Nama */}
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-2">Nama Reward *</label>
+        <input
+          type="text"
+          placeholder="Masukkan nama reward"
+          value={formData.name}
+          onChange={(e) => setFormData({...formData, name: e.target.value})}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          required
+        />
       </div>
 
       {/* Row 2: Deskripsi */}
