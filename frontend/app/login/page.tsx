@@ -51,11 +51,11 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1180px] items-start justify-center px-6 py-6 sm:px-10 sm:py-8 lg:items-center lg:px-12 lg:py-12 xl:px-0">
-        <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[0.85fr_1.15fr] gap-0">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1080px] items-start justify-center px-6 py-6 sm:px-10 sm:py-8 lg:items-center lg:px-12 lg:py-12 xl:px-8">
+        <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[0.8fr_1.2fr] gap-0">
           {/* Image Section - Top on mobile, left on desktop */}
           <section
-            className="relative flex min-h-[180px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[220px] lg:min-h-[560px]"
+            className="relative flex min-h-[180px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[220px] lg:min-h-[540px]"
             style={{ backgroundImage: 'url("/perpus.jpg")' }}
           >
             {/* Dark Overlay */}
@@ -78,8 +78,8 @@ export default function LoginPage() {
           </section>
 
           {/* Form Section */}
-          <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[560px] lg:px-14 lg:py-12 xl:px-16">
-            <div className="w-full max-w-md">
+          <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[540px] lg:px-12 lg:py-12 xl:px-14">
+            <div className="mx-auto w-full max-w-[420px]">
               {/* Mobile Header */}
               <div className="mb-7 text-center lg:hidden">
                 <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
@@ -88,7 +88,7 @@ export default function LoginPage() {
               </div>
 
               {/* Desktop Header */}
-              <div className="mb-8 text-center lg:text-left hidden lg:block">
+              <div className="mb-8 hidden text-center lg:block lg:text-left">
                 <p className="text-base font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
                 <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Masuk ke akun</h2>
                 <p className="mt-3 leading-7 text-base text-slate-600">Masukkan email dan password untuk membuka dashboard READPOINT.</p>
