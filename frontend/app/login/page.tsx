@@ -53,7 +53,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 px-6 py-6 text-slate-900 sm:px-10 sm:py-8 lg:px-12 lg:py-12">
       <div
         className="mx-auto grid w-full overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-xl sm:rounded-3xl sm:shadow-2xl lg:grid-cols-[0.85fr_1.15fr]"
-        style={{ maxWidth: '1360px' }}
+        style={{ maxWidth: '1480px' }}
       >
         {/* Image Section - Top on mobile, left on desktop */}
         <section
@@ -81,7 +81,7 @@ export default function LoginPage() {
 
         {/* Form Section */}
         <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[600px] lg:px-16 lg:py-12 xl:px-20">
-          <div className="mx-auto w-full" style={{ maxWidth: '520px' }}>
+          <div className="mx-auto w-full" style={{ maxWidth: '540px' }}>
             {/* Mobile Header */}
             <div className="mb-7 text-center lg:hidden">
               <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
@@ -104,7 +104,7 @@ export default function LoginPage() {
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" style={{ width: '100%', maxWidth: '520px' }}>
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" style={{ width: '100%', maxWidth: '540px' }}>
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-800 sm:text-base">Email</label>
                 <input
