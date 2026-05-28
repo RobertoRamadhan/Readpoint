@@ -597,6 +597,10 @@ function EbookManagementTab() {
     console.log('[EbookManagementTab] Editing ebook:', ebook);
     setEditingEbook(ebook);
     setShowForm(true);
+    // Scroll to top
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
   };
 
   const handleFormSuccess = async () => {
@@ -617,8 +621,8 @@ function EbookManagementTab() {
         <div className="p-8 space-y-4">
           {/* Form Section */}
           {showForm && (
-            <div className="mb-8 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
-              <div className="flex justify-between items-center mb-4">
+            <div className="mb-8 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg max-h-[80vh] overflow-y-auto relative z-50">
+              <div className="flex justify-between items-center mb-4 sticky top-0 bg-emerald-50 pb-4 z-50">
                 <h3 className="text-xl font-bold text-gray-900">
                   {editingEbook ? 'Edit E-Book' : 'Tambah E-Book Baru'}
                 </h3>
@@ -627,7 +631,7 @@ function EbookManagementTab() {
                     setShowForm(false);
                     setEditingEbook(null);
                   }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold flex-shrink-0"
                 >
                   ✕
                 </button>
@@ -894,7 +898,37 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
         </div>
       </div>
 
-      {/* Row 3: PDF File & Gambar Sampul */}
+      {/* Row 3: Poin per Halaman & Grade Level */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Poin per Halaman *</label>
+          <input
+            type="number"
+            placeholder="Masukkan poin per halaman"
+            value={formData.poin_per_halaman}
+            onChange={(e) => setFormData({...formData, poin_per_halaman: parseInt(e.target.value) || 1})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Grade Level *</label>
+          <select
+            value={formData.grade_level}
+            onChange={(e) => setFormData({...formData, grade_level: e.target.value})}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            required
+          >
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="all">Semua Grade</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Row 4: PDF File & Gambar Sampul */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -926,19 +960,32 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
       </div>
 
       {/* Preview */}
-      {formData.cover_image && (
-        <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
-          <div className="w-16 h-20 bg-gray-300 rounded overflow-hidden flex-shrink-0">
-            <img 
-              src={URL.createObjectURL(formData.cover_image)} 
-              alt="Preview" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-gray-700">Preview Gambar</p>
-            <p className="text-xs text-gray-600">{formData.cover_image.name}</p>
-          </div>
+      {(formData.cover_image || formData.pdf_file) && (
+        <div className="space-y-2">
+          {formData.pdf_file && (
+            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <span className="text-2xl">📄</span>
+              <div>
+                <p className="text-sm font-bold text-blue-700">PDF File</p>
+                <p className="text-xs text-blue-600">{formData.pdf_file.name}</p>
+              </div>
+            </div>
+          )}
+          {formData.cover_image && (
+            <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
+              <div className="w-16 h-20 bg-gray-300 rounded overflow-hidden flex-shrink-0">
+                <img 
+                  src={URL.createObjectURL(formData.cover_image)} 
+                  alt="Preview" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-700">Preview Gambar</p>
+                <p className="text-xs text-gray-600">{formData.cover_image.name}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1013,6 +1060,10 @@ function RewardManagementTab() {
   const handleEdit = (reward: Reward) => {
     setEditingReward(reward);
     setShowForm(true);
+    // Scroll to top
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
   };
 
   const filteredData = data.filter(item =>
@@ -1025,8 +1076,8 @@ function RewardManagementTab() {
         <div className="p-8 space-y-4">
           {/* Form Section */}
           {showForm && (
-            <div className="mb-8 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
-              <div className="flex justify-between items-center mb-4">
+            <div className="mb-8 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg max-h-[80vh] overflow-y-auto relative z-50">
+              <div className="flex justify-between items-center mb-4 sticky top-0 bg-emerald-50 pb-4 z-50">
                 <h3 className="text-xl font-bold text-gray-900">
                   {editingReward ? 'Edit Reward' : 'Tambah Reward Baru'}
                 </h3>
@@ -1035,7 +1086,7 @@ function RewardManagementTab() {
                     setShowForm(false);
                     setEditingReward(null);
                   }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold flex-shrink-0"
                 >
                   ✕
                 </button>
