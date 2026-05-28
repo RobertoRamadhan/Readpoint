@@ -842,12 +842,12 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 w-full">
       {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold">{error}</div>}
       
       {/* Row 1: Judul & Pengarang */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">Judul Buku *</label>
           <input
             type="text"
@@ -858,7 +858,7 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
             required
           />
         </div>
-        <div>
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">Pengarang *</label>
           <input
             type="text"
@@ -872,8 +872,8 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
       </div>
 
       {/* Row 2: Halaman & Kategori */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">Total Halaman *</label>
           <input
             type="number"
@@ -885,7 +885,7 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
             required
           />
         </div>
-        <div>
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">Kategori *</label>
           <input
             type="text"
@@ -899,8 +899,8 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
       </div>
 
       {/* Row 3: Poin per Halaman & Grade Level */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">Poin per Halaman *</label>
           <input
             type="number"
@@ -912,7 +912,7 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
             required
           />
         </div>
-        <div>
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">Grade Level *</label>
           <select
             value={formData.grade_level}
@@ -929,8 +929,8 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
       </div>
 
       {/* Row 4: PDF File & Gambar Sampul */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">
             📄 PDF File {editingEbook ? '(Opsional)' : '*'}
           </label>
@@ -942,10 +942,10 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
             required={!editingEbook}
           />
           {formData.pdf_file && (
-            <p className="text-xs text-gray-600 mt-1">✓ {formData.pdf_file.name}</p>
+            <p className="text-xs text-green-600 mt-1 font-semibold">✓ {formData.pdf_file.name}</p>
           )}
         </div>
-        <div>
+        <div className="w-full">
           <label className="block text-sm font-bold text-gray-700 mb-2">🖼️ Gambar Sampul</label>
           <input
             type="file"
@@ -954,20 +954,21 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           />
           {formData.cover_image && (
-            <p className="text-xs text-gray-600 mt-1">✓ {formData.cover_image.name}</p>
+            <p className="text-xs text-green-600 mt-1 font-semibold">✓ {formData.cover_image.name}</p>
           )}
         </div>
       </div>
 
-      {/* Preview */}
+      {/* Preview Section */}
       {(formData.cover_image || formData.pdf_file) && (
-        <div className="space-y-2">
+        <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-sm font-bold text-gray-700">Preview File:</p>
           {formData.pdf_file && (
             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <span className="text-2xl">📄</span>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-blue-700">PDF File</p>
-                <p className="text-xs text-blue-600">{formData.pdf_file.name}</p>
+                <p className="text-xs text-blue-600 truncate">{formData.pdf_file.name}</p>
               </div>
             </div>
           )}
@@ -980,9 +981,9 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-700">Preview Gambar</p>
-                <p className="text-xs text-gray-600">{formData.cover_image.name}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-700">Gambar Sampul</p>
+                <p className="text-xs text-gray-600 truncate">{formData.cover_image.name}</p>
               </div>
             </div>
           )}
