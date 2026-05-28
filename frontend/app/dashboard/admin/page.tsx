@@ -839,9 +839,6 @@ function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => voi
 
   return (
     <form onSubmit={handleSubmit} className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 space-y-4">
-      <h3 className="text-xl font-bold text-gray-900">
-        {editingEbook ? 'Edit E-Book' : 'Tambah E-Book Baru'}
-      </h3>
       {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold">{error}</div>}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
