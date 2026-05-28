@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button, Badge } from '@/components/shared';
+import { Card, Button } from '@/components/shared';
+import { normalizeFileUrl } from '@/lib/file-url';
 
 interface Reward {
   id: number;
@@ -43,7 +44,7 @@ export default function RewardGrid({ rewards, userPoints, loading, onRedeem }: R
   if (rewards.length === 0) {
     return (
       <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl shadow-xl p-12 text-center border-2 border-gray-300">
-        <p className="text-gray-800 font-black text-lg">🎁 Belum ada rewards tersedia</p>
+        <p className="text-gray-800 font-black text-lg">Belum ada rewards tersedia</p>
       </div>
     );
   }
@@ -69,22 +70,7 @@ function RewardCard({ reward, userPoints, onRedeem }: {
 }) {
   const canRedeem = reward.stock > 0 && userPoints >= reward.points_required;
   const [imageError, setImageError] = useState(false);
-
-  // Ensure image is a full URL
-  const getImageUrl = () => {
-    if (!reward.image_url) return null;
-    
-    // If already a full URL, return as is
-    if (reward.image_url.startsWith('http')) {
-      return reward.image_url;
-    }
-    
-    // If it's a relative path, construct full URL
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud';
-    return `${baseUrl}/storage/${reward.image_url}`;
-  };
-
-  const imageUrl = getImageUrl();
+  const imageUrl = normalizeFileUrl(reward.image_url || reward.image);
 
   return (
     <Card hover className="overflow-hidden group">
@@ -94,14 +80,14 @@ function RewardCard({ reward, userPoints, onRedeem }: {
             src={imageUrl}
             alt={reward.name}
             className="w-full h-full object-cover"
-            onError={(e) => {
+            onError={() => {
               console.error('[RewardCard] Image failed to load:', imageUrl);
               setImageError(true);
             }}
             loading="lazy"
           />
         ) : (
-          <span>🎁</span>
+          <span>Reward</span>
         )}
       </div>
       
@@ -111,11 +97,11 @@ function RewardCard({ reward, userPoints, onRedeem }: {
         
         <div className="space-y-3 text-sm mb-6">
           <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg border border-gray-200">
-            <span className="text-gray-800 font-black">💰 Cost</span>
+            <span className="text-gray-800 font-black">Cost</span>
             <span className="font-black text-purple-700">{reward.points_required} pts</span>
           </div>
           <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg border border-gray-200">
-            <span className="text-gray-800 font-black">📦 Stock</span>
+            <span className="text-gray-800 font-black">Stock</span>
             <span className="font-black text-gray-900">{reward.stock} left</span>
           </div>
         </div>
@@ -129,7 +115,7 @@ function RewardCard({ reward, userPoints, onRedeem }: {
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {reward.stock <= 0 ? '❌ Out of Stock' : '✨ Redeem'}
+          {reward.stock <= 0 ? 'Out of Stock' : 'Redeem'}
         </Button>
       </div>
     </Card>
