@@ -606,6 +606,8 @@ function EbookManagementTab() {
     console.log('[EbookManagementTab] Form success, refreshing ebooks...');
     setShowForm(false);
     setEditingEbook(null);
+    // Add delay untuk memastikan data tersimpan di database
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await fetchEbooks();
   };
 
@@ -1074,6 +1076,15 @@ function RewardManagementTab() {
     }, 0);
   };
 
+  const handleFormSuccess = async () => {
+    console.log('[RewardManagementTab] Form success, refreshing rewards...');
+    setShowForm(false);
+    setEditingReward(null);
+    // Add delay untuk memastikan data tersimpan di database
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await fetchRewards();
+  };
+
   const filteredData = data.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -1100,7 +1111,7 @@ function RewardManagementTab() {
                 </button>
               </div>
               <RewardForm 
-                onSuccess={() => { setShowForm(false); setEditingReward(null); fetchRewards(); }} 
+                onSuccess={handleFormSuccess} 
                 editingReward={editingReward}
                 onCancel={() => { setShowForm(false); setEditingReward(null); }}
               />
