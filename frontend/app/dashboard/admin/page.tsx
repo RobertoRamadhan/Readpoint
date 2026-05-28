@@ -583,6 +583,7 @@ function EbookManagementTab() {
     } catch (err) {
       console.error('[EbookDelete] Error:', err);
       const errorMsg = err instanceof Error ? err.message : 'Gagal menghapus e-book';
+      console.error('[EbookDelete] Error message:', errorMsg);
       setError(errorMsg);
     }
   };
@@ -1380,7 +1381,8 @@ function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUs
     try {
       setSubmitting(true);
       if (editingUser) {
-        await api.users.update(editingUser.id, {
+        console.log(`[UserForm] Updating user ${editingUser.id}...`);
+        const updateData = {
           name: formData.name,
           email: formData.email,
           role: formData.role,
@@ -1389,13 +1391,30 @@ function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUs
             password: formData.password,
             password_confirmation: formData.password_confirmation,
           }),
-        });
+        };
+        console.log('[UserForm] Update data:', updateData);
+        const result = await api.users.update(editingUser.id, updateData);
+        console.log('[UserForm] Update result:', result);
       } else {
-        await api.users.create(formData as any);
+        console.log('[UserForm] Creating new user...');
+        const createData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          password_confirmation: formData.password_confirmation,
+          role: formData.role,
+          grade_level: formData.role === 'siswa' ? '1' : undefined,
+          class_name: formData.class_name || undefined,
+        };
+        console.log('[UserForm] Create data:', createData);
+        const result = await api.users.create(createData);
+        console.log('[UserForm] Create result:', result);
       }
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal menyimpan');
+      console.error('[UserForm] Error:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Gagal menyimpan';
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }

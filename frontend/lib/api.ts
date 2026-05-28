@@ -512,15 +512,47 @@ export const api = {
 
     get: (id: number): Promise<ApiResponse> => apiCall(`/users/${id}`),
 
-    create: (data: Record<string, unknown>): Promise<ApiResponse> =>
+    create: async (data: Record<string, unknown>): Promise<ApiResponse> => {
 
-      apiCall('/users/create', {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+      const csrfToken = await getCsrfToken();
+
+      
+
+      const response = await fetch(`${API_URL}/users/create`, {
 
         method: 'POST',
 
+        headers: {
+
+          'Content-Type': 'application/json',
+
+          ...(token && { Authorization: `Bearer ${token}` }),
+
+          ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+
+        },
+
+        credentials: 'include',
+
         body: JSON.stringify(data),
 
-      }),
+      });
+
+      
+
+      const result = await response.json();
+
+      if (!response.ok) {
+
+        throw new Error(result.message || `HTTP ${response.status}: Failed to create user`);
+
+      }
+
+      return result;
+
+    },
 
     update: async (id: number, data: FormData | Record<string, unknown>): Promise<ApiResponse> => {
 
