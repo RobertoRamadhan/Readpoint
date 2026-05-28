@@ -69,11 +69,6 @@ export default function LoginPage() {
                   <p className="text-xs font-bold uppercase tracking-widest text-emerald-100">Literasi Digital</p>
                 </div>
               </Link>
-
-              <div className="mt-8 max-w-md sm:mt-10 lg:mt-20">
-                <h1 className="text-2xl font-black leading-tight text-white drop-shadow-lg sm:text-3xl lg:text-5xl">Masuk ke dashboard READPOINT.</h1>
-                <p className="mt-3 text-sm leading-6 text-emerald-100 drop-shadow-md sm:text-base lg:mt-6 lg:text-lg lg:leading-8">Gunakan akun yang sudah terdaftar untuk mengakses dashboard sesuai role pengguna.</p>
-              </div>
             </div>
 
             {/* Bottom decoration - desktop only */}
