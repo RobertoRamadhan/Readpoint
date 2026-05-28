@@ -950,9 +950,14 @@ function RewardManagementTab() {
   const fetchRewards = async () => {
     try {
       setLoading(true);
+      console.log('[RewardManagementTab] Fetching rewards...');
       const response = await api.rewards.list();
-      setData((Array.isArray(response) ? response : response?.data || []) as Reward[]);
+      console.log('[RewardManagementTab] Response:', response);
+      const rewardList = (response?.data || []) as Reward[];
+      console.log('[RewardManagementTab] Rewards loaded:', rewardList.length);
+      setData(rewardList);
     } catch (err) {
+      console.error('[RewardManagementTab] Error fetching rewards:', err);
       setError('Gagal memuat data');
     } finally {
       setLoading(false);

@@ -520,6 +520,8 @@ export const api = {
 
       
 
+      console.log('[API] Creating user...');
+
       const response = await fetch(`${API_URL}/users/create`, {
 
         method: 'POST',
@@ -542,13 +544,33 @@ export const api = {
 
       
 
-      const result = await response.json();
+      let result;
+
+      try {
+
+        result = await response.json();
+
+      } catch (e) {
+
+        console.error('[API] Failed to parse response:', response.statusText);
+
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+      }
+
+      
 
       if (!response.ok) {
+
+        console.error('[API] User create failed:', result);
 
         throw new Error(result.message || `HTTP ${response.status}: Failed to create user`);
 
       }
+
+      
+
+      console.log('[API] User created successfully:', result);
 
       return result;
 
@@ -570,6 +592,8 @@ export const api = {
 
         
 
+        console.log('[API] Updating user with FormData...');
+
         const response = await fetch(`${API_URL}/users/${id}`, {
 
           method: 'POST',
@@ -579,6 +603,8 @@ export const api = {
             ...(token && { Authorization: `Bearer ${token}` }),
 
             ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+
+            // DO NOT set Content-Type - browser will set it with boundary
 
           },
 
@@ -590,19 +616,41 @@ export const api = {
 
         
 
-        const result = await response.json();
+        let result;
+
+        try {
+
+          result = await response.json();
+
+        } catch (e) {
+
+          console.error('[API] Failed to parse response:', response.statusText);
+
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        }
+
+        
 
         if (!response.ok) {
+
+          console.error('[API] User update failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to update user`);
 
         }
+
+        
+
+        console.log('[API] User updated successfully:', result);
 
         return result;
 
       }
 
       
+
+      console.log('[API] Updating user with JSON...');
 
       return apiCall(`/users/${id}`, {
 
@@ -758,6 +806,8 @@ export const api = {
 
         
 
+        console.log('[API] Creating ebook with FormData...');
+
         const response = await fetch(`${API_URL}/ebooks`, {
 
           method: 'POST',
@@ -767,6 +817,8 @@ export const api = {
             ...(token && { Authorization: `Bearer ${token}` }),
 
             ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+
+            // DO NOT set Content-Type - browser will set it with boundary
 
           },
 
@@ -778,13 +830,33 @@ export const api = {
 
         
 
-        const result = await response.json();
+        let result;
+
+        try {
+
+          result = await response.json();
+
+        } catch (e) {
+
+          console.error('[API] Failed to parse response:', response.statusText);
+
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        }
+
+        
 
         if (!response.ok) {
+
+          console.error('[API] Ebook create failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to upload ebook`);
 
         }
+
+        
+
+        console.log('[API] Ebook created successfully:', result);
 
         return result;
 
@@ -818,6 +890,8 @@ export const api = {
 
         
 
+        console.log('[API] Updating ebook with FormData...');
+
         const response = await fetch(`${API_URL}/ebooks/${id}`, {
 
           method: 'POST',
@@ -827,6 +901,8 @@ export const api = {
             ...(token && { Authorization: `Bearer ${token}` }),
 
             ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+
+            // DO NOT set Content-Type - browser will set it with boundary
 
           },
 
@@ -838,13 +914,33 @@ export const api = {
 
         
 
-        const result = await response.json();
+        let result;
+
+        try {
+
+          result = await response.json();
+
+        } catch (e) {
+
+          console.error('[API] Failed to parse response:', response.statusText);
+
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        }
+
+        
 
         if (!response.ok) {
+
+          console.error('[API] Ebook update failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to update ebook`);
 
         }
+
+        
+
+        console.log('[API] Ebook updated successfully:', result);
 
         return result;
 
@@ -896,6 +992,8 @@ export const api = {
 
         
 
+        console.log('[API] Creating reward with FormData...');
+
         const response = await fetch(`${API_URL}/rewards`, {
 
           method: 'POST',
@@ -905,6 +1003,8 @@ export const api = {
             ...(token && { Authorization: `Bearer ${token}` }),
 
             ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+
+            // DO NOT set Content-Type - browser will set it with boundary
 
           },
 
@@ -916,13 +1016,33 @@ export const api = {
 
         
 
-        const result = await response.json();
+        let result;
+
+        try {
+
+          result = await response.json();
+
+        } catch (e) {
+
+          console.error('[API] Failed to parse response:', response.statusText);
+
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        }
+
+        
 
         if (!response.ok) {
+
+          console.error('[API] Reward create failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to create reward`);
 
         }
+
+        
+
+        console.log('[API] Reward created successfully:', result);
 
         return result;
 
@@ -956,6 +1076,8 @@ export const api = {
 
         
 
+        console.log('[API] Updating reward with FormData...');
+
         const response = await fetch(`${API_URL}/rewards/${id}`, {
 
           method: 'POST',
@@ -965,6 +1087,8 @@ export const api = {
             ...(token && { Authorization: `Bearer ${token}` }),
 
             ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+
+            // DO NOT set Content-Type - browser will set it with boundary
 
           },
 
@@ -976,13 +1100,33 @@ export const api = {
 
         
 
-        const result = await response.json();
+        let result;
+
+        try {
+
+          result = await response.json();
+
+        } catch (e) {
+
+          console.error('[API] Failed to parse response:', response.statusText);
+
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        }
+
+        
 
         if (!response.ok) {
+
+          console.error('[API] Reward update failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to update reward`);
 
         }
+
+        
+
+        console.log('[API] Reward updated successfully:', result);
 
         return result;
 
