@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Card, Button, Badge } from '@/components/shared';
+import { normalizeFileUrl } from '@/lib/file-url';
 
 interface Ebook {
   id: number;
@@ -12,7 +13,9 @@ interface Ebook {
   poin_per_halaman: number;
   category: string;
   cover_image?: string;
+  cover_image_url?: string;
   pdf_file?: string;
+  pdf_file_url?: string;
   read_count?: number;
 }
 
@@ -99,21 +102,8 @@ function BookCard({ book }: { book: Ebook }) {
   const isTitleLong = book.title.length > 20;
   const [imageError, setImageError] = useState(false);
 
-  // Ensure cover_image is a full URL
-  const getCoverImageUrl = () => {
-    if (!book.cover_image) return null;
-    
-    // If already a full URL, return as is
-    if (book.cover_image.startsWith('http')) {
-      return book.cover_image;
-    }
-    
-    // If it's a relative path, construct full URL
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud';
-    return `${baseUrl}/storage/${book.cover_image}`;
-  };
-
-  const coverImageUrl = getCoverImageUrl();
+  const coverImageUrl = normalizeFileUrl(book.cover_image_url || book.cover_image);
+  const pdfFileUrl = normalizeFileUrl(book.pdf_file_url || book.pdf_file);
 
   return (
     <Card hover className="overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300">
@@ -123,7 +113,7 @@ function BookCard({ book }: { book: Ebook }) {
             src={coverImageUrl}
             alt={book.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => {
+            onError={() => {
               console.error('[BookCard] Image failed to load:', coverImageUrl);
               setImageError(true);
             }}
@@ -168,7 +158,7 @@ function BookCard({ book }: { book: Ebook }) {
           </div>
         </div>
         
-        {book.pdf_file ? (
+        {pdfFileUrl ? (
           <>
             <Link href={`/dashboard/siswa/read/${book.id}`} className="block mb-2">
               <Button className="w-full bg-gradient-to-r from-emerald-800 to-emerald-900 hover:from-emerald-900 hover:to-emerald-950 text-white font-bold shadow-md hover:shadow-lg transition-all border-0 py-4 px-8 text-base">
@@ -176,7 +166,7 @@ function BookCard({ book }: { book: Ebook }) {
               </Button>
             </Link>
             <a 
-              href={book.pdf_file} 
+              href={pdfFileUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               className="block"
