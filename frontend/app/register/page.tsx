@@ -74,163 +74,164 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1080px] items-start justify-center px-6 py-6 sm:px-10 sm:py-8 lg:items-center lg:px-12 lg:py-12 xl:px-8">
-        <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[0.8fr_1.2fr] gap-0">
-          {/* Image Section - Top on mobile, left on desktop */}
-          <section
-            className="relative flex min-h-[170px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[210px] lg:min-h-[600px]"
-            style={{ backgroundImage: 'url("/perpus.jpg")' }}
-          >
-            {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70"></div>
+    <main className="flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 px-6 py-6 text-slate-900 sm:px-10 sm:py-8 lg:px-12 lg:py-12">
+      <div
+        className="mx-auto grid w-full overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-xl sm:rounded-3xl sm:shadow-2xl lg:grid-cols-[0.85fr_1.15fr]"
+        style={{ maxWidth: '1480px' }}
+      >
+        {/* Image Section - Top on mobile, left on desktop */}
+        <section
+          className="relative flex min-h-[180px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[220px] lg:min-h-[600px]"
+          style={{ backgroundImage: 'url("/perpus.jpg")' }}
+        >
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70"></div>
 
-            <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-              <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-11 lg:w-11">RP</div>
-                <div>
-                  <p className="text-base font-black text-white lg:text-lg">READPOINT</p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-100 sm:text-xs">Literasi Digital</p>
-                </div>
-              </Link>
+          <div className="relative z-10 p-5 sm:p-7 lg:p-8">
+            <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-11 lg:w-11">RP</div>
+              <div>
+                <p className="text-base font-black text-white lg:text-lg">READPOINT</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-100 sm:text-xs">Literasi Digital</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Bottom decoration - desktop only */}
+          <div className="relative z-10 hidden p-8 lg:block">
+            <p className="text-sm text-emerald-100">Bergabunglah dengan ribuan siswa yang sudah membaca</p>
+          </div>
+        </section>
+
+        {/* Form Section */}
+        <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[600px] lg:px-16 lg:py-12 xl:px-20">
+          <div className="mx-auto w-full" style={{ maxWidth: '540px' }}>
+            {/* Mobile Header */}
+            <div className="mb-7 text-center lg:hidden">
+              <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
+              <h2 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:text-3xl">Daftar akun baru</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Lengkapi data berikut untuk membuat akun READPOINT.</p>
             </div>
 
-            {/* Bottom decoration - desktop only */}
-            <div className="relative z-10 hidden p-8 lg:block">
-              <p className="text-sm text-emerald-100">Bergabunglah dengan ribuan siswa yang sudah membaca</p>
+            {/* Desktop Header */}
+            <div className="mb-7 hidden text-center lg:block lg:text-left">
+              <p className="text-base font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
+              <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Daftar akun baru</h2>
+              <p className="mt-3 leading-7 text-base text-slate-600">Lengkapi data berikut untuk membuat akun READPOINT.</p>
             </div>
-          </section>
 
-          {/* Form Section */}
-          <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[600px] lg:px-12 lg:py-12 xl:px-14">
-            <div className="mx-auto w-full max-w-[520px]">
-              {/* Mobile Header */}
-              <div className="mb-7 text-center lg:hidden">
-                <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
-                <h2 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:text-3xl">Daftar akun baru</h2>
-                <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Lengkapi data berikut untuk membuat akun READPOINT.</p>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700 sm:rounded-xl sm:p-4 sm:text-sm">
+                {error}
               </div>
+            )}
 
-              {/* Desktop Header */}
-              <div className="mb-7 hidden text-center lg:block lg:text-left">
-                <p className="text-base font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
-                <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Daftar akun baru</h2>
-                <p className="mt-3 leading-7 text-base text-slate-600">Lengkapi data berikut untuk membuat akun READPOINT.</p>
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <div className="mb-5 rounded-lg sm:rounded-xl border border-red-200 bg-red-50 p-3 sm:p-4 text-xs sm:text-sm font-semibold text-red-700">
-                  {error}
-                </div>
-              )}
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="Nama Lengkap">
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
-                      placeholder="Nama lengkap"
-                      disabled={loading}
-                      required
-                    />
-                  </Field>
-
-                  <Field label="Email">
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
-                      placeholder="nama@email.com"
-                      disabled={loading}
-                      required
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Kelas">
-                  <select
-                    name="grade_level"
-                    value={formData.grade_level}
-                    onChange={handleChange}
-                    className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
-                    disabled={loading}
-                    required
-                  >
-                    <option value="">Pilih kelas</option>
-                    <option value="1">Kelas X</option>
-                    <option value="2">Kelas XI</option>
-                    <option value="3">Kelas XII</option>
-                  </select>
-                </Field>
-
-                <Field label="Nama Kelas (Opsional)">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4" style={{ width: '100%', maxWidth: '540px' }}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Nama Lengkap">
                   <input
                     type="text"
-                    name="class_name"
-                    value={formData.class_name}
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
-                    className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
-                    placeholder="Contoh: X-A, X-B, dll"
+                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-12 sm:rounded-xl sm:px-4 sm:text-base"
+                    placeholder="Nama lengkap"
                     disabled={loading}
+                    required
                   />
                 </Field>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="Password">
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
-                      placeholder="Masukkan password"
-                      disabled={loading}
-                      required
-                    />
-                  </Field>
+                <Field label="Email">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-12 sm:rounded-xl sm:px-4 sm:text-base"
+                    placeholder="nama@email.com"
+                    disabled={loading}
+                    required
+                  />
+                </Field>
+              </div>
 
-                  <Field label="Konfirmasi Password">
-                    <input
-                      type="password"
-                      name="password_confirmation"
-                      value={formData.password_confirmation}
-                      onChange={handleChange}
-                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
-                      placeholder="Ulangi password"
-                      disabled={loading}
-                      required
-                    />
-                  </Field>
-                </div>
-
-                <button
-                  type="submit"
+              <Field label="Kelas">
+                <select
+                  name="grade_level"
+                  value={formData.grade_level}
+                  onChange={handleChange}
+                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-12 sm:rounded-xl sm:px-4 sm:text-base"
                   disabled={loading}
-                  className="h-12 sm:h-14 w-full rounded-lg sm:rounded-xl bg-emerald-700 px-4 sm:px-6 text-sm sm:text-base font-black text-white shadow-md sm:shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  required
                 >
-                  {loading ? 'Memproses...' : 'Daftar'}
-                </button>
-              </form>
+                  <option value="">Pilih kelas</option>
+                  <option value="1">Kelas X</option>
+                  <option value="2">Kelas XI</option>
+                  <option value="3">Kelas XII</option>
+                </select>
+              </Field>
 
-              <div className="my-6 h-px w-full bg-slate-200" />
+              <Field label="Nama Kelas (Opsional)">
+                <input
+                  type="text"
+                  name="class_name"
+                  value={formData.class_name}
+                  onChange={handleChange}
+                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-12 sm:rounded-xl sm:px-4 sm:text-base"
+                  placeholder="Contoh: X-A, X-B, dll"
+                  disabled={loading}
+                />
+              </Field>
 
-              <p className="text-center text-sm sm:text-base font-semibold text-slate-600">
-                Sudah punya akun?{' '}
-                <Link href="/login" className="font-black text-emerald-700 hover:text-emerald-800">
-                  Masuk di sini
-                </Link>
-              </p>
-            </div>
-          </section>
-        </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Password">
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-12 sm:rounded-xl sm:px-4 sm:text-base"
+                    placeholder="Masukkan password"
+                    disabled={loading}
+                    required
+                  />
+                </Field>
+
+                <Field label="Konfirmasi Password">
+                  <input
+                    type="password"
+                    name="password_confirmation"
+                    value={formData.password_confirmation}
+                    onChange={handleChange}
+                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-12 sm:rounded-xl sm:px-4 sm:text-base"
+                    placeholder="Ulangi password"
+                    disabled={loading}
+                    required
+                  />
+                </Field>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="h-12 w-full rounded-lg bg-emerald-700 px-4 text-sm font-black text-white shadow-md shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:rounded-xl sm:px-6 sm:text-base sm:shadow-lg"
+              >
+                {loading ? 'Memproses...' : 'Daftar'}
+              </button>
+            </form>
+
+            <div className="my-6 h-px w-full bg-slate-200" />
+
+            <p className="text-center text-sm font-semibold text-slate-600 sm:text-base">
+              Sudah punya akun?{' '}
+              <Link href="/login" className="font-black text-emerald-700 hover:text-emerald-800">
+                Masuk di sini
+              </Link>
+            </p>
+          </div>
+        </section>
       </div>
     </main>
   );
@@ -239,7 +240,7 @@ export default function RegisterPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-2 block text-sm sm:text-base font-black text-slate-800">{label}</label>
+      <label className="mb-2 block text-sm font-black text-slate-800 sm:text-base">{label}</label>
       {children}
     </div>
   );
