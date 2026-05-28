@@ -47,7 +47,7 @@ export default function DashboardLayout({
 
   const roleLabel = mounted && user?.role ? roleLabels[user.role] || 'User' : 'User';
   const shellStyle = {
-    width: 'calc(100vw - clamp(32px, 6vw, 96px))',
+    width: 'calc(100vw - clamp(20px, 3vw, 56px))',
     marginLeft: 'auto',
     marginRight: 'auto',
   };
