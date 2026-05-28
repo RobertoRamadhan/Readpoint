@@ -78,12 +78,9 @@ export default function RegisterPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[1.2fr_0.8fr] gap-0">
           {/* Left Section - Hidden on mobile, visible on lg */}
-          <section className="hidden text-white lg:flex lg:flex-col lg:justify-between relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800">
-            {/* Overlay Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48"></div>
-              <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full -ml-48 -mb-48"></div>
-            </div>
+          <section className="hidden text-white lg:flex lg:flex-col lg:justify-between relative overflow-hidden bg-cover bg-center" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1507842217343-583f20270319?w=800&h=900&fit=crop")', backgroundAttachment: 'fixed'}}>
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70"></div>
 
             <div className="relative z-10 p-8 lg:p-10">
               <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
