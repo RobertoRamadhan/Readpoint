@@ -89,11 +89,25 @@ export default function AdminSidebar({
       router.push('/dashboard/admin');
     }
 
+    if (role === 'guru' && itemId === 'laporan') {
+      router.push('/dashboard/guru/laporan');
+      onCloseSidebar();
+      return;
+    }
+
+    if (role === 'guru' && itemId === 'beranda') {
+      router.push('/dashboard/guru');
+    }
+
     onTabChange(itemId);
     onCloseSidebar();
   };
 
   const handleSubItemClick = (subItemId: string) => {
+    if (role === 'guru') {
+      router.push('/dashboard/guru');
+    }
+
     onTabChange(subItemId);
     onCloseSidebar();
   };
