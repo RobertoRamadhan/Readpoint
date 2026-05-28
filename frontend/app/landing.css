@@ -60,3 +60,78 @@
   width: 100%;
   max-width: 100%;
 }
+
+/*
+  Desktop timeline guard:
+  Kiri layar | jarak | konten kiri | jarak | garis tengah | jarak | konten kanan | jarak | kanan layar
+  This keeps every landing section inside its own side of the center timeline.
+*/
+.landing-page main > div.relative > div.relative.z-10 {
+  width: 100%;
+  max-width: 1480px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+@media (min-width: 640px) {
+  .landing-page main > div.relative > div.relative.z-10 {
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-page main > div.relative > div.relative.z-10 {
+    padding-left: 5rem !important;
+    padding-right: 5rem !important;
+  }
+
+  .landing-page main section > div.grid {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 10rem !important;
+    row-gap: 4rem !important;
+    align-items: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .landing-page main section > div.grid > div {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .landing-page main section > div.grid > div > div {
+    max-width: 100% !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .landing-page main > div.relative > div.relative.z-10 {
+    padding-left: 6rem !important;
+    padding-right: 6rem !important;
+  }
+
+  .landing-page main section > div.grid {
+    column-gap: 11rem !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .landing-page main > div.relative > div.relative.z-10 {
+    max-width: 1520px !important;
+    padding-left: 7rem !important;
+    padding-right: 7rem !important;
+  }
+
+  .landing-page main section > div.grid {
+    column-gap: 12rem !important;
+  }
+}
