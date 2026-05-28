@@ -51,7 +51,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl items-start justify-center px-4 py-4 sm:px-6 sm:py-8 lg:items-center lg:px-8 lg:py-12">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl items-start justify-center px-5 py-5 sm:px-8 sm:py-8 lg:items-center lg:px-16 lg:py-12 xl:px-20">
         <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[1.2fr_0.8fr] gap-0">
           {/* Image Section - Top on mobile, left on desktop */}
           <section
@@ -61,7 +61,7 @@ export default function LoginPage() {
             {/* Dark Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70"></div>
 
-            <div className="relative z-10 p-5 sm:p-7 lg:p-10">
+            <div className="relative z-10 p-6 sm:p-8 lg:p-10">
               <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-12 lg:w-12 lg:text-sm">RP</div>
                 <div>
@@ -83,7 +83,7 @@ export default function LoginPage() {
           </section>
 
           {/* Form Section */}
-          <section className="flex min-h-auto items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[680px] lg:px-8 lg:py-12">
+          <section className="flex min-h-auto items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[680px] lg:px-12 lg:py-12 xl:px-14">
             <div className="w-full max-w-sm">
               {/* Mobile Header */}
               <div className="mb-7 text-center lg:hidden">
