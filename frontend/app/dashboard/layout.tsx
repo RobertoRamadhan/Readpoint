@@ -46,29 +46,34 @@ export default function DashboardLayout({
   };
 
   const roleLabel = mounted && user?.role ? roleLabels[user.role] || 'User' : 'User';
+  const shellStyle = {
+    width: 'min(1280px, calc(100vw - 32px))',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  };
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="flex h-14 w-full items-center justify-between sm:h-16">
-          <div className="mx-auto flex w-full items-center justify-between px-6 sm:px-10 lg:px-16" style={{ maxWidth: '1180px' }}>
+        <div className="flex h-14 w-full items-center sm:h-16">
+          <div className="flex items-center justify-between" style={shellStyle}>
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="flex items-center gap-2 text-left sm:gap-3"
+              className="flex min-w-0 items-center gap-2 text-left sm:gap-3"
             >
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-black text-white sm:h-9 sm:w-9 sm:text-sm">
                 RP
               </div>
               <div className="min-w-0">
-                <h1 className="text-sm font-black leading-none text-slate-900 sm:text-base">READPOINT</h1>
-                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 sm:text-xs">
+                <h1 className="truncate text-sm font-black leading-none text-slate-900 sm:text-base">READPOINT</h1>
+                <p className="mt-0.5 truncate text-[10px] font-bold uppercase tracking-wider text-emerald-700 sm:text-xs">
                   Dashboard {roleLabel}
                 </p>
               </div>
             </button>
 
-            <div className="flex items-center gap-2 flex-shrink-0 sm:gap-3">
+            <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
               <div className="hidden text-right sm:block">
                 <p className="text-xs font-black leading-4 text-slate-900 sm:text-sm">{mounted ? user?.name : 'Memuat...'}</p>
                 <p className="text-[10px] font-semibold text-slate-500 sm:text-xs">{roleLabel}</p>
@@ -144,13 +149,13 @@ export default function DashboardLayout({
       </header>
 
       <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden bg-slate-50">
-        <div className="mx-auto w-full px-6 sm:px-10 lg:px-16" style={{ maxWidth: '1180px' }}>
+        <div style={shellStyle}>
           {children}
         </div>
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-200 bg-white">
-        <div className="mx-auto w-full px-6 py-4 text-center sm:px-10 sm:py-5 lg:px-16 lg:py-6" style={{ maxWidth: '1180px' }}>
+        <div className="py-4 text-center sm:py-5 lg:py-6" style={shellStyle}>
           <p className="text-xs font-semibold text-slate-500 sm:text-sm">© 2026 READPOINT - Platform Literasi Digital Indonesia</p>
         </div>
       </footer>
