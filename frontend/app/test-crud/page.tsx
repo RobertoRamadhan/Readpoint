@@ -63,7 +63,8 @@ export default function TestCRUD() {
         role: 'siswa',
         grade_level: '1',
       });
-      addLog(`✓ POST /users/create: User ID ${response.data?.id}`);
+      const userId = (response as any)?.data?.id || (response as any)?.id;
+      addLog(`✓ POST /users/create: User ID ${userId}`);
     } catch (err) {
       addLog(`✗ POST /users/create: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }

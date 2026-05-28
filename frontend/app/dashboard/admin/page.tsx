@@ -613,7 +613,11 @@ function EbookManagementTab() {
               >
                 ✕
               </button>
-              <EbookForm onSuccess={() => { setShowForm(false); setEditingEbook(null); fetchEbooks(); }} editingEbook={editingEbook} />
+              <EbookForm 
+                onSuccess={() => { setShowForm(false); setEditingEbook(null); fetchEbooks(); }} 
+                editingEbook={editingEbook}
+                onCancel={() => { setShowForm(false); setEditingEbook(null); }}
+              />
             </div>
           )}
 
@@ -711,7 +715,7 @@ function EbookManagementTab() {
   );
 }
 
-function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editingEbook: Ebook | null }) {
+function EbookForm({ onSuccess, editingEbook, onCancel }: { onSuccess: () => void; editingEbook: Ebook | null; onCancel?: () => void }) {
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -883,6 +887,15 @@ function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editing
       )}
 
       <div className="flex gap-2 justify-end">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
+          >
+            Batal
+          </button>
+        )}
         <button
           type="submit"
           disabled={submitting}
@@ -959,7 +972,11 @@ function RewardManagementTab() {
               >
                 ✕
               </button>
-              <RewardForm onSuccess={() => { setShowForm(false); setEditingReward(null); fetchRewards(); }} editingReward={editingReward} />
+              <RewardForm 
+                onSuccess={() => { setShowForm(false); setEditingReward(null); fetchRewards(); }} 
+                editingReward={editingReward}
+                onCancel={() => { setShowForm(false); setEditingReward(null); }}
+              />
             </div>
           )}
 
@@ -1050,7 +1067,7 @@ function RewardManagementTab() {
   );
 }
 
-function RewardForm({ onSuccess, editingReward }: { onSuccess: () => void; editingReward: Reward | null }) {
+function RewardForm({ onSuccess, editingReward, onCancel }: { onSuccess: () => void; editingReward: Reward | null; onCancel?: () => void }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -1209,6 +1226,15 @@ function RewardForm({ onSuccess, editingReward }: { onSuccess: () => void; editi
       )}
 
       <div className="flex gap-2 justify-end">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
+          >
+            Batal
+          </button>
+        )}
         <button
           type="submit"
           disabled={submitting}
@@ -1284,7 +1310,11 @@ function UserManagementTab() {
               >
                 ✕
               </button>
-              <UserForm onSuccess={() => { setShowForm(false); setEditingUser(null); fetchUsers(); }} editingUser={editingUser} />
+              <UserForm 
+                onSuccess={() => { setShowForm(false); setEditingUser(null); fetchUsers(); }} 
+                editingUser={editingUser}
+                onCancel={() => { setShowForm(false); setEditingUser(null); }}
+              />
             </div>
           )}
 
@@ -1373,7 +1403,7 @@ function UserManagementTab() {
   );
 }
 
-function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUser: User | null }) {
+function UserForm({ onSuccess, editingUser, onCancel }: { onSuccess: () => void; editingUser: User | null; onCancel?: () => void }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -1519,6 +1549,15 @@ function UserForm({ onSuccess, editingUser }: { onSuccess: () => void; editingUs
       </div>
 
       <div className="flex gap-2 justify-end">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
+          >
+            Batal
+          </button>
+        )}
         <button
           type="submit"
           disabled={submitting}
