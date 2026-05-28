@@ -26,11 +26,9 @@ export default function Home() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sm:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
+            className="sm:hidden px-4 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all border border-emerald-700"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-            </svg>
+            {mobileMenuOpen ? 'Tutup' : 'Menu'}
           </button>
         </div>
 
@@ -64,8 +62,8 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-center order-1 lg:order-2 lg:pl-12">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center border-2 border-emerald-200">
-                    <div className="text-center">
-                      <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4">📚</div>
+                    <div className="text-center px-6">
+                      <p className="text-2xl sm:text-3xl font-black text-emerald-700 mb-3">READPOINT</p>
                       <p className="text-sm sm:text-base text-slate-600 font-semibold">Ilustrasi Platform</p>
                     </div>
                   </div>
@@ -112,8 +110,8 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-center order-1 lg:order-2 lg:pl-12">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center border-2 border-emerald-200">
-                    <div className="text-center">
-                      <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4">✨</div>
+                    <div className="text-center px-6">
+                      <p className="text-2xl sm:text-3xl font-black text-emerald-700 mb-3">FITUR</p>
                       <p className="text-sm sm:text-base text-slate-600 font-semibold">Fitur Unggulan</p>
                     </div>
                   </div>
@@ -144,8 +142,8 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-center order-1 lg:order-2 lg:pl-12">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center border-2 border-emerald-200">
-                    <div className="text-center">
-                      <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4">📊</div>
+                    <div className="text-center px-6">
+                      <p className="text-2xl sm:text-3xl font-black text-emerald-700 mb-3">STATISTIK</p>
                       <p className="text-sm sm:text-base text-slate-600 font-semibold">Statistik Pertumbuhan</p>
                     </div>
                   </div>
@@ -159,8 +157,8 @@ export default function Home() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-28 w-full items-center">
                 <div className="flex items-center justify-center order-2 lg:order-1 lg:pr-12">
                   <div className="w-full h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center border-2 border-emerald-200">
-                    <div className="text-center">
-                      <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4">🚀</div>
+                    <div className="text-center px-6">
+                      <p className="text-2xl sm:text-3xl font-black text-emerald-700 mb-3">ALUR</p>
                       <p className="text-sm sm:text-base text-slate-600 font-semibold">Cara Kerja</p>
                     </div>
                   </div>
