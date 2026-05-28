@@ -1164,7 +1164,6 @@ function RewardManagementTab() {
                       <div className="text-xs text-gray-600 space-y-1 mb-3">
                         <p>{reward.points_required} poin</p>
                         <p>{reward.stock} tersedia</p>
-                        <p>🏷️ {reward.category}</p>
                       </div>
 
                       <div className="flex gap-2 justify-end">
