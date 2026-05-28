@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface MenuItem {
   id: string;
@@ -36,6 +37,7 @@ export default function AdminSidebar({
   role = 'admin',
   user,
 }: AdminSidebarProps) {
+  const router = useRouter();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const defaultMenuItems: MenuItem[] = role === 'admin' ? [
@@ -77,6 +79,16 @@ export default function AdminSidebar({
   };
 
   const handleItemClick = (itemId: string) => {
+    if (role === 'admin' && itemId === 'laporan') {
+      router.push('/dashboard/admin/laporan');
+      onCloseSidebar();
+      return;
+    }
+
+    if (role === 'admin' && itemId === 'beranda') {
+      router.push('/dashboard/admin');
+    }
+
     onTabChange(itemId);
     onCloseSidebar();
   };
