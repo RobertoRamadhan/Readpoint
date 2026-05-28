@@ -97,15 +97,37 @@ export default function BookGrid({ ebooks, loading, showCarousel = false, search
 function BookCard({ book }: { book: Ebook }) {
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
   const isTitleLong = book.title.length > 20;
+  const [imageError, setImageError] = useState(false);
+
+  // Ensure cover_image is a full URL
+  const getCoverImageUrl = () => {
+    if (!book.cover_image) return null;
+    
+    // If already a full URL, return as is
+    if (book.cover_image.startsWith('http')) {
+      return book.cover_image;
+    }
+    
+    // If it's a relative path, construct full URL
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud';
+    return `${baseUrl}/storage/${book.cover_image}`;
+  };
+
+  const coverImageUrl = getCoverImageUrl();
 
   return (
     <Card hover className="overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300">
       <div className="aspect-[2/3] bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 flex items-center justify-center relative overflow-hidden">
-        {book.cover_image ? (
+        {coverImageUrl && !imageError ? (
           <img
-            src={book.cover_image}
+            src={coverImageUrl}
             alt={book.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              console.error('[BookCard] Image failed to load:', coverImageUrl);
+              setImageError(true);
+            }}
+            loading="lazy"
           />
         ) : (
           <div className="text-5xl opacity-50">📕</div>
@@ -147,11 +169,23 @@ function BookCard({ book }: { book: Ebook }) {
         </div>
         
         {book.pdf_file ? (
-          <Link href={`/dashboard/siswa/read/${book.id}`} className="block">
-            <Button className="w-full bg-gradient-to-r from-emerald-800 to-emerald-900 hover:from-emerald-900 hover:to-emerald-950 text-white font-bold shadow-md hover:shadow-lg transition-all border-0 py-4 px-8 text-base">
-              📖 Baca Sekarang
-            </Button>
-          </Link>
+          <>
+            <Link href={`/dashboard/siswa/read/${book.id}`} className="block mb-2">
+              <Button className="w-full bg-gradient-to-r from-emerald-800 to-emerald-900 hover:from-emerald-900 hover:to-emerald-950 text-white font-bold shadow-md hover:shadow-lg transition-all border-0 py-4 px-8 text-base">
+                📖 Baca Sekarang
+              </Button>
+            </Link>
+            <a 
+              href={book.pdf_file} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold shadow-md hover:shadow-lg transition-all border-0 py-2 px-8 text-sm">
+                📥 Download PDF
+              </Button>
+            </a>
+          </>
         ) : (
           <Button disabled className="w-full bg-gray-300 text-gray-500 font-bold py-4 px-8 text-base cursor-not-allowed">
             📖 Belum Tersedia

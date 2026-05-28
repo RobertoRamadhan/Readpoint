@@ -678,7 +678,11 @@ function EbookManagementTab() {
                     <div className="flex-shrink-0">
                       {ebook.cover_image ? (
                         <img
-                          src={ebook.cover_image}
+                          src={
+                            ebook.cover_image.startsWith('http')
+                              ? ebook.cover_image
+                              : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud'}/storage/${ebook.cover_image}`
+                          }
                           alt={ebook.title}
                           className="w-24 h-32 object-cover rounded-lg"
                           onError={(e) => {
@@ -693,7 +697,11 @@ function EbookManagementTab() {
                       )}
                       {ebook.pdf_file && (
                         <a
-                          href={ebook.pdf_file}
+                          href={
+                            ebook.pdf_file.startsWith('http')
+                              ? ebook.pdf_file
+                              : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud'}/storage/${ebook.pdf_file}`
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="mt-2 block w-full text-center px-2 py-1 bg-green-100 text-green-600 rounded text-xs font-bold hover:bg-green-200 transition-all"

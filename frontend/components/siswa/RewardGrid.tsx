@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Button, Badge } from '@/components/shared';
 
 interface Reward {
@@ -10,6 +10,7 @@ interface Reward {
   points_required: number;
   stock: number;
   image_url?: string;
+  image?: string;
 }
 
 interface RewardGridProps {
@@ -67,11 +68,41 @@ function RewardCard({ reward, userPoints, onRedeem }: {
   onRedeem: (rewardId: number) => void;
 }) {
   const canRedeem = reward.stock > 0 && userPoints >= reward.points_required;
+  const [imageError, setImageError] = useState(false);
+
+  // Ensure image is a full URL
+  const getImageUrl = () => {
+    if (!reward.image_url) return null;
+    
+    // If already a full URL, return as is
+    if (reward.image_url.startsWith('http')) {
+      return reward.image_url;
+    }
+    
+    // If it's a relative path, construct full URL
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud';
+    return `${baseUrl}/storage/${reward.image_url}`;
+  };
+
+  const imageUrl = getImageUrl();
 
   return (
     <Card hover className="overflow-hidden group">
       <div className="h-40 bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 flex items-center justify-center text-6xl relative overflow-hidden group-hover:scale-110 transition-transform duration-300">
-        🎁
+        {imageUrl && !imageError ? (
+          <img
+            src={imageUrl}
+            alt={reward.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('[RewardCard] Image failed to load:', imageUrl);
+              setImageError(true);
+            }}
+            loading="lazy"
+          />
+        ) : (
+          <span>🎁</span>
+        )}
       </div>
       
       <div className="p-6">

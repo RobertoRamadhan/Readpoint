@@ -74,29 +74,52 @@ export default function FavoriteBooksSlider({ books, onBookClick }: FavoriteBook
             className="flex transition-transform duration-500 ease-in-out gap-3 sm:gap-4"
             style={{ transform: `translateX(-${currentIndex * itemWidth}px)` }}
           >
-            {books.map((book) => (
-              <div
-                key={book.id}
-                className="w-56 sm:w-64 bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer transform hover:scale-105 flex flex-col flex-shrink-0"
-                onClick={() => onBookClick?.(book.id)}
-              >
-                <div className="aspect-[2/3] bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 relative overflow-hidden flex-shrink-0">
-                  {book.cover_image ? (
-                    <img
-                      src={book.cover_image}
-                      alt={book.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl opacity-50">📕</div>
-                  )}
+            {books.map((book) => {
+              // Ensure cover_image is a full URL
+              const getCoverImageUrl = () => {
+                if (!book.cover_image) return null;
+                
+                // If already a full URL, return as is
+                if (book.cover_image.startsWith('http')) {
+                  return book.cover_image;
+                }
+                
+                // If it's a relative path, construct full URL
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud';
+                return `${baseUrl}/storage/${book.cover_image}`;
+              };
+
+              const coverImageUrl = getCoverImageUrl();
+
+              return (
+                <div
+                  key={book.id}
+                  className="w-56 sm:w-64 bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer transform hover:scale-105 flex flex-col flex-shrink-0"
+                  onClick={() => onBookClick?.(book.id)}
+                >
+                  <div className="aspect-[2/3] bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 relative overflow-hidden flex-shrink-0">
+                    {coverImageUrl ? (
+                      <img
+                        src={coverImageUrl}
+                        alt={book.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error('[FavoriteBooksSlider] Image failed to load:', coverImageUrl);
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl opacity-50">📕</div>
+                    )}
+                  </div>
+                  <div className="p-3 flex flex-col flex-shrink-0 sm:p-4">
+                    <h3 className="font-black text-slate-900 text-xs line-clamp-2 mb-1 sm:text-sm">{book.title}</h3>
+                    <p className="text-[10px] text-slate-600 line-clamp-1 sm:text-xs">{book.author}</p>
+                  </div>
                 </div>
-                <div className="p-3 flex flex-col flex-shrink-0 sm:p-4">
-                  <h3 className="font-black text-slate-900 text-xs line-clamp-2 mb-1 sm:text-sm">{book.title}</h3>
-                  <p className="text-[10px] text-slate-600 line-clamp-1 sm:text-xs">{book.author}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
