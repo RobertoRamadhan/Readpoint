@@ -754,25 +754,30 @@ function EbookForm({ onSuccess, editingEbook }: { onSuccess: () => void; editing
       }
 
       // Log FormData for debugging
-      console.log('FormData entries:');
+      console.log('[EbookForm] FormData entries:');
       for (let [key, value] of uploadFormData.entries()) {
-        console.log(`${key}:`, value instanceof File ? `${value.name} (${value.size} bytes)` : value);
+        if (value instanceof File) {
+          console.log(`  ${key}: File "${value.name}" (${value.size} bytes, type: ${value.type})`);
+        } else {
+          console.log(`  ${key}: ${value}`);
+        }
       }
 
       if (editingEbook) {
-        console.log(`Updating ebook ${editingEbook.id}...`);
+        console.log(`[EbookForm] Updating ebook ${editingEbook.id}...`);
         const result = await api.ebooks.update?.(editingEbook.id, uploadFormData);
-        console.log('Update result:', result);
+        console.log('[EbookForm] Update result:', result);
+        setError('');
+        onSuccess();
       } else {
-        console.log('Creating new ebook...');
+        console.log('[EbookForm] Creating new ebook...');
         const result = await api.ebooks.create(uploadFormData);
-        console.log('Create result:', result);
+        console.log('[EbookForm] Create result:', result);
+        setError('');
+        onSuccess();
       }
-      
-      setError('');
-      onSuccess();
     } catch (err) {
-      console.error('Error uploading ebook:', err);
+      console.error('[EbookForm] Error uploading ebook:', err);
       const errorMsg = err instanceof Error ? err.message : 'Gagal menyimpan';
       setError(errorMsg);
     } finally {
@@ -1056,25 +1061,30 @@ function RewardForm({ onSuccess, editingReward }: { onSuccess: () => void; editi
       }
 
       // Log FormData for debugging
-      console.log('Reward FormData entries:');
+      console.log('[RewardForm] FormData entries:');
       for (let [key, value] of uploadFormData.entries()) {
-        console.log(`${key}:`, value instanceof File ? `${value.name} (${value.size} bytes)` : value);
+        if (value instanceof File) {
+          console.log(`  ${key}: File "${value.name}" (${value.size} bytes, type: ${value.type})`);
+        } else {
+          console.log(`  ${key}: ${value}`);
+        }
       }
 
       if (editingReward) {
-        console.log(`Updating reward ${editingReward.id}...`);
+        console.log(`[RewardForm] Updating reward ${editingReward.id}...`);
         const result = await api.rewards.update(editingReward.id, uploadFormData);
-        console.log('Update result:', result);
+        console.log('[RewardForm] Update result:', result);
+        setError('');
+        onSuccess();
       } else {
-        console.log('Creating new reward...');
+        console.log('[RewardForm] Creating new reward...');
         const result = await api.rewards.create(uploadFormData);
-        console.log('Create result:', result);
+        console.log('[RewardForm] Create result:', result);
+        setError('');
+        onSuccess();
       }
-      
-      setError('');
-      onSuccess();
     } catch (err) {
-      console.error('Error uploading reward:', err);
+      console.error('[RewardForm] Error uploading reward:', err);
       const errorMsg = err instanceof Error ? err.message : 'Gagal menyimpan';
       setError(errorMsg);
     } finally {
