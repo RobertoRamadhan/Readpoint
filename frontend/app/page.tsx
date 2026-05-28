@@ -1,12 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import './landing.css';
 
 export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <div className="landing-page min-h-screen w-full flex flex-col bg-white">
       {/* Navbar */}
@@ -14,33 +11,15 @@ export default function Home() {
         <div className="container mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-700 text-xs sm:text-sm font-black text-white shadow-md">RP</div>
-            <p className="text-base sm:text-lg font-black text-emerald-700">READPOINT</p>
+            <p className="text-sm sm:text-lg font-black text-emerald-700 tracking-wide">READPOINT</p>
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden sm:flex items-center gap-2 sm:gap-3">
-            <Link href="/login" className="rounded-lg px-4 sm:px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border-2 border-emerald-700 hover:border-emerald-800">Masuk</Link>
-            <Link href="/register" className="rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 sm:px-6 py-2.5 text-sm font-bold text-white hover:shadow-lg transition-all shadow-md hover:from-emerald-700 hover:to-emerald-800">Daftar</Link>
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+            <Link href="/login" className="rounded-lg px-2.5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border-2 border-emerald-700 hover:border-emerald-800">Masuk</Link>
+            <Link href="/register" className="rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-2.5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white hover:shadow-lg transition-all shadow-md hover:from-emerald-700 hover:to-emerald-800">Daftar</Link>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sm:hidden px-4 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all border border-emerald-700"
-          >
-            {mobileMenuOpen ? 'Tutup' : 'Menu'}
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="sm:hidden border-t border-slate-200 bg-white">
-            <div className="px-4 py-3 space-y-2">
-              <Link href="/login" className="block rounded-lg px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border-2 border-emerald-700 text-center">Masuk</Link>
-              <Link href="/register" className="block rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2.5 text-sm font-bold text-white hover:shadow-lg transition-all text-center shadow-md">Daftar</Link>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Main Content */}
@@ -50,7 +29,7 @@ export default function Home() {
           {/* Vertical Timeline Line - Hidden on mobile */}
           <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-emerald-200 via-emerald-400 to-emerald-200"></div>
 
-          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 relative z-10">
+          <div className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-20 xl:px-24 relative z-10">
             {/* Section 1: Hero */}
             <section className="relative py-20 sm:py-28 lg:py-36 flex items-center min-h-[720px]">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-28 w-full items-center">
