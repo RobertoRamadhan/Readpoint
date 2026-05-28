@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { LazyImage } from '@/components/shared';
+import { normalizeFileUrl } from '@/lib/file-url';
 
 interface Ebook {
   id: number;
@@ -75,21 +76,7 @@ export default function FavoriteBooksSlider({ books, onBookClick }: FavoriteBook
             style={{ transform: `translateX(-${currentIndex * itemWidth}px)` }}
           >
             {books.map((book) => {
-              // Ensure cover_image is a full URL
-              const getCoverImageUrl = () => {
-                if (!book.cover_image) return null;
-                
-                // If already a full URL, return as is
-                if (book.cover_image.startsWith('http')) {
-                  return book.cover_image;
-                }
-                
-                // If it's a relative path, construct full URL
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://readpoint-backend-main-odr7ck.laravel.cloud';
-                return `${baseUrl}/storage/${book.cover_image}`;
-              };
-
-              const coverImageUrl = getCoverImageUrl();
+              const coverImageUrl = normalizeFileUrl(book.cover_image);
 
               return (
                 <div
