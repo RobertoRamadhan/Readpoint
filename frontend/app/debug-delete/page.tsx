@@ -27,18 +27,18 @@ export default function DebugDelete() {
     try {
       addLog('Loading ebooks...');
       const ebooksRes = await api.ebooks.list();
-      setEbooks(ebooksRes.data || []);
-      addLog(`✓ Loaded ${(ebooksRes.data || []).length} ebooks`);
+      setEbooks(Array.isArray(ebooksRes.data) ? ebooksRes.data : []);
+      addLog(`✓ Loaded ${(Array.isArray(ebooksRes.data) ? ebooksRes.data : []).length} ebooks`);
 
       addLog('Loading rewards...');
       const rewardsRes = await api.rewards.list();
-      setRewards(rewardsRes.data || []);
-      addLog(`✓ Loaded ${(rewardsRes.data || []).length} rewards`);
+      setRewards(Array.isArray(rewardsRes.data) ? rewardsRes.data : []);
+      addLog(`✓ Loaded ${(Array.isArray(rewardsRes.data) ? rewardsRes.data : []).length} rewards`);
 
       addLog('Loading users...');
       const usersRes = await api.users.list();
-      setUsers(usersRes.data || []);
-      addLog(`✓ Loaded ${(usersRes.data || []).length} users`);
+      setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
+      addLog(`✓ Loaded ${(Array.isArray(usersRes.data) ? usersRes.data : []).length} users`);
     } catch (err) {
       addLog(`✗ Error loading data: ${err instanceof Error ? err.message : 'Unknown'}`);
     }
