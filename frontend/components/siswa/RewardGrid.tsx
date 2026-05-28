@@ -12,6 +12,7 @@ interface Reward {
   stock: number;
   image_url?: string;
   image?: string;
+  icon?: string;
 }
 
 interface RewardGridProps {
@@ -86,8 +87,10 @@ function RewardCard({ reward, userPoints, onRedeem }: {
             }}
             loading="lazy"
           />
+        ) : reward.icon ? (
+          <span className="text-5xl">{reward.icon}</span>
         ) : (
-          <span>Reward</span>
+          <span className="text-lg font-bold text-slate-700">Reward</span>
         )}
       </div>
       

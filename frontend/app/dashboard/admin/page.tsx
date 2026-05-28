@@ -39,6 +39,7 @@ interface Reward {
   stock: number;
   is_active: boolean;
   image?: string;
+  icon?: string;
 }
 
 interface User {
@@ -1228,6 +1229,10 @@ function RewardManagementTab() {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
+                      ) : reward.icon ? (
+                        <div className="w-24 h-32 bg-gray-100 rounded-lg flex items-center justify-center text-3xl">
+                          {reward.icon}
+                        </div>
                       ) : (
                         <div className="w-24 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
                           🎁
