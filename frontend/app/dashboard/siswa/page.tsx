@@ -198,12 +198,7 @@ export default function SiswaDashboard() {
         )}
 
         {/* Search Section */}
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-6">
-          <div className="mb-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Cari Buku</p>
-            <h1 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl lg:text-3xl">Temukan bacaan yang ingin kamu baca</h1>
-            <p className="mt-2 text-sm font-medium leading-6 text-slate-600 sm:text-base">Cari buku berdasarkan judul, penulis, atau kategori.</p>
-          </div>
+        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:rounded-xl sm:p-4 lg:p-5">
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
