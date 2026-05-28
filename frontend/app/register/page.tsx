@@ -75,35 +75,35 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl items-start justify-center px-5 py-5 sm:px-8 sm:py-8 lg:items-center lg:px-16 lg:py-12 xl:px-20">
-        <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[1.2fr_0.8fr] gap-0">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1180px] items-start justify-center px-6 py-6 sm:px-10 sm:py-8 lg:items-center lg:px-12 lg:py-12 xl:px-0">
+        <div className="grid w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white shadow-xl sm:shadow-2xl lg:grid-cols-[0.85fr_1.15fr] gap-0">
           {/* Image Section - Top on mobile, left on desktop */}
           <section
-            className="relative flex min-h-[220px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[260px] lg:min-h-[760px]"
+            className="relative flex min-h-[170px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[210px] lg:min-h-[620px]"
             style={{ backgroundImage: 'url("/perpus.jpg")' }}
           >
             {/* Dark Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70"></div>
 
-            <div className="relative z-10 p-6 sm:p-8 lg:p-10">
+            <div className="relative z-10 p-5 sm:p-7 lg:p-8">
               <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-12 lg:w-12 lg:text-sm">RP</div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-11 lg:w-11">RP</div>
                 <div>
-                  <p className="text-lg font-black text-white lg:text-xl">READPOINT</p>
-                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-100">Literasi Digital</p>
+                  <p className="text-base font-black text-white lg:text-lg">READPOINT</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-100 sm:text-xs">Literasi Digital</p>
                 </div>
               </Link>
             </div>
 
             {/* Bottom decoration - desktop only */}
-            <div className="relative z-10 hidden p-8 lg:block lg:p-10">
+            <div className="relative z-10 hidden p-8 lg:block">
               <p className="text-sm text-emerald-100">Bergabunglah dengan ribuan siswa yang sudah membaca</p>
             </div>
           </section>
 
           {/* Form Section */}
-          <section className="flex min-h-auto items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[760px] lg:px-12 lg:py-12 xl:px-14">
-            <div className="w-full max-w-lg">
+          <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[620px] lg:px-14 lg:py-12 xl:px-16">
+            <div className="w-full max-w-xl">
               {/* Mobile Header */}
               <div className="mb-7 text-center lg:hidden">
                 <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
@@ -112,29 +112,29 @@ export default function RegisterPage() {
               </div>
 
               {/* Desktop Header */}
-              <div className="mb-8 sm:mb-10 text-center lg:text-left hidden lg:block">
-                <p className="text-lg font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
-                <h2 className="mt-4 text-4xl lg:text-5xl font-black leading-tight text-slate-900">Daftar akun baru</h2>
-                <p className="mt-4 leading-7 text-lg text-slate-600">Lengkapi data berikut untuk membuat akun READPOINT.</p>
+              <div className="mb-7 text-center lg:text-left hidden lg:block">
+                <p className="text-base font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
+                <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Daftar akun baru</h2>
+                <p className="mt-3 leading-7 text-base text-slate-600">Lengkapi data berikut untuk membuat akun READPOINT.</p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="mb-6 rounded-lg sm:rounded-xl border border-red-200 bg-red-50 p-3 sm:p-4 text-xs sm:text-sm font-semibold text-red-700">
+                <div className="mb-5 rounded-lg sm:rounded-xl border border-red-200 bg-red-50 p-3 sm:p-4 text-xs sm:text-sm font-semibold text-red-700">
                   {error}
                 </div>
               )}
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Nama Lengkap">
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="h-11 sm:h-12 lg:h-14 w-full rounded-lg sm:rounded-xl lg:rounded-2xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base lg:text-lg text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
+                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
                       placeholder="Nama lengkap"
                       disabled={loading}
                       required
@@ -147,7 +147,7 @@ export default function RegisterPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="h-11 sm:h-12 lg:h-14 w-full rounded-lg sm:rounded-xl lg:rounded-2xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base lg:text-lg text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
+                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
                       placeholder="nama@email.com"
                       disabled={loading}
                       required
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                     name="grade_level"
                     value={formData.grade_level}
                     onChange={handleChange}
-                    className="h-11 sm:h-12 lg:h-14 w-full rounded-lg sm:rounded-xl lg:rounded-2xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base lg:text-lg text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
+                    className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
                     disabled={loading}
                     required
                   >
@@ -177,20 +177,20 @@ export default function RegisterPage() {
                     name="class_name"
                     value={formData.class_name}
                     onChange={handleChange}
-                    className="h-11 sm:h-12 lg:h-14 w-full rounded-lg sm:rounded-xl lg:rounded-2xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base lg:text-lg text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
+                    className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
                     placeholder="Contoh: X-A, X-B, dll"
                     disabled={loading}
                   />
                 </Field>
 
-                <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Password">
                     <input
                       type="password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="h-11 sm:h-12 lg:h-14 w-full rounded-lg sm:rounded-xl lg:rounded-2xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base lg:text-lg text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
+                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
                       placeholder="Masukkan password"
                       disabled={loading}
                       required
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                       name="password_confirmation"
                       value={formData.password_confirmation}
                       onChange={handleChange}
-                      className="h-11 sm:h-12 lg:h-14 w-full rounded-lg sm:rounded-xl lg:rounded-2xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base lg:text-lg text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
+                      className="h-11 sm:h-12 w-full rounded-lg sm:rounded-xl border border-slate-300 bg-white px-3 sm:px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 transition-all"
                       placeholder="Ulangi password"
                       disabled={loading}
                       required
@@ -214,13 +214,13 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="h-12 sm:h-14 lg:h-16 w-full rounded-lg sm:rounded-xl lg:rounded-2xl bg-emerald-700 px-4 sm:px-6 text-sm sm:text-base lg:text-lg font-black text-white shadow-md sm:shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-12 sm:h-14 w-full rounded-lg sm:rounded-xl bg-emerald-700 px-4 sm:px-6 text-sm sm:text-base font-black text-white shadow-md sm:shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? 'Memproses...' : 'Daftar'}
                 </button>
               </form>
 
-              <div className="my-6 sm:my-8 h-px w-full bg-slate-200" />
+              <div className="my-6 h-px w-full bg-slate-200" />
 
               <p className="text-center text-sm sm:text-base font-semibold text-slate-600">
                 Sudah punya akun?{' '}
