@@ -46,17 +46,14 @@ export default function DashboardLayout({
   };
 
   const roleLabel = mounted && user?.role ? roleLabels[user.role] || 'User' : 'User';
-  const shellStyle = {
-    width: 'calc(100vw - clamp(20px, 3vw, 56px))',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  };
+  const dashboardShellClass = 'mx-auto w-full px-0 sm:px-4 lg:px-7 xl:px-8';
+  const headerShellClass = 'mx-auto flex w-full items-center justify-between px-3 sm:px-4 lg:px-7 xl:px-8';
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="flex h-14 w-full items-center sm:h-16">
-          <div className="flex items-center justify-between" style={shellStyle}>
+          <div className={headerShellClass}>
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
@@ -149,13 +146,13 @@ export default function DashboardLayout({
       </header>
 
       <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden bg-slate-50">
-        <div style={shellStyle}>
+        <div className={dashboardShellClass}>
           {children}
         </div>
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-200 bg-white">
-        <div className="py-4 text-center sm:py-5 lg:py-6" style={shellStyle}>
+        <div className="mx-auto w-full px-3 py-4 text-center sm:px-4 sm:py-5 lg:px-7 lg:py-6 xl:px-8">
           <p className="text-xs font-semibold text-slate-500 sm:text-sm">© 2026 READPOINT - Platform Literasi Digital Indonesia</p>
         </div>
       </footer>
