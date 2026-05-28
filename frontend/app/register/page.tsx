@@ -13,6 +13,7 @@ export default function RegisterPage() {
     password: '',
     password_confirmation: '',
     grade_level: '',
+    class_name: '',
     role: 'siswa',
   });
   const [loading, setLoading] = useState(false);
@@ -164,6 +165,18 @@ export default function RegisterPage() {
                     <option value="2">Kelas XI</option>
                     <option value="3">Kelas XII</option>
                   </select>
+                </Field>
+
+                <Field label="Nama Kelas (Opsional)">
+                  <input
+                    type="text"
+                    name="class_name"
+                    value={formData.class_name}
+                    onChange={handleChange}
+                    className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-16 sm:text-lg"
+                    placeholder="Contoh: X-A, X-B, dll"
+                    disabled={loading}
+                  />
                 </Field>
 
                 <div className="grid gap-6 md:grid-cols-2">
