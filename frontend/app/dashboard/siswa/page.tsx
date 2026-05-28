@@ -79,9 +79,8 @@ export default function SiswaDashboard() {
   const [error, setError] = useState<string | null>(null);
   const fetchedRef = useRef(false);
 
-  useEffect(() => { 
+  useEffect(() => {
     setMounted(true);
-    // Clear cache on mount to force fresh data fetch
     dashboardCache = null;
   }, []);
 
@@ -183,81 +182,28 @@ export default function SiswaDashboard() {
   }
 
   const statCards = [
+    { label: 'Total Poin', value: stats?.total_points ?? 0, helper: 'Poin yang bisa ditukar reward' },
     { label: 'Buku Dibaca', value: stats?.books_read ?? 0, helper: 'Jumlah buku selesai dibaca' },
     { label: 'Halaman Dibaca', value: stats?.pages_read ?? 0, helper: 'Total halaman yang dibaca' },
     { label: 'Kuis Selesai', value: stats?.quizzes_taken ?? 0, helper: 'Kuis yang sudah dikerjakan' },
   ];
 
-  const weeklyTargetProgress = Math.min(((stats?.books_read ?? 0) / 5) * 100, 100);
-
   return (
     <div className="min-h-screen w-full bg-slate-50 text-slate-900">
-      <div className="mx-auto w-full max-w-7xl space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+      <div className="mx-auto w-full space-y-5 py-6 sm:space-y-6 sm:py-8 lg:space-y-7 lg:py-10">
         {error && (
-          <div className="rounded-lg sm:rounded-xl border border-red-200 bg-red-50 p-4 sm:p-5 text-xs sm:text-sm font-semibold text-red-700 shadow-sm">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 shadow-sm sm:rounded-xl sm:p-5 sm:text-sm">
             {error}
           </div>
         )}
 
-        {/* Welcome Section */}
-        <section className="rounded-lg sm:rounded-xl border border-slate-200 bg-white shadow-sm sm:shadow-md">
-          <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="p-4 sm:p-6 lg:p-8">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Selamat Datang</p>
-              <h1 className="mt-2 sm:mt-3 lg:mt-4 text-xl sm:text-2xl lg:text-4xl font-black leading-tight text-slate-900">
-                Halo, {user.name}! 👋
-              </h1>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm lg:text-base font-medium text-slate-600">Siap lanjut membaca hari ini?</p>
-            </div>
-
-            <div className="bg-slate-900 p-4 sm:p-6 lg:p-8 text-white">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-300 sm:text-sm">Poin Kamu</p>
-              <p className="mt-2 sm:mt-3 lg:mt-4 text-3xl sm:text-4xl lg:text-5xl font-black text-white">{stats?.total_points ?? 0}</p>
-              <p className="mt-1 sm:mt-2 text-xs leading-5 sm:leading-6 text-slate-300 lg:text-sm">Poin dapat digunakan untuk menukar reward.</p>
-
-              <div className="mt-4 sm:mt-5 lg:mt-6 rounded-lg border border-white/10 bg-white/10 p-3 sm:p-4 lg:p-5">
-                <div className="flex items-center justify-between gap-2 sm:gap-3 text-xs font-bold text-slate-200 sm:text-sm">
-                  <span>Target membaca mingguan</span>
-                  <span>{Math.min(stats?.books_read ?? 0, 5)}/5 buku</span>
-                </div>
-                <div className="mt-2 sm:mt-3 h-2 overflow-hidden rounded-full bg-white/15">
-                  <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${weeklyTargetProgress}%` }} />
-                </div>
-              </div>
-            </div>
+        {/* Search Section */}
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-6">
+          <div className="mb-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Cari Buku</p>
+            <h1 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl lg:text-3xl">Temukan bacaan yang ingin kamu baca</h1>
+            <p className="mt-2 text-sm font-medium leading-6 text-slate-600 sm:text-base">Cari buku berdasarkan judul, penulis, atau kategori.</p>
           </div>
-        </section>
-
-        {/* Stats Cards */}
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5 lg:gap-6">
-          {statCards.map((item) => (
-            <div key={item.label} className="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 lg:p-6 shadow-sm transition hover:shadow-md">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 sm:text-sm">{item.label}</p>
-              <p className="mt-2 sm:mt-3 lg:mt-4 text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900">{item.value}</p>
-              <p className="mt-1 sm:mt-2 lg:mt-3 text-xs font-medium text-slate-600 sm:text-sm">{item.helper}</p>
-            </div>
-          ))}
-        </section>
-
-        {!loadingData && ebooks.length > 0 && (
-          <section className="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 lg:p-8 shadow-sm">
-            <div className="mb-4 sm:mb-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Rekomendasi</p>
-              <h2 className="mt-2 text-lg sm:text-xl lg:text-2xl font-black text-slate-900">Buku yang Direkomendasikan</h2>
-            </div>
-            <FavoriteBooksSlider 
-              books={ebooks} 
-              onBookClick={(bookId) => {
-                const book = ebooks.find(b => b.id === bookId);
-                if (book?.pdf_file) {
-                  window.open(book.pdf_file, '_blank');
-                }
-              }}
-            />
-          </section>
-        )}
-
-        <section className="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-3 sm:p-4 lg:p-6 shadow-sm">
           <SearchBar
             onSearch={setSearchQuery}
             onBookClick={(book) => {
@@ -270,6 +216,36 @@ export default function SiswaDashboard() {
           />
         </section>
 
+        {/* Recommended Books Section */}
+        {!loadingData && ebooks.length > 0 && (
+          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-8">
+            <div className="mb-4 sm:mb-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Rekomendasi</p>
+              <h2 className="mt-2 text-lg font-black text-slate-900 sm:text-xl lg:text-2xl">Buku yang Direkomendasikan</h2>
+            </div>
+            <FavoriteBooksSlider
+              books={favoriteBooks}
+              onBookClick={(bookId) => {
+                const book = ebooks.find(b => b.id === bookId);
+                if (book?.pdf_file) {
+                  window.open(book.pdf_file, '_blank');
+                }
+              }}
+            />
+          </section>
+        )}
+
+        {/* Stats Cards */}
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 lg:gap-6">
+          {statCards.map((item) => (
+            <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:rounded-xl sm:p-5 lg:p-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 sm:text-sm">{item.label}</p>
+              <p className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl lg:mt-4 lg:text-4xl">{item.value}</p>
+              <p className="mt-1 text-xs font-medium text-slate-600 sm:text-sm lg:mt-3">{item.helper}</p>
+            </div>
+          ))}
+        </section>
+
         <section>
           <TabNavigation
             activeTab={activeTab}
@@ -280,9 +256,9 @@ export default function SiswaDashboard() {
           />
         </section>
 
-        <section className="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 lg:p-8 shadow-sm">
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-8">
           {loadingData ? (
-            <div className="py-12 sm:py-16 lg:py-20 text-center">
+            <div className="py-12 text-center sm:py-16 lg:py-20">
               <Loading size="lg" text="Memuat data..." />
             </div>
           ) : (
@@ -293,7 +269,7 @@ export default function SiswaDashboard() {
                 <div>
                   <div className="mb-4 sm:mb-6">
                     <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Koleksi</p>
-                    <h2 className="mt-2 text-lg sm:text-xl lg:text-2xl font-black text-slate-900">Daftar E-Books</h2>
+                    <h2 className="mt-2 text-lg font-black text-slate-900 sm:text-xl lg:text-2xl">Daftar E-Books</h2>
                   </div>
                   <BookGrid
                     ebooks={ebooks}
@@ -307,7 +283,7 @@ export default function SiswaDashboard() {
                 <div>
                   <div className="mb-4 sm:mb-6">
                     <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Hadiah</p>
-                    <h2 className="mt-2 text-lg sm:text-xl lg:text-2xl font-black text-slate-900">Daftar Rewards</h2>
+                    <h2 className="mt-2 text-lg font-black text-slate-900 sm:text-xl lg:text-2xl">Daftar Rewards</h2>
                   </div>
                   <RewardGrid
                     rewards={rewards}
@@ -322,7 +298,7 @@ export default function SiswaDashboard() {
                 <div>
                   <div className="mb-4 sm:mb-6">
                     <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 sm:text-sm">Evaluasi</p>
-                    <h2 className="mt-2 text-lg sm:text-xl lg:text-2xl font-black text-slate-900">Daftar Kuis</h2>
+                    <h2 className="mt-2 text-lg font-black text-slate-900 sm:text-xl lg:text-2xl">Daftar Kuis</h2>
                   </div>
                   <QuizList
                     quizzes={quizzes}
