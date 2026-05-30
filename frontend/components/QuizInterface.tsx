@@ -61,11 +61,11 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
 
   if (questions.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Kuis</p>
+      <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 py-10 sm:px-5 sm:py-12">
+        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Kuis</p>
           <h2 className="mt-4 text-2xl font-black text-slate-900">Tidak Ada Kuis</h2>
-          <p className="mt-4 leading-7 text-slate-600">Tidak ada pertanyaan kuis yang tersedia untuk e-book ini.</p>
+          <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">Tidak ada pertanyaan kuis yang tersedia untuk e-book ini.</p>
           <button onClick={onCancel} className="mt-8 h-12 w-full rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 hover:bg-slate-100">Kembali</button>
         </div>
       </div>
@@ -78,16 +78,16 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
     const scoreColor = score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-slate-900' : 'text-red-600';
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 py-10 sm:px-5 sm:py-12">
+        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="text-center">
-            <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Hasil Kuis</p>
+            <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Hasil Kuis</p>
             <h2 className="mt-4 text-2xl font-black text-slate-900">Hasil Kuismu</h2>
-            <p className={`my-6 text-6xl font-black ${scoreColor}`}>{score}%</p>
-            <p className="leading-7 text-slate-600">{resultMessage}</p>
+            <p className={`my-6 text-5xl font-black sm:text-6xl ${scoreColor}`}>{score}%</p>
+            <p className="text-sm leading-7 text-slate-600 sm:text-base">{resultMessage}</p>
           </div>
 
-          <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
             <ResultRow label="Jawaban Benar" value={`${correctAnswers}/${questions.length}`} success={score >= 60} />
             <ResultRow label="Akurasi" value={`${Math.round((correctAnswers / questions.length) * 100)}%`} success={score >= 60} />
             <div className="h-3 overflow-hidden rounded-full bg-slate-200">
@@ -105,16 +105,16 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+    <div className="flex min-h-dvh max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-4 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <button onClick={onCancel} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
+            <button onClick={onCancel} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Kuis E-Book</p>
-              <h1 className="mt-1 truncate text-base font-black text-slate-900 sm:text-xl">{ebookTitle}</h1>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 sm:text-xs">Kuis E-Book</p>
+              <h1 className="mt-1 truncate text-sm font-black text-slate-900 sm:text-xl">{ebookTitle}</h1>
             </div>
-            <div className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">{answeredCount}/{questions.length}</div>
+            <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">{answeredCount}/{questions.length}</div>
           </div>
 
           <div className="mt-4 flex items-center gap-3">
@@ -127,7 +127,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-5 px-4 py-5 lg:grid-cols-[280px_1fr] lg:px-8 lg:py-8">
+      <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-5 px-3 py-4 sm:px-4 sm:py-5 lg:grid-cols-[280px_1fr] lg:px-8 lg:py-8">
         <aside className="hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:block">
           <h2 className="text-lg font-black text-slate-950">Navigasi Soal</h2>
           <p className="mt-2 text-sm font-semibold text-slate-500">Pantau soal yang sudah dijawab</p>
@@ -142,31 +142,31 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
         </aside>
 
         <section className="min-w-0">
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+          <div className="mb-4 flex gap-2 overflow-x-auto pb-2 lg:hidden">
             {questions.map((q, index) => (
               <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex h-10 w-12 shrink-0 items-center justify-center rounded-full text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
             ))}
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 lg:p-10">
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8 lg:p-10">
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Soal {currentIndex + 1}</p>
-            <h2 className="mt-4 text-xl font-black leading-relaxed text-slate-900 sm:text-2xl lg:text-3xl">{currentQuestion?.question_text}</h2>
+            <h2 className="mt-4 text-lg font-black leading-relaxed text-slate-900 sm:text-2xl lg:text-3xl">{currentQuestion?.question_text}</h2>
             <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>
-            <div className="mt-8 space-y-4">
+            <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
               {options.map((option) => {
                 const isSelected = selectedAnswers[currentQuestion?.id] === option.key;
                 return (
-                  <button key={option.key} onClick={() => selectAnswer(option.key)} className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left font-semibold transition sm:p-5 ${isSelected ? 'border-emerald-700 bg-emerald-700 text-white shadow-md' : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'}`}>
+                  <button key={option.key} onClick={() => selectAnswer(option.key)} className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left text-sm font-semibold transition sm:gap-4 sm:p-5 sm:text-base ${isSelected ? 'border-emerald-700 bg-emerald-700 text-white shadow-md' : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'}`}>
                     <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black ${isSelected ? 'bg-white text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>{option.key.toUpperCase()}</span>
-                    <span className="flex-1 leading-7">{option.label}</span>
-                    {isSelected && <span className="text-lg font-black">✓</span>}
+                    <span className="min-w-0 flex-1 leading-7">{option.label}</span>
+                    {isSelected && <span className="shrink-0 text-lg font-black">✓</span>}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0} className="h-12 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50">Sebelumnya</button>
             {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered} className="h-12 rounded-2xl bg-emerald-700 px-5 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">Selesai & Kirim</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered} className="h-12 rounded-2xl bg-slate-900 px-5 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">Selanjutnya</button>}
           </div>
@@ -179,5 +179,5 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
 }
 
 function ResultRow({ label, value, success }: { label: string; value: string; success: boolean }) {
-  return <div className="flex items-center justify-between"><span className="text-sm font-black text-slate-700">{label}</span><span className={`rounded-full px-3 py-1 text-xs font-black ${success ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{value}</span></div>;
+  return <div className="flex items-center justify-between gap-3"><span className="text-sm font-black text-slate-700">{label}</span><span className={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${success ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{value}</span></div>;
 }
