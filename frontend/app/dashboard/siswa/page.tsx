@@ -247,14 +247,9 @@ export default function SiswaDashboard() {
 
               <SearchInput value={searchQuery} onChange={setSearchQuery} desktop />
 
-              <div className="flex shrink-0 items-center gap-3">
-                <div className="hidden text-right sm:block">
-                  <p className="text-sm font-black leading-4 text-slate-900">{user.name}</p>
-                  <p className="mt-1 text-xs font-semibold text-slate-500">Siswa</p>
-                </div>
-                <button onClick={handleLogout} className="rounded-xl bg-red-50 px-4 py-2 text-sm font-black text-red-600 transition hover:bg-red-100">
-                  Keluar
-                </button>
+              <div className="hidden shrink-0 text-right sm:block">
+                <p className="text-sm font-black leading-4 text-slate-900">{user.name}</p>
+                <p className="mt-1 text-xs font-semibold text-slate-500">Siswa</p>
               </div>
             </div>
 
