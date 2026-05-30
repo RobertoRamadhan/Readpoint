@@ -196,13 +196,6 @@ export default function SiswaProfilePage() {
             >
               Kembali
             </button>
-
-            <button
-              onClick={handleLogout}
-              className="rounded-xl bg-red-50 px-3 py-2 text-xs font-black text-red-600 hover:bg-red-100 sm:px-4 sm:text-sm"
-            >
-              Keluar
-            </button>
           </div>
         </div>
       </header>
