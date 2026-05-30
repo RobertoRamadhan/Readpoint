@@ -176,9 +176,6 @@ export default function SiswaProfilePage() {
             onClick={() => router.push('/dashboard/siswa')}
             className="flex items-center gap-3 text-left"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-white">
-              RP
-            </div>
             <div>
               <h1 className="text-lg font-black leading-none text-slate-950">
                 READPOINT
