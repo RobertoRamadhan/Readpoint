@@ -226,7 +226,6 @@ export default function SiswaDashboard() {
           <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur lg:px-8">
             <div className="mx-auto grid min-h-[76px] max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 lg:grid-cols-[1fr_minmax(360px,560px)_180px]">
               <div className="flex items-center gap-3 lg:hidden">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-white">RP</div>
                 <div>
                   <h1 className="text-lg font-black leading-none text-slate-950">READPOINT</h1>
                   <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p>
