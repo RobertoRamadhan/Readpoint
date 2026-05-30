@@ -210,22 +210,23 @@ export default function SiswaDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="flex min-h-screen">
-        <aside className="hidden w-80 shrink-0 border-r border-slate-200 bg-white px-8 py-7 lg:flex lg:flex-col">
+        <aside className="sticky top-0 hidden h-screen w-80 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white px-8 py-7 lg:flex">
           <BrandBlock />
 
-          <nav className="mt-9 space-y-2">
+          <nav className="mt-10 space-y-3">
             <SidebarButton active={activeTab === 'overview'} label="Overview" onClick={() => setActiveTab('overview')} />
             <SidebarButton active={activeTab === 'ebooks'} label="E-Books" onClick={() => setActiveTab('ebooks')} />
             <SidebarButton active={activeTab === 'quizzes'} label="Kuis" onClick={() => setActiveTab('quizzes')} />
             <SidebarButton active={activeTab === 'rewards'} label="Rewards" onClick={() => setActiveTab('rewards')} />
 
-            <div className="my-5 border-t border-slate-200" />
+            <div className="my-6 border-t border-slate-200" />
 
-            <SidebarButton active={activeTab === 'activity'} label="Aktivitas" onClick={() => setActiveTab('activity')} />
             <SidebarButton active={false} label="Profil" onClick={() => router.push('/dashboard/siswa/profile')} />
           </nav>
 
-          <div className="mt-9 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+          <SidebarActivityCard onShowAll={() => setActiveTab('activity')} />
+
+          <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 font-black text-white">★</div>
               <div>
@@ -286,7 +287,7 @@ export default function SiswaDashboard() {
             </div>
           </header>
 
-          <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 lg:px-8 lg:py-6">
+          <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 lg:px-8 lg:py-6">
             {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</div>}
 
             <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -366,15 +367,20 @@ function SearchInput({ value, onChange, desktop = false }: { value: string; onCh
 }
 
 function SidebarButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black transition ${active ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}><span className={`h-4 w-4 rounded-full ${active ? 'bg-emerald-600' : 'bg-slate-200'}`} />{label}</button>;
+  return <button onClick={onClick} className={`flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-left text-base font-black transition ${active ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}><span className={`h-4 w-4 rounded-full ${active ? 'bg-emerald-600' : 'bg-slate-200'}`} />{label}</button>;
 }
 
 function StatCard({ title, value, helper }: { title: string; value: number | string; helper: string }) {
   return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-sm font-bold text-slate-500">{title}</p><p className="mt-2 text-2xl font-black text-slate-950">{value}</p><p className="mt-1 text-xs font-bold text-emerald-600">{helper}</p></div>;
 }
 
+function SidebarActivityCard({ onShowAll }: { onShowAll: () => void }) {
+  const activities = [['Membaca 20 halaman', 'Si Pangeran Kecil', '+20'], ['Menyelesaikan kuis', 'Perahu Kertas', '+50'], ['Bonus login harian', 'Hari ini', '+15']];
+  return <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><h2 className="text-base font-black text-slate-950">Aktivitas Terbaru</h2><button onClick={onShowAll} className="text-[11px] font-black text-emerald-700 hover:text-emerald-800">Lihat</button></div><div className="mt-4 space-y-4">{activities.map(([title, subtitle, point]) => <div key={title} className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-black text-slate-900">{title}</p><p className="mt-1 truncate text-xs font-semibold text-slate-500">{subtitle}</p></div><span className="shrink-0 text-xs font-black text-emerald-700">{point}</span></div>)}</div></section>;
+}
+
 function OverviewContent({ continueBook, books, rewards, totalPoints, onRead, onRedeem, setActiveTab }: { continueBook: Ebook | null; books: Ebook[]; rewards: Reward[]; totalPoints: number; onRead: (id: number) => void; onRedeem: (id: number) => void; setActiveTab: (tab: TabType) => void }) {
-  return <div className="grid grid-cols-1 gap-6 xl:grid-cols-3"><div className="min-w-0 space-y-6"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Lanjutkan Membaca" />{continueBook ? <div className="mt-5 flex gap-4"><div className="h-44 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-200">{normalizeCover(continueBook) ? <img src={normalizeCover(continueBook)} alt={continueBook.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-3xl">📕</div>}</div><div className="min-w-0 flex-1"><h3 className="line-clamp-2 text-lg font-black text-slate-950">{continueBook.title}</h3><p className="mt-1 text-sm font-medium text-slate-500">{continueBook.author}</p><p className="mt-8 text-xs font-semibold text-slate-500">Halaman 68 dari {continueBook.pages}</p><div className="mt-3 h-2 rounded-full bg-slate-100"><div className="h-2 w-[57%] rounded-full bg-emerald-600" /></div><button onClick={() => onRead(continueBook.id)} className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-black text-white hover:bg-emerald-700">Lanjutkan</button></div></div> : <p className="mt-5 text-sm font-semibold text-slate-500">Belum ada buku tersedia.</p>}</section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Aktivitas Terbaru" action="Lihat semua →" onAction={() => setActiveTab('activity')} /><ActivityList /></section></div><div className="min-w-0 space-y-6 xl:col-span-2"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Rekomendasi Buku" action="Lihat semua →" onAction={() => setActiveTab('ebooks')} /><div className="mt-5 grid grid-cols-2 gap-5 lg:grid-cols-4">{books.map((book) => <BookMiniCard key={book.id} book={book} onClick={() => onRead(book.id)} />)}</div></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Reward Tersedia" action="Lihat semua →" onAction={() => setActiveTab('rewards')} /><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{rewards.map((reward) => <RewardMiniCard key={reward.id} reward={reward} disabled={totalPoints < reward.points_required || reward.stock <= 0} onRedeem={() => onRedeem(reward.id)} />)}</div></section></div></div>;
+  return <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]"><div className="min-w-0"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Lanjutkan Membaca" />{continueBook ? <div className="mt-5 flex gap-4"><div className="h-44 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-200">{normalizeCover(continueBook) ? <img src={normalizeCover(continueBook)} alt={continueBook.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-3xl">📕</div>}</div><div className="min-w-0 flex-1"><h3 className="line-clamp-2 text-lg font-black text-slate-950">{continueBook.title}</h3><p className="mt-1 text-sm font-medium text-slate-500">{continueBook.author}</p><p className="mt-8 text-xs font-semibold text-slate-500">Halaman 68 dari {continueBook.pages}</p><div className="mt-3 h-2 rounded-full bg-slate-100"><div className="h-2 w-[57%] rounded-full bg-emerald-600" /></div><button onClick={() => onRead(continueBook.id)} className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-black text-white hover:bg-emerald-700">Lanjutkan</button></div></div> : <p className="mt-5 text-sm font-semibold text-slate-500">Belum ada buku tersedia.</p>}</section></div><div className="min-w-0 space-y-6"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Rekomendasi Buku" action="Lihat semua →" onAction={() => setActiveTab('ebooks')} /><div className="mt-5 grid grid-cols-2 gap-5 lg:grid-cols-4">{books.map((book) => <BookMiniCard key={book.id} book={book} onClick={() => onRead(book.id)} />)}</div></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Reward Tersedia" action="Lihat semua →" onAction={() => setActiveTab('rewards')} /><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{rewards.map((reward) => <RewardMiniCard key={reward.id} reward={reward} disabled={totalPoints < reward.points_required || reward.stock <= 0} onRedeem={() => onRedeem(reward.id)} />)}</div></section></div></div>;
 }
 
 function ContentPanel({ title, action, children }: { title: string; action?: string; children: React.ReactNode }) {
