@@ -140,140 +140,31 @@
 }
 
 /* ─── Responsive Spacing ─── */
-.p-responsive {
-  padding: 1rem;
-}
+.p-responsive { padding: 1rem; }
+@media (min-width: 640px) { .p-responsive { padding: 1.5rem; } }
+@media (min-width: 1024px) { .p-responsive { padding: 2rem; } }
 
-@media (min-width: 640px) {
-  .p-responsive {
-    padding: 1.5rem;
-  }
-}
+.px-responsive { padding-left: 1rem; padding-right: 1rem; }
+@media (min-width: 640px) { .px-responsive { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .px-responsive { padding-left: 2rem; padding-right: 2rem; } }
 
-@media (min-width: 1024px) {
-  .p-responsive {
-    padding: 2rem;
-  }
-}
+.py-responsive { padding-top: 1rem; padding-bottom: 1rem; }
+@media (min-width: 640px) { .py-responsive { padding-top: 1.5rem; padding-bottom: 1.5rem; } }
+@media (min-width: 1024px) { .py-responsive { padding-top: 2rem; padding-bottom: 2rem; } }
 
-.px-responsive {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-@media (min-width: 640px) {
-  .px-responsive {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .px-responsive {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-.py-responsive {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-@media (min-width: 640px) {
-  .py-responsive {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .py-responsive {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
-}
-
-.gap-responsive {
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .gap-responsive {
-    gap: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .gap-responsive {
-    gap: 2rem;
-  }
-}
+.gap-responsive { gap: 1rem; }
+@media (min-width: 640px) { .gap-responsive { gap: 1.5rem; } }
+@media (min-width: 1024px) { .gap-responsive { gap: 2rem; } }
 
 /* ─── Responsive Border Radius ─── */
-.rounded-responsive {
-  border-radius: 0.5rem;
-}
-
-@media (min-width: 640px) {
-  .rounded-responsive {
-    border-radius: 0.75rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .rounded-responsive {
-    border-radius: 1rem;
-  }
-}
+.rounded-responsive { border-radius: 0.5rem; }
+@media (min-width: 640px) { .rounded-responsive { border-radius: 0.75rem; } }
+@media (min-width: 1024px) { .rounded-responsive { border-radius: 1rem; } }
 
 /* ─── Responsive Shadow ─── */
-.shadow-responsive {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-@media (min-width: 640px) {
-  .shadow-responsive {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-}
-
-@media (min-width: 1024px) {
-  .shadow-responsive {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-}
-
-/* ─── Responsive Display ─── */
-.hidden-mobile {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .hidden-mobile {
-    display: block;
-  }
-}
-
-.hidden-tablet {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .hidden-tablet {
-    display: block;
-  }
-}
-
-.hidden-desktop {
-  display: none;
-}
-
-@media (max-width: 1023px) {
-  .hidden-desktop {
-    display: block;
-  }
-}
+.shadow-responsive { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+@media (min-width: 640px) { .shadow-responsive { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); } }
+@media (min-width: 1024px) { .shadow-responsive { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); } }
 
 /* ─── Touch-Friendly Elements ─── */
 .touch-target {
@@ -376,21 +267,9 @@
 }
 
 /* ─── Responsive Sections ─── */
-.section-responsive {
-  padding: 1.5rem;
-}
-
-@media (min-width: 640px) {
-  .section-responsive {
-    padding: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .section-responsive {
-    padding: 3rem;
-  }
-}
+.section-responsive { padding: 1.5rem; }
+@media (min-width: 640px) { .section-responsive { padding: 2rem; } }
+@media (min-width: 1024px) { .section-responsive { padding: 3rem; } }
 
 /* ─── Responsive Navigation ─── */
 .nav-responsive {
@@ -414,145 +293,135 @@
   display: block;
 }
 
-/* ─── Responsive Aspect Ratio ─── */
-.aspect-video-responsive {
-  aspect-ratio: 16 / 9;
-  width: 100%;
-  height: auto;
-}
+.aspect-video-responsive { aspect-ratio: 16 / 9; width: 100%; height: auto; }
+.aspect-square-responsive { aspect-ratio: 1 / 1; width: 100%; height: auto; }
 
-.aspect-square-responsive {
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  height: auto;
-}
-
-/* ─── Responsive Overflow ─── */
 .overflow-responsive {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ─── Responsive Breakpoint Helpers ─── */
-@media (max-width: 639px) {
-  .sm\:hidden {
-    display: none !important;
-  }
+.text-center-mobile { text-align: center; }
+@media (min-width: 768px) { .text-center-mobile { text-align: left; } }
+
+.columns-responsive { columns: 1; gap: 1rem; }
+@media (min-width: 640px) { .columns-responsive { columns: 2; gap: 1.5rem; } }
+@media (min-width: 1024px) { .columns-responsive { columns: 3; gap: 2rem; } }
+
+.flex-col-mobile { display: flex; flex-direction: column; }
+@media (min-width: 768px) { .flex-col-mobile { flex-direction: row; } }
+
+.w-full-mobile { width: 100%; }
+@media (min-width: 768px) { .w-full-mobile { width: auto; } }
+
+.max-w-responsive { max-width: 100%; }
+@media (min-width: 640px) { .max-w-responsive { max-width: 640px; } }
+@media (min-width: 1024px) { .max-w-responsive { max-width: 1024px; } }
+@media (min-width: 1280px) { .max-w-responsive { max-width: 1280px; } }
+
+.leading-responsive { line-height: 1.5; }
+@media (min-width: 640px) { .leading-responsive { line-height: 1.6; } }
+@media (min-width: 1024px) { .leading-responsive { line-height: 1.75; } }
+
+.tracking-responsive { letter-spacing: 0; }
+@media (min-width: 640px) { .tracking-responsive { letter-spacing: 0.025em; } }
+@media (min-width: 1024px) { .tracking-responsive { letter-spacing: 0.05em; } }
+
+/* ============================================
+   READPOINT SISWA MOBILE SAFEGUARDS
+   ============================================ */
+
+html,
+body,
+#__next,
+main,
+section,
+article,
+header,
+footer,
+aside,
+div {
+  min-width: 0;
 }
 
-@media (max-width: 1023px) {
-  .lg\:hidden {
-    display: none !important;
-  }
-}
-
-/* ─── Responsive Alignment ─── */
-.text-center-mobile {
-  text-align: center;
-}
-
-@media (min-width: 768px) {
-  .text-center-mobile {
-    text-align: left;
-  }
-}
-
-/* ─── Responsive Columns ─── */
-.columns-responsive {
-  columns: 1;
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .columns-responsive {
-    columns: 2;
-    gap: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .columns-responsive {
-    columns: 3;
-    gap: 2rem;
-  }
-}
-
-/* ─── Responsive Flex Direction ─── */
-.flex-col-mobile {
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 768px) {
-  .flex-col-mobile {
-    flex-direction: row;
-  }
-}
-
-/* ─── Responsive Width ─── */
-.w-full-mobile {
-  width: 100%;
-}
-
-@media (min-width: 768px) {
-  .w-full-mobile {
-    width: auto;
-  }
-}
-
-/* ─── Responsive Max Width ─── */
-.max-w-responsive {
+img,
+svg,
+video,
+canvas,
+iframe,
+embed,
+object {
   max-width: 100%;
 }
 
-@media (min-width: 640px) {
-  .max-w-responsive {
-    max-width: 640px;
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+@media (max-width: 767px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 7vw, 2rem);
+    line-height: 1.15;
+  }
+
+  h2 {
+    font-size: clamp(1.2rem, 5.5vw, 1.65rem);
+    line-height: 1.2;
+  }
+
+  p,
+  button,
+  input,
+  select,
+  textarea {
+    font-size: 0.875rem;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  .pdf-viewer-container {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .pdf-viewer-container iframe {
+    height: 100% !important;
+    min-height: calc(100dvh - 190px) !important;
+  }
+
+  .line-clamp-1,
+  .line-clamp-2,
+  .line-clamp-3 {
+    word-break: break-word;
   }
 }
 
-@media (min-width: 1024px) {
-  .max-w-responsive {
-    max-width: 1024px;
+@media (max-width: 480px) {
+  .rounded-3xl {
+    border-radius: 1rem;
   }
-}
 
-@media (min-width: 1280px) {
-  .max-w-responsive {
-    max-width: 1280px;
+  .rounded-2xl {
+    border-radius: 0.875rem;
   }
-}
 
-/* ─── Responsive Line Height ─── */
-.leading-responsive {
-  line-height: 1.5;
-}
-
-@media (min-width: 640px) {
-  .leading-responsive {
-    line-height: 1.6;
-  }
-}
-
-@media (min-width: 1024px) {
-  .leading-responsive {
-    line-height: 1.75;
-  }
-}
-
-/* ─── Responsive Letter Spacing ─── */
-.tracking-responsive {
-  letter-spacing: 0;
-}
-
-@media (min-width: 640px) {
-  .tracking-responsive {
-    letter-spacing: 0.025em;
-  }
-}
-
-@media (min-width: 1024px) {
-  .tracking-responsive {
-    letter-spacing: 0.05em;
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
   }
 }
