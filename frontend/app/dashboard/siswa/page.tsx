@@ -149,13 +149,7 @@ export default function SiswaDashboard() {
       setEbooks(newEbooks);
       setRewards(newRewards);
       setQuizzes(newQuizzes);
-      dashboardCache = {
-        stats: newStats,
-        ebooks: newEbooks,
-        rewards: newRewards,
-        quizzes: newQuizzes,
-        cachedAt: Date.now(),
-      };
+      dashboardCache = { stats: newStats, ebooks: newEbooks, rewards: newRewards, quizzes: newQuizzes, cachedAt: Date.now() };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat dashboard siswa');
     } finally {
@@ -166,9 +160,7 @@ export default function SiswaDashboard() {
   const filteredBooks = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return ebooks;
-    return ebooks.filter((book) =>
-      `${book.title || ''} ${book.author || ''} ${book.category || ''}`.toLowerCase().includes(query)
-    );
+    return ebooks.filter((book) => `${book.title || ''} ${book.author || ''} ${book.category || ''}`.toLowerCase().includes(query));
   }, [ebooks, searchQuery]);
 
   const totalPoints = stats?.total_points ?? 0;
@@ -202,7 +194,6 @@ export default function SiswaDashboard() {
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white px-6 py-6 lg:flex lg:flex-col">
           <BrandBlock />
-
           <nav className="mt-8 space-y-1.5">
             <SidebarButton active={activeTab === 'overview'} label="Overview" onClick={() => setActiveTab('overview')} />
             <SidebarButton active={activeTab === 'ebooks'} label="E-Books" onClick={() => setActiveTab('ebooks')} />
@@ -212,7 +203,6 @@ export default function SiswaDashboard() {
             <SidebarButton active={activeTab === 'activity'} label="Aktivitas" onClick={() => setActiveTab('activity')} />
             <SidebarButton active={false} label="Profil" onClick={() => router.push('/dashboard/siswa/profile')} />
           </nav>
-
           <div className="mt-8 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 font-black text-white">★</div>
@@ -229,37 +219,30 @@ export default function SiswaDashboard() {
               <span className="text-emerald-700">Detail →</span>
             </div>
           </div>
-
-          <button onClick={handleLogout} className="mt-auto rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:bg-red-100">
-            Keluar
-          </button>
+          <button onClick={handleLogout} className="mt-auto rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:bg-red-100">Keluar</button>
         </aside>
 
         <main className="min-w-0 flex-1">
           <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur lg:px-8">
-            <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-4">
+            <div className="mx-auto grid min-h-[76px] max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 lg:grid-cols-[1fr_minmax(360px,560px)_180px]">
               <div className="flex items-center gap-3 lg:hidden">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-white">RP</div>
                 <div>
                   <h1 className="text-lg font-black leading-none text-slate-950">READPOINT</h1>
                   <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p>
                 </div>
               </div>
-
               <SearchInput value={searchQuery} onChange={setSearchQuery} desktop />
-
-              <div className="hidden shrink-0 text-right sm:block">
-                <p className="text-sm font-black leading-4 text-slate-900">{user.name}</p>
+              <div className="hidden min-w-[140px] shrink-0 text-right sm:block">
+                <p className="truncate text-sm font-black leading-4 text-slate-900">{user.name}</p>
                 <p className="mt-1 text-xs font-semibold text-slate-500">Siswa</p>
               </div>
             </div>
-
             <div className="space-y-3 pb-4 md:hidden">
               <SearchInput value={searchQuery} onChange={setSearchQuery} />
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {(['overview', 'ebooks', 'quizzes', 'rewards', 'activity'] as TabType[]).map((tab) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-black capitalize ${activeTab === tab ? 'bg-emerald-600 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>
-                    {tab === 'ebooks' ? 'E-Books' : tab === 'quizzes' ? 'Kuis' : tab === 'activity' ? 'Aktivitas' : tab}
-                  </button>
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-black capitalize ${activeTab === tab ? 'bg-emerald-600 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>{tab === 'ebooks' ? 'E-Books' : tab === 'quizzes' ? 'Kuis' : tab === 'activity' ? 'Aktivitas' : tab}</button>
                 ))}
               </div>
             </div>
@@ -267,19 +250,14 @@ export default function SiswaDashboard() {
 
           <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 lg:px-8 lg:py-6">
             {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</div>}
-
             <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
               <StatCard title="Total Poin" value={totalPoints} helper="Poin tersedia" />
               <StatCard title="Buku Dibaca" value={stats?.books_read ?? 0} helper="Selesai dibaca" />
               <StatCard title="Halaman" value={(stats?.pages_read ?? 0).toLocaleString('id-ID')} helper="Total halaman" />
               <StatCard title="Kuis" value={stats?.quizzes_taken ?? 0} helper="Sudah dikerjakan" />
             </section>
-
             {loadingData ? (
-              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-                <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-                <p className="text-sm font-bold text-slate-600">Memuat data...</p>
-              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm"><div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /><p className="text-sm font-bold text-slate-600">Memuat data...</p></div>
             ) : (
               <>
                 {activeTab === 'overview' && <OverviewContent continueBook={continueBook} books={recommendedBooks} rewards={visibleRewards} totalPoints={totalPoints} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} onRedeem={redeemReward} setActiveTab={setActiveTab} />}
@@ -305,7 +283,7 @@ function BrandBlock() {
 }
 
 function SearchInput({ value, onChange, desktop = false }: { value: string; onChange: (value: string) => void; desktop?: boolean }) {
-  return <div className={`${desktop ? 'mx-auto hidden w-full max-w-2xl md:flex' : 'flex w-full'} items-center rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm`}><span className="mr-3 text-lg text-slate-400">⌕</span><input value={value} onChange={(e) => onChange(e.target.value)} placeholder={desktop ? 'Cari buku berdasarkan judul, penulis, atau kategori...' : 'Cari buku...'} className="w-full bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-400" /></div>;
+  return <div className={`${desktop ? 'hidden h-12 w-full md:flex' : 'flex min-h-12 w-full'} items-center rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm`}><span className="mr-3 text-lg text-slate-400">⌕</span><input value={value} onChange={(e) => onChange(e.target.value)} placeholder={desktop ? 'Cari buku berdasarkan judul, penulis, atau kategori...' : 'Cari buku...'} className="w-full bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-400" /></div>;
 }
 
 function SidebarButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
