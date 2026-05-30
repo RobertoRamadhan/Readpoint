@@ -73,10 +73,6 @@ export default function DashboardLayout({
               onClick={() => router.push('/dashboard')}
               className="flex min-w-0 items-center gap-2 text-left sm:gap-3"
             >
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-black text-white sm:h-9 sm:w-9 sm:text-sm">
-                RP
-              </div>
-
               <div className="min-w-0">
                 <h1 className="truncate text-sm font-black leading-none text-slate-900 sm:text-base">
                   READPOINT
