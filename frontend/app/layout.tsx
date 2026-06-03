@@ -6,6 +6,7 @@ import "./guru-dashboard-clean.css";
 import "./admin-dashboard-clean.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
             {children}
           </Providers>
         </ErrorBoundary>
+        <SpeedInsights />
       </body>
     </html>
   );
