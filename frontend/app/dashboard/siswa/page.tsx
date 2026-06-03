@@ -146,7 +146,7 @@ export default function SiswaDashboard() {
       setError(null);
       const [statsRes, ebooksRes, rewardsRes, quizzesRes] = await Promise.allSettled([
         api.dashboard.siswaStats(),
-        api.ebooks.list(),
+        api.dashboard.siswaBooks(),
         api.rewards.list(),
         api.getAllQuizzes(),
       ]);
