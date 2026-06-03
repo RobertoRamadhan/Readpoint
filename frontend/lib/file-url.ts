@@ -4,39 +4,45 @@ export function getBackendBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_BACKEND_URL}/api`).replace(/\/api\/?$/, '');
 }
 
+function getBackendOrigin() {
+  try {
+    return new URL(getBackendBaseUrl()).origin;
+  } catch {
+    return DEFAULT_BACKEND_URL;
+  }
+}
+
+function normalizeStoragePath(pathname: string) {
+  return pathname
+    .replace(/^\/storage\//, '')
+    .replace(/^\/api\/files\//, '')
+    .replace(/^storage\//, '')
+    .replace(/^api\/files\//, '')
+    .replace(/^\/+/, '');
+}
+
 export function normalizeFileUrl(value?: string | null) {
   if (!value) return '';
 
-  const backendBaseUrl = getBackendBaseUrl();
+  const backendOrigin = getBackendOrigin();
   const rawValue = value.trim();
 
   if (!rawValue) return '';
 
-  // Backend lama mengirim /storage/..., padahal di Laravel Cloud route file yang stabil adalah /api/files/...
-  if (rawValue.startsWith('/storage/')) {
-    return `${backendBaseUrl}/api/files/${rawValue.replace(/^\/storage\//, '')}`;
+  if (rawValue.startsWith('/storage/') || rawValue.startsWith('storage/')) {
+    return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
   }
 
-  if (rawValue.startsWith('storage/')) {
-    return `${backendBaseUrl}/api/files/${rawValue.replace(/^storage\//, '')}`;
-  }
-
-  if (rawValue.startsWith('/api/files/')) {
-    return `${backendBaseUrl}${rawValue}`;
-  }
-
-  if (rawValue.startsWith('api/files/')) {
-    return `${backendBaseUrl}/${rawValue}`;
+  if (rawValue.startsWith('/api/files/') || rawValue.startsWith('api/files/')) {
+    return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
   }
 
   if (rawValue.startsWith('http://') || rawValue.startsWith('https://')) {
     try {
       const url = new URL(rawValue);
-      const storagePrefix = '/storage/';
 
-      if (url.pathname.startsWith(storagePrefix)) {
-        const filePath = url.pathname.slice(storagePrefix.length);
-        return `${url.origin}/api/files/${filePath}${url.search}`;
+      if (url.pathname.startsWith('/storage/') || url.pathname.startsWith('/api/files/')) {
+        return `${backendOrigin}/api/files/${normalizeStoragePath(url.pathname)}${url.search}`;
       }
 
       return rawValue;
@@ -45,8 +51,7 @@ export function normalizeFileUrl(value?: string | null) {
     }
   }
 
-  // Jika backend hanya mengirim path database seperti ebooks/covers/file.jpg
-  return `${backendBaseUrl}/api/files/${rawValue.replace(/^\/+/, '')}`;
+  return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
 }
 
 export function normalizeEbookFiles<T extends { cover_image?: string | null; cover_image_url?: string | null; pdf_file?: string | null; pdf_file_url?: string | null }>(ebook: T): T {
