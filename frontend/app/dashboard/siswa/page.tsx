@@ -1,7 +1,21 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Bell,
+  BookOpen,
+  CheckCircle2,
+  Clock3,
+  Gift,
+  History,
+  Home,
+  LogOut,
+  Search,
+  Sparkles,
+  Star,
+  type LucideIcon,
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { normalizeFileUrl } from '@/lib/file-url';
@@ -24,8 +38,6 @@ interface Ebook {
   category: string;
   cover_image?: string;
   cover_image_url?: string;
-  pdf_file?: string;
-  pdf_file_url?: string;
 }
 
 interface Reward {
@@ -44,7 +56,6 @@ interface Quiz {
   ebook_title?: string;
   title?: string;
   total_questions?: number;
-  difficulty?: string;
   points_reward?: number;
 }
 
@@ -58,42 +69,40 @@ let dashboardCache: {
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-function normalizeCover(book?: Ebook | null) {
-  return normalizeFileUrl(book?.cover_image_url || book?.cover_image);
-}
+const tabs: Array<{ key: TabType; label: string; Icon: LucideIcon }> = [
+  { key: 'overview', label: 'Home', Icon: Home },
+  { key: 'ebooks', label: 'Buku', Icon: BookOpen },
+  { key: 'quizzes', label: 'Kuis', Icon: CheckCircle2 },
+  { key: 'rewards', label: 'Gift', Icon: Gift },
+  { key: 'activity', label: 'Log', Icon: History },
+];
 
-function normalizeReward(reward?: Reward | null) {
-  return normalizeFileUrl(reward?.image_url || reward?.image);
-}
+const getArrayFromResponse = <T,>(value: unknown): T[] => {
+  const response = value as { data?: unknown } | null;
+  const data = response?.data;
+  if (Array.isArray(data)) return data as T[];
+  if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown }).data)) {
+    return (data as { data: T[] }).data;
+  }
+  return [];
+};
 
-function getStatsFromResponse(value: unknown): SiswaStats | null {
+const getStatsFromResponse = (value: unknown): SiswaStats | null => {
   const response = value as { data?: unknown } | null;
   const payload = response && typeof response === 'object' && 'data' in response ? response.data : value;
-
   if (!payload || typeof payload !== 'object') return null;
-
   const raw = payload as Partial<SiswaStats>;
-
   return {
     total_points: Number(raw.total_points ?? 0),
     books_read: Number(raw.books_read ?? 0),
     pages_read: Number(raw.pages_read ?? 0),
     quizzes_taken: Number(raw.quizzes_taken ?? 0),
   };
-}
+};
 
-function getArrayFromResponse<T>(value: unknown): T[] {
-  const response = value as { data?: unknown } | null;
-  const data = response?.data;
-
-  if (Array.isArray(data)) return data as T[];
-
-  if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown }).data)) {
-    return (data as { data: T[] }).data;
-  }
-
-  return [];
-}
+const getCoverUrl = (book?: Ebook | null) => normalizeFileUrl(book?.cover_image_url || book?.cover_image);
+const getRewardUrl = (reward?: Reward | null) => normalizeFileUrl(reward?.image_url || reward?.image);
+const formatNumber = (value: number) => value.toLocaleString('id-ID');
 
 export default function SiswaDashboard() {
   const router = useRouter();
@@ -114,12 +123,10 @@ export default function SiswaDashboard() {
 
   useEffect(() => {
     if (!mounted || loading || !isAuthenticated) return;
-
     if (!user || user.role !== 'siswa') {
       router.push('/login');
       return;
     }
-
     if (isCacheFresh) {
       setStats(dashboardCache!.stats);
       setEbooks(dashboardCache!.ebooks);
@@ -128,21 +135,18 @@ export default function SiswaDashboard() {
       setLoadingData(false);
       return;
     }
-
     if (fetchedRef.current) return;
-
     fetchedRef.current = true;
-    loadDashboardData();
+    void loadDashboardData();
   }, [mounted, loading, isAuthenticated, user, router]);
 
   const loadDashboardData = async () => {
     try {
       setLoadingData(true);
       setError(null);
-
       const [statsRes, ebooksRes, rewardsRes, quizzesRes] = await Promise.allSettled([
         api.dashboard.siswaStats(),
-        api.ebooks.list(),
+        api.dashboard.siswaBooks(),
         api.rewards.list(),
         api.getAllQuizzes(),
       ]);
@@ -156,14 +160,7 @@ export default function SiswaDashboard() {
       setEbooks(newEbooks);
       setRewards(newRewards);
       setQuizzes(newQuizzes);
-
-      dashboardCache = {
-        stats: newStats,
-        ebooks: newEbooks,
-        rewards: newRewards,
-        quizzes: newQuizzes,
-        cachedAt: Date.now(),
-      };
+      dashboardCache = { stats: newStats, ebooks: newEbooks, rewards: newRewards, quizzes: newQuizzes, cachedAt: Date.now() };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat dashboard siswa');
     } finally {
@@ -173,19 +170,12 @@ export default function SiswaDashboard() {
 
   const filteredBooks = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-
     if (!query) return ebooks;
-
-    return ebooks.filter((book) =>
-      `${book.title || ''} ${book.author || ''} ${book.category || ''}`.toLowerCase().includes(query)
-    );
+    return ebooks.filter((book) => `${book.title || ''} ${book.author || ''} ${book.category || ''}`.toLowerCase().includes(query));
   }, [ebooks, searchQuery]);
 
   const totalPoints = stats?.total_points ?? 0;
-  const continueBook = ebooks[0] || null;
-  const recommendedBooks = filteredBooks.slice(0, 4);
-  const visibleRewards = rewards.slice(0, 4);
-  const visibleQuizzes = quizzes.slice(0, 6);
+  const continueBook = ebooks[0] ?? null;
   const levelProgress = Math.min(100, Math.round((totalPoints / 500) * 100));
 
   const handleLogout = async () => {
@@ -204,111 +194,33 @@ export default function SiswaDashboard() {
     }
   };
 
-  if (!mounted || loading) return <DashboardLoading text="Memuat dashboard..." />;
+  if (!mounted || loading) return <FullLoading text="Memuat dashboard..." />;
   if (!isAuthenticated || !user || user.role !== 'siswa') return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="flex min-h-screen">
-        <aside className="sticky top-0 hidden h-screen w-80 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white px-8 py-7 lg:flex">
-          <BrandBlock />
+    <div className="min-h-screen overflow-x-hidden bg-[#fbfaf7] text-slate-950">
+      <div className="flex min-h-screen min-w-0">
+        <DesktopRail activeTab={activeTab} levelProgress={levelProgress} totalPoints={totalPoints} onChangeTab={setActiveTab} onLogout={handleLogout} />
 
-          <nav className="mt-10 space-y-3">
-            <SidebarButton active={activeTab === 'overview'} label="Overview" onClick={() => setActiveTab('overview')} />
-            <SidebarButton active={activeTab === 'ebooks'} label="E-Books" onClick={() => setActiveTab('ebooks')} />
-            <SidebarButton active={activeTab === 'quizzes'} label="Kuis" onClick={() => setActiveTab('quizzes')} />
-            <SidebarButton active={activeTab === 'rewards'} label="Rewards" onClick={() => setActiveTab('rewards')} />
+        <main className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
+          <Header userName={user.name} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-            <div className="my-6 border-t border-slate-200" />
-
-            <SidebarButton active={false} label="Profil" onClick={() => router.push('/dashboard/siswa/profile')} />
-          </nav>
-
-          <SidebarActivityCard onShowAll={() => setActiveTab('activity')} />
-
-          <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 font-black text-white">★</div>
-              <div>
-                <p className="font-black text-slate-900">Level 2</p>
-                <p className="text-xs font-semibold text-slate-500">Pembaca Aktif</p>
-              </div>
-            </div>
-
-            <div className="mb-3 h-2 rounded-full bg-emerald-100">
-              <div className="h-2 rounded-full bg-emerald-600" style={{ width: `${levelProgress}%` }} />
-            </div>
-
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-emerald-800">{totalPoints} / 500 poin</span>
-              <span className="text-emerald-700">Detail →</span>
-            </div>
-          </div>
-
-          <button onClick={handleLogout} className="mt-auto rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:bg-red-100">
-            Keluar
-          </button>
-        </aside>
-
-        <main className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur lg:px-8">
-            <div className="mx-auto flex min-h-20 max-w-7xl items-center gap-6">
-              <div className="flex shrink-0 items-center gap-3 lg:hidden">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-white">RP</div>
-                <div>
-                  <h1 className="text-lg font-black leading-none text-slate-950">READPOINT</h1>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p>
-                </div>
-              </div>
-
-              <div className="hidden flex-1 lg:block" />
-
-              <SearchInput value={searchQuery} onChange={setSearchQuery} desktop />
-
-              <div className="ml-auto hidden w-44 shrink-0 text-right sm:block">
-                <p className="truncate text-sm font-black leading-4 text-slate-900">{user.name}</p>
-                <p className="mt-1 text-xs font-semibold text-slate-500">Siswa</p>
-              </div>
-            </div>
-
-            <div className="space-y-3 pb-4 md:hidden">
-              <SearchInput value={searchQuery} onChange={setSearchQuery} />
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {(['overview', 'ebooks', 'quizzes', 'rewards', 'activity'] as TabType[]).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`shrink-0 rounded-full px-4 py-2 text-xs font-black capitalize ${activeTab === tab ? 'bg-emerald-600 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}
-                  >
-                    {tab === 'ebooks' ? 'E-Books' : tab === 'quizzes' ? 'Kuis' : tab === 'activity' ? 'Aktivitas' : tab}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </header>
-
-          <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 lg:px-8 lg:py-6">
-            {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</div>}
-
-            <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-              <StatCard title="Total Poin" value={totalPoints} helper="Poin tersedia" />
-              <StatCard title="Buku Dibaca" value={stats?.books_read ?? 0} helper="Selesai dibaca" />
-              <StatCard title="Halaman" value={(stats?.pages_read ?? 0).toLocaleString('id-ID')} helper="Total halaman" />
-              <StatCard title="Kuis" value={stats?.quizzes_taken ?? 0} helper="Sudah dikerjakan" />
-            </section>
+          <div className="mx-auto w-full max-w-[1440px] space-y-4 px-4 py-4 sm:space-y-5 sm:px-6 sm:py-6 lg:px-8">
+            {error && <AlertMessage>{error}</AlertMessage>}
+            <MobileStats stats={stats} totalPoints={totalPoints} />
+            <DesktopStats stats={stats} totalPoints={totalPoints} />
 
             {loadingData ? (
-              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-                <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-                <p className="text-sm font-bold text-slate-600">Memuat data...</p>
-              </div>
+              <Panel>
+                <FullLoading text="Memuat data..." inline />
+              </Panel>
             ) : (
               <>
                 {activeTab === 'overview' && (
-                  <OverviewContent
+                  <Overview
                     continueBook={continueBook}
-                    books={recommendedBooks}
-                    rewards={visibleRewards}
+                    books={filteredBooks}
+                    rewards={rewards.slice(0, 4)}
                     totalPoints={totalPoints}
                     onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)}
                     onRedeem={redeemReward}
@@ -317,106 +229,556 @@ export default function SiswaDashboard() {
                 )}
 
                 {activeTab === 'ebooks' && (
-                  <ContentPanel title="Daftar E-Books" action="Semua buku tersedia untuk dibaca siswa">
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {filteredBooks.map((book) => <BookCard key={book.id} book={book} onClick={() => router.push(`/dashboard/siswa/read/${book.id}`)} />)}
-                    </div>
-                  </ContentPanel>
+                  <Panel title="Daftar E-Books" subtitle="Semua buku tersedia untuk dibaca siswa">
+                    {filteredBooks.length ? (
+                      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+                        {filteredBooks.map((book) => (
+                          <BookCard key={book.id} book={book} onClick={() => router.push(`/dashboard/siswa/read/${book.id}`)} />
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState title="Buku tidak ditemukan" />
+                    )}
+                  </Panel>
                 )}
 
                 {activeTab === 'quizzes' && (
-                  <ContentPanel title="Daftar Kuis" action="Kerjakan kuis untuk menambah poin">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                      {visibleQuizzes.map((quiz) => <QuizCard key={quiz.id} quiz={quiz} onClick={() => router.push(`/dashboard/siswa/quiz/${quiz.ebook_id || quiz.id}`)} />)}
-                    </div>
-                  </ContentPanel>
+                  <Panel title="Daftar Kuis" subtitle="Kerjakan kuis untuk menambah poin">
+                    {quizzes.length ? (
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {quizzes.slice(0, 6).map((quiz) => (
+                          <QuizCard key={quiz.id} quiz={quiz} onClick={() => router.push(`/dashboard/siswa/quiz/${quiz.ebook_id || quiz.id}`)} />
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState title="Belum ada kuis" />
+                    )}
+                  </Panel>
                 )}
 
                 {activeTab === 'rewards' && (
-                  <ContentPanel title="Daftar Rewards" action="Tukar poin kamu dengan reward">
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {rewards.map((reward) => <RewardCard key={reward.id} reward={reward} totalPoints={totalPoints} onRedeem={() => redeemReward(reward.id)} />)}
-                    </div>
-                  </ContentPanel>
+                  <Panel title="Daftar Rewards" subtitle="Tukar poin kamu dengan reward">
+                    {rewards.length ? (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                        {rewards.map((reward) => (
+                          <RewardCard key={reward.id} reward={reward} totalPoints={totalPoints} onRedeem={() => redeemReward(reward.id)} />
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState title="Belum ada reward" />
+                    )}
+                  </Panel>
                 )}
 
                 {activeTab === 'activity' && (
-                  <ContentPanel title="Aktivitas Terbaru" action="Riwayat singkat aktivitas literasi">
+                  <Panel title="Aktivitas Terbaru" subtitle="Riwayat singkat aktivitas literasi">
                     <ActivityList />
-                  </ContentPanel>
+                  </Panel>
                 )}
               </>
             )}
           </div>
         </main>
       </div>
+
+      <MobileTabBar activeTab={activeTab} onChangeTab={setActiveTab} />
     </div>
   );
 }
 
-function DashboardLoading({ text }: { text: string }) {
-  return <div className="flex min-h-screen items-center justify-center bg-slate-50"><div className="text-center"><div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /><p className="text-sm font-semibold text-emerald-700">{text}</p></div></div>;
+function DesktopRail({
+  activeTab,
+  levelProgress,
+  totalPoints,
+  onChangeTab,
+  onLogout,
+}: {
+  activeTab: TabType;
+  levelProgress: number;
+  totalPoints: number;
+  onChangeTab: (tab: TabType) => void;
+  onLogout: () => void;
+}) {
+  return (
+    <aside className="sticky top-0 hidden h-screen w-[120px] shrink-0 flex-col items-center border-r border-[#eee7dc] bg-white px-4 py-5 lg:flex">
+      <button onClick={() => onChangeTab('overview')} className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-slate-950 text-sm font-black text-white shadow-lg">
+        RP
+      </button>
+      <nav className="mt-9 flex flex-1 flex-col items-center gap-3">
+        {tabs.map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            onClick={() => onChangeTab(key)}
+            className={`flex w-full flex-col items-center gap-1 rounded-[22px] px-2 py-3 text-[10px] font-black transition ${
+              activeTab === key ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:bg-[#f6f2ea] hover:text-slate-800'
+            }`}
+            title={label}
+          >
+            <Icon className="h-5 w-5" />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
+      <div className="mb-4 w-full rounded-[28px] border border-emerald-100 bg-emerald-50 p-3 text-center">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+          <Star className="h-4 w-4 fill-current" />
+        </div>
+        <p className="mt-2 text-[11px] font-black text-slate-900">Level 2</p>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-emerald-100">
+          <div className="h-full rounded-full bg-emerald-600" style={{ width: `${levelProgress}%` }} />
+        </div>
+        <p className="mt-2 text-[10px] font-black text-emerald-700">{formatNumber(totalPoints)} poin</p>
+      </div>
+      <button onClick={onLogout} className="flex h-12 w-12 items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-red-500 hover:bg-red-100" aria-label="Keluar">
+        <LogOut className="h-5 w-5" />
+      </button>
+    </aside>
+  );
 }
 
-function BrandBlock() {
-  return <div className="flex items-center gap-4"><div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-950 text-xs font-black text-white">RP</div><div className="min-w-0"><h1 className="text-2xl font-black leading-none text-slate-950">READPOINT</h1><p className="mt-2 text-xs font-black uppercase tracking-widest text-emerald-700">Dashboard Siswa</p></div></div>;
+function Header({ userName, searchQuery, onSearchChange }: { userName: string; searchQuery: string; onSearchChange: (value: string) => void }) {
+  return (
+    <header className="sticky top-0 z-40 border-b border-[#eee7dc] bg-[#fbfaf7]/95 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center justify-between gap-4 lg:hidden">
+          <div className="min-w-0">
+            <h1 className="text-xl font-black leading-none tracking-wide">READPOINT</h1>
+            <p className="mt-1 text-[10px] font-black text-emerald-700">Dashboard Siswa</p>
+          </div>
+          <Avatar name={userName} />
+        </div>
+        <div className="hidden lg:block">
+          <p className="text-sm font-black uppercase tracking-[0.28em] text-emerald-700">READPOINT</p>
+          <h1 className="mt-1 text-3xl font-black tracking-tight">Halo, {userName}</h1>
+        </div>
+        <div className="flex min-w-0 flex-1 items-center gap-3 lg:max-w-3xl">
+          <SearchInput value={searchQuery} onChange={onSearchChange} />
+          <button className="hidden h-12 shrink-0 rounded-2xl border border-[#eee7dc] bg-white px-4 text-sm font-black text-slate-700 shadow-sm sm:block">ID</button>
+          <button className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#eee7dc] bg-white text-slate-600 shadow-sm sm:flex">
+            <Bell className="h-5 w-5" />
+          </button>
+          <div className="hidden lg:block">
+            <Avatar name={userName} withName />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 }
 
-function SearchInput({ value, onChange, desktop = false }: { value: string; onChange: (value: string) => void; desktop?: boolean }) {
-  return <div className={`${desktop ? 'hidden h-12 w-full max-w-lg shrink-0 md:flex' : 'flex min-h-12 w-full'} items-center rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-sm`}><span className="mr-3 text-lg text-slate-400">⌕</span><input value={value} onChange={(e) => onChange(e.target.value)} placeholder={desktop ? 'Cari buku berdasarkan judul, penulis, atau kategori...' : 'Cari buku...'} className="w-full bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-400" /></div>;
+function SearchInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-[#eee7dc] bg-white px-4 py-3 shadow-sm">
+      <Search className="mr-3 h-4 w-4 shrink-0 text-slate-400" />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Cari buku, penulis, atau kategori..."
+        className="w-full min-w-0 bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-400"
+      />
+    </div>
+  );
 }
 
-function SidebarButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return <button onClick={onClick} className={`flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-left text-base font-black transition ${active ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}><span className={`h-4 w-4 rounded-full ${active ? 'bg-emerald-600' : 'bg-slate-200'}`} />{label}</button>;
+function Avatar({ name, withName = false }: { name: string; withName?: boolean }) {
+  const initial = name?.trim()?.charAt(0)?.toUpperCase() || 'S';
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-[#eee7dc] bg-white px-3 py-2 shadow-sm">
+      {withName && (
+        <div className="hidden min-w-0 text-right sm:block">
+          <p className="max-w-[160px] truncate text-sm font-black leading-4 text-slate-900">{name}</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">Siswa</p>
+        </div>
+      )}
+      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white">{initial}</div>
+    </div>
+  );
 }
 
-function StatCard({ title, value, helper }: { title: string; value: number | string; helper: string }) {
-  return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-sm font-bold text-slate-500">{title}</p><p className="mt-2 text-2xl font-black text-slate-950">{value}</p><p className="mt-1 text-xs font-bold text-emerald-600">{helper}</p></div>;
+function MobileStats({ stats, totalPoints }: { stats: SiswaStats | null; totalPoints: number }) {
+  const items: Array<{ title: string; value: string; helper: string; Icon: LucideIcon }> = [
+    { title: 'TOTAL POIN', value: formatNumber(totalPoints), helper: 'Siap ditukar', Icon: Sparkles },
+    { title: 'BUKU DIBACA', value: String(stats?.books_read ?? 0), helper: 'Selesai', Icon: BookOpen },
+    { title: 'HALAMAN', value: formatNumber(stats?.pages_read ?? 0), helper: 'Total halaman', Icon: Clock3 },
+    { title: 'KUIS', value: String(stats?.quizzes_taken ?? 0), helper: 'Dikerjakan', Icon: CheckCircle2 },
+  ];
+
+  return (
+    <section className="lg:hidden">
+      <div className="mb-3">
+        <h2 className="text-lg font-black tracking-tight">Ringkasan Literasi</h2>
+        <p className="text-xs font-semibold text-slate-500">Pantau poin dan progres membaca kamu</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {items.map(({ title, value, helper, Icon }) => (
+          <div key={title} className="min-w-0 rounded-[22px] border border-[#eee7dc] bg-white p-3 shadow-[0_12px_28px_rgba(45,34,18,0.05)]">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-[10px] font-black uppercase tracking-wider text-slate-400">{title}</p>
+                <p className="mt-1 truncate text-xl font-black text-slate-950">{value}</p>
+              </div>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-[#f6f2ea] text-emerald-700">
+                <Icon className="h-4 w-4" />
+              </div>
+            </div>
+            <p className="mt-2 truncate text-[11px] font-black text-emerald-700">{helper}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
-function SidebarActivityCard({ onShowAll }: { onShowAll: () => void }) {
-  const activities = [['Membaca 20 halaman', 'Si Pangeran Kecil', '+20'], ['Menyelesaikan kuis', 'Perahu Kertas', '+50'], ['Bonus login harian', 'Hari ini', '+15']];
-  return <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><h2 className="text-base font-black text-slate-950">Aktivitas Terbaru</h2><button onClick={onShowAll} className="text-[11px] font-black text-emerald-700 hover:text-emerald-800">Lihat</button></div><div className="mt-4 space-y-4">{activities.map(([title, subtitle, point]) => <div key={title} className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-black text-slate-900">{title}</p><p className="mt-1 truncate text-xs font-semibold text-slate-500">{subtitle}</p></div><span className="shrink-0 text-xs font-black text-emerald-700">{point}</span></div>)}</div></section>;
+function DesktopStats({ stats, totalPoints }: { stats: SiswaStats | null; totalPoints: number }) {
+  return (
+    <section className="hidden grid-cols-4 gap-4 lg:grid">
+      <StatCard title="Total Poin" value={formatNumber(totalPoints)} helper="Siap ditukar" Icon={Sparkles} />
+      <StatCard title="Buku Dibaca" value={stats?.books_read ?? 0} helper="Selesai dibaca" Icon={BookOpen} />
+      <StatCard title="Halaman" value={formatNumber(stats?.pages_read ?? 0)} helper="Total halaman" Icon={Clock3} />
+      <StatCard title="Kuis" value={stats?.quizzes_taken ?? 0} helper="Sudah dikerjakan" Icon={CheckCircle2} />
+    </section>
+  );
 }
 
-function OverviewContent({ continueBook, books, rewards, totalPoints, onRead, onRedeem, setActiveTab }: { continueBook: Ebook | null; books: Ebook[]; rewards: Reward[]; totalPoints: number; onRead: (id: number) => void; onRedeem: (id: number) => void; setActiveTab: (tab: TabType) => void }) {
-  return <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]"><div className="min-w-0"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Lanjutkan Membaca" />{continueBook ? <div className="mt-5 flex gap-4"><div className="h-44 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-200">{normalizeCover(continueBook) ? <img src={normalizeCover(continueBook)} alt={continueBook.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-3xl">📕</div>}</div><div className="min-w-0 flex-1"><h3 className="line-clamp-2 text-lg font-black text-slate-950">{continueBook.title}</h3><p className="mt-1 text-sm font-medium text-slate-500">{continueBook.author}</p><p className="mt-8 text-xs font-semibold text-slate-500">Halaman 68 dari {continueBook.pages}</p><div className="mt-3 h-2 rounded-full bg-slate-100"><div className="h-2 w-[57%] rounded-full bg-emerald-600" /></div><button onClick={() => onRead(continueBook.id)} className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-black text-white hover:bg-emerald-700">Lanjutkan</button></div></div> : <p className="mt-5 text-sm font-semibold text-slate-500">Belum ada buku tersedia.</p>}</section></div><div className="min-w-0 space-y-6"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Rekomendasi Buku" action="Lihat semua →" onAction={() => setActiveTab('ebooks')} /><div className="mt-5 grid grid-cols-2 gap-5 lg:grid-cols-4">{books.map((book) => <BookMiniCard key={book.id} book={book} onClick={() => onRead(book.id)} />)}</div></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title="Reward Tersedia" action="Lihat semua →" onAction={() => setActiveTab('rewards')} /><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{rewards.map((reward) => <RewardMiniCard key={reward.id} reward={reward} disabled={totalPoints < reward.points_required || reward.stock <= 0} onRedeem={() => onRedeem(reward.id)} />)}</div></section></div></div>;
+function StatCard({ title, value, helper, Icon }: { title: string; value: number | string; helper: string; Icon: LucideIcon }) {
+  return (
+    <div className="rounded-[24px] border border-[#eee7dc] bg-white p-5 shadow-[0_14px_35px_rgba(45,34,18,0.05)]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-black uppercase tracking-wider text-slate-400">{title}</p>
+          <p className="mt-2 truncate text-3xl font-black text-slate-950">{value}</p>
+        </div>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f6f2ea] text-emerald-700">
+          <Icon className="h-5 w-5" />
+        </div>
+      </div>
+      <p className="mt-2 text-xs font-bold text-emerald-700">{helper}</p>
+    </div>
+  );
 }
 
-function ContentPanel({ title, action, children }: { title: string; action?: string; children: React.ReactNode }) {
-  return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><SectionHeader title={title} action={action} /><div className="mt-5">{children}</div></section>;
+function Overview({
+  continueBook,
+  books,
+  rewards,
+  totalPoints,
+  onRead,
+  onRedeem,
+  setActiveTab,
+}: {
+  continueBook: Ebook | null;
+  books: Ebook[];
+  rewards: Reward[];
+  totalPoints: number;
+  onRead: (id: number) => void;
+  onRedeem: (id: number) => void;
+  setActiveTab: (tab: TabType) => void;
+}) {
+  const latest = books.slice(0, 8);
+  const recommended = books.slice(1, 9).length ? books.slice(1, 9) : latest;
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0 space-y-4 sm:space-y-5">
+        <ContinueCard book={continueBook} onRead={onRead} />
+        <Shelf title="Terbaru" books={latest} onRead={onRead} onViewAll={() => setActiveTab('ebooks')} />
+        <div className="hidden lg:block">
+          <Shelf title="Direkomendasikan" books={recommended} onRead={onRead} onViewAll={() => setActiveTab('ebooks')} />
+        </div>
+      </div>
+
+      <aside className="hidden min-w-0 space-y-5 xl:block">
+        <Panel title="Reward" action="Lihat semua →" onAction={() => setActiveTab('rewards')} compact>
+          {rewards.length ? (
+            <div className="space-y-3">
+              {rewards.map((reward) => (
+                <RewardRow key={reward.id} reward={reward} disabled={totalPoints < reward.points_required || reward.stock <= 0} onRedeem={() => onRedeem(reward.id)} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="Belum ada reward" />
+          )}
+        </Panel>
+        <Panel title="Aktivitas" action="Lihat semua →" onAction={() => setActiveTab('activity')} compact>
+          <ActivityList />
+        </Panel>
+      </aside>
+    </div>
+  );
 }
 
-function SectionHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
-  return <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-black text-slate-950">{title}</h2>{action && <button onClick={onAction} className="text-xs font-black text-emerald-700 hover:text-emerald-800">{action}</button>}</div>;
+function ContinueCard({ book, onRead }: { book: Ebook | null; onRead: (id: number) => void }) {
+  if (!book) {
+    return (
+      <Panel>
+        <EmptyState title="Belum ada buku" />
+      </Panel>
+    );
+  }
+
+  const cover = getCoverUrl(book);
+  return (
+    <section className="overflow-hidden rounded-[28px] border border-[#eee7dc] bg-white shadow-[0_18px_45px_rgba(45,34,18,0.06)] sm:rounded-[32px]">
+      <div className="grid grid-cols-[90px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5 sm:p-5 lg:grid-cols-[210px_minmax(0,1fr)] lg:p-6">
+        <div className="w-full overflow-hidden rounded-[18px] bg-[#f0eadf] shadow-lg sm:rounded-[24px] lg:rounded-[26px]">
+          <SafeImage src={cover} alt={book.title} className="aspect-[3/4] h-full w-full object-cover" fallback={<BookPlaceholder />} />
+        </div>
+        <div className="flex min-w-0 flex-col justify-between">
+          <div className="min-w-0">
+            <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 sm:text-xs">Lanjutkan Membaca</span>
+            <h2 className="mt-2 line-clamp-2 text-lg font-black tracking-tight text-slate-950 sm:mt-3 sm:text-2xl lg:text-4xl">{book.title}</h2>
+            <p className="mt-1 truncate text-xs font-semibold text-slate-500 sm:text-sm lg:text-base">{book.author}</p>
+            <div className="mt-3 hidden grid-cols-3 gap-3 sm:grid">
+              <Info label="Kategori" value={book.category || 'Umum'} />
+              <Info label="Halaman" value={`${book.pages || 0}`} />
+              <Info label="Poin/hal" value={`${book.poin_per_halaman || 0}`} />
+            </div>
+          </div>
+          <div className="mt-3 min-w-0 sm:mt-5">
+            <div className="flex items-center justify-between text-[10px] font-black text-slate-500 sm:text-xs">
+              <span>Progress baca</span>
+              <span>57%</span>
+            </div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f0eadf] sm:h-2.5">
+              <div className="h-full w-[57%] rounded-full bg-emerald-600" />
+            </div>
+            <button onClick={() => onRead(book.id)} className="mt-3 w-full rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow-lg hover:bg-emerald-700 sm:mt-4 sm:w-auto sm:px-6 sm:py-3 sm:text-sm">
+              Baca Sekarang
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
-function BookMiniCard({ book, onClick }: { book: Ebook; onClick: () => void }) {
-  const cover = normalizeCover(book);
-  return <div className="min-w-0"><button onClick={onClick} className="block w-full text-left"><div className="aspect-[3/4] overflow-hidden rounded-xl bg-slate-200">{cover ? <img src={cover} alt={book.title} className="h-full w-full object-cover transition hover:scale-105" /> : <div className="flex h-full items-center justify-center text-3xl">📕</div>}</div><h3 className="mt-3 line-clamp-2 text-base font-black text-slate-950">{book.title}</h3><p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-500">{book.author}</p></button><button onClick={onClick} className="mt-3 w-full rounded-lg border border-slate-200 py-2 text-xs font-black text-slate-600 hover:bg-slate-50">Lihat Detail</button></div>;
+function Shelf({ title, books, onRead, onViewAll }: { title: string; books: Ebook[]; onRead: (id: number) => void; onViewAll: () => void }) {
+  return (
+    <Panel title={title} subtitle="Koleksi buku yang bisa langsung kamu baca" action="Lihat semua →" onAction={onViewAll}>
+      {books.length ? (
+        <div className="flex snap-x gap-3 overflow-x-auto pb-2 sm:gap-4 sm:pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {books.map((book) => (
+            <BookCard key={`${title}-${book.id}`} book={book} onClick={() => onRead(book.id)} shelf />
+          ))}
+        </div>
+      ) : (
+        <EmptyState title="Belum ada buku" />
+      )}
+    </Panel>
+  );
 }
 
-function BookCard({ book, onClick }: { book: Ebook; onClick: () => void }) {
-  const cover = normalizeCover(book);
-  return <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="aspect-[3/4] bg-slate-200">{cover ? <img src={cover} alt={book.title} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-4xl">📕</div>}</div><div className="p-4"><h3 className="line-clamp-2 font-black text-slate-950">{book.title}</h3><p className="mt-1 text-sm font-semibold text-slate-500">{book.author}</p><p className="mt-3 text-xs font-bold text-slate-500">{book.pages} halaman • {book.poin_per_halaman} poin/hal</p><button onClick={onClick} className="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-sm font-black text-white hover:bg-emerald-700">Baca Sekarang</button></div></div>;
+function Panel({
+  title,
+  subtitle,
+  action,
+  onAction,
+  compact = false,
+  children,
+}: {
+  title?: string;
+  subtitle?: string;
+  action?: string;
+  onAction?: () => void;
+  compact?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`min-w-0 rounded-[24px] border border-[#eee7dc] bg-white ${compact ? 'p-4 sm:p-5' : 'p-4 sm:p-6'} shadow-[0_18px_45px_rgba(45,34,18,0.06)] sm:rounded-[28px]`}>
+      {title && (
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-black tracking-tight sm:text-2xl">{title}</h2>
+            {subtitle && <p className="mt-1 line-clamp-2 text-xs font-semibold text-slate-500 sm:text-sm">{subtitle}</p>}
+          </div>
+          {action && (
+            <button onClick={onAction} className="shrink-0 rounded-full bg-emerald-50 px-3 py-2 text-[11px] font-black text-emerald-700 hover:bg-emerald-100 sm:text-xs">
+              {action}
+            </button>
+          )}
+        </div>
+      )}
+      <div className={title ? 'mt-4 sm:mt-5' : ''}>{children}</div>
+    </section>
+  );
 }
 
-function RewardMiniCard({ reward, disabled, onRedeem }: { reward: Reward; disabled: boolean; onRedeem: () => void }) {
-  const image = normalizeReward(reward);
-  return <div className="rounded-xl border border-slate-200 bg-white p-4 text-center"><div className="mx-auto mb-3 h-20 w-24 overflow-hidden rounded-lg bg-slate-100">{image ? <img src={image} alt={reward.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-2xl">🎁</div>}</div><h3 className="line-clamp-2 text-sm font-black text-slate-950">{reward.name}</h3><p className="mt-2 text-lg font-black text-emerald-700">{reward.points_required} poin</p><button onClick={onRedeem} disabled={disabled} className="mt-3 w-full rounded-lg bg-emerald-50 py-2 text-xs font-black text-emerald-700 disabled:bg-slate-100 disabled:text-slate-400">Tukar</button></div>;
+function BookCard({ book, onClick, shelf = false }: { book: Ebook; onClick: () => void; shelf?: boolean }) {
+  const cover = getCoverUrl(book);
+  return (
+    <article className={`${shelf ? 'w-[96px] shrink-0 snap-start sm:w-[138px] md:w-[160px] xl:w-[180px]' : 'min-w-0'} group`}>
+      <button onClick={onClick} className="block w-full text-left">
+        <div className="overflow-hidden rounded-[18px] bg-[#f0eadf] shadow-[0_12px_28px_rgba(45,34,18,0.10)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl sm:rounded-[24px]">
+          <SafeImage src={cover} alt={book.title} className="aspect-[3/4] h-full w-full object-cover transition duration-300 group-hover:scale-105" fallback={<BookPlaceholder />} />
+        </div>
+        <h3 className="mt-2 line-clamp-2 text-xs font-black leading-snug text-slate-950 sm:mt-3 sm:text-base">{book.title}</h3>
+        <p className="mt-1 line-clamp-1 text-[10px] font-semibold text-slate-500 sm:text-xs">{book.author || 'Penulis tidak tersedia'}</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <span className="rounded-full bg-[#f6f2ea] px-2 py-1 text-[9px] font-black text-slate-500 sm:text-[10px]">{book.pages || 0} hal</span>
+          <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-black text-emerald-700 sm:text-[10px]">+{book.poin_per_halaman || 0}/hal</span>
+        </div>
+      </button>
+    </article>
+  );
+}
+
+function SafeImage({ src, alt, className, fallback }: { src?: string | null; alt: string; className: string; fallback: ReactNode }) {
+  const [failed, setFailed] = useState(!src);
+
+  useEffect(() => {
+    setFailed(!src);
+  }, [src]);
+
+  if (!src || failed) return <>{fallback}</>;
+  return <img src={src} alt={alt} className={className} onError={() => setFailed(true)} />;
+}
+
+function BookPlaceholder() {
+  return (
+    <div className="flex aspect-[3/4] w-full flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-[#f0eadf] text-3xl sm:text-4xl">
+      <BookOpen className="h-8 w-8 text-emerald-700 sm:h-10 sm:w-10" />
+      <span className="mt-2 text-[9px] font-black uppercase tracking-widest text-emerald-700 sm:text-xs">READPOINT</span>
+    </div>
+  );
+}
+
+function RewardRow({ reward, disabled, onRedeem }: { reward: Reward; disabled: boolean; onRedeem: () => void }) {
+  const image = getRewardUrl(reward);
+  return (
+    <div className="flex gap-3 rounded-2xl border border-[#eee7dc] bg-[#fbfaf7] p-3">
+      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-white">
+        <SafeImage src={image} alt={reward.name} className="h-full w-full object-cover" fallback={<RewardPlaceholder />} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <h3 className="line-clamp-1 text-sm font-black">{reward.name}</h3>
+        <p className="mt-1 text-xs font-bold text-emerald-700">{formatNumber(reward.points_required)} poin</p>
+        <button onClick={onRedeem} disabled={disabled} className="mt-2 rounded-xl bg-emerald-600 px-3 py-1.5 text-[11px] font-black text-white disabled:bg-slate-200 disabled:text-slate-400">
+          {disabled ? 'Terkunci' : 'Tukar'}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function RewardCard({ reward, totalPoints, onRedeem }: { reward: Reward; totalPoints: number; onRedeem: () => void }) {
-  const image = normalizeReward(reward);
+  const image = getRewardUrl(reward);
   const disabled = totalPoints < reward.points_required || reward.stock <= 0;
-  return <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="h-44 bg-slate-100">{image ? <img src={image} alt={reward.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-4xl">🎁</div>}</div><div className="p-4"><h3 className="font-black text-slate-950">{reward.name}</h3><p className="mt-2 line-clamp-2 text-sm font-medium text-slate-500">{reward.description}</p><div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm font-black"><span>{reward.points_required} poin</span><span>{reward.stock} stok</span></div><button onClick={onRedeem} disabled={disabled} className="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400">{disabled ? 'Belum Bisa Ditukar' : 'Tukar Reward'}</button></div></div>;
+  return (
+    <div className="overflow-hidden rounded-[28px] border border-[#eee7dc] bg-white shadow-md">
+      <div className="h-44 bg-[#f0eadf]">
+        <SafeImage src={image} alt={reward.name} className="h-full w-full object-cover" fallback={<RewardPlaceholder large />} />
+      </div>
+      <div className="p-5">
+        <h3 className="font-black">{reward.name}</h3>
+        <p className="mt-2 line-clamp-2 text-sm font-medium text-slate-500">{reward.description}</p>
+        <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#fbfaf7] p-3 text-sm font-black">
+          <span>{formatNumber(reward.points_required)} poin</span>
+          <span>{reward.stock} stok</span>
+        </div>
+        <button onClick={onRedeem} disabled={disabled} className="mt-4 w-full rounded-2xl bg-emerald-600 py-3 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400">
+          {disabled ? 'Belum Bisa Ditukar' : 'Tukar Reward'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RewardPlaceholder({ large = false }: { large?: boolean }) {
+  return (
+    <div className={`flex h-full w-full items-center justify-center bg-emerald-50 text-emerald-700 ${large ? 'min-h-44' : ''}`}>
+      <Gift className={large ? 'h-10 w-10' : 'h-6 w-6'} />
+    </div>
+  );
 }
 
 function QuizCard({ quiz, onClick }: { quiz: Quiz; onClick: () => void }) {
-  return <button onClick={onClick} className="rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:bg-slate-50"><p className="text-sm font-bold text-emerald-700">Kuis Buku</p><h3 className="mt-2 text-lg font-black text-slate-950">{quiz.ebook_title || quiz.title || 'Kuis'}</h3><p className="mt-2 text-sm font-semibold text-slate-500">{quiz.total_questions || 5} soal • {quiz.points_reward || 50} poin</p><span className="mt-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Mulai Kuis</span></button>;
+  return (
+    <button onClick={onClick} className="rounded-[26px] border border-[#eee7dc] bg-white p-5 text-left shadow-md transition hover:-translate-y-1 hover:bg-[#fbfaf7]">
+      <p className="text-sm font-black text-emerald-700">Kuis Buku</p>
+      <h3 className="mt-2 line-clamp-2 text-lg font-black">{quiz.ebook_title || quiz.title || 'Kuis'}</h3>
+      <p className="mt-2 text-sm font-semibold text-slate-500">{quiz.total_questions || 5} soal • {quiz.points_reward || 50} poin</p>
+      <span className="mt-5 inline-flex rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">Mulai Kuis</span>
+    </button>
+  );
 }
 
 function ActivityList() {
-  const activities = [['Membaca 20 halaman', 'Si Pangeran Kecil', '+20 poin'], ['Menyelesaikan kuis', 'Perahu Kertas', '+50 poin'], ['Bonus login harian', 'Hari ini', '+15 poin'], ['Membaca 15 halaman', 'Harry Potter', '+15 poin']];
-  return <div className="mt-5 space-y-4">{activities.map(([title, subtitle, point]) => <div key={title} className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><div className="h-9 w-9 rounded-lg bg-emerald-50" /><div><p className="text-sm font-black text-slate-900">{title}</p><p className="text-xs font-semibold text-slate-500">{subtitle}</p></div></div><p className="text-xs font-black text-emerald-700">{point}</p></div>)}</div>;
+  const activities = [
+    ['Membaca 20 halaman', 'Si Pangeran Kecil', '+20 poin'],
+    ['Menyelesaikan kuis', 'Perahu Kertas', '+50 poin'],
+    ['Bonus login harian', 'Hari ini', '+15 poin'],
+    ['Membaca 15 halaman', 'Harry Potter', '+15 poin'],
+  ];
+  return (
+    <div className="space-y-3 sm:space-y-4">
+      {activities.map(([title, subtitle, point]) => (
+        <div key={title} className="flex items-center justify-between gap-3 rounded-2xl bg-[#fbfaf7] p-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="h-10 w-10 shrink-0 rounded-2xl bg-emerald-50" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-black">{title}</p>
+              <p className="truncate text-xs font-semibold text-slate-500">{subtitle}</p>
+            </div>
+          </div>
+          <p className="shrink-0 text-xs font-black text-emerald-700">{point}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-2xl bg-[#fbfaf7] p-3">
+      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">{label}</p>
+      <p className="mt-1 truncate text-sm font-black">{value}</p>
+    </div>
+  );
+}
+
+function EmptyState({ title }: { title: string }) {
+  return (
+    <div className="rounded-3xl border border-dashed border-[#e5dccf] bg-[#fbfaf7] p-6 text-center sm:p-8">
+      <BookOpen className="mx-auto h-8 w-8 text-emerald-700" />
+      <h3 className="mt-3 text-base font-black">{title}</h3>
+      <p className="mt-1 text-sm font-semibold text-slate-500">Data akan muncul setelah tersedia.</p>
+    </div>
+  );
+}
+
+function AlertMessage({ children }: { children: ReactNode }) {
+  return <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700 shadow-sm">{children}</div>;
+}
+
+function MobileTabBar({ activeTab, onChangeTab }: { activeTab: TabType; onChangeTab: (tab: TabType) => void }) {
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-[999] border-t border-[#eee7dc] bg-white px-3 pb-[calc(0.55rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_40px_rgba(45,34,18,0.12)] lg:hidden">
+      <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+        {tabs.map(({ key, label, Icon }) => {
+          const active = activeTab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => onChangeTab(key)}
+              className={`flex min-h-[56px] flex-col items-center justify-center rounded-2xl text-[10px] font-black transition ${active ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500 hover:bg-[#f6f2ea]'}`}
+            >
+              <Icon className="h-4 w-4" />
+              <span className="mt-1">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+function FullLoading({ text, inline = false }: { text: string; inline?: boolean }) {
+  return (
+    <div className={`flex items-center justify-center ${inline ? 'py-12' : 'min-h-screen bg-[#fbfaf7]'}`}>
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+        <p className="text-sm font-semibold text-emerald-700">{text}</p>
+      </div>
+    </div>
+  );
 }

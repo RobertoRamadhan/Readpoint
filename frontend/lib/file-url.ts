@@ -1,7 +1,7 @@
-const DEFAULT_BACKEND_URL = 'https://readpoint-backend-main-odr7ck.laravel.cloud';
+const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export function getBackendBaseUrl() {
-  return (process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_BACKEND_URL}/api`).replace(/\/api\/?$/, '');
+  return DEFAULT_BACKEND_URL.replace(/\/api\/?$/, '');
 }
 
 export function normalizeFileUrl(value?: string | null) {
