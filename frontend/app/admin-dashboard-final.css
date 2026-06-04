@@ -1,0 +1,194 @@
+/* READPOINT Admin Dashboard Final Polish
+   Scope: Dashboard admin, manajemen e-book, reward, user. Laporan dan pengaturan tidak diubah. */
+
+@media (min-width: 768px) {
+  .readpoint-admin-sidebar {
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    width: 288px !important;
+    flex-shrink: 0 !important;
+    background: linear-gradient(180deg, #0b1120 0%, #111827 60%, #020617 100%) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
+    box-shadow: 18px 0 44px rgba(15, 23, 42, 0.10) !important;
+  }
+
+  .readpoint-admin-brand {
+    padding: 1.25rem !important;
+  }
+
+  .readpoint-admin-nav {
+    padding: 1rem !important;
+  }
+
+  .readpoint-admin-menu-item,
+  .readpoint-admin-submenu-item {
+    min-height: 46px !important;
+  }
+}
+
+/* Page base admin */
+div:has(> .readpoint-admin-sidebar) {
+  min-height: 100vh !important;
+  background: #f8fafc !important;
+}
+
+.readpoint-admin-sidebar + div {
+  background: #f8fafc !important;
+}
+
+.readpoint-admin-sidebar + div > div {
+  padding: 1.5rem !important;
+}
+
+@media (min-width: 1024px) {
+  .readpoint-admin-sidebar + div > div {
+    padding: 2rem !important;
+  }
+}
+
+/* Overview admin polish */
+.readpoint-admin-sidebar + div h1,
+.readpoint-admin-sidebar + div h2,
+.readpoint-admin-sidebar + div h3 {
+  letter-spacing: -0.02em;
+}
+
+/* Ubah card lama yang terlalu ramai jadi bersih */
+.readpoint-admin-sidebar + div [class*="bg-gradient-to-br"],
+.readpoint-admin-sidebar + div [class*="bg-gradient-to-r"] {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06) !important;
+}
+
+.readpoint-admin-sidebar + div [class*="border-2"] {
+  border-width: 1px !important;
+}
+
+.readpoint-admin-sidebar + div [class*="rounded-2xl"] {
+  border-radius: 1.35rem !important;
+}
+
+.readpoint-admin-sidebar + div [class*="shadow-lg"] {
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Overview spacing */
+.readpoint-admin-sidebar + div .p-8 {
+  padding: 0 !important;
+}
+
+.readpoint-admin-sidebar + div .space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.25rem !important;
+}
+
+/* Main statistic grid lebih profesional */
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+}
+
+@media (min-width: 1280px) {
+  .readpoint-admin-sidebar + div .grid.lg\:grid-cols-3 {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
+
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-3 > div {
+  min-height: 138px !important;
+  padding: 1.25rem !important;
+}
+
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-3 p[class*="text-4xl"] {
+  font-size: 2.2rem !important;
+  line-height: 1 !important;
+  color: #0f172a !important;
+}
+
+/* Activity today */
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-4 {
+  gap: 1rem !important;
+}
+
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-4 > div,
+.readpoint-admin-sidebar + div .grid.md\:grid-cols-2 > div {
+  border-radius: 1rem !important;
+}
+
+/* Quick actions */
+.readpoint-admin-sidebar + div button {
+  transition: all .2s ease !important;
+}
+
+.readpoint-admin-sidebar + div button:hover {
+  transform: translateY(-1px);
+}
+
+/* Manajemen card/list */
+.readpoint-admin-sidebar + div input,
+.readpoint-admin-sidebar + div select,
+.readpoint-admin-sidebar + div textarea {
+  border-radius: 0.9rem !important;
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+.readpoint-admin-sidebar + div input:focus,
+.readpoint-admin-sidebar + div select:focus,
+.readpoint-admin-sidebar + div textarea:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, .12) !important;
+  border-color: #10b981 !important;
+}
+
+/* E-book cards */
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-3 > div.bg-gray-50,
+.readpoint-admin-sidebar + div .grid.lg\:grid-cols-3 > div[class*="bg-gray-50"] {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 1.2rem !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+}
+
+.readpoint-admin-sidebar + div img {
+  background: #f1f5f9 !important;
+}
+
+/* Tables inside management */
+.readpoint-admin-sidebar + div table {
+  border-collapse: separate !important;
+  border-spacing: 0 0.65rem !important;
+}
+
+.readpoint-admin-sidebar + div thead tr {
+  background: #f1f5f9 !important;
+}
+
+.readpoint-admin-sidebar + div tbody tr {
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05) !important;
+}
+
+.readpoint-admin-sidebar + div tbody td:first-child {
+  border-top-left-radius: 1rem !important;
+  border-bottom-left-radius: 1rem !important;
+}
+
+.readpoint-admin-sidebar + div tbody td:last-child {
+  border-top-right-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+}
+
+/* Mobile admin sidebar */
+@media (max-width: 767px) {
+  .readpoint-admin-sidebar {
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+  }
+
+  .readpoint-admin-sidebar + div > div {
+    padding: 1rem !important;
+  }
+}
