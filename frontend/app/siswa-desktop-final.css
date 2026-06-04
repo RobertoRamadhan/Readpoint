@@ -28,6 +28,11 @@
     border-radius: 24px !important;
   }
 
+  /* Hapus tombol logout di sidebar desktop karena sudah ada di halaman Akun */
+  aside[class*="w-[120px]"] > button:last-child {
+    display: none !important;
+  }
+
   aside[class*="w-[120px]"] nav {
     width: 100% !important;
     gap: 0.65rem !important;
