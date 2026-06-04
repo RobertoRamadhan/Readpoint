@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./readpoint-theme.css";
 import "./guru-dashboard-clean.css";
+import "./guru-dashboard-final.css";
 import "./admin-dashboard-clean.css";
 import "./admin-dashboard-final.css";
 import "./admin-report-settings-final.css";
@@ -11,6 +12,7 @@ import "./siswa-desktop-final.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import AdminTabFromQuery from "@/components/AdminTabFromQuery";
+import GuruDashboardEnhancer from "@/components/GuruDashboardEnhancer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +40,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             <AdminTabFromQuery />
+            <GuruDashboardEnhancer />
             {children}
           </Providers>
         </ErrorBoundary>
