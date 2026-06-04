@@ -1,0 +1,204 @@
+/* Final desktop polish for READPOINT siswa. Mobile is not changed here. */
+@media (min-width: 1024px) {
+  html,
+  body {
+    min-height: 100% !important;
+    background: #fbfaf7 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Sidebar full tinggi layar dan tetap di kiri saat scroll */
+  aside[class*="w-[120px]"] {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: 132px !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    z-index: 70 !important;
+    display: flex !important;
+    border-right: 1px solid #eee7dc !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfaf7 100%) !important;
+    box-shadow: 10px 0 32px rgba(45, 34, 18, 0.05) !important;
+  }
+
+  aside[class*="w-[120px]"] > button:first-child {
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 24px !important;
+  }
+
+  aside[class*="w-[120px]"] nav {
+    width: 100% !important;
+    gap: 0.65rem !important;
+  }
+
+  aside[class*="w-[120px]"] nav button {
+    min-height: 66px !important;
+    width: 100% !important;
+    border-radius: 1.35rem !important;
+  }
+
+  /* Konten desktop digeser agar tidak ketimpa sidebar fixed */
+  main[class*="flex-1"] {
+    margin-left: 132px !important;
+    width: calc(100vw - 132px) !important;
+    max-width: calc(100vw - 132px) !important;
+    min-height: 100vh !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Header desktop: judul kiri, search tengah, avatar kanan */
+  main[class*="flex-1"] > header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    min-height: 96px !important;
+    width: 100% !important;
+    padding: 0 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    border-bottom: 1px solid #eee7dc !important;
+    background: rgba(251, 250, 247, 0.97) !important;
+    box-shadow: 0 12px 34px rgba(45, 34, 18, 0.045) !important;
+  }
+
+  main[class*="flex-1"] > header > div {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 250px minmax(420px, 1fr) 58px !important;
+    align-items: center !important;
+    gap: 1.25rem !important;
+  }
+
+  main[class*="flex-1"] > header > div > div:first-child {
+    display: contents !important;
+  }
+
+  main[class*="flex-1"] > header > div > div:first-child > div:first-child {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+  }
+
+  main[class*="flex-1"] > header > div > div:first-child > div:last-child {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    justify-self: end !important;
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 21px !important;
+  }
+
+  main[class*="flex-1"] > header > div > div:nth-child(2) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  main[class*="flex-1"] > header h1 {
+    font-size: 2.35rem !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  main[class*="flex-1"] > header p {
+    margin-top: 0.45rem !important;
+    font-size: 0.98rem !important;
+  }
+
+  /* Kontainer isi dibuat penuh dan rapi */
+  main[class*="flex-1"] > div[class*="max-w-[1440px]"] {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 2rem 2rem 2.5rem !important;
+    margin: 0 !important;
+  }
+
+  /* Statistik 4 kolom, card tidak terlalu tinggi */
+  main section:first-of-type div[class*="xl:grid-cols-4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 1.25rem !important;
+  }
+
+  main section:first-of-type div[class*="xl:grid-cols-4"] > div {
+    min-height: 118px !important;
+    padding: 1.2rem !important;
+    border-radius: 1.6rem !important;
+  }
+
+  /* Overview: sisi kanan diisi reward + aktivitas, kiri tetap besar */
+  div[class*="xl:grid-cols-[minmax(0,1fr)_360px]"] {
+    grid-template-columns: minmax(0, 1fr) 410px !important;
+    gap: 1.5rem !important;
+    align-items: start !important;
+  }
+
+  div[class*="xl:grid-cols-[minmax(0,1fr)_360px]"] > aside {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+  }
+
+  /* Lanjutkan membaca lebih padat supaya tidak banyak ruang kosong */
+  section[class*="rounded-[28px]"] > div[class*="lg:grid-cols-[210px_minmax(0,1fr)]"] {
+    grid-template-columns: 250px minmax(0, 1fr) !important;
+    gap: 1.6rem !important;
+    padding: 1.35rem !important;
+    align-items: stretch !important;
+  }
+
+  section[class*="rounded-[28px]"] > div[class*="lg:grid-cols-[210px_minmax(0,1fr)]"] > div:first-child,
+  section[class*="rounded-[28px]"] > div[class*="lg:grid-cols-[210px_minmax(0,1fr)]"] img {
+    min-height: 280px !important;
+    height: 280px !important;
+  }
+
+  section[class*="rounded-[28px]"] h2 {
+    line-height: 1.08 !important;
+  }
+
+  /* Shelf terbaru dibuat grid penuh, bukan horizontal kosong */
+  div[class*="snap-x"] {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+    overflow: visible !important;
+  }
+
+  div[class*="snap-x"] article {
+    width: 100% !important;
+  }
+
+  /* Grid buku desktop lebih mengisi layar */
+  div[class*="2xl:grid-cols-5"] {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 1.25rem !important;
+  }
+
+  article.group button > div {
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+
+  article.group button:hover > div {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 18px 40px rgba(45, 34, 18, 0.14) !important;
+  }
+
+  /* Panel kanan reward dan aktivitas lebih rapat */
+  aside section {
+    border-radius: 1.6rem !important;
+  }
+
+  aside section h2 {
+    font-size: 1.65rem !important;
+  }
+
+  aside section > div:last-child {
+    margin-top: 0.85rem !important;
+  }
+}
