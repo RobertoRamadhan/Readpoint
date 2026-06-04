@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useCallback, useEffect, useRef, useState } from 'react';
+import { use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -26,10 +26,10 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const [ebook, setEbook] = useState<Ebook | null>(null);
   const [loadingEbook, setLoadingEbook] = useState(true);
   const [zoom, setZoom] = useState(100);
-  const [fitWidth, setFitWidth] = useState(false);
+  const [fitWidth, setFitWidth] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [readingActivityId, setReadingActivityId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showCoverModal, setShowCoverModal] = useState(true);
   const [readingProgress, setReadingProgress] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
   const [showPointsModal, setShowPointsModal] = useState(false);
@@ -39,6 +39,13 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fetchedRef = useRef(false);
   const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (loading) return;
@@ -74,7 +81,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
         throw new Error('Gagal memuat data e-book');
       }
 
-      setTimeout(() => setShowCoverModal(false), 1200);
       startReadingActivity();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat e-book');
@@ -98,12 +104,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     scrollDebounceRef.current = setTimeout(() => {
       if (readingActivityId && ebook) {
         const pagesRead = Math.max(1, Math.round((readingProgress / 100) * ebook.pages));
-        api
-          .updateActivityProgress(readingActivityId, {
-            current_page: 1,
-            final_page: pagesRead,
-          })
-          .catch(() => {});
+        api.updateActivityProgress(readingActivityId, { current_page: 1, final_page: pagesRead }).catch(() => {});
       }
     }, 1500);
   }, [readingActivityId, readingProgress, ebook]);
@@ -121,86 +122,51 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   }, []);
 
   useEffect(() => {
-    const iframe = iframeRef.current;
     const container = contentRef.current;
-    if (!iframe && !container) return;
+    if (!container) return;
 
-    let pollInterval: ReturnType<typeof setInterval> | null = null;
-    let lastProgress = 0;
-    let lastScrollTop = 0;
-    let lastScrollAt = Date.now();
-
-    const setProgressFromScroll = (scrollTop: number, clientHeight: number, scrollHeight: number) => {
-      if (scrollHeight <= 0) return;
+    const updateProgressFromContainer = () => {
+      const scrollTop = container.scrollTop;
+      const clientHeight = container.clientHeight;
+      const scrollHeight = container.scrollHeight;
+      if (scrollHeight <= clientHeight) return;
       const progress = Math.round(((scrollTop + clientHeight) / scrollHeight) * 100);
-      const finalProgress = Math.min(100, Math.max(0, progress));
-      if (finalProgress !== lastProgress) {
-        setReadingProgress(finalProgress);
-        lastProgress = finalProgress;
-      }
-      lastScrollTop = scrollTop;
-      lastScrollAt = Date.now();
+      setReadingProgress(Math.min(100, Math.max(0, progress)));
     };
 
-    const checkIframeScroll = () => {
-      try {
-        const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
-        if (iframeDoc) {
-          const scrollTop = iframeDoc.documentElement.scrollTop || iframeDoc.body.scrollTop;
-          const clientHeight = iframeDoc.documentElement.clientHeight || iframeDoc.body.clientHeight;
-          const scrollHeight = iframeDoc.documentElement.scrollHeight || iframeDoc.body.scrollHeight;
-          setProgressFromScroll(scrollTop, clientHeight, scrollHeight);
-          return;
-        }
-      } catch {
-        // Browser sering membatasi akses scroll iframe PDF. Fallback ke container.
-      }
-
-      if (container) {
-        const scrollTop = container.scrollTop;
-        const clientHeight = container.clientHeight;
-        const scrollHeight = container.scrollHeight;
-        setProgressFromScroll(scrollTop, clientHeight, scrollHeight);
-      }
-    };
-
-    const handleIframeLoad = () => {
-      if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(checkIframeScroll, 500);
-    };
-
-    iframe?.addEventListener('load', handleIframeLoad);
-    container?.addEventListener('scroll', checkIframeScroll, { passive: true });
-    pollInterval = setInterval(checkIframeScroll, 900);
-
+    container.addEventListener('scroll', updateProgressFromContainer, { passive: true });
+    const interval = setInterval(updateProgressFromContainer, 1000);
     return () => {
-      iframe?.removeEventListener('load', handleIframeLoad);
-      container?.removeEventListener('scroll', checkIframeScroll);
-      if (pollInterval) clearInterval(pollInterval);
-      void lastScrollTop;
-      void lastScrollAt;
+      container.removeEventListener('scroll', updateProgressFromContainer);
+      clearInterval(interval);
     };
   }, [ebook?.id]);
 
-  const completeReading = async () => {
-    const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook?.pages || 10)));
-    const points = pagesRead * 10;
-    setEarnedPoints(points);
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
-    if (readingTime < pagesRead * 30 && readingProgress < 100) {
-      const confirmed = window.confirm(
-        `⚠️ Waktu membaca kamu masih singkat (${Math.round(readingTime / 60)} menit).\n\n` +
-          `Progress: ${readingProgress}% | Halaman: ${pagesRead}/${ebook?.pages || 10}\n\n` +
-          'Apakah kamu yakin sudah membaca sampai sini?'
-      );
-      if (!confirmed) return;
-    }
+  const pdfUrl = useMemo(() => normalizeFileUrl(ebook?.pdf_file_url || ebook?.pdf_file), [ebook]);
+  const coverUrl = useMemo(() => normalizeFileUrl(ebook?.cover_image_url || ebook?.cover_image), [ebook]);
+  const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook?.pages || 10)));
+  const iframeZoom = fitWidth ? 'page-width' : String(zoom);
+  const desktopPdfSrc = pdfUrl ? `${pdfUrl}#zoom=${iframeZoom}&toolbar=0&navpanes=0` : '';
+  const mobilePdfSrc = pdfUrl ? `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(pdfUrl)}` : '';
+  const viewerSrc = isMobile ? mobilePdfSrc : desktopPdfSrc;
+
+  const completeReading = async () => {
+    const totalPages = ebook?.pages || 10;
+    const finalPagesRead = Math.max(1, Math.round((Math.max(readingProgress, 100) / 100) * totalPages));
+    const points = finalPagesRead * 10;
+    setEarnedPoints(points);
 
     if (readingActivityId) {
       try {
         await api.completeReading(readingActivityId, {
-          final_page: pagesRead,
-          notes: `Reading time: ${readingTime}s, Progress: ${readingProgress}%, Pages: ${pagesRead}/${ebook?.pages || 10}`,
+          final_page: finalPagesRead,
+          notes: `Reading time: ${readingTime}s, Progress: ${Math.max(readingProgress, 100)}%, Pages: ${finalPagesRead}/${totalPages}`,
         });
       } catch {
         // Tetap tampilkan modal selesai walau sinkronisasi gagal.
@@ -210,26 +176,13 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     setShowPointsModal(true);
     setTimeout(() => {
       setShowPointsModal(false);
-      const goToQuiz = window.confirm(
-        `Selesai membaca "${ebook?.title}"! 🎉\n\nProgress: ${readingProgress}% | Poin: ${points}\n\nMau kerjakan kuis untuk poin tambahan?`
-      );
+      const goToQuiz = window.confirm(`Selesai membaca "${ebook?.title}"! 🎉\n\nPoin: ${points}\n\nMau kerjakan kuis untuk poin tambahan?`);
       router.push(goToQuiz ? `/dashboard/siswa/quiz/${ebookId}` : '/dashboard/siswa');
-    }, 2200);
-  };
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
+    }, 1800);
   };
 
   if (loading || loadingEbook) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-300 border-t-emerald-600" />
-        <p className="text-sm font-semibold text-emerald-700">{loading ? 'Memeriksa sesi...' : 'Memuat buku...'}</p>
-      </div>
-    );
+    return <LoadingScreen text={loading ? 'Memeriksa sesi...' : 'Memuat buku...'} />;
   }
 
   if (error || !ebook) {
@@ -245,11 +198,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     );
   }
 
-  const pdfUrl = normalizeFileUrl(ebook.pdf_file_url || ebook.pdf_file);
-  const coverUrl = normalizeFileUrl(ebook.cover_image_url || ebook.cover_image);
-  const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook.pages || 10)));
-  const iframeZoom = fitWidth ? 'page-width' : String(zoom);
-
   return (
     <div className="flex h-screen min-h-screen flex-col overflow-hidden bg-slate-100 text-slate-900">
       <style>{`
@@ -258,50 +206,49 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       `}</style>
 
       <header className="shrink-0 border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between gap-3 px-4 lg:px-8">
-          <button onClick={() => router.push('/dashboard/siswa')} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100 lg:w-auto lg:px-4">
+        <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between gap-3 px-3 sm:px-4 lg:px-8">
+          <button onClick={() => router.push('/dashboard/siswa')} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100 lg:w-auto lg:px-4">
             ← <span className="ml-2 hidden lg:inline">Kembali</span>
           </button>
 
-          <div className="min-w-0 flex-1 text-center lg:text-left">
-            <h1 className="truncate text-base font-black text-slate-950 sm:text-xl">{ebook.title}</h1>
-            <p className="truncate text-xs font-semibold text-slate-500">{ebook.author}</p>
+          <div className="min-w-0 flex-1 text-center">
+            <h1 className="truncate text-xl font-black text-slate-950 sm:text-2xl lg:text-3xl">{ebook.title}</h1>
+            <p className="truncate text-xs font-semibold text-slate-500 sm:text-sm">{ebook.author}</p>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <button onClick={() => router.push(`/dashboard/siswa/quiz/${ebookId}`)} className="flex h-10 items-center justify-center rounded-xl bg-emerald-50 px-3 text-sm font-black text-emerald-700 hover:bg-emerald-100">❓<span className="ml-2 hidden sm:inline">Quiz</span></button>
-            <button onClick={completeReading} className="flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-3 text-sm font-black text-white hover:bg-emerald-700">✓<span className="ml-2 hidden sm:inline">Selesai</span></button>
+            <button onClick={() => router.push(`/dashboard/siswa/quiz/${ebookId}`)} className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-lg font-black text-red-500 hover:bg-emerald-100 sm:w-auto sm:px-3">?</button>
+            <button onClick={completeReading} className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-lg font-black text-white hover:bg-emerald-700 sm:w-auto sm:px-3">✓</button>
           </div>
         </div>
       </header>
 
-      <section className="shrink-0 border-b border-slate-200 bg-white px-4 py-3">
+      <section className="shrink-0 border-b border-slate-200 bg-white px-3 py-2 sm:px-4">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
-            <span className="hidden text-xs font-black text-slate-600 sm:inline">Progress Baca</span>
-            <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200">
-              <div className="flex h-3 items-center justify-end rounded-full bg-emerald-600 pr-2 transition-all duration-500" style={{ width: `${readingProgress}%` }}>
-                {readingProgress > 12 && <span className="text-[10px] font-black text-white">{readingProgress}%</span>}
-              </div>
+            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200">
+              <div className="h-full rounded-full bg-emerald-600 transition-all duration-500" style={{ width: `${Math.max(readingProgress, 5)}%` }} />
             </div>
-            <span className="w-14 text-right text-xs font-black text-emerald-700">{readingProgress}%</span>
+            <span className="w-12 text-right text-xs font-black text-emerald-700">{readingProgress}%</span>
           </div>
-          <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs">
+          <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs">
             <span>Waktu: {formatTime(readingTime)}</span>
             <span>Halaman {pagesRead}/{ebook.pages || 10}</span>
           </div>
         </div>
       </section>
 
-      <section className="shrink-0 border-b border-slate-200 bg-white px-4 py-2 lg:py-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 overflow-x-auto">
-          <button onClick={() => { setFitWidth(false); setZoom(Math.max(50, zoom - 10)); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">−<span className="hidden lg:inline"> Perkecil</span></button>
-          <span className="shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700">{fitWidth ? 'Fit' : `${zoom}%`}</span>
-          <button onClick={() => { setFitWidth(false); setZoom(Math.min(300, zoom + 10)); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">+<span className="hidden lg:inline"> Perbesar</span></button>
-          <button onClick={() => { setFitWidth(false); setZoom(100); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">Reset</button>
-          <button onClick={() => setFitWidth(!fitWidth)} className="shrink-0 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-100 lg:px-4">Fit Width</button>
-        </div>
-      </section>
+      {!isMobile && (
+        <section className="shrink-0 border-b border-slate-200 bg-white px-4 py-2 lg:py-3">
+          <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 overflow-x-auto">
+            <button onClick={() => { setFitWidth(false); setZoom(Math.max(50, zoom - 10)); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">− Perkecil</button>
+            <span className="shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700">{fitWidth ? 'Fit' : `${zoom}%`}</span>
+            <button onClick={() => { setFitWidth(false); setZoom(Math.min(300, zoom + 10)); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">+ Perbesar</button>
+            <button onClick={() => { setFitWidth(false); setZoom(100); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">Reset</button>
+            <button onClick={() => setFitWidth(!fitWidth)} className="shrink-0 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-100 lg:px-4">Fit Width</button>
+          </div>
+        </section>
+      )}
 
       <main className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[280px_1fr]">
         <aside className="hidden border-r border-slate-200 bg-white p-6 lg:block">
@@ -318,25 +265,35 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
           </div>
         </aside>
 
-        <div ref={contentRef} className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-300">
+        <div ref={contentRef} className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-900">
           {showPointsModal && <PointsModal earnedPoints={earnedPoints} readingProgress={readingProgress} pagesRead={pagesRead} totalPages={ebook.pages || 10} />}
-          {showCoverModal && <CoverModal coverUrl={coverUrl} ebook={ebook} />}
 
-          {pdfUrl ? (
-            <iframe ref={iframeRef} src={`${pdfUrl}#zoom=${iframeZoom}&toolbar=0&navpanes=0`} className="h-full min-h-full w-full border-0" title={ebook.title} loading="eager" allowFullScreen />
+          {viewerSrc ? (
+            <iframe ref={iframeRef} src={viewerSrc} className="h-full min-h-full w-full border-0 bg-white" title={ebook.title} loading="eager" allowFullScreen />
           ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
+            <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white">
               <div className="text-6xl">📚</div>
-              <p className="font-semibold text-slate-600">PDF tidak tersedia</p>
-              <p className="text-sm text-slate-500">Hubungi guru untuk informasi lebih lanjut.</p>
+              <p className="font-semibold">PDF tidak tersedia</p>
+              <p className="text-sm text-slate-300">Hubungi guru untuk informasi lebih lanjut.</p>
             </div>
           )}
 
-          <div className="pointer-events-none fixed bottom-5 right-5 rounded-full bg-slate-950 px-4 py-2 text-xs font-black text-white shadow-lg lg:hidden">
-            {pagesRead}/{ebook.pages || 10}
-          </div>
+          {isMobile && pdfUrl && (
+            <a href={pdfUrl} target="_blank" rel="noreferrer" className="fixed bottom-5 left-4 right-4 z-40 rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-black text-white shadow-lg">
+              Jika PDF belum muncul, buka langsung
+            </a>
+          )}
         </div>
       </main>
+    </div>
+  );
+}
+
+function LoadingScreen({ text }: { text: string }) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50">
+      <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-300 border-t-emerald-600" />
+      <p className="text-sm font-semibold text-emerald-700">{text}</p>
     </div>
   );
 }
@@ -347,8 +304,4 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function PointsModal({ earnedPoints, readingProgress, pagesRead, totalPages }: { earnedPoints: number; readingProgress: number; pagesRead: number; totalPages: number }) {
   return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl"><div className="mb-4 text-6xl">🎉</div><h2 className="text-3xl font-black text-emerald-600">Selamat!</h2><p className="mt-2 text-sm font-semibold text-slate-600">Kamu telah menyelesaikan membaca</p><div className="my-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6"><p className="text-sm text-slate-600">Poin didapatkan</p><p className="text-5xl font-black text-emerald-600">{earnedPoints}</p><p className="mt-2 text-xs text-slate-500">Progress: {readingProgress}% | {pagesRead}/{totalPages} halaman</p></div><p className="text-sm text-slate-600">Tunggu sebentar...</p></div></div>;
-}
-
-function CoverModal({ coverUrl, ebook }: { coverUrl: string; ebook: Ebook }) {
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"><div className="flex max-w-sm flex-col items-center gap-4">{coverUrl ? <img src={coverUrl} alt={ebook.title} className="h-80 w-56 rounded-xl object-cover shadow-2xl" /> : <div className="flex h-80 w-56 flex-col items-center justify-center rounded-xl bg-emerald-600 p-6 text-center text-white shadow-2xl"><div className="mb-3 text-5xl">📚</div><h2 className="text-xl font-bold">{ebook.title}</h2><p className="mt-2 text-sm opacity-90">{ebook.author}</p></div>}<p className="text-sm font-semibold text-white">Menyiapkan PDF...</p></div></div>;
 }
