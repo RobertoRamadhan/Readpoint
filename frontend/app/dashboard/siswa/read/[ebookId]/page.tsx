@@ -35,7 +35,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const [showPointsModal, setShowPointsModal] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
 
-  const contentRef = useRef<HTMLDivElement>(null);
   const fetchedRef = useRef(false);
   const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -120,28 +119,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (isMobile) return;
-    const container = contentRef.current;
-    if (!container) return;
-
-    const updateProgressFromContainer = () => {
-      const scrollTop = container.scrollTop;
-      const clientHeight = container.clientHeight;
-      const scrollHeight = container.scrollHeight;
-      if (scrollHeight <= clientHeight) return;
-      const progress = Math.round(((scrollTop + clientHeight) / scrollHeight) * 100);
-      setReadingProgress(Math.min(100, Math.max(0, progress)));
-    };
-
-    container.addEventListener('scroll', updateProgressFromContainer, { passive: true });
-    const interval = setInterval(updateProgressFromContainer, 1000);
-    return () => {
-      container.removeEventListener('scroll', updateProgressFromContainer);
-      clearInterval(interval);
-    };
-  }, [ebook?.id, isMobile]);
-
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
     const s = (seconds % 60).toString().padStart(2, '0');
@@ -156,8 +133,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const pdfUrl = useMemo(() => normalizeFileUrl(ebook?.pdf_file_url || ebook?.pdf_file), [ebook]);
   const coverUrl = useMemo(() => normalizeFileUrl(ebook?.cover_image_url || ebook?.cover_image), [ebook]);
   const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook?.pages || 10)));
-  const iframeZoom = fitWidth ? 'page-width' : String(zoom);
-  const desktopPdfSrc = pdfUrl ? `${pdfUrl}#zoom=${iframeZoom}&toolbar=0&navpanes=0` : '';
 
   const completeReading = async () => {
     const totalPages = ebook?.pages || 10;
@@ -248,12 +223,10 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
           <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4"><InfoRow label="Halaman sekarang" value={String(pagesRead)} /><InfoRow label="Total halaman" value={String(ebook.pages || 10)} /><InfoRow label="Progress" value={`${readingProgress}%`} /><InfoRow label="Estimasi poin" value={String(pagesRead * 10)} /></div>
         </aside>
 
-        <div ref={contentRef} className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-900">
+        <div className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-900">
           {showPointsModal && <PointsModal earnedPoints={earnedPoints} readingProgress={readingProgress} pagesRead={pagesRead} totalPages={ebook.pages || 10} />}
-          {isMobile && pdfUrl ? (
-            <MobilePdfCanvasViewer src={pdfUrl} title={ebook.title} onProgressChange={setReadingProgress} />
-          ) : desktopPdfSrc ? (
-            <iframe src={desktopPdfSrc} className="h-full min-h-full w-full border-0 bg-white" title={ebook.title} loading="eager" allowFullScreen />
+          {pdfUrl ? (
+            <PdfCanvasViewer src={pdfUrl} title={ebook.title} isMobile={isMobile} zoom={zoom} fitWidth={fitWidth} onProgressChange={setReadingProgress} />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white"><div className="text-6xl">📚</div><p className="font-semibold">PDF tidak tersedia</p><p className="text-sm text-slate-300">Hubungi guru untuk informasi lebih lanjut.</p></div>
           )}
@@ -263,7 +236,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   );
 }
 
-function MobilePdfCanvasViewer({ src, title, onProgressChange }: { src: string; title: string; onProgressChange: (value: number) => void }) {
+function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChange }: { src: string; title: string; isMobile: boolean; zoom: number; fitWidth: boolean; onProgressChange: (value: number) => void }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfRef = useRef<any>(null);
@@ -290,7 +263,7 @@ function MobilePdfCanvasViewer({ src, title, onProgressChange }: { src: string; 
         setTotalPages(pdf.numPages || 1);
         setPageNumber(1);
         onProgressChange(Math.max(1, Math.round((1 / Math.max(pdf.numPages || 1, 1)) * 100)));
-      } catch (err) {
+      } catch {
         if (!cancelled) setError('PDF belum bisa ditampilkan di aplikasi. Gunakan tombol buka langsung.');
       } finally {
         if (!cancelled) setLoading(false);
@@ -324,8 +297,10 @@ function MobilePdfCanvasViewer({ src, title, onProgressChange }: { src: string; 
         const page = await pdf.getPage(pageNumber);
         if (cancelled) return;
         const baseViewport = page.getViewport({ scale: 1 });
-        const availableWidth = Math.max(280, wrapper.clientWidth - 24);
-        const scale = Math.min(2.2, Math.max(0.75, availableWidth / baseViewport.width));
+        const availableWidth = Math.max(280, wrapper.clientWidth - (isMobile ? 24 : 48));
+        const fitScale = availableWidth / baseViewport.width;
+        const requestedScale = fitWidth ? fitScale : fitScale * (zoom / 100);
+        const scale = Math.min(isMobile ? 2.2 : 3.2, Math.max(isMobile ? 0.75 : 0.85, requestedScale));
         const viewport = page.getViewport({ scale });
         const dpr = window.devicePixelRatio || 1;
         const context = canvas.getContext('2d');
@@ -359,7 +334,7 @@ function MobilePdfCanvasViewer({ src, title, onProgressChange }: { src: string; 
       cancelled = true;
       if (renderTaskRef.current) renderTaskRef.current.cancel?.();
     };
-  }, [pageNumber, totalPages, onProgressChange]);
+  }, [pageNumber, totalPages, isMobile, zoom, fitWidth, onProgressChange]);
 
   return (
     <div ref={wrapperRef} className="flex min-h-full flex-col bg-slate-900 text-white">
@@ -372,11 +347,11 @@ function MobilePdfCanvasViewer({ src, title, onProgressChange }: { src: string; 
         <button onClick={() => setPageNumber((prev) => Math.min(totalPages || prev, prev + 1))} disabled={!totalPages || pageNumber >= totalPages || loading || rendering} className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-black text-white disabled:opacity-40">Lanjut</button>
       </div>
 
-      <div className="flex flex-1 items-center justify-center overflow-auto p-3">
+      <div className="flex flex-1 items-start justify-center overflow-auto p-3 lg:p-6">
         {loading ? (
-          <div className="text-center"><div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-emerald-500" /><p className="text-sm font-bold">Menyiapkan PDF...</p></div>
+          <div className="mt-20 text-center"><div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-emerald-500" /><p className="text-sm font-bold">Menyiapkan PDF...</p></div>
         ) : error ? (
-          <div className="max-w-xs rounded-3xl bg-white p-6 text-center text-slate-900 shadow-xl"><div className="mb-3 text-5xl">📄</div><p className="text-sm font-black">{error}</p><a href={src} target="_blank" rel="noreferrer" className="mt-4 block rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white">Buka PDF langsung</a></div>
+          <div className="mt-20 max-w-xs rounded-3xl bg-white p-6 text-center text-slate-900 shadow-xl"><div className="mb-3 text-5xl">📄</div><p className="text-sm font-black">{error}</p><a href={src} target="_blank" rel="noreferrer" className="mt-4 block rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white">Buka PDF langsung</a></div>
         ) : (
           <div className="relative rounded-xl bg-white p-1 shadow-2xl">
             {rendering && <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/70 text-sm font-black text-slate-700">Memuat halaman...</div>}
