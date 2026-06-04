@@ -80,34 +80,68 @@ export default function AdminSidebar({
     );
   };
 
-  const handleItemClick = (itemId: string) => {
-    if (role === 'admin' && itemId === 'laporan') {
-      router.push('/dashboard/admin/laporan');
-      onCloseSidebar();
+  const goAdminTab = (tabId: string) => {
+    onTabChange(tabId);
+    router.push(tabId === 'beranda' ? '/dashboard/admin' : `/dashboard/admin?tab=${tabId}`);
+    onCloseSidebar();
+  };
+
+  const goGuruTab = (tabId: string) => {
+    onTabChange(tabId);
+    router.push(tabId === 'beranda' ? '/dashboard/guru' : `/dashboard/guru?tab=${tabId}`);
+    onCloseSidebar();
+  };
+
+  const handleItemClick = (item: MenuItem) => {
+    if (item.subItems && item.subItems.length > 0) {
+      toggleExpand(item.id);
+      const firstSubItem = item.subItems[0];
+      if (role === 'admin') {
+        goAdminTab(firstSubItem.id);
+        return;
+      }
+      if (role === 'guru') {
+        goGuruTab(firstSubItem.id);
+        return;
+      }
       return;
     }
 
-    if (role === 'admin' && itemId === 'beranda') {
-      router.push('/dashboard/admin');
-    }
+    if (role === 'admin') {
+      if (item.id === 'laporan') {
+        router.push('/dashboard/admin/laporan');
+        onCloseSidebar();
+        return;
+      }
 
-    if (role === 'guru' && itemId === 'laporan') {
-      router.push('/dashboard/guru/laporan');
-      onCloseSidebar();
+      goAdminTab(item.id);
       return;
     }
 
-    if (role === 'guru' && itemId === 'beranda') {
-      router.push('/dashboard/guru');
+    if (role === 'guru') {
+      if (item.id === 'laporan') {
+        router.push('/dashboard/guru/laporan');
+        onCloseSidebar();
+        return;
+      }
+
+      goGuruTab(item.id);
+      return;
     }
 
-    onTabChange(itemId);
+    onTabChange(item.id);
     onCloseSidebar();
   };
 
   const handleSubItemClick = (subItemId: string) => {
+    if (role === 'admin') {
+      goAdminTab(subItemId);
+      return;
+    }
+
     if (role === 'guru') {
-      router.push('/dashboard/guru');
+      goGuruTab(subItemId);
+      return;
     }
 
     onTabChange(subItemId);
@@ -144,13 +178,7 @@ export default function AdminSidebar({
           return (
             <div key={item.id}>
               <button
-                onClick={() => {
-                  if (hasSubItems) {
-                    toggleExpand(item.id);
-                  } else {
-                    handleItemClick(item.id);
-                  }
-                }}
+                onClick={() => handleItemClick(item)}
                 className={`readpoint-admin-menu-item flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-black transition ${
                   isActive || anySubItemActive
                     ? 'bg-white text-slate-900 shadow-lg'
