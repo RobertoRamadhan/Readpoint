@@ -121,6 +121,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   }, []);
 
   useEffect(() => {
+    if (isMobile) return;
     const container = contentRef.current;
     if (!container) return;
 
@@ -139,7 +140,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       container.removeEventListener('scroll', updateProgressFromContainer);
       clearInterval(interval);
     };
-  }, [ebook?.id]);
+  }, [ebook?.id, isMobile]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -157,8 +158,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook?.pages || 10)));
   const iframeZoom = fitWidth ? 'page-width' : String(zoom);
   const desktopPdfSrc = pdfUrl ? `${pdfUrl}#zoom=${iframeZoom}&toolbar=0&navpanes=0` : '';
-  const mobilePdfSrc = pdfUrl ? `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(pdfUrl)}` : '';
-  const viewerSrc = isMobile ? mobilePdfSrc : desktopPdfSrc;
 
   const completeReading = async () => {
     const totalPages = ebook?.pages || 10;
@@ -222,7 +221,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       <section className="shrink-0 border-b border-slate-200 bg-white px-3 py-2 sm:px-4">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
-            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-emerald-600 transition-all duration-500" style={{ width: `${Math.max(readingProgress, 5)}%` }} /></div>
+            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-emerald-600 transition-all duration-500" style={{ width: `${Math.max(readingProgress, 2)}%` }} /></div>
             <span className="w-12 text-right text-xs font-black text-emerald-700">{readingProgress}%</span>
           </div>
           <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs"><span>Waktu: {formatTime(readingTime)}</span><span>Halaman {pagesRead}/{ebook.pages || 10}</span></div>
@@ -251,12 +250,168 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
 
         <div ref={contentRef} className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-900">
           {showPointsModal && <PointsModal earnedPoints={earnedPoints} readingProgress={readingProgress} pagesRead={pagesRead} totalPages={ebook.pages || 10} />}
-          {viewerSrc ? <iframe src={viewerSrc} className="h-full min-h-full w-full border-0 bg-white" title={ebook.title} loading="eager" allowFullScreen /> : <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white"><div className="text-6xl">📚</div><p className="font-semibold">PDF tidak tersedia</p><p className="text-sm text-slate-300">Hubungi guru untuk informasi lebih lanjut.</p></div>}
-          {isMobile && pdfUrl && <a href={pdfUrl} target="_blank" rel="noreferrer" className="fixed bottom-5 left-4 right-4 z-40 rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-black text-white shadow-lg">Jika PDF belum muncul, buka langsung</a>}
+          {isMobile && pdfUrl ? (
+            <MobilePdfCanvasViewer src={pdfUrl} title={ebook.title} onProgressChange={setReadingProgress} />
+          ) : desktopPdfSrc ? (
+            <iframe src={desktopPdfSrc} className="h-full min-h-full w-full border-0 bg-white" title={ebook.title} loading="eager" allowFullScreen />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white"><div className="text-6xl">📚</div><p className="font-semibold">PDF tidak tersedia</p><p className="text-sm text-slate-300">Hubungi guru untuk informasi lebih lanjut.</p></div>
+          )}
         </div>
       </main>
     </div>
   );
+}
+
+function MobilePdfCanvasViewer({ src, title, onProgressChange }: { src: string; title: string; onProgressChange: (value: number) => void }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pdfRef = useRef<any>(null);
+  const renderTaskRef = useRef<any>(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [rendering, setRendering] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPdf = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const pdfjsLib = await loadPdfJs();
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const loadingTask = pdfjsLib.getDocument({ url: src, withCredentials: false });
+        const pdf = await loadingTask.promise;
+        if (cancelled) return;
+        pdfRef.current = pdf;
+        setTotalPages(pdf.numPages || 1);
+        setPageNumber(1);
+        onProgressChange(Math.max(1, Math.round((1 / Math.max(pdf.numPages || 1, 1)) * 100)));
+      } catch (err) {
+        if (!cancelled) setError('PDF belum bisa ditampilkan di aplikasi. Gunakan tombol buka langsung.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadPdf();
+    return () => {
+      cancelled = true;
+      if (renderTaskRef.current) renderTaskRef.current.cancel?.();
+      pdfRef.current?.destroy?.();
+      pdfRef.current = null;
+    };
+  }, [src, onProgressChange]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const renderPage = async () => {
+      const pdf = pdfRef.current;
+      const canvas = canvasRef.current;
+      const wrapper = wrapperRef.current;
+      if (!pdf || !canvas || !wrapper) return;
+
+      try {
+        setRendering(true);
+        if (renderTaskRef.current) {
+          try { renderTaskRef.current.cancel?.(); } catch {}
+        }
+
+        const page = await pdf.getPage(pageNumber);
+        if (cancelled) return;
+        const baseViewport = page.getViewport({ scale: 1 });
+        const availableWidth = Math.max(280, wrapper.clientWidth - 24);
+        const scale = Math.min(2.2, Math.max(0.75, availableWidth / baseViewport.width));
+        const viewport = page.getViewport({ scale });
+        const dpr = window.devicePixelRatio || 1;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas tidak tersedia');
+
+        canvas.width = Math.floor(viewport.width * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
+        context.clearRect(0, 0, viewport.width, viewport.height);
+
+        const renderTask = page.render({ canvasContext: context, viewport });
+        renderTaskRef.current = renderTask;
+        await renderTask.promise;
+        if (!cancelled) {
+          const progress = Math.max(1, Math.min(100, Math.round((pageNumber / Math.max(totalPages, 1)) * 100)));
+          onProgressChange(progress);
+        }
+      } catch (err) {
+        if (!cancelled && !(err instanceof Error && err.name === 'RenderingCancelledException')) {
+          setError('Halaman PDF gagal dirender. Coba buka langsung.');
+        }
+      } finally {
+        if (!cancelled) setRendering(false);
+      }
+    };
+
+    renderPage();
+    return () => {
+      cancelled = true;
+      if (renderTaskRef.current) renderTaskRef.current.cancel?.();
+    };
+  }, [pageNumber, totalPages, onProgressChange]);
+
+  return (
+    <div ref={wrapperRef} className="flex min-h-full flex-col bg-slate-900 text-white">
+      <div className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-white/10 bg-slate-950/95 px-3 py-2 backdrop-blur">
+        <button onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))} disabled={pageNumber <= 1 || loading || rendering} className="rounded-xl bg-white/10 px-3 py-2 text-xs font-black text-white disabled:opacity-40">Sebelumnya</button>
+        <div className="min-w-0 text-center">
+          <p className="truncate text-xs font-black">{title}</p>
+          <p className="text-[11px] font-semibold text-slate-300">Halaman {pageNumber}/{totalPages || '-'}</p>
+        </div>
+        <button onClick={() => setPageNumber((prev) => Math.min(totalPages || prev, prev + 1))} disabled={!totalPages || pageNumber >= totalPages || loading || rendering} className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-black text-white disabled:opacity-40">Lanjut</button>
+      </div>
+
+      <div className="flex flex-1 items-center justify-center overflow-auto p-3">
+        {loading ? (
+          <div className="text-center"><div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-emerald-500" /><p className="text-sm font-bold">Menyiapkan PDF...</p></div>
+        ) : error ? (
+          <div className="max-w-xs rounded-3xl bg-white p-6 text-center text-slate-900 shadow-xl"><div className="mb-3 text-5xl">📄</div><p className="text-sm font-black">{error}</p><a href={src} target="_blank" rel="noreferrer" className="mt-4 block rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white">Buka PDF langsung</a></div>
+        ) : (
+          <div className="relative rounded-xl bg-white p-1 shadow-2xl">
+            {rendering && <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/70 text-sm font-black text-slate-700">Memuat halaman...</div>}
+            <canvas ref={canvasRef} className="block max-w-full rounded-lg bg-white" />
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-white/10 bg-slate-950 px-3 py-2">
+        <a href={src} target="_blank" rel="noreferrer" className="block rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-black text-white">Buka PDF langsung</a>
+      </div>
+    </div>
+  );
+}
+
+function loadPdfJs(): Promise<any> {
+  const existingLib = (window as any).pdfjsLib;
+  if (existingLib) return Promise.resolve(existingLib);
+
+  return new Promise((resolve, reject) => {
+    const existingScript = document.querySelector('script[data-readpoint-pdfjs="true"]') as HTMLScriptElement | null;
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve((window as any).pdfjsLib), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Gagal memuat PDF viewer')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.async = true;
+    script.dataset.readpointPdfjs = 'true';
+    script.onload = () => resolve((window as any).pdfjsLib);
+    script.onerror = () => reject(new Error('Gagal memuat PDF viewer'));
+    document.body.appendChild(script);
+  });
 }
 
 function LoadingScreen({ text }: { text: string }) { return <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50"><div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-300 border-t-emerald-600" /><p className="text-sm font-semibold text-emerald-700">{text}</p></div>; }
