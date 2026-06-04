@@ -171,10 +171,10 @@ export default function AdminLaporanPage() {
   }
 
   return (
-    <div className="flex w-full min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-64px)] bg-slate-50">
+    <div className="min-h-screen w-full bg-slate-50">
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-16 left-4 z-40 rounded-lg bg-emerald-900 p-2 text-white transition hover:bg-emerald-800 md:hidden"
+        className="fixed left-4 top-16 z-40 rounded-lg bg-emerald-900 p-2 text-white transition hover:bg-emerald-800 md:hidden"
         aria-label="Buka menu admin"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,14 +192,17 @@ export default function AdminLaporanPage() {
       <AdminSidebar
         activeTab="laporan"
         sidebarOpen={sidebarOpen}
-        onTabChange={() => {}}
+        onTabChange={(tabId) => {
+          if (tabId === 'beranda') router.push('/dashboard/admin');
+          if (['ebooks', 'rewards', 'users', 'pengaturan'].includes(tabId)) router.push(`/dashboard/admin?tab=${tabId}`);
+        }}
         onCloseSidebar={() => setSidebarOpen(false)}
         role="admin"
         user={user}
       />
 
-      <main className="min-w-0 flex-1 bg-slate-50">
-        <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+      <main className="admin-report-main min-h-screen min-w-0 bg-slate-50 md:ml-72 md:w-[calc(100vw-18rem)]">
+        <div className="w-full space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Guru</p>
             <h1 className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl lg:text-4xl">Evaluasi wali kelas berdasarkan poin siswa</h1>
