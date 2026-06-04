@@ -1,17 +1,41 @@
 /* READPOINT Admin Dashboard Final Polish
    Scope: Dashboard admin, manajemen e-book, reward, user. Laporan dan pengaturan tidak diubah. */
 
+/* Page base admin */
+div:has(> .readpoint-admin-sidebar) {
+  min-height: 100vh !important;
+  background: #f8fafc !important;
+}
+
 @media (min-width: 768px) {
+  /* Sidebar harus nempel kiri layar, bukan mengikuti space layout lama */
   .readpoint-admin-sidebar {
-    position: sticky !important;
+    position: fixed !important;
+    left: 0 !important;
     top: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
+    width: 288px !important;
     height: 100vh !important;
     min-height: 100vh !important;
-    width: 288px !important;
+    max-height: 100vh !important;
     flex-shrink: 0 !important;
+    z-index: 80 !important;
     background: linear-gradient(180deg, #0b1120 0%, #111827 60%, #020617 100%) !important;
     border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
     box-shadow: 18px 0 44px rgba(15, 23, 42, 0.10) !important;
+  }
+
+  .readpoint-admin-sidebar + div {
+    margin-left: 288px !important;
+    width: calc(100vw - 288px) !important;
+    max-width: calc(100vw - 288px) !important;
+    min-height: 100vh !important;
+    background: #f8fafc !important;
+  }
+
+  .readpoint-admin-sidebar + div > div {
+    padding: 2rem !important;
   }
 
   .readpoint-admin-brand {
@@ -28,23 +52,14 @@
   }
 }
 
-/* Page base admin */
-div:has(> .readpoint-admin-sidebar) {
-  min-height: 100vh !important;
-  background: #f8fafc !important;
-}
+@media (max-width: 767px) {
+  .readpoint-admin-sidebar {
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+  }
 
-.readpoint-admin-sidebar + div {
-  background: #f8fafc !important;
-}
-
-.readpoint-admin-sidebar + div > div {
-  padding: 1.5rem !important;
-}
-
-@media (min-width: 1024px) {
   .readpoint-admin-sidebar + div > div {
-    padding: 2rem !important;
+    padding: 1rem !important;
   }
 }
 
@@ -179,16 +194,4 @@ div:has(> .readpoint-admin-sidebar) {
 .readpoint-admin-sidebar + div tbody td:last-child {
   border-top-right-radius: 1rem !important;
   border-bottom-right-radius: 1rem !important;
-}
-
-/* Mobile admin sidebar */
-@media (max-width: 767px) {
-  .readpoint-admin-sidebar {
-    top: 56px !important;
-    height: calc(100vh - 56px) !important;
-  }
-
-  .readpoint-admin-sidebar + div > div {
-    padding: 1rem !important;
-  }
 }
