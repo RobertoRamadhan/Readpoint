@@ -4,6 +4,7 @@ import "./globals.css";
 import "./readpoint-theme.css";
 import "./guru-dashboard-clean.css";
 import "./admin-dashboard-clean.css";
+import "./siswa-dashboard-fix.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
