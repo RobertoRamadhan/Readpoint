@@ -1,0 +1,260 @@
+/* READPOINT Guru Dashboard Final Polish
+   Fokus: layout, sidebar, beranda, validasi, kuis, siswa, pengaturan. Tidak menghapus fungsi lama. */
+
+@media (min-width: 768px) {
+  /* Sidebar guru/admin component nempel kiri */
+  .readpoint-admin-sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
+    width: 288px !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    z-index: 80 !important;
+  }
+
+  /* Halaman guru juga pakai offset sidebar */
+  body:has(.readpoint-admin-sidebar) .readpoint-admin-sidebar + div {
+    margin-left: 288px !important;
+    width: calc(100vw - 288px) !important;
+    max-width: calc(100vw - 288px) !important;
+    min-height: 100vh !important;
+    background: #f8fafc !important;
+  }
+
+  body:has(.readpoint-admin-sidebar) .readpoint-admin-sidebar + div > div {
+    padding: 2rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  body:has(.readpoint-admin-sidebar) .readpoint-admin-sidebar + div > div {
+    padding: 1rem !important;
+  }
+}
+
+/* Guru main content */
+.readpoint-admin-sidebar + div {
+  background: #f8fafc !important;
+}
+
+.readpoint-admin-sidebar + div > div {
+  background: #f8fafc !important;
+}
+
+/* Header/card umum */
+.readpoint-admin-sidebar + div h1,
+.readpoint-admin-sidebar + div h2,
+.readpoint-admin-sidebar + div h3,
+.readpoint-admin-sidebar + div h4 {
+  letter-spacing: -0.02em !important;
+}
+
+.readpoint-admin-sidebar + div [class*="bg-gradient-to-br"],
+.readpoint-admin-sidebar + div [class*="bg-gradient-to-r"] {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06) !important;
+}
+
+.readpoint-admin-sidebar + div [class*="border-2"] {
+  border-width: 1px !important;
+}
+
+.readpoint-admin-sidebar + div [class*="rounded-3xl"],
+.readpoint-admin-sidebar + div [class*="rounded-2xl"] {
+  border-radius: 1.35rem !important;
+}
+
+.readpoint-admin-sidebar + div [class*="shadow-xl"],
+.readpoint-admin-sidebar + div [class*="shadow-lg"] {
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Beranda guru: jangan terlalu ramai */
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Tampilkan cara kerja sistem tapi dibuat padat, bukan hilang */
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:first-child {
+  padding: 1.5rem !important;
+  margin-bottom: 1.25rem !important;
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%) !important;
+  border: 1px solid #d1fae5 !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:first-child .grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:first-child .w-16 {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  font-size: 1rem !important;
+}
+
+/* Statistik guru */
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+@media (min-width: 1280px) {
+  [class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) > div {
+  padding: 1.2rem !important;
+  min-height: 132px !important;
+  border: 1px solid #d1fae5 !important;
+  background: #ffffff !important;
+  transform: none !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) span.text-2xl {
+  display: none !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) p:first-child {
+  color: #047857 !important;
+  font-size: .72rem !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) p:last-child {
+  color: #0f172a !important;
+  font-size: clamp(2rem, 3vw, 2.8rem) !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+
+/* Validasi pending */
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(3) {
+  padding: 1.5rem !important;
+  margin-bottom: 1.25rem !important;
+  border: 1px solid #d1fae5 !important;
+  background: #ffffff !important;
+  transform: none !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(3) h3 {
+  color: #0f172a !important;
+  font-size: 1.45rem !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(3) .text-4xl {
+  color: #059669 !important;
+}
+
+/* Aksi cepat aktif dan terlihat */
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:last-child {
+  display: block !important;
+  padding: 1.5rem !important;
+  border: 1px solid #d1fae5 !important;
+  background: #ffffff !important;
+  transform: none !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:last-child button {
+  background: #059669 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 12px 24px rgba(5, 150, 105, 0.18) !important;
+  transform: none !important;
+}
+
+[class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:last-child button:hover {
+  background: #047857 !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Validasi tab */
+.readpoint-admin-sidebar + div .card,
+.readpoint-admin-sidebar + div div.card {
+  border-radius: 1.35rem !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06) !important;
+}
+
+.readpoint-admin-sidebar + div .card > div:first-child {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* Modal validasi */
+.readpoint-admin-sidebar + div .fixed.inset-0 .bg-white {
+  border-radius: 1.5rem !important;
+}
+
+/* Form, select, input */
+.readpoint-admin-sidebar + div input,
+.readpoint-admin-sidebar + div select,
+.readpoint-admin-sidebar + div textarea {
+  border-radius: .95rem !important;
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+.readpoint-admin-sidebar + div input:focus,
+.readpoint-admin-sidebar + div select:focus,
+.readpoint-admin-sidebar + div textarea:focus {
+  outline: none !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 4px rgba(16,185,129,.12) !important;
+}
+
+/* Kuis tab */
+.readpoint-admin-sidebar + div .border-purple-200,
+.readpoint-admin-sidebar + div .border-purple-300 {
+  border-color: #d1fae5 !important;
+}
+
+.readpoint-admin-sidebar + div .text-purple-600,
+.readpoint-admin-sidebar + div .text-purple-100 {
+  color: #047857 !important;
+}
+
+/* Tabel siswa */
+.readpoint-admin-sidebar + div table {
+  border-collapse: separate !important;
+  border-spacing: 0 .65rem !important;
+}
+
+.readpoint-admin-sidebar + div thead tr {
+  background: #f1f5f9 !important;
+}
+
+.readpoint-admin-sidebar + div tbody tr {
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(15,23,42,.05) !important;
+}
+
+.readpoint-admin-sidebar + div tbody td:first-child {
+  border-top-left-radius: 1rem !important;
+  border-bottom-left-radius: 1rem !important;
+}
+
+.readpoint-admin-sidebar + div tbody td:last-child {
+  border-top-right-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  [class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:first-child .grid,
+  [class~="space-y-10"][class~="w-full"][class~="lg:p-12"] > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+  }
+}
