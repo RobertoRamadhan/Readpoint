@@ -10,6 +10,7 @@ import "./siswa-dashboard-fix.css";
 import "./siswa-desktop-final.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import AdminTabFromQuery from "@/components/AdminTabFromQuery";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="antialiased bg-slate-50 w-full min-h-screen m-0 p-0">
         <ErrorBoundary>
           <Providers>
+            <AdminTabFromQuery />
             {children}
           </Providers>
         </ErrorBoundary>
