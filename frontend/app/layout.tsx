@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./landing.css";
 import "./readpoint-theme.css";
 import "./guru-dashboard-clean.css";
 import "./guru-dashboard-final.css";
