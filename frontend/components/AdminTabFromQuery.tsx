@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 const tabLabelMap: Record<string, string> = {
@@ -11,7 +11,7 @@ const tabLabelMap: Record<string, string> = {
   pengaturan: 'Pengaturan',
 };
 
-export default function AdminTabFromQuery() {
+function AdminTabFromQueryInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -49,4 +49,12 @@ export default function AdminTabFromQuery() {
   }, [pathname, searchParams]);
 
   return null;
+}
+
+export default function AdminTabFromQuery() {
+  return (
+    <Suspense fallback={null}>
+      <AdminTabFromQueryInner />
+    </Suspense>
+  );
 }
