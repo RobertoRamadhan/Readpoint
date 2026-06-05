@@ -1,99 +1,103 @@
-/* Landing Page Specific Styles - Minimal Overrides */
+/* Landing Page Specific Styles */
 
-/* Ensure landing page takes full width */
 .landing-page {
   width: 100%;
   max-width: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background: #ffffff;
 }
 
-/* Container centering */
-.landing-page .container {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Give navbar content comfortable left and right spacing */
-.landing-page nav > .container {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-@media (min-width: 640px) {
-  .landing-page nav > .container {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .landing-page nav > .container {
-    padding-left: 4rem;
-    padding-right: 4rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .landing-page nav > .container {
-    padding-left: 5rem;
-    padding-right: 5rem;
-  }
-}
-
-/* Section full width */
+.landing-page nav,
+.landing-page main,
+.landing-page footer,
 .landing-page section {
   width: 100%;
   max-width: 100%;
 }
 
-/* Nav full width */
-.landing-page nav {
+/* Navbar tidak mepet kanan-kiri */
+.landing-page nav > .container {
   width: 100%;
-  max-width: 100%;
-}
-
-/* Footer full width */
-.landing-page footer {
-  width: 100%;
-  max-width: 100%;
-}
-
-/*
-  Desktop timeline guard:
-  Kiri layar | jarak | konten kiri | jarak | garis tengah | jarak | konten kanan | jarak | kanan layar
-  This keeps every landing section inside its own side of the center timeline.
-*/
-.landing-page main > div.relative > div.relative.z-10 {
-  width: 100%;
-  max-width: 1480px !important;
+  max-width: 1280px !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  padding-left: 1.5rem !important;
-  padding-right: 1.5rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+@media (min-width: 640px) {
+  .landing-page nav > .container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-page nav > .container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* Container isi landing */
+.landing-page main > div.relative > div.relative.z-10 {
+  width: 100%;
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
 }
 
 @media (min-width: 640px) {
   .landing-page main > div.relative > div.relative.z-10 {
-    padding-left: 2.5rem !important;
-    padding-right: 2.5rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
   }
 }
 
 @media (min-width: 1024px) {
   .landing-page main > div.relative > div.relative.z-10 {
-    padding-left: 5rem !important;
-    padding-right: 5rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* Perbaikan utama: section tidak terlalu tinggi agar hero tidak turun jauh */
+.landing-page main section {
+  min-height: auto !important;
+  padding-top: 4.5rem !important;
+  padding-bottom: 4.5rem !important;
+}
+
+.landing-page main section:first-child {
+  min-height: calc(100vh - 5rem) !important;
+  padding-top: 3.5rem !important;
+  padding-bottom: 3.5rem !important;
+}
+
+/* Desktop timeline layout */
+@media (min-width: 1024px) {
+  .landing-page main section {
+    min-height: 560px !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+  }
+
+  .landing-page main section:first-child {
+    min-height: calc(100vh - 5rem) !important;
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
   }
 
   .landing-page main section > div.grid {
     width: 100% !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    column-gap: 10rem !important;
-    row-gap: 4rem !important;
+    column-gap: 6rem !important;
+    row-gap: 3rem !important;
     align-items: center !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -114,24 +118,19 @@
 }
 
 @media (min-width: 1280px) {
-  .landing-page main > div.relative > div.relative.z-10 {
-    padding-left: 6rem !important;
-    padding-right: 6rem !important;
-  }
-
   .landing-page main section > div.grid {
-    column-gap: 11rem !important;
+    column-gap: 7rem !important;
   }
 }
 
-@media (min-width: 1536px) {
-  .landing-page main > div.relative > div.relative.z-10 {
-    max-width: 1520px !important;
-    padding-left: 7rem !important;
-    padding-right: 7rem !important;
+/* Mobile: gambar hero tetap di bawah teks agar tidak aneh */
+@media (max-width: 1023px) {
+  .landing-page main section > div.grid > div.order-1,
+  .landing-page main section > div.grid > div.order-2 {
+    order: initial !important;
   }
 
-  .landing-page main section > div.grid {
-    column-gap: 12rem !important;
+  .landing-page main section:first-child > div.grid {
+    gap: 2rem !important;
   }
 }
