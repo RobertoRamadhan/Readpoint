@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 const tabLabelMap: Record<string, string> = {
@@ -36,7 +36,7 @@ function clickGuruTab(tab: string) {
   return false;
 }
 
-export default function GuruDashboardEnhancer() {
+function GuruDashboardEnhancerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -78,4 +78,12 @@ export default function GuruDashboardEnhancer() {
   }, [pathname]);
 
   return null;
+}
+
+export default function GuruDashboardEnhancer() {
+  return (
+    <Suspense fallback={null}>
+      <GuruDashboardEnhancerInner />
+    </Suspense>
+  );
 }
