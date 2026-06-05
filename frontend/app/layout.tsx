@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import "./readpoint-theme.css";
 import "./guru-dashboard-clean.css";
@@ -39,8 +40,10 @@ export default function RootLayout({
       <body className="antialiased bg-slate-50 w-full min-h-screen m-0 p-0">
         <ErrorBoundary>
           <Providers>
-            <AdminTabFromQuery />
-            <GuruDashboardEnhancer />
+            <Suspense fallback={null}>
+              <AdminTabFromQuery />
+              <GuruDashboardEnhancer />
+            </Suspense>
             {children}
           </Providers>
         </ErrorBoundary>
