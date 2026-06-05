@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import './landing.css';
 
 export default function Home() {
   return (
@@ -180,8 +181,8 @@ export default function Home() {
                   <blockquote className="border-l-4 border-emerald-600 pl-4 sm:pl-6 mb-7 sm:mb-9">
                     <p className="text-lg sm:text-xl text-slate-700 font-semibold mb-4 sm:mb-6 leading-relaxed">"READPOINT telah mengubah cara siswa kami belajar. Mereka lebih termotivasi dan antusias dalam membaca. Sistem reward-nya sangat efektif untuk meningkatkan engagement."</p>
                     <footer className="text-slate-600">
-                      <p className="font-bold text-base sm:text-lg">Nurdiyansyah Prabowo, S.Pd</p>
-                      <p className="text-xs sm:text-sm">Kepala Bengkel Otomasi SMKN 1 BATAM</p>
+                      <p className="font-bold text-base sm:text-lg">Ibu Siti Nurhaliza</p>
+                      <p className="text-xs sm:text-sm">Kepala Sekolah, SMP Negeri 1</p>
                     </footer>
                   </blockquote>
                   <Link href="/register" className="inline-block rounded-lg bg-emerald-600 px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-white hover:bg-emerald-700 transition-all shadow-lg text-sm sm:text-base">Coba Sekarang</Link>
