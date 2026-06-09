@@ -53,7 +53,6 @@ export default function LoginPage() {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Login gagal';
       setError(errorMsg);
-      console.error('[Login Error]', err);
     } finally {
       setLoading(false);
     }
