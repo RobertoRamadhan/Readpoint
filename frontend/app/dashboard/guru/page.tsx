@@ -6,6 +6,20 @@ import AdminSidebar from '@/components/AdminSidebar';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  Activity,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  ClipboardCheck,
+  Clock3,
+  GraduationCap,
+  ListChecks,
+  PenLine,
+  Sparkles,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface GuruStats {
   total_siswa?: number;
@@ -138,7 +152,7 @@ export default function GuruDashboard() {
 
             {/* Beranda Tab */}
             {activeTab === 'beranda' && (
-              <BerandaTab stats={stats} dataLoading={dataLoading} />
+              <GuruOverviewDashboard stats={stats} dataLoading={dataLoading} />
             )}
 
             {/* Validasi Tab */}
@@ -390,6 +404,172 @@ function ProfileSettings() {
         </form>
       </div>
     </div>
+  );
+}
+
+function GuruOverviewDashboard({ stats, dataLoading }: { stats: GuruStats; dataLoading: boolean }) {
+  if (dataLoading) {
+    return (
+      <div className="grid min-h-[420px] place-items-center">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-700" />
+          <p className="mt-4 text-sm font-black text-emerald-700">Memuat dashboard guru...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalSiswa = stats.total_siswa || 0;
+  const totalKuis = stats.total_kuis_dibuat || 0;
+  const pendingValidation = stats.validasi_pending || 0;
+  const activeToday = stats.siswa_aktif_hari_ini || 0;
+  const readingRate = totalSiswa > 0 ? Math.min(100, Math.round((activeToday / totalSiswa) * 100)) : 0;
+
+  const metrics = [
+    { title: 'Total Siswa', value: totalSiswa, helper: 'Dalam pemantauan', Icon: Users, tone: 'emerald' as const },
+    { title: 'Kuis Dibuat', value: totalKuis, helper: 'Materi evaluasi', Icon: PenLine, tone: 'blue' as const },
+    { title: 'Validasi Pending', value: pendingValidation, helper: pendingValidation > 0 ? 'Perlu ditinjau' : 'Semua aman', Icon: ClipboardCheck, tone: 'amber' as const },
+    { title: 'Aktif Hari Ini', value: activeToday, helper: `${readingRate}% dari siswa`, Icon: Activity, tone: 'violet' as const },
+  ];
+
+  const workflow = [
+    { title: 'Bagikan bacaan', description: 'Arahkan siswa ke buku yang sesuai target kelas.', Icon: BookOpen },
+    { title: 'Validasi aktivitas', description: 'Cek progres dan catatan baca yang masuk.', Icon: CheckCircle2 },
+    { title: 'Buat kuis', description: 'Uji pemahaman siswa setelah membaca.', Icon: ListChecks },
+  ];
+
+  return (
+    <div className="w-full space-y-5">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+        <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_330px] lg:p-7">
+          <div className="min-w-0">
+            <p className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-black uppercase text-emerald-700">
+              <Sparkles size={16} aria-hidden="true" />
+              Dashboard Guru
+            </p>
+            <h1 className="mt-5 max-w-3xl text-3xl font-black leading-tight text-slate-950 lg:text-5xl">
+              Pantau literasi kelas dengan lebih cepat.
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 lg:text-base">
+              Validasi aktivitas membaca, kelola kuis, dan lihat keterlibatan siswa dari satu ruang kerja yang lebih tenang.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase text-emerald-700">Tingkat aktif</p>
+                <p className="mt-2 text-5xl font-black text-slate-950">{readingRate}%</p>
+              </div>
+              <GraduationCap className="h-10 w-10 text-emerald-700" aria-hidden="true" />
+            </div>
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
+              <div className="h-full rounded-full bg-emerald-600" style={{ width: `${readingRate}%` }} />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-slate-600">
+              {activeToday.toLocaleString('id-ID')} siswa aktif dari {totalSiswa.toLocaleString('id-ID')} siswa.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((item) => (
+          <GuruMetricCard key={item.title} {...item} />
+        ))}
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase text-emerald-700">Alur kerja</p>
+              <h2 className="mt-1 text-2xl font-black text-slate-950">Fokus hari ini</h2>
+            </div>
+            <Clock3 className="h-8 w-8 text-emerald-700" aria-hidden="true" />
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-3">
+            {workflow.map((item, index) => (
+              <GuruWorkflowCard key={item.title} index={index + 1} {...item} />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-950 p-5 text-white shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
+          <p className="text-xs font-black uppercase text-emerald-200">Prioritas Validasi</p>
+          <h2 className="mt-2 text-2xl font-black text-white">{pendingValidation.toLocaleString('id-ID')} pending</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-300">
+            {pendingValidation > 0
+              ? 'Masuk ke menu validasi untuk meninjau aktivitas baca siswa yang menunggu persetujuan.'
+              : 'Tidak ada aktivitas yang menunggu validasi saat ini.'}
+          </p>
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/10 p-4">
+            <p className="text-sm font-black text-white">Kuis aktif</p>
+            <p className="mt-1 text-3xl font-black text-emerald-200">{totalKuis.toLocaleString('id-ID')}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function GuruMetricCard({
+  title,
+  value,
+  helper,
+  Icon,
+  tone,
+}: {
+  title: string;
+  value: number;
+  helper: string;
+  Icon: LucideIcon;
+  tone: 'emerald' | 'blue' | 'amber' | 'violet';
+}) {
+  const toneClass = {
+    emerald: 'bg-emerald-50 text-emerald-700',
+    blue: 'bg-blue-50 text-blue-700',
+    amber: 'bg-amber-50 text-amber-700',
+    violet: 'bg-violet-50 text-violet-700',
+  }[tone];
+
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase text-slate-500">{title}</p>
+          <p className="mt-2 text-3xl font-black text-slate-950">{value.toLocaleString('id-ID')}</p>
+        </div>
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${toneClass}`}>
+          <Icon size={22} aria-hidden="true" />
+        </div>
+      </div>
+      <p className="mt-4 text-sm font-semibold text-slate-500">{helper}</p>
+    </article>
+  );
+}
+
+function GuruWorkflowCard({
+  index,
+  title,
+  description,
+  Icon,
+}: {
+  index: number;
+  title: string;
+  description: string;
+  Icon: LucideIcon;
+}) {
+  return (
+    <article className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex items-center justify-between gap-4">
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-slate-950 text-sm font-black text-white">{index}</span>
+        <Icon className="h-6 w-6 text-emerald-700" aria-hidden="true" />
+      </div>
+      <h3 className="mt-4 text-base font-black text-slate-950">{title}</h3>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{description}</p>
+      <ArrowRight className="mt-4 h-4 w-4 text-slate-300" aria-hidden="true" />
+    </article>
   );
 }
 
