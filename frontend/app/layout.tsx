@@ -10,6 +10,7 @@ import "./admin-dashboard-final.css";
 import "./admin-report-settings-final.css";
 import "./siswa-dashboard-fix.css";
 import "./siswa-desktop-final.css";
+import "./dashboard-hotfix.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import AdminTabFromQuery from "@/components/AdminTabFromQuery";
