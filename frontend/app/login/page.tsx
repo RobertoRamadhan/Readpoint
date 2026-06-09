@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -60,12 +63,12 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-slate-100 text-slate-950">
-      <div className="grid min-h-screen lg:grid-cols-[minmax(390px,0.88fr)_minmax(0,1.12fr)]">
+      <div className="grid min-h-screen lg:grid-cols-[minmax(360px,0.82fr)_minmax(0,1.18fr)]">
         <section
           className="relative hidden overflow-hidden bg-slate-950 bg-cover bg-center lg:flex"
           style={{ backgroundImage: 'url("/perpus.jpg")' }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/92 via-slate-950/66 to-emerald-950/42" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/92 via-slate-950/68 to-emerald-950/44" />
           <div className="relative z-10 flex min-h-screen w-full flex-col justify-between p-10 xl:p-12">
             <Link href="/" className="inline-flex items-center gap-3 text-white">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-2xl">
@@ -83,8 +86,7 @@ export default function LoginPage() {
                 Masuk dan lanjutkan progres membaca.
               </h1>
               <p className="mt-5 max-w-lg text-base leading-8 text-slate-100/85">
-                Dashboard READPOINT menyatukan aktivitas baca, kuis, poin, dan laporan kelas dalam
-                alur yang mudah dipantau.
+                Dashboard READPOINT menyatukan aktivitas baca, kuis, poin, dan laporan kelas dalam alur yang mudah dipantau.
               </p>
             </div>
 
@@ -101,105 +103,93 @@ export default function LoginPage() {
           </div>
         </section>
 
-        <section className="flex min-h-screen items-center px-5 py-8 sm:px-8 lg:px-14 xl:px-20">
-          <div className="mx-auto w-full max-w-[520px]">
-            <Link href="/" className="mb-8 inline-flex items-center gap-3 text-slate-950 lg:hidden">
+        <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-10 xl:px-14">
+          <div className="w-full max-w-[480px]">
+            <Link href="/" className="mb-6 inline-flex items-center gap-3 text-slate-950 lg:hidden">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-lg shadow-emerald-700/20">
                 <Library size={20} strokeWidth={2.5} aria-hidden="true" />
               </span>
               <span className="font-black">READPOINT</span>
             </Link>
 
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70 sm:p-8">
-              <div className="mb-7">
+            <Card className="rounded-3xl shadow-xl shadow-slate-200/80">
+              <CardHeader className="p-6 pb-4 sm:p-8 sm:pb-5">
                 <p className="text-xs font-black uppercase tracking-wide text-emerald-700">Selamat datang</p>
-                <h2 className="mt-3 text-3xl font-black leading-tight text-slate-950 sm:text-4xl">
-                  Masuk ke akun
-                </h2>
-                <p className="mt-3 text-base leading-7 text-slate-600">
+                <CardTitle className="text-3xl sm:text-4xl">Masuk ke akun</CardTitle>
+                <CardDescription className="text-base">
                   Gunakan akun yang sudah terdaftar untuk membuka dashboard READPOINT.
-                </p>
-              </div>
+                </CardDescription>
+              </CardHeader>
 
-              {error && (
-                <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
-                  {error}
+              <CardContent className="p-6 pt-0 sm:p-8 sm:pt-0">
+                {error && (
+                  <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                    {error}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-black text-slate-800">Email</span>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-12 pl-12"
+                        placeholder="nama@email.com"
+                        autoComplete="email"
+                        disabled={loading}
+                        required
+                      />
+                    </div>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-black text-slate-800">Password</span>
+                    <div className="relative">
+                      <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-12 pl-12 pr-12"
+                        placeholder="Masukkan password"
+                        autoComplete="current-password"
+                        disabled={loading}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((value) => !value)}
+                        className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                        aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                      >
+                        {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
+                      </button>
+                    </div>
+                  </label>
+
+                  <Button type="submit" disabled={loading} size="lg" className="w-full rounded-2xl">
+                    {loading ? 'Memproses...' : 'Masuk'}
+                    {!loading && <ArrowRight size={18} aria-hidden="true" />}
+                  </Button>
+                </form>
+
+                <div className="mt-6 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-700" aria-hidden="true" />
+                  <p className="m-0 leading-6">Akun terhubung ke dashboard sesuai peran siswa, guru, atau admin.</p>
                 </div>
-              )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-800">Email</span>
-                  <div className="relative">
-                    <Mail
-                      size={19}
-                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                      aria-hidden="true"
-                    />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-13 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
-                      placeholder="nama@email.com"
-                      autoComplete="email"
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-                </label>
-
-                <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-800">Password</span>
-                  <div className="relative">
-                    <LockKeyhole
-                      size={19}
-                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                      aria-hidden="true"
-                    />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-13 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 pr-12 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
-                      placeholder="Masukkan password"
-                      autoComplete="current-password"
-                      disabled={loading}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((value) => !value)}
-                      className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-                      aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                    >
-                      {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
-                    </button>
-                  </div>
-                </label>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-base font-black text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? 'Memproses...' : 'Masuk'}
-                  {!loading && <ArrowRight size={18} aria-hidden="true" />}
-                </button>
-              </form>
-
-              <div className="mt-6 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-700" aria-hidden="true" />
-                <p className="m-0 leading-6">Akun terhubung ke dashboard sesuai peran siswa, guru, atau admin.</p>
-              </div>
-
-              <p className="mt-7 text-center text-sm font-semibold text-slate-600">
-                Belum punya akun?{' '}
-                <Link href="/register" className="font-black text-emerald-700 hover:text-emerald-800">
-                  Daftar di sini
-                </Link>
-              </p>
-            </div>
+                <p className="mt-7 text-center text-sm font-semibold text-slate-600">
+                  Belum punya akun?{' '}
+                  <Link href="/register" className="font-black text-emerald-700 hover:text-emerald-800">
+                    Daftar di sini
+                  </Link>
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </section>
       </div>
