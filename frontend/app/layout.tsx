@@ -15,6 +15,7 @@ import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import AdminTabFromQuery from "@/components/AdminTabFromQuery";
 import GuruDashboardEnhancer from "@/components/GuruDashboardEnhancer";
+import GuruCrudOverlay from "@/components/GuruCrudOverlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
           <Providers>
             <AdminTabFromQuery />
             <GuruDashboardEnhancer />
+            <GuruCrudOverlay />
             {children}
           </Providers>
         </ErrorBoundary>
