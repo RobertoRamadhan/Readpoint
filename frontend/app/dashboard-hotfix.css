@@ -1,0 +1,117 @@
+/* READPOINT Dashboard Hotfix
+   File ini dimuat paling akhir untuk menahan bentrok CSS lama pada dashboard admin/guru/siswa. */
+
+/* Layout utama dashboard dengan sidebar */
+.readpoint-admin-sidebar + div {
+  min-width: 0 !important;
+  width: 100% !important;
+  background: #f8fafc !important;
+}
+
+@media (min-width: 768px) {
+  .readpoint-admin-sidebar + div {
+    margin-left: 0 !important;
+    flex: 1 1 auto !important;
+    max-width: none !important;
+  }
+}
+
+.readpoint-admin-sidebar + div > div {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Perbaikan kartu statistik guru yang pecah huruf ke bawah */
+.readpoint-admin-sidebar + div article {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.readpoint-admin-sidebar + div article > div.flex {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+
+.readpoint-admin-sidebar + div article > div.flex > div:first-child {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  width: auto !important;
+  max-width: calc(100% - 4rem) !important;
+}
+
+.readpoint-admin-sidebar + div article > div.flex > div:last-child {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  min-width: 2.75rem !important;
+  max-width: 2.75rem !important;
+  flex: 0 0 2.75rem !important;
+}
+
+.readpoint-admin-sidebar + div article p,
+.readpoint-admin-sidebar + div article h1,
+.readpoint-admin-sidebar + div article h2,
+.readpoint-admin-sidebar + div article h3,
+.readpoint-admin-sidebar + div article span {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.readpoint-admin-sidebar + div article p.text-xs.font-black.uppercase {
+  display: block !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1.2 !important;
+}
+
+.readpoint-admin-sidebar + div article p.text-3xl.font-black {
+  display: block !important;
+  white-space: nowrap !important;
+  line-height: 1.05 !important;
+}
+
+.readpoint-admin-sidebar + div article > p:last-child {
+  white-space: normal !important;
+  line-height: 1.5 !important;
+}
+
+/* Grid statistik agar tidak terlalu sempit */
+.readpoint-admin-sidebar + div section.grid.gap-4 {
+  min-width: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .readpoint-admin-sidebar + div section.grid.gap-4 {
+    grid-template-columns: repeat(2, minmax(220px, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .readpoint-admin-sidebar + div section.grid.gap-4 {
+    grid-template-columns: repeat(4, minmax(220px, 1fr)) !important;
+  }
+}
+
+/* Header guru supaya tetap rapi di layar kecil */
+.readpoint-admin-sidebar + div h1 {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+@media (max-width: 767px) {
+  .readpoint-admin-sidebar + div h1 {
+    font-size: 1.85rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .readpoint-admin-sidebar + div article > div.flex > div:first-child {
+    max-width: calc(100% - 3.6rem) !important;
+  }
+}
