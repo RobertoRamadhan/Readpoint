@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   BarChart3,
@@ -88,6 +88,16 @@ export default function AdminSidebar({
 
   const items = menuItems || defaultMenuItems;
   const roleLabel = role === 'guru' ? 'Panel Guru' : 'Panel Admin';
+  const basePath = role === 'guru' ? '/dashboard/guru' : '/dashboard/admin';
+
+  useEffect(() => {
+    const parentWithActiveChild = items.find((item) => item.subItems?.some((sub) => sub.id === activeTab));
+    if (!parentWithActiveChild) return;
+
+    setExpandedItems((current) =>
+      current.includes(parentWithActiveChild.id) ? current : [...current, parentWithActiveChild.id]
+    );
+  }, [activeTab, items]);
 
   const toggleExpand = (itemId: string) => {
     setExpandedItems((prev) =>
@@ -95,56 +105,27 @@ export default function AdminSidebar({
     );
   };
 
-  const goAdminTab = (tabId: string) => {
+  const goTab = (tabId: string) => {
     onTabChange(tabId);
-    router.push(tabId === 'beranda' ? '/dashboard/admin' : `/dashboard/admin?tab=${tabId}`);
-    onCloseSidebar();
-  };
 
-  const goGuruTab = (tabId: string) => {
-    onTabChange(tabId);
-    router.push(tabId === 'beranda' ? '/dashboard/guru' : `/dashboard/guru?tab=${tabId}`);
+    if (tabId === 'beranda') {
+      router.push(basePath);
+    } else if (tabId === 'laporan') {
+      router.push(`${basePath}/laporan`);
+    } else {
+      router.push(`${basePath}?tab=${tabId}`);
+    }
+
     onCloseSidebar();
   };
 
   const handleItemClick = (item: MenuItem) => {
     if (item.subItems && item.subItems.length > 0) {
       toggleExpand(item.id);
-      const firstSubItem = item.subItems[0];
-      if (role === 'admin') {
-        goAdminTab(firstSubItem.id);
-        return;
-      }
-      goGuruTab(firstSubItem.id);
       return;
     }
 
-    if (role === 'admin') {
-      if (item.id === 'laporan') {
-        router.push('/dashboard/admin/laporan');
-        onCloseSidebar();
-        return;
-      }
-      goAdminTab(item.id);
-      return;
-    }
-
-    if (item.id === 'laporan') {
-      router.push('/dashboard/guru/laporan');
-      onCloseSidebar();
-      return;
-    }
-
-    goGuruTab(item.id);
-  };
-
-  const handleSubItemClick = (subItemId: string) => {
-    if (role === 'admin') {
-      goAdminTab(subItemId);
-      return;
-    }
-
-    goGuruTab(subItemId);
+    goTab(item.id);
   };
 
   return (
@@ -152,6 +133,7 @@ export default function AdminSidebar({
       className={`readpoint-admin-sidebar fixed z-40 flex h-[calc(100vh-56px)] w-64 flex-col overflow-hidden border-r border-slate-200 bg-slate-950 text-white shadow-xl transition-transform duration-300 sm:h-[calc(100vh-64px)] sm:w-72 md:relative ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
+      aria-label={`${roleLabel} sidebar`}
     >
       <div className="readpoint-admin-brand border-b border-white/10 p-5">
         <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
@@ -176,20 +158,24 @@ export default function AdminSidebar({
           const Icon = item.Icon || LayoutGrid;
 
           return (
-            <div key={item.id}>
+            <div key={item.id} className="readpoint-admin-menu-group">
               <button
+                type="button"
                 onClick={() => handleItemClick(item)}
-                className={`readpoint-admin-menu-item flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-black transition ${
+                data-sidebar-tab={item.id}
+                aria-label={item.label}
+                aria-expanded={hasSubItems ? isExpanded : undefined}
+                className={`readpoint-admin-menu-item flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left text-sm font-black transition ${
                   isActive || anySubItemActive
                     ? 'bg-white text-slate-950 shadow-lg'
                     : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                <span className="flex min-w-0 items-center gap-3">
+                <span className="flex min-w-0 flex-1 items-center gap-3">
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-current/10">
                     <Icon size={18} aria-hidden="true" />
                   </span>
-                  <span className="truncate">{item.label}</span>
+                  <span className="readpoint-admin-menu-label block min-w-0 flex-1 truncate">{item.label}</span>
                 </span>
                 {hasSubItems && (
                   <ChevronDown
@@ -209,8 +195,11 @@ export default function AdminSidebar({
 
                       return (
                         <button
+                          type="button"
                           key={subItem.id}
-                          onClick={() => handleSubItemClick(subItem.id)}
+                          onClick={() => goTab(subItem.id)}
+                          data-sidebar-tab={subItem.id}
+                          aria-label={subItem.label}
                           className={`readpoint-admin-submenu-item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${
                             isSubActive
                               ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20'
@@ -218,7 +207,7 @@ export default function AdminSidebar({
                           }`}
                         >
                           <SubIcon size={16} className="shrink-0" aria-hidden="true" />
-                          <span className="truncate">{subItem.label}</span>
+                          <span className="readpoint-admin-submenu-label block min-w-0 flex-1 truncate">{subItem.label}</span>
                         </button>
                       );
                     })}
