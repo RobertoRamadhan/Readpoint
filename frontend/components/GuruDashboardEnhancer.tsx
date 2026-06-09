@@ -80,6 +80,9 @@ function GuruDashboardEnhancerInner() {
       const button = (event.target as HTMLElement).closest('button') as HTMLButtonElement | null;
       if (!button) return;
 
+      // Jangan cegat klik sidebar. Sidebar punya handler sendiri untuk mengganti tab dan URL.
+      if (button.dataset.sidebarTab) return;
+
       const text = button.textContent?.replace(/\s+/g, ' ').trim() || '';
       const action = Object.keys(quickActionMap).find((key) => text.includes(key));
       if (!action) return;
