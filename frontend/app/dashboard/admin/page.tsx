@@ -7,6 +7,21 @@ import { normalizeFileUrl } from '@/lib/file-url';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  Activity,
+  ArrowUpRight,
+  BookOpen,
+  ClipboardList,
+  Gift,
+  GraduationCap,
+  Library,
+  ListChecks,
+  PackageCheck,
+  Sparkles,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface AdminStats {
   total_siswa?: number;
@@ -149,7 +164,7 @@ export default function AdminDashboard() {
 
             {/* Beranda Tab */}
             {activeTab === 'beranda' && (
-              <OverviewTab stats={stats} topStudents={topStudents} dataLoading={dataLoading} />
+              <AdminOverviewDashboard stats={stats} topStudents={topStudents} dataLoading={dataLoading} />
             )}
 
             {/* E-Books Tab */}
@@ -406,6 +421,202 @@ function ProfileSettings() {
         </form>
       </div>
     </div>
+  );
+}
+
+function AdminOverviewDashboard({ stats, topStudents, dataLoading }: { stats: AdminStats; topStudents: TopStudent[]; dataLoading: boolean }) {
+  if (dataLoading) {
+    return (
+      <div className="grid min-h-[420px] place-items-center">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-700" />
+          <p className="mt-4 text-sm font-black text-emerald-700">Memuat dashboard admin...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalUsers = (stats.total_siswa || 0) + (stats.total_guru || 0);
+  const todayTotal =
+    (stats.siswa_aktif_hari_ini || 0) +
+    (stats.buku_dibaca_hari_ini || 0) +
+    (stats.kuis_dikerjakan_hari_ini || 0) +
+    (stats.reward_diklaim_hari_ini || 0);
+
+  const metricCards = [
+    { title: 'Total Siswa', value: stats.total_siswa || 0, helper: 'Akun siswa terdaftar', Icon: GraduationCap, tone: 'emerald' as const },
+    { title: 'Total Guru', value: stats.total_guru || 0, helper: 'Pengajar aktif', Icon: Users, tone: 'blue' as const },
+    { title: 'E-Book', value: stats.total_ebook || 0, helper: 'Koleksi bacaan', Icon: BookOpen, tone: 'violet' as const },
+    { title: 'Reward', value: stats.total_reward || 0, helper: 'Hadiah tersedia', Icon: Gift, tone: 'amber' as const },
+  ];
+
+  const todayCards = [
+    { title: 'Siswa Aktif', value: stats.siswa_aktif_hari_ini || 0, Icon: Activity },
+    { title: 'Buku Dibaca', value: stats.buku_dibaca_hari_ini || 0, Icon: Library },
+    { title: 'Kuis Dikerjakan', value: stats.kuis_dikerjakan_hari_ini || 0, Icon: ListChecks },
+    { title: 'Reward Diklaim', value: stats.reward_diklaim_hari_ini || 0, Icon: PackageCheck },
+  ];
+
+  return (
+    <div className="w-full space-y-5">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
+        <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:p-7">
+          <div className="min-w-0">
+            <p className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase text-emerald-100">
+              <Sparkles size={16} aria-hidden="true" />
+              Dashboard Admin
+            </p>
+            <h1 className="mt-5 max-w-3xl text-3xl font-black leading-tight text-white lg:text-5xl">
+              Kontrol literasi sekolah dalam satu panel.
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 lg:text-base">
+              Pantau pengguna, koleksi e-book, reward, dan aktivitas harian READPOINT tanpa perlu berpindah konteks.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/15 bg-white/10 p-5">
+            <p className="text-xs font-black uppercase text-slate-300">Aktivitas Hari Ini</p>
+            <p className="mt-2 text-5xl font-black text-white">{todayTotal.toLocaleString('id-ID')}</p>
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
+              <div className="h-full w-3/4 rounded-full bg-emerald-400" />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-slate-300">
+              {totalUsers.toLocaleString('id-ID')} total akun terkelola
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {metricCards.map((card) => (
+          <AdminMetricCard key={card.title} {...card} />
+        ))}
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase text-emerald-700">Monitoring</p>
+              <h2 className="mt-1 text-2xl font-black text-slate-950">Aktivitas hari ini</h2>
+            </div>
+            <Activity className="h-8 w-8 text-emerald-700" aria-hidden="true" />
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {todayCards.map((card) => (
+              <AdminTodayCard key={card.title} {...card} />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase text-emerald-700">Leaderboard</p>
+              <h2 className="mt-1 text-2xl font-black text-slate-950">Siswa teratas</h2>
+            </div>
+            <Trophy className="h-8 w-8 text-amber-500" aria-hidden="true" />
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {topStudents.length > 0 ? (
+              topStudents.slice(0, 5).map((student, index) => (
+                <div key={student.id} className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-slate-950 text-sm font-black text-white">
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black text-slate-950">{student.name}</p>
+                      <p className="truncate text-xs font-semibold text-slate-500">{student.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-black text-emerald-700">{(student.total_points || 0).toLocaleString('id-ID')}</p>
+                    <p className="text-[11px] font-bold text-slate-500">poin</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+                <p className="text-sm font-bold text-slate-500">Belum ada data siswa</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <AdminPriorityCard Icon={BookOpen} title="Koleksi Buku" description="Pastikan cover, PDF, dan poin baca sudah lengkap." />
+        <AdminPriorityCard Icon={Gift} title="Reward Sekolah" description="Pantau stok hadiah agar penukaran siswa tetap lancar." />
+        <AdminPriorityCard Icon={ClipboardList} title="Data Pengguna" description="Rapikan akun siswa, guru, dan admin sesuai kelas." />
+      </section>
+    </div>
+  );
+}
+
+function AdminMetricCard({
+  title,
+  value,
+  helper,
+  Icon,
+  tone,
+}: {
+  title: string;
+  value: number;
+  helper: string;
+  Icon: LucideIcon;
+  tone: 'emerald' | 'blue' | 'violet' | 'amber';
+}) {
+  const toneClass = {
+    emerald: 'bg-emerald-50 text-emerald-700',
+    blue: 'bg-blue-50 text-blue-700',
+    violet: 'bg-violet-50 text-violet-700',
+    amber: 'bg-amber-50 text-amber-700',
+  }[tone];
+
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase text-slate-500">{title}</p>
+          <p className="mt-2 text-3xl font-black text-slate-950">{value.toLocaleString('id-ID')}</p>
+        </div>
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${toneClass}`}>
+          <Icon size={22} aria-hidden="true" />
+        </div>
+      </div>
+      <p className="mt-4 text-sm font-semibold text-slate-500">{helper}</p>
+    </article>
+  );
+}
+
+function AdminTodayCard({ title, value, Icon }: { title: string; value: number; Icon: LucideIcon }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div>
+        <p className="text-sm font-black text-slate-950">{title}</p>
+        <p className="mt-1 text-2xl font-black text-slate-950">{value.toLocaleString('id-ID')}</p>
+      </div>
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-emerald-700 shadow-sm">
+        <Icon size={20} aria-hidden="true" />
+      </div>
+    </div>
+  );
+}
+
+function AdminPriorityCard({ Icon, title, description }: { Icon: LucideIcon; title: string; description: string }) {
+  return (
+    <article className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-emerald-200">
+      <div className="flex items-start justify-between gap-4">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-50 text-emerald-700">
+          <Icon size={22} aria-hidden="true" />
+        </div>
+        <ArrowUpRight size={18} className="text-slate-300 transition group-hover:text-emerald-700" aria-hidden="true" />
+      </div>
+      <h3 className="mt-4 text-lg font-black text-slate-950">{title}</h3>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{description}</p>
+    </article>
   );
 }
 

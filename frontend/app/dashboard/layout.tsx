@@ -1,8 +1,9 @@
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Library, LogOut, Settings } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function DashboardLayout({
   children,
@@ -15,7 +16,8 @@ export default function DashboardLayout({
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -40,11 +42,6 @@ export default function DashboardLayout({
     return null;
   }
 
-  /**
-   * Khusus halaman siswa, layout global tidak lagi menampilkan header/footer lama.
-   * Dashboard siswa, PDF reader, quiz, dan profile punya shell sendiri supaya desainnya
-   * tidak bertabrakan dengan header global dashboard.
-   */
   if (user?.role === 'siswa') {
     return (
       <main className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-slate-50 text-slate-900">
@@ -73,6 +70,9 @@ export default function DashboardLayout({
               onClick={() => router.push('/dashboard')}
               className="flex min-w-0 items-center gap-2 text-left sm:gap-3"
             >
+              <span className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-700 text-white shadow-sm sm:flex">
+                <Library size={18} strokeWidth={2.5} aria-hidden="true" />
+              </span>
               <div className="min-w-0">
                 <h1 className="truncate text-sm font-black leading-none text-slate-900 sm:text-base">
                   READPOINT
@@ -126,14 +126,14 @@ export default function DashboardLayout({
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100"
                       title="Pengaturan Profil"
                     >
-                      ⚙️
+                      <Settings size={17} aria-hidden="true" />
                     </button>
                     <button
                       onClick={handleLogout}
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
                       title="Keluar"
                     >
-                      🚪
+                      <LogOut size={17} aria-hidden="true" />
                     </button>
                   </div>
                 )}
@@ -143,14 +143,14 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden bg-slate-50">
+      <main className="w-full max-w-[100vw] flex-1 overflow-x-hidden bg-slate-50">
         <div className={dashboardShellClass}>{children}</div>
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-200 bg-white">
         <div className="mx-auto w-full px-3 py-4 text-center sm:px-4 sm:py-5 lg:px-7 lg:py-6 xl:px-8">
           <p className="text-xs font-semibold text-slate-500 sm:text-sm">
-            © 2026 READPOINT - Platform Literasi Digital Indonesia
+            &copy; 2026 READPOINT - Platform Literasi Digital Indonesia
           </p>
         </div>
       </footer>

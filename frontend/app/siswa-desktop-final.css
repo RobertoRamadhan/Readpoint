@@ -207,3 +207,50 @@
     margin-top: 0.85rem !important;
   }
 }
+
+/* READPOINT siswa visual refresh: align with the new landing/auth/admin/guru theme. */
+body:has(aside[class*="w-[120px]"]),
+body:has(nav[class*="grid-cols-5"]) {
+  background: #f8fafc !important;
+}
+
+[class*="bg-[#fbfaf7]"] {
+  background-color: #f8fafc !important;
+}
+
+[class*="bg-[#f6f2ea]"],
+[class*="bg-[#f0eadf]"] {
+  background-color: #f1f5f9 !important;
+}
+
+[class*="border-[#eee7dc]"],
+[class*="border-[#e5dccf]"] {
+  border-color: #e2e8f0 !important;
+}
+
+[class*="rgba(45,34,18"] {
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.07) !important;
+}
+
+aside[class*="w-[120px]"] {
+  border-right-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 12px 0 34px rgba(15, 23, 42, 0.06) !important;
+}
+
+main[class*="flex-1"] > header {
+  border-bottom-color: #e2e8f0 !important;
+  background: rgba(248, 250, 252, 0.96) !important;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.045) !important;
+}
+
+main[class*="flex-1"] section,
+main[class*="flex-1"] article,
+main[class*="flex-1"] button[class*="bg-white"] {
+  border-color: #e2e8f0 !important;
+}
+
+nav[class*="bottom-0"] {
+  border-top-color: #e2e8f0 !important;
+  box-shadow: 0 -16px 40px rgba(15, 23, 42, 0.12) !important;
+}
