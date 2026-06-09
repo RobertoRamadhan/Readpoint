@@ -11,6 +11,8 @@ const tabLabelMap: Record<string, string> = {
   pengaturan: 'Pengaturan',
 };
 
+const allowedTabs = new Set(['beranda', 'validasi', 'kuis', 'siswa', 'pengaturan']);
+
 const quickActionMap: Record<string, string> = {
   'Bagikan Buku': 'kuis',
   'Validasi Pembacaan': 'validasi',
@@ -19,6 +21,14 @@ const quickActionMap: Record<string, string> = {
 };
 
 function clickGuruTab(tab: string) {
+  if (!allowedTabs.has(tab)) return false;
+
+  const buttonByData = document.querySelector<HTMLButtonElement>(`button[data-sidebar-tab="${tab}"]`);
+  if (buttonByData) {
+    buttonByData.click();
+    return true;
+  }
+
   const label = tabLabelMap[tab];
   if (!label) return false;
 
@@ -44,16 +54,23 @@ function GuruDashboardEnhancerInner() {
     if (pathname !== '/dashboard/guru') return;
 
     const tab = searchParams.get('tab');
-    if (!tab) return;
+    if (!tab || !allowedTabs.has(tab)) return;
 
     let attempts = 0;
+    let cancelled = false;
+
     const openTab = () => {
+      if (cancelled) return;
       attempts += 1;
       if (clickGuruTab(tab)) return;
-      if (attempts < 20) window.setTimeout(openTab, 100);
+      if (attempts < 30) window.setTimeout(openTab, 120);
     };
 
     window.setTimeout(openTab, 80);
+
+    return () => {
+      cancelled = true;
+    };
   }, [pathname, searchParams]);
 
   useEffect(() => {
