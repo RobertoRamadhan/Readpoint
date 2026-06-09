@@ -101,12 +101,12 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-slate-100 text-slate-950">
-      <div className="grid min-h-screen lg:grid-cols-[minmax(390px,0.88fr)_minmax(0,1.12fr)]">
+      <div className="grid min-h-screen lg:grid-cols-[minmax(360px,0.82fr)_minmax(0,1.18fr)]">
         <section
           className="relative hidden overflow-hidden bg-slate-950 bg-cover bg-center lg:flex"
           style={{ backgroundImage: 'url("/perpus.jpg")' }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/92 via-slate-950/66 to-emerald-950/42" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/92 via-slate-950/68 to-emerald-950/44" />
           <div className="relative z-10 flex min-h-screen w-full flex-col justify-between p-10 xl:p-12">
             <Link href="/" className="inline-flex items-center gap-3 text-white">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-2xl">
@@ -124,8 +124,7 @@ export default function RegisterPage() {
                 Mulai kebiasaan membaca yang terukur.
               </h1>
               <p className="mt-5 max-w-lg text-base leading-8 text-slate-100/85">
-                Daftar sekali, lalu siswa dapat membaca e-book, mengerjakan kuis, dan mengumpulkan
-                poin reward dari dashboard yang sama.
+                Daftar sekali, lalu siswa dapat membaca e-book, mengerjakan kuis, dan mengumpulkan poin reward dari dashboard yang sama.
               </p>
             </div>
 
@@ -140,16 +139,16 @@ export default function RegisterPage() {
           </div>
         </section>
 
-        <section className="flex min-h-screen items-center px-5 py-8 sm:px-8 lg:px-12 xl:px-16">
-          <div className="mx-auto w-full max-w-[680px]">
-            <Link href="/" className="mb-8 inline-flex items-center gap-3 text-slate-950 lg:hidden">
+        <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-10 xl:px-14">
+          <div className="w-full max-w-[680px]">
+            <Link href="/" className="mb-6 inline-flex items-center gap-3 text-slate-950 lg:hidden">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-lg shadow-emerald-700/20">
                 <Library size={20} strokeWidth={2.5} aria-hidden="true" />
               </span>
               <span className="font-black">READPOINT</span>
             </Link>
 
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70 sm:p-8">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/80 sm:p-8">
               <div className="mb-7">
                 <p className="text-xs font-black uppercase tracking-wide text-emerald-700">Pendaftaran</p>
                 <h2 className="mt-3 text-3xl font-black leading-tight text-slate-950 sm:text-4xl">
@@ -206,7 +205,7 @@ export default function RegisterPage() {
                         name="grade_level"
                         value={formData.grade_level}
                         onChange={handleChange}
-                        className="h-13 w-full appearance-none rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-base font-semibold text-slate-950 outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+                        className="h-14 w-full appearance-none rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-base font-semibold text-slate-950 outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
                         disabled={loading}
                         required
                       >
@@ -261,7 +260,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-base font-black text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-base font-black text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? 'Memproses...' : 'Daftar'}
                   {!loading && <ArrowRight size={18} aria-hidden="true" />}
@@ -315,7 +314,7 @@ function TextField({
           name={name}
           value={value}
           onChange={onChange}
-          className="h-13 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+          className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
           placeholder={placeholder}
           autoComplete={autoComplete}
           disabled={loading}
@@ -361,7 +360,7 @@ function PasswordField({
           name={name}
           value={value}
           onChange={onChange}
-          className="h-13 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 pr-12 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+          className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 pr-12 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:bg-slate-50"
           placeholder={placeholder}
           autoComplete={autoComplete}
           disabled={loading}
