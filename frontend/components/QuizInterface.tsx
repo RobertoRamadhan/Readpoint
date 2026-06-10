@@ -105,37 +105,37 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-4 lg:px-8">
-          <div className="flex items-center justify-between gap-3">
-            <button onClick={onCancel} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
+    <div className="flex min-h-screen w-full flex-col overflow-x-hidden bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+        <div className="w-full px-4 py-5 sm:px-6 lg:px-8">
+          <div className="flex min-h-[56px] items-center justify-between gap-4">
+            <button onClick={onCancel} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Kuis E-Book</p>
-              <h1 className="mt-1 truncate text-base font-black text-slate-900 sm:text-xl">{ebookTitle}</h1>
+              <h1 className="mt-1 truncate text-2xl font-black leading-tight text-slate-900 sm:text-3xl">{ebookTitle}</h1>
             </div>
-            <div className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">{answeredCount}/{questions.length}</div>
+            <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700">{answeredCount}/{questions.length}</div>
           </div>
 
           <div className="mt-4 flex items-center gap-3">
-            <span className="hidden text-xs font-black text-slate-600 sm:inline">Progress Kuis</span>
+            <span className="hidden shrink-0 text-xs font-black text-slate-600 sm:inline">Progress Kuis</span>
             <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200">
               <div className="h-full rounded-full bg-emerald-700 transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
-            <span className="w-10 text-right text-xs font-black text-emerald-700">{progress}%</span>
+            <span className="w-12 text-right text-xs font-black text-emerald-700">{progress}%</span>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-5 px-4 py-5 lg:grid-cols-[280px_1fr] lg:px-8 lg:py-8">
-        <aside className="hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:block">
-          <h2 className="text-lg font-black text-slate-950">Navigasi Soal</h2>
-          <p className="mt-2 text-sm font-semibold text-slate-500">Pantau soal yang sudah dijawab</p>
-          <div className="mt-8 space-y-3">
+      <main className="grid w-full flex-1 grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:px-8 lg:py-8">
+        <aside className="hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm lg:block">
+          <h2 className="text-2xl font-black text-slate-950">Navigasi Soal</h2>
+          <p className="mt-2 text-sm font-semibold leading-7 text-slate-500">Pantau soal yang sudah dijawab</p>
+          <div className="mt-7 space-y-3">
             {questions.map((q, index) => (
               <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition ${index === currentIndex ? 'border-emerald-600 bg-emerald-600 text-white' : selectedAnswers[q.id] ? 'border-emerald-200 bg-emerald-50 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}>
-                <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black ${index === currentIndex ? 'bg-white text-emerald-700' : selectedAnswers[q.id] ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}`}>{index + 1}</span>
-                <span><span className="block text-sm font-black">Soal {index + 1}</span><span className={`text-xs font-semibold ${index === currentIndex ? 'text-emerald-50' : selectedAnswers[q.id] ? 'text-emerald-700' : 'text-slate-400'}`}>{selectedAnswers[q.id] ? 'Sudah dijawab' : 'Belum dijawab'}</span></span>
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black ${index === currentIndex ? 'bg-white text-emerald-700' : selectedAnswers[q.id] ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}`}>{index + 1}</span>
+                <span className="min-w-0"><span className="block text-sm font-black">Soal {index + 1}</span><span className={`block truncate text-xs font-semibold ${index === currentIndex ? 'text-emerald-50' : selectedAnswers[q.id] ? 'text-emerald-700' : 'text-slate-400'}`}>{selectedAnswers[q.id] ? 'Sudah dijawab' : 'Belum dijawab'}</span></span>
               </button>
             ))}
           </div>
@@ -148,9 +148,9 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
             ))}
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 lg:p-10">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Soal {currentIndex + 1}</p>
-            <h2 className="mt-4 text-xl font-black leading-relaxed text-slate-900 sm:text-2xl lg:text-3xl">{currentQuestion?.question_text}</h2>
+            <h2 className="mt-4 text-2xl font-black leading-relaxed text-slate-900 lg:text-3xl">{currentQuestion?.question_text}</h2>
             <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>
             <div className="mt-8 space-y-4">
               {options.map((option) => {
