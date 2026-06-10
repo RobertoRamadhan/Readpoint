@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 import AdminSidebar from '@/components/AdminSidebar';
 import { normalizeFileUrl } from '@/lib/file-url';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import {
   Activity,
   BookOpen,
@@ -1570,7 +1570,7 @@ function ProfileSettings() {
   );
 }
 
-function Field({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
+function Field({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
   return (
     <label className={`block ${className}`}>
       <span className="mb-2 block text-sm font-black text-slate-700">{label}</span>
