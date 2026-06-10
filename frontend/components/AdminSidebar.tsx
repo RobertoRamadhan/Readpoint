@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   BarChart3,
@@ -53,6 +53,7 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const router = useRouter();
   const [expandedItems, setExpandedItems] = useState<string[]>(['manajemen']);
+  const sidebarRoleClass = role === 'guru' ? 'readpoint-guru-sidebar' : 'readpoint-admin-sidebar';
 
   const defaultMenuItems: MenuItem[] = role === 'admin'
     ? [
@@ -90,20 +91,15 @@ export default function AdminSidebar({
   const roleLabel = role === 'guru' ? 'Panel Guru' : 'Panel Admin';
   const basePath = role === 'guru' ? '/dashboard/guru' : '/dashboard/admin';
 
-  useEffect(() => {
-    const parentWithActiveChild = items.find((item) => item.subItems?.some((sub) => sub.id === activeTab));
-    if (!parentWithActiveChild) return;
-
-    setExpandedItems((current) =>
-      current.includes(parentWithActiveChild.id) ? current : [...current, parentWithActiveChild.id]
-    );
-  }, [activeTab, items]);
-
   const toggleExpand = (itemId: string) => {
     setExpandedItems((prev) =>
       prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
     );
   };
+
+  const activeParentIds = items
+    .filter((item) => item.subItems?.some((sub) => sub.id === activeTab))
+    .map((item) => item.id);
 
   const goTab = (tabId: string) => {
     onTabChange(tabId);
@@ -130,7 +126,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`readpoint-admin-sidebar fixed z-40 flex h-[calc(100vh-56px)] w-64 flex-col overflow-hidden border-r border-slate-200 bg-slate-950 text-white shadow-xl transition-transform duration-300 sm:h-[calc(100vh-64px)] sm:w-72 md:relative ${
+      className={`${sidebarRoleClass} fixed z-40 flex h-[calc(100vh-56px)] w-64 flex-col overflow-hidden border-r border-slate-200 bg-slate-950 text-white shadow-xl transition-transform duration-300 sm:h-[calc(100vh-64px)] sm:w-72 md:relative ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
       aria-label={`${roleLabel} sidebar`}
@@ -151,7 +147,7 @@ export default function AdminSidebar({
 
       <nav className="readpoint-admin-nav flex-1 space-y-2 overflow-y-auto p-4 pb-28">
         {items.map((item) => {
-          const isExpanded = expandedItems.includes(item.id);
+          const isExpanded = expandedItems.includes(item.id) || activeParentIds.includes(item.id);
           const isActive = activeTab === item.id;
           const hasSubItems = item.subItems && item.subItems.length > 0;
           const anySubItemActive = item.subItems?.some((sub) => activeTab === sub.id);

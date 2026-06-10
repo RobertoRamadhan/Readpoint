@@ -59,6 +59,12 @@ export default function DashboardLayout({
   const roleLabel = user?.role ? roleLabels[user.role] || 'User' : 'User';
   const dashboardShellClass = 'mx-auto w-full px-0 sm:px-4 lg:px-7 xl:px-8';
   const headerShellClass = 'mx-auto flex w-full items-center justify-between px-3 sm:px-4 lg:px-7 xl:px-8';
+  const profilePath =
+    user?.role === 'admin'
+      ? '/dashboard/admin/profile'
+      : user?.role === 'guru'
+        ? '/dashboard/guru/profile'
+        : '/dashboard/siswa/profile';
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
@@ -120,7 +126,7 @@ export default function DashboardLayout({
                   >
                     <button
                       onClick={() => {
-                        router.push(user?.role === 'admin' ? '/dashboard/admin/profile' : '/dashboard');
+                        router.push(profilePath);
                         setDropdownOpen(false);
                       }}
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100"

@@ -111,7 +111,6 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  max-width: 100%;
 }
 
 html {
@@ -1016,7 +1015,7 @@ section {
 }
 
 /* Prevent text overflow */
-h1, h2, h3, h4, h5, h6, p, span, div {
+h1, h2, h3, h4, h5, h6, p, span {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }

@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import AdminSidebar from '@/components/AdminSidebar';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
@@ -52,6 +52,7 @@ interface Student {
   name: string;
   email: string;
   class_name?: string;
+  grade_level?: string;
   total_points?: number;
   books_read?: number;
   reading_progress?: number;
@@ -68,11 +69,57 @@ interface QuestionForm {
   correct_answer: 'a' | 'b' | 'c' | 'd';
 }
 
+interface StudentForm {
+  name: string;
+  email: string;
+  password: string;
+  grade_level: string;
+  class_name: string;
+}
+
+const guruTabs = new Set(['beranda', 'validasi', 'kuis', 'siswa', 'pengaturan']);
+
+function normalizeGuruTab(tab: string | null) {
+  return tab && guruTabs.has(tab) ? tab : 'beranda';
+}
+
+const defaultStudentForm: StudentForm = {
+  name: '',
+  email: '',
+  password: '',
+  grade_level: '1',
+  class_name: '',
+};
+
+type ArrayPayload = {
+  data?: unknown;
+  students?: unknown;
+  questions?: unknown;
+};
+
+function toArray(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+  const candidate = payload as ArrayPayload | null | undefined;
+
+  if (Array.isArray(candidate?.data)) return candidate.data;
+  if (candidate?.data && typeof candidate.data === 'object') {
+    const nested = candidate.data as ArrayPayload;
+    if (Array.isArray(nested.data)) return nested.data;
+    if (Array.isArray(nested.students)) return nested.students;
+    if (Array.isArray(nested.questions)) return nested.questions;
+  }
+  if (Array.isArray(candidate?.students)) return candidate.students;
+  if (Array.isArray(candidate?.questions)) return candidate.questions;
+  return [];
+}
+
 export default function GuruDashboard() {
   const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState('beranda');
+  const activeTab = normalizeGuruTab(tabParam);
   const [stats, setStats] = useState<GuruStats>({});
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
@@ -135,7 +182,7 @@ export default function GuruDashboard() {
         <AdminSidebar
           activeTab={activeTab}
           sidebarOpen={sidebarOpen}
-          onTabChange={setActiveTab}
+          onTabChange={() => {}}
           onCloseSidebar={() => setSidebarOpen(false)}
           role="guru"
           user={user}
@@ -770,6 +817,20 @@ function ValidasiTab() {
     fetchPendingActivities();
   }, []);
 
+  const closeModal = () => {
+    setSelectedActivity(null);
+    setApprovalNotes('');
+    setRejectionNotes('');
+    setError('');
+  };
+
+  const openModal = (activity: ReadingActivity) => {
+    setSelectedActivity(activity);
+    setApprovalNotes('');
+    setRejectionNotes('');
+    setError('');
+  };
+
   const fetchPendingActivities = async () => {
     try {
       setLoading(true);
@@ -786,8 +847,7 @@ function ValidasiTab() {
     try {
       setProcessingId(activityId);
       await api.validations.approve(activityId);
-      setSelectedActivity(null);
-      setApprovalNotes('');
+      closeModal();
       fetchPendingActivities();
     } catch (err) {
       setError('Gagal approve aktivitas');
@@ -804,8 +864,7 @@ function ValidasiTab() {
     try {
       setProcessingId(activityId);
       await api.validations.reject(activityId, rejectionNotes.trim());
-      setSelectedActivity(null);
-      setRejectionNotes('');
+      closeModal();
       fetchPendingActivities();
     } catch (err) {
       setError('Gagal reject aktivitas');
@@ -834,7 +893,7 @@ function ValidasiTab() {
                 <div
                   key={activity.id}
                   className="card border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all cursor-pointer bg-white"
-                  onClick={() => setSelectedActivity(activity)}
+                  onClick={() => openModal(activity)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -861,87 +920,111 @@ function ValidasiTab() {
 
           {/* Detail Modal */}
           {selectedActivity && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 max-h-screen overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold">Detail Validasi</h3>
-                  <button onClick={() => setSelectedActivity(null)} className="text-2xl">✕</button>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <div className="bg-slate-100 p-4 rounded-lg border border-slate-200">
-                    <p className="text-sm text-slate-600">Book</p>
-                    <p className="font-bold text-slate-900">{selectedActivity.ebook?.title}</p>
-                  </div>
-
-                  <div className="bg-slate-100 p-4 rounded-lg border border-slate-200">
-                    <p className="text-sm text-slate-600">Student</p>
-                    <p className="font-bold text-slate-900">{selectedActivity.user?.name}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-100 p-4 rounded-lg border border-slate-200">
-                      <p className="text-sm text-slate-600">Pages</p>
-                      <p className="font-bold text-slate-900">{selectedActivity.final_page || selectedActivity.current_page} / {selectedActivity.ebook?.pages}</p>
+            <div
+              className="fixed inset-0 z-[60] overflow-y-auto bg-slate-950/70 px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-8 lg:px-8"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  closeModal();
+                }
+              }}
+            >
+              <div className="flex min-h-full items-start justify-center">
+                <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl">
+                  <div className="flex items-start justify-between border-b border-slate-200 bg-white px-6 py-4 sm:px-8">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Validasi Pembacaan</p>
+                      <h3 className="mt-1 text-2xl font-black text-slate-900">Detail aktivitas siswa</h3>
                     </div>
-                    <div className="bg-slate-100 p-4 rounded-lg border border-slate-200">
-                      <p className="text-sm text-slate-600">⏱️ Durasi</p>
-                      <p className="font-bold text-slate-900">{selectedActivity.duration_minutes} menit</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-100 p-4 rounded-lg border border-slate-200">
-                    <p className="text-sm text-slate-600">💭 Catatan Siswa</p>
-                    <p className="font-semibold text-slate-900">{selectedActivity.notes || '-'}</p>
-                  </div>
-                </div>
-
-                {/* Approval Section */}
-                <div className="space-y-4 border-t pt-4">
-                  <h4 className="font-bold text-lg">Keputusan Validasi</h4>
-
-                  <textarea
-                    placeholder="Catatan approval (opsional)"
-                    value={approvalNotes}
-                    onChange={(e) => setApprovalNotes(e.target.value)}
-                    className="w-full border border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    rows={2}
-                  />
-
-                  <div className="flex gap-2">
                     <button
-                      onClick={() => handleApprove(selectedActivity.id)}
-                      disabled={processingId === selectedActivity.id}
-                      className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-bold hover:bg-sky-700 transition-all disabled:opacity-50"
+                      onClick={closeModal}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                      aria-label="Tutup modal"
                     >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => setSelectedActivity(null)}
-                      className="flex-1 bg-slate-300 text-slate-700 py-2 rounded-lg font-bold hover:bg-slate-400 transition-all"
-                    >
-                      Batal
+                      ✕
                     </button>
                   </div>
-                </div>
 
-                {/* Rejection Section */}
-                <div className="space-y-4 border-t pt-4 mt-4">
-                  <textarea
-                    placeholder="Alasan penolakan (wajib diisi jika reject)"
-                    value={rejectionNotes}
-                    onChange={(e) => setRejectionNotes(e.target.value)}
-                    className="w-full border border-red-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
-                    rows={2}
-                  />
+                  <div className="max-h-[calc(100vh-11rem)] overflow-y-auto px-6 py-6 sm:px-8">
+                    <div className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-bold text-slate-500">Buku</p>
+                          <p className="mt-1 font-black text-slate-900">{selectedActivity.ebook?.title}</p>
+                        </div>
 
-                  <button
-                    onClick={() => handleReject(selectedActivity.id)}
-                    disabled={processingId === selectedActivity.id}
-                    className="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700 transition-all disabled:opacity-50"
-                  >
-                    ✕ Tolak
-                  </button>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-bold text-slate-500">Siswa</p>
+                          <p className="mt-1 font-black text-slate-900">{selectedActivity.user?.name}</p>
+                          <p className="text-sm font-medium text-slate-600">{selectedActivity.user?.class_name || 'No Class'}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-bold text-slate-500">Halaman</p>
+                          <p className="mt-1 font-black text-slate-900">
+                            {selectedActivity.final_page || selectedActivity.current_page} / {selectedActivity.ebook?.pages}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-bold text-slate-500">Durasi</p>
+                          <p className="mt-1 font-black text-slate-900">{selectedActivity.duration_minutes} menit</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-sm font-bold text-slate-500">Catatan Siswa</p>
+                        <p className="mt-2 font-semibold leading-7 text-slate-900">{selectedActivity.notes || '-'}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 space-y-4 border-t border-slate-200 pt-6">
+                      <h4 className="text-lg font-black text-slate-900">Keputusan Validasi</h4>
+
+                      <textarea
+                        placeholder="Catatan approval (opsional)"
+                        value={approvalNotes}
+                        onChange={(e) => setApprovalNotes(e.target.value)}
+                        className="min-h-[96px] w-full rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100"
+                        rows={3}
+                      />
+
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        <button
+                          onClick={() => handleApprove(selectedActivity.id)}
+                          disabled={processingId === selectedActivity.id}
+                          className="flex-1 rounded-2xl bg-sky-600 px-4 py-3 font-black text-white shadow-lg shadow-sky-600/20 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={closeModal}
+                          className="flex-1 rounded-2xl bg-slate-100 px-4 py-3 font-black text-slate-700 transition hover:bg-slate-200"
+                        >
+                          Batal
+                        </button>
+                      </div>
+
+                      <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                        <p className="mb-3 text-sm font-black uppercase tracking-wide text-red-700">Penolakan</p>
+                        <textarea
+                          placeholder="Alasan penolakan (wajib diisi jika reject)"
+                          value={rejectionNotes}
+                          onChange={(e) => setRejectionNotes(e.target.value)}
+                          className="min-h-[96px] w-full rounded-2xl border border-red-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-red-500 focus:outline-none focus:ring-4 focus:ring-red-100"
+                          rows={3}
+                        />
+
+                        <button
+                          onClick={() => handleReject(selectedActivity.id)}
+                          disabled={processingId === selectedActivity.id}
+                          className="mt-4 w-full rounded-2xl bg-red-600 px-4 py-3 font-black text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          ✕ Tolak
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1290,102 +1373,460 @@ function QuizTab() {
 }
 
 function StudentListTab() {
-  const [data, setData] = useState<Student[]>([]);
+  const { user } = useAuth();
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [studentForm, setStudentForm] = useState<StudentForm>(defaultStudentForm);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const assignedClassName = user?.class_name?.trim() || '';
+  const hasAssignedClass = assignedClassName.length > 0;
+  const searchKeyword = searchTerm.trim().toLowerCase();
 
   useEffect(() => {
-    fetchStudents();
+    void loadStudents();
   }, []);
 
-  const fetchStudents = async () => {
+  async function loadStudents() {
     try {
       setLoading(true);
-      const response = (await api.dashboard.guruStudents()) as any;
-      setData(Array.isArray(response?.data) ? response.data : []);
+      setError('');
+      const response = await api.dashboard.guruStudents();
+      setStudents(toArray(response) as Student[]);
     } catch (err) {
-      console.error('Error:', err);
+      setError(err instanceof Error ? err.message : 'Gagal memuat data siswa');
     } finally {
       setLoading(false);
     }
+  }
+
+  const openCreate = () => {
+    setEditingStudent(null);
+    setStudentForm({
+      ...defaultStudentForm,
+      class_name: assignedClassName,
+    });
+    setError('');
+    setMessage('');
+    setFormOpen(true);
   };
 
-  const filteredData = data.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const openEdit = (student: Student) => {
+    setEditingStudent(student);
+    setStudentForm({
+      name: student.name || '',
+      email: student.email || '',
+      password: '',
+      grade_level: student.grade_level || '1',
+      class_name: student.class_name || assignedClassName,
+    });
+    setError('');
+    setMessage('');
+    setFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditingStudent(null);
+    setStudentForm({
+      ...defaultStudentForm,
+      class_name: assignedClassName,
+    });
+  };
+
+  const submitStudent = async () => {
+    const name = studentForm.name.trim();
+    const email = studentForm.email.trim();
+    const password = studentForm.password.trim();
+    const className = (hasAssignedClass ? assignedClassName : studentForm.class_name).trim();
+
+    if (!name || !email) {
+      setError('Nama dan email harus diisi');
+      return;
+    }
+
+    if (!className) {
+      setError('Kelas siswa harus diisi');
+      return;
+    }
+
+    if (!editingStudent && password.length < 8) {
+      setError('Password siswa baru minimal 8 karakter');
+      return;
+    }
+
+    if (editingStudent && password && password.length < 8) {
+      setError('Password baru minimal 8 karakter');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError('');
+      setMessage('');
+
+      if (editingStudent) {
+        const payload: Record<string, unknown> = {
+          name,
+          email,
+          role: 'siswa',
+          class_name: className,
+          grade_level: studentForm.grade_level,
+        };
+
+        if (password) {
+          payload.password = password;
+          payload.password_confirmation = password;
+        }
+
+        await api.users.update(editingStudent.id, payload);
+        setMessage('Data siswa berhasil diperbarui');
+      } else {
+        await api.users.create({
+          name,
+          email,
+          password,
+          password_confirmation: password,
+          role: 'siswa',
+          grade_level: studentForm.grade_level,
+          class_name: className,
+        });
+        setMessage('Siswa berhasil ditambahkan');
+      }
+
+      closeForm();
+      await loadStudents();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menyimpan data siswa');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteStudent = async (student: Student) => {
+    const confirmed = window.confirm(`Hapus siswa ${student.name}?`);
+    if (!confirmed) return;
+
+    try {
+      setSaving(true);
+      setError('');
+      setMessage('');
+      await api.users.delete(student.id);
+      setMessage('Siswa berhasil dihapus');
+      await loadStudents();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menghapus siswa');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetPassword = async (student: Student) => {
+    const confirmed = window.confirm(`Reset password siswa ${student.name}?`);
+    if (!confirmed) return;
+
+    try {
+      setSaving(true);
+      setError('');
+      setMessage('');
+      await api.users.resetPassword(student.id);
+      setMessage('Password siswa berhasil di-reset');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal reset password siswa');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const filteredStudents = students.filter((student) => {
+    const haystack = [student.name, student.email, student.class_name || '']
+      .join(' ')
+      .toLowerCase();
+
+    return haystack.includes(searchKeyword);
+  });
 
   return (
     <div className="space-y-6 animate-slide-up">
-      <div className="card border-2 border-cyan-200 shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 px-6 py-4 flex items-center gap-3">
-          <h2 className="text-xl font-bold text-white">Student List</h2>
+      <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/40 to-cyan-50/40 p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-emerald-700">Daftar Siswa</p>
+            <h2 className="mt-2 text-3xl font-black text-slate-950">Kelola siswa kelasmu</h2>
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+              Tambah siswa, perbarui data login, dan pastikan setiap murid masuk ke kelas wali yang benar.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:min-w-[260px]">
+            <div className="rounded-2xl border border-emerald-100 bg-white/90 px-4 py-3">
+              <p className="text-xs font-black uppercase tracking-wide text-emerald-700">Kelas aktif</p>
+              <p className="mt-1 text-lg font-black text-slate-950">{hasAssignedClass ? assignedClassName : 'Belum disetel'}</p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                {hasAssignedClass
+                  ? 'Siswa baru otomatis diarahkan ke kelas ini.'
+                  : 'Isi nama kelas saat menambah siswa jika kelas belum ada di profil.'}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={openCreate}
+              disabled={saving}
+              className="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-700/20 hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              + Tambah Siswa
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</div>}
+      {message && <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">{message}</div>}
+
+      {formOpen && (
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Form siswa</p>
+              <h3 className="mt-1 text-2xl font-black text-slate-950">
+                {editingStudent ? 'Edit siswa' : 'Tambah siswa baru'}
+              </h3>
+              <p className="mt-1 text-sm font-semibold text-slate-500">
+                {editingStudent
+                  ? 'Perbarui akun siswa tanpa memindahkan kelasnya.'
+                  : 'Akun siswa baru akan langsung terhubung ke kelas wali.'}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={closeForm}
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50"
+            >
+              Tutup
+            </button>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <FormInput
+              label="Nama"
+              value={studentForm.name}
+              onChange={(value) => setStudentForm((current) => ({ ...current, name: value }))}
+              placeholder="Masukkan nama siswa"
+            />
+            <FormInput
+              label="Email"
+              type="email"
+              value={studentForm.email}
+              onChange={(value) => setStudentForm((current) => ({ ...current, email: value }))}
+              placeholder="nama@email.com"
+            />
+            <FormInput
+              label="Kelas"
+              value={hasAssignedClass ? assignedClassName : studentForm.class_name}
+              onChange={(value) => setStudentForm((current) => ({ ...current, class_name: value }))}
+              placeholder={hasAssignedClass ? assignedClassName : 'Contoh: X-A'}
+              readOnly={hasAssignedClass}
+              helperText={
+                hasAssignedClass
+                  ? `Diset otomatis dari profil guru: ${assignedClassName}`
+                  : 'Isi kelas siswa yang sesuai dengan wali kelas ini.'
+              }
+            />
+            <div>
+              <label className="mb-2 block text-sm font-black text-slate-800">Tingkat Kelas</label>
+              <select
+                value={studentForm.grade_level}
+                onChange={(event) => setStudentForm((current) => ({ ...current, grade_level: event.target.value }))}
+                className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-900 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10"
+              >
+                <option value="1">Kelas X</option>
+                <option value="2">Kelas XI</option>
+                <option value="3">Kelas XII</option>
+              </select>
+              <p className="mt-2 text-xs font-semibold text-slate-500">Gunakan tingkat kelas yang sesuai dengan jenjang siswa.</p>
+            </div>
+            <FormInput
+              label={editingStudent ? 'Password baru (opsional)' : 'Password'}
+              type="password"
+              value={studentForm.password}
+              onChange={(value) => setStudentForm((current) => ({ ...current, password: value }))}
+              placeholder={editingStudent ? 'Kosongkan jika tidak diubah' : 'Minimal 8 karakter'}
+            />
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs font-semibold text-slate-500">
+              {editingStudent ? 'Email dapat diperbarui bila perlu.' : 'Password wajib diisi untuk siswa baru.'}
+            </p>
+            <button
+              type="button"
+              onClick={submitStudent}
+              disabled={saving}
+              className="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-black text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving ? 'Menyimpan...' : editingStudent ? 'Simpan Perubahan' : 'Simpan Siswa'}
+            </button>
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-700">Data siswa</p>
+            <h3 className="mt-1 text-2xl font-black text-slate-950">{filteredStudents.length} siswa</h3>
+          </div>
+
+          <div className="w-full sm:max-w-md">
+            <label className="sr-only" htmlFor="student-search">
+              Cari siswa
+            </label>
+            <input
+              id="student-search"
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Cari siswa..."
+              className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-900 focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10"
+            />
+          </div>
         </div>
 
-        <div className="p-6 space-y-4">
-          <input
-            type="text"
-            placeholder="Search student..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border-2 border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-
+        <div className="mt-5 overflow-x-auto">
           {loading ? (
-            <div className="text-center py-8">Loading...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-emerald-200 bg-emerald-50">
-                    <th className="px-4 py-2 text-left font-bold">Nama</th>
-                    <th className="px-4 py-2 text-center font-bold">Poin</th>
-                    <th className="px-4 py-2 text-center font-bold">Buku</th>
-                    <th className="px-4 py-2 text-center font-bold">Progress Baca</th>
-                    <th className="px-4 py-2 text-center font-bold">Kuis Avg</th>
-                    <th className="px-4 py-2 text-center font-bold">Lulus</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredData.map(student => (
-                    <tr key={student.id} className="border-b border-emerald-100 hover:bg-emerald-50 transition-all">
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="font-bold text-slate-900">{student.name}</p>
-                          <p className="text-xs text-slate-600">{student.email}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="font-bold text-lg text-emerald-600">{student.total_points || 0}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="font-semibold">{student.books_read || 0}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-emerald-600 h-2 rounded-full"
-                              style={{ width: `${student.reading_progress || 0}%` }}
-                            />
-                          </div>
-                          <span className="text-xs font-semibold text-emerald-700">{Math.round(student.reading_progress || 0)}%</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="font-semibold">{(student.quiz_average_score || 0).toFixed(1)}%</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="font-semibold">{student.quizzes_passed || 0}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <p className="py-10 text-center text-sm font-bold text-slate-500">Memuat data siswa...</p>
+          ) : filteredStudents.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center">
+              <p className="text-sm font-bold text-slate-700">Belum ada siswa yang terdaftar.</p>
+              <p className="mt-1 text-sm text-slate-500">Gunakan tombol tambah siswa untuk membuat akun baru.</p>
+              <button
+                type="button"
+                onClick={openCreate}
+                className="mt-4 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-black text-white hover:bg-emerald-800"
+              >
+                + Tambah Siswa Pertama
+              </button>
             </div>
+          ) : (
+            <table className="min-w-[1120px] w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-4 py-3 text-left font-black text-slate-700">Siswa</th>
+                  <th className="px-4 py-3 text-left font-black text-slate-700">Kelas</th>
+                  <th className="px-4 py-3 text-center font-black text-slate-700">Poin</th>
+                  <th className="px-4 py-3 text-center font-black text-slate-700">Buku</th>
+                  <th className="px-4 py-3 text-center font-black text-slate-700">Progress Baca</th>
+                  <th className="px-4 py-3 text-center font-black text-slate-700">Kuis Avg</th>
+                  <th className="px-4 py-3 text-center font-black text-slate-700">Lulus</th>
+                  <th className="px-4 py-3 text-right font-black text-slate-700">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student) => (
+                  <tr key={student.id} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="px-4 py-4">
+                      <p className="font-black text-slate-950">{student.name}</p>
+                      <p className="text-xs font-semibold text-slate-500">{student.email}</p>
+                    </td>
+                    <td className="px-4 py-4 text-left font-bold text-emerald-700">{student.class_name || '-'}</td>
+                    <td className="px-4 py-4 text-center font-black text-emerald-700">{student.total_points || 0}</td>
+                    <td className="px-4 py-4 text-center font-bold text-slate-700">{student.books_read || 0}</td>
+                    <td className="px-4 py-4 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="h-2 w-24 rounded-full bg-slate-200">
+                          <div
+                            className="h-2 rounded-full bg-emerald-600"
+                            style={{ width: `${student.reading_progress || 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-semibold text-emerald-700">
+                          {Math.round(student.reading_progress || 0)}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-center font-bold text-slate-700">
+                      {(student.quiz_average_score || 0).toFixed(1)}%
+                    </td>
+                    <td className="px-4 py-4 text-center font-bold text-slate-700">{student.quizzes_passed || 0}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(student)}
+                          disabled={saving}
+                          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => resetPassword(student)}
+                          disabled={saving}
+                          className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-black text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteStudent(student)}
+                          disabled={saving}
+                          className="rounded-xl bg-red-600 px-3 py-2 text-xs font-black text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
-      </div>
+      </section>
     </div>
+  );
+}
+
+function FormInput({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  placeholder,
+  helperText,
+  readOnly = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  placeholder?: string;
+  helperText?: string;
+  readOnly?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-black text-slate-800">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        className={`h-12 w-full rounded-2xl border px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 ${
+          readOnly
+            ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500'
+            : 'border-slate-300 bg-white focus:border-emerald-700'
+        }`}
+      />
+      {helperText && <p className="mt-2 text-xs font-semibold text-slate-500">{helperText}</p>}
+    </label>
   );
 }
