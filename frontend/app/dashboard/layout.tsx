@@ -38,9 +38,7 @@ export default function DashboardLayout({
     }
   };
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   if (user?.role === 'siswa') {
     return (
@@ -57,20 +55,18 @@ export default function DashboardLayout({
   };
 
   const roleLabel = user?.role ? roleLabels[user.role] || 'User' : 'User';
-  const dashboardShellClass = 'mx-auto w-full px-0 sm:px-4 lg:px-7 xl:px-8';
-  const headerShellClass = 'mx-auto flex w-full items-center justify-between px-3 sm:px-4 lg:px-7 xl:px-8';
   const profilePath =
     user?.role === 'admin'
-      ? '/dashboard/admin/profile'
+      ? '/dashboard/admin?tab=pengaturan'
       : user?.role === 'guru'
-        ? '/dashboard/guru/profile'
+        ? '/dashboard/guru?tab=pengaturan'
         : '/dashboard/siswa/profile';
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="flex h-14 w-full items-center sm:h-16">
-          <div className={headerShellClass}>
+          <div className="flex w-full items-center justify-between px-3 sm:px-4 lg:px-6">
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
@@ -109,11 +105,7 @@ export default function DashboardLayout({
                   aria-label="Menu profil"
                 >
                   {user?.profile_photo_url ? (
-                    <img
-                      src={user.profile_photo_url}
-                      alt={user.name}
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
                   ) : (
                     <span>{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
                   )}
@@ -150,11 +142,11 @@ export default function DashboardLayout({
       </header>
 
       <main className="w-full max-w-[100vw] flex-1 overflow-x-hidden bg-slate-50">
-        <div className={dashboardShellClass}>{children}</div>
+        {children}
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-200 bg-white">
-        <div className="mx-auto w-full px-3 py-4 text-center sm:px-4 sm:py-5 lg:px-7 lg:py-6 xl:px-8">
+        <div className="w-full px-3 py-4 text-center sm:px-4 sm:py-5 lg:px-6">
           <p className="text-xs font-semibold text-slate-500 sm:text-sm">
             &copy; 2026 READPOINT - Platform Literasi Digital Indonesia
           </p>
