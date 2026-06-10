@@ -53,7 +53,7 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const router = useRouter();
   const [expandedItems, setExpandedItems] = useState<string[]>(['manajemen']);
-  const sidebarRoleClass = role === 'guru' ? 'readpoint-guru-sidebar' : 'readpoint-admin-sidebar';
+  const sidebarRoleClass = role === 'guru' ? 'readpoint-fixed-guru-sidebar' : 'readpoint-fixed-admin-sidebar';
 
   const defaultMenuItems: MenuItem[] = role === 'admin'
     ? [
@@ -126,7 +126,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`${sidebarRoleClass} fixed z-40 flex h-[calc(100vh-56px)] w-64 flex-col overflow-hidden border-r border-slate-200 bg-slate-950 text-white shadow-xl transition-transform duration-300 sm:h-[calc(100vh-64px)] sm:w-72 md:relative ${
+      className={`${sidebarRoleClass} fixed left-0 top-14 z-40 flex h-[calc(100vh-56px)] w-64 flex-col overflow-hidden border-r border-slate-200 bg-slate-950 text-white shadow-xl transition-transform duration-300 sm:top-16 sm:h-[calc(100vh-64px)] sm:w-72 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
       aria-label={`${roleLabel} sidebar`}
