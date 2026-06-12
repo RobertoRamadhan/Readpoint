@@ -127,24 +127,11 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
         </div>
       </header>
 
-      <main className="grid w-full flex-1 grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:px-8 lg:py-8">
-        <aside className="hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm lg:block">
-          <h2 className="text-2xl font-black text-slate-950">Navigasi Soal</h2>
-          <p className="mt-2 text-sm font-semibold leading-7 text-slate-500">Pantau soal yang sudah dijawab</p>
-          <div className="mt-7 space-y-3">
+      <main className="w-full flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <section className="mx-auto w-full max-w-5xl min-w-0">
+          <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
             {questions.map((q, index) => (
-              <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition ${index === currentIndex ? 'border-emerald-600 bg-emerald-600 text-white' : selectedAnswers[q.id] ? 'border-emerald-200 bg-emerald-50 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}>
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black ${index === currentIndex ? 'bg-white text-emerald-700' : selectedAnswers[q.id] ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}`}>{index + 1}</span>
-                <span className="min-w-0"><span className="block text-sm font-black">Soal {index + 1}</span><span className={`block truncate text-xs font-semibold ${index === currentIndex ? 'text-emerald-50' : selectedAnswers[q.id] ? 'text-emerald-700' : 'text-slate-400'}`}>{selectedAnswers[q.id] ? 'Sudah dijawab' : 'Belum dijawab'}</span></span>
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        <section className="min-w-0">
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-            {questions.map((q, index) => (
-              <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex h-10 w-12 shrink-0 items-center justify-center rounded-full text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
+              <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex h-10 min-w-12 shrink-0 items-center justify-center rounded-full px-4 text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
             ))}
           </div>
 
