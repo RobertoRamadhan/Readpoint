@@ -18,7 +18,10 @@ const toastStore = {
   
   subscribe(listener: (toasts: Toast[]) => void) {
     this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
+
+    return () => {
+      this.listeners.delete(listener);
+    };
   },
   
   notify(message: string, type: ToastType = 'info', duration = 3000) {
