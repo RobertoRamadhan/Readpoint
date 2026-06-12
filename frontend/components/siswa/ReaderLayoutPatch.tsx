@@ -20,11 +20,13 @@ export default function ReaderLayoutPatch() {
       if (!isDesktop) return;
 
       if (main) {
-        main.style.setProperty('display', 'block', 'important');
+        main.style.setProperty('display', 'flex', 'important');
+        main.style.setProperty('flex-direction', 'column', 'important');
         main.style.setProperty('grid-template-columns', 'minmax(0, 1fr)', 'important');
         main.style.setProperty('width', '100%', 'important');
         main.style.setProperty('max-width', '100%', 'important');
         main.style.setProperty('min-width', '0', 'important');
+        main.style.setProperty('min-height', '0', 'important');
         main.style.setProperty('margin-left', '0', 'important');
         main.style.setProperty('overflow', 'hidden', 'important');
         main.style.setProperty('background', '#0f172a', 'important');
@@ -37,22 +39,24 @@ export default function ReaderLayoutPatch() {
       }
 
       viewer.style.setProperty('display', 'block', 'important');
+      viewer.style.setProperty('flex', '1 1 auto', 'important');
+      viewer.style.setProperty('height', '100%', 'important');
       viewer.style.setProperty('width', '100%', 'important');
       viewer.style.setProperty('max-width', '100%', 'important');
       viewer.style.setProperty('min-width', '0', 'important');
+      viewer.style.setProperty('min-height', '0', 'important');
       viewer.style.setProperty('margin-left', '0', 'important');
       viewer.style.setProperty('overflow-x', 'hidden', 'important');
-      viewer.style.setProperty('overflow-y', 'hidden', 'important');
+      viewer.style.setProperty('overflow-y', 'auto', 'important');
       viewer.style.setProperty('background', '#0f172a', 'important');
 
       if (viewerRoot) {
-        viewerRoot.style.setProperty('display', 'flex', 'important');
-        viewerRoot.style.setProperty('flex-direction', 'column', 'important');
-        viewerRoot.style.setProperty('height', '100%', 'important');
+        viewerRoot.style.setProperty('display', 'block', 'important');
+        viewerRoot.style.setProperty('height', 'auto', 'important');
         viewerRoot.style.setProperty('min-height', '100%', 'important');
         viewerRoot.style.setProperty('width', '100%', 'important');
         viewerRoot.style.setProperty('max-width', '100%', 'important');
-        viewerRoot.style.setProperty('overflow', 'hidden', 'important');
+        viewerRoot.style.setProperty('overflow', 'visible', 'important');
       }
 
       if (viewerToolbar) {
@@ -65,13 +69,13 @@ export default function ReaderLayoutPatch() {
         viewerBody.style.setProperty('width', '100%', 'important');
         viewerBody.style.setProperty('max-width', '100%', 'important');
         viewerBody.style.setProperty('min-width', '0', 'important');
-        viewerBody.style.setProperty('min-height', '0', 'important');
-        viewerBody.style.setProperty('flex', '1 1 auto', 'important');
+        viewerBody.style.setProperty('height', 'auto', 'important');
+        viewerBody.style.setProperty('min-height', 'auto', 'important');
+        viewerBody.style.setProperty('flex', '0 0 auto', 'important');
         viewerBody.style.setProperty('display', 'flex', 'important');
         viewerBody.style.setProperty('justify-content', 'center', 'important');
         viewerBody.style.setProperty('align-items', 'flex-start', 'important');
-        viewerBody.style.setProperty('overflow-x', 'hidden', 'important');
-        viewerBody.style.setProperty('overflow-y', 'auto', 'important');
+        viewerBody.style.setProperty('overflow', 'visible', 'important');
         viewerBody.style.setProperty('padding-left', '2rem', 'important');
         viewerBody.style.setProperty('padding-right', '2rem', 'important');
         viewerBody.style.setProperty('padding-top', '1.5rem', 'important');
