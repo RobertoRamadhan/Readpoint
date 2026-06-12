@@ -8,40 +8,79 @@ export default function ReaderLayoutPatch() {
       const viewer = document.querySelector<HTMLElement>('.pdf-viewer-container');
       if (!viewer) return;
 
+      const isDesktop = window.innerWidth >= 1024;
       const main = viewer.closest('main') as HTMLElement | null;
       const sidebar = main?.querySelector('aside') as HTMLElement | null;
+      const viewerRoot = viewer.firstElementChild as HTMLElement | null;
+      const viewerToolbar = viewerRoot?.children?.[0] as HTMLElement | undefined;
+      const viewerBody = viewerRoot?.children?.[1] as HTMLElement | undefined;
       const canvas = viewer.querySelector('canvas') as HTMLCanvasElement | null;
       const canvasBox = canvas?.parentElement as HTMLElement | null;
 
+      if (!isDesktop) {
+        return;
+      }
+
       if (main) {
-        main.style.display = 'block';
-        main.style.gridTemplateColumns = 'minmax(0, 1fr)';
-        main.style.width = '100%';
-        main.style.maxWidth = '100%';
-        main.style.marginLeft = '0';
-        main.style.background = '#0f172a';
+        main.style.setProperty('display', 'block', 'important');
+        main.style.setProperty('grid-template-columns', 'minmax(0, 1fr)', 'important');
+        main.style.setProperty('width', '100%', 'important');
+        main.style.setProperty('max-width', '100%', 'important');
+        main.style.setProperty('margin-left', '0', 'important');
+        main.style.setProperty('background', '#0f172a', 'important');
       }
 
       if (sidebar) {
-        sidebar.style.display = 'none';
-        sidebar.style.width = '0';
-        sidebar.style.minWidth = '0';
+        sidebar.style.setProperty('display', 'none', 'important');
+        sidebar.style.setProperty('width', '0', 'important');
+        sidebar.style.setProperty('min-width', '0', 'important');
       }
 
-      viewer.style.width = '100%';
-      viewer.style.maxWidth = '100%';
-      viewer.style.minWidth = '0';
-      viewer.style.marginLeft = '0';
-      viewer.style.background = '#0f172a';
+      viewer.style.setProperty('display', 'block', 'important');
+      viewer.style.setProperty('width', '100%', 'important');
+      viewer.style.setProperty('max-width', '100%', 'important');
+      viewer.style.setProperty('min-width', '0', 'important');
+      viewer.style.setProperty('margin-left', '0', 'important');
+      viewer.style.setProperty('background', '#0f172a', 'important');
 
-      if (canvasBox) {
-        canvasBox.style.marginLeft = 'auto';
-        canvasBox.style.marginRight = 'auto';
+      if (viewerRoot) {
+        viewerRoot.style.setProperty('width', '100%', 'important');
+        viewerRoot.style.setProperty('max-width', '100%', 'important');
+      }
+
+      if (viewerToolbar) {
+        viewerToolbar.style.setProperty('width', '100%', 'important');
+        viewerToolbar.style.setProperty('max-width', '100%', 'important');
+      }
+
+      if (viewerBody) {
+        viewerBody.style.setProperty('width', '100%', 'important');
+        viewerBody.style.setProperty('max-width', '100%', 'important');
+        viewerBody.style.setProperty('display', 'flex', 'important');
+        viewerBody.style.setProperty('justify-content', 'center', 'important');
+        viewerBody.style.setProperty('align-items', 'flex-start', 'important');
+        viewerBody.style.setProperty('padding-left', '2rem', 'important');
+        viewerBody.style.setProperty('padding-right', '2rem', 'important');
+      }
+
+      if (canvas && canvasBox && canvas.width > 0 && canvas.height > 0) {
+        const viewerWidth = Math.max(900, viewer.clientWidth || window.innerWidth);
+        const targetWidth = Math.min(940, Math.max(680, Math.round(viewerWidth * 0.58)));
+        const targetHeight = Math.round(targetWidth * (canvas.height / canvas.width));
+
+        canvasBox.style.setProperty('width', `${targetWidth}px`, 'important');
+        canvasBox.style.setProperty('max-width', '100%', 'important');
+        canvasBox.style.setProperty('margin-left', 'auto', 'important');
+        canvasBox.style.setProperty('margin-right', 'auto', 'important');
+
+        canvas.style.setProperty('width', `${targetWidth}px`, 'important');
+        canvas.style.setProperty('height', `${targetHeight}px`, 'important');
+        canvas.style.setProperty('max-width', '100%', 'important');
       }
     };
 
     applyReaderLayout();
-    const interval = window.setInterval(applyReaderLayout, 400);
+    const interval = window.setInterval(applyReaderLayout, 250);
     window.addEventListener('resize', applyReaderLayout);
 
     return () => {
