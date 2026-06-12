@@ -1,0 +1,52 @@
+/* Mobile navbar fix for READPOINT landing page.
+   Keeps both Masuk and Daftar visible on small screens. */
+
+@media (max-width: 390px) {
+  .landing-nav-inner {
+    gap: 0.45rem;
+  }
+
+  .landing-brand {
+    gap: 0.4rem;
+    font-size: 0.78rem;
+  }
+
+  .landing-brand-mark {
+    height: 2.1rem;
+    width: 2.1rem;
+    border-radius: 0.65rem;
+  }
+
+  .landing-nav-actions {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .landing-nav-actions .landing-button {
+    display: inline-flex;
+    min-height: 2.25rem;
+    padding: 0.55rem 0.62rem;
+    border-radius: 0.7rem;
+    font-size: 0.74rem;
+  }
+
+  .landing-nav-actions .landing-button-ghost {
+    display: inline-flex !important;
+  }
+
+  .landing-hero h1 {
+    font-size: 2.85rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .landing-brand span:last-child {
+    display: none;
+  }
+
+  .landing-nav-actions .landing-button {
+    padding: 0.52rem 0.58rem;
+    font-size: 0.72rem;
+  }
+}
