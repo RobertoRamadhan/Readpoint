@@ -107,46 +107,46 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   return (
     <div className="flex min-h-screen w-full flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="w-full px-4 py-5 sm:px-6 lg:px-8">
-          <div className="flex min-h-[56px] items-center justify-between gap-4">
-            <button onClick={onCancel} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
+        <div className="mx-auto w-full max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex min-h-[50px] items-center justify-between gap-3">
+            <button onClick={onCancel} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Kuis E-Book</p>
-              <h1 className="mt-1 truncate text-2xl font-black leading-tight text-slate-900 sm:text-3xl">{ebookTitle}</h1>
+              <p className="text-[11px] font-black uppercase tracking-widest text-emerald-700 sm:text-xs">Kuis E-Book</p>
+              <h1 className="mt-1 truncate text-xl font-black leading-tight text-slate-900 sm:text-2xl lg:text-3xl">{ebookTitle}</h1>
             </div>
-            <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700">{answeredCount}/{questions.length}</div>
+            <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 sm:px-4 sm:text-sm">{answeredCount}/{questions.length}</div>
           </div>
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-3 flex items-center gap-3">
             <span className="hidden shrink-0 text-xs font-black text-slate-600 sm:inline">Progress Kuis</span>
-            <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200">
+            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200 sm:h-3">
               <div className="h-full rounded-full bg-emerald-700 transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
-            <span className="w-12 text-right text-xs font-black text-emerald-700">{progress}%</span>
+            <span className="w-11 text-right text-xs font-black text-emerald-700">{progress}%</span>
           </div>
         </div>
       </header>
 
-      <main className="w-full flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <main className="w-full flex-1 overflow-x-hidden px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
         <section className="mx-auto w-full max-w-5xl min-w-0">
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+          <div className="mb-4 flex max-w-full justify-start gap-2 overflow-x-auto pb-1 sm:justify-center">
             {questions.map((q, index) => (
-              <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex h-10 min-w-12 shrink-0 items-center justify-center rounded-full px-4 text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
+              <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex h-10 min-w-10 shrink-0 items-center justify-center rounded-full px-3 text-sm font-black sm:min-w-12 sm:px-4 ${index === currentIndex ? 'bg-emerald-600 text-white shadow-sm' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
             ))}
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Soal {currentIndex + 1}</p>
-            <h2 className="mt-4 text-2xl font-black leading-relaxed text-slate-900 lg:text-3xl">{currentQuestion?.question_text}</h2>
+            <h2 className="mt-4 text-xl font-black leading-relaxed text-slate-900 sm:text-2xl lg:text-[28px]">{currentQuestion?.question_text}</h2>
             <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>
-            <div className="mt-8 space-y-4">
+            <div className="mt-7 space-y-3 sm:space-y-4">
               {options.map((option) => {
                 const isSelected = selectedAnswers[currentQuestion?.id] === option.key;
                 return (
-                  <button key={option.key} onClick={() => selectAnswer(option.key)} className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left font-semibold transition sm:p-5 ${isSelected ? 'border-emerald-700 bg-emerald-700 text-white shadow-md' : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'}`}>
+                  <button key={option.key} onClick={() => selectAnswer(option.key)} className={`flex w-full min-w-0 items-start gap-3 rounded-2xl border p-4 text-left font-semibold transition sm:gap-4 sm:p-5 ${isSelected ? 'border-emerald-700 bg-emerald-700 text-white shadow-md' : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'}`}>
                     <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black ${isSelected ? 'bg-white text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>{option.key.toUpperCase()}</span>
-                    <span className="flex-1 leading-7">{option.label}</span>
-                    {isSelected && <span className="text-lg font-black">✓</span>}
+                    <span className="min-w-0 flex-1 leading-7">{option.label}</span>
+                    {isSelected && <span className="shrink-0 text-lg font-black">✓</span>}
                   </button>
                 );
               })}
@@ -154,8 +154,8 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0} className="h-12 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50">Sebelumnya</button>
-            {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered} className="h-12 rounded-2xl bg-emerald-700 px-5 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">Selesai & Kirim</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered} className="h-12 rounded-2xl bg-slate-900 px-5 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">Selanjutnya</button>}
+            <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0} className="h-12 min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Sebelumnya</button>
+            {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered} className="h-12 min-w-0 rounded-2xl bg-emerald-700 px-4 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selesai & Kirim</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered} className="h-12 min-w-0 rounded-2xl bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selanjutnya</button>}
           </div>
 
           {!allAnswered && currentIndex === questions.length - 1 && <p className="mt-4 text-center text-sm font-semibold text-red-600">Jawab semua soal sebelum mengirim. {questions.length - answeredCount} soal belum dijawab.</p>}
