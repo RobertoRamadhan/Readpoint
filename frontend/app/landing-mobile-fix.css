@@ -257,3 +257,44 @@ main header input[placeholder*="Cari buku"] {
     font-size: 0.92rem !important;
   }
 }
+
+/* Siswa desktop PDF reader fix */
+@media (min-width: 1024px) {
+  main.grid[class*="lg:grid-cols-[280px_1fr]"] {
+    grid-template-columns: 260px minmax(0, 1fr) !important;
+  }
+
+  main.grid[class*="lg:grid-cols-[280px_1fr]"] aside {
+    padding: 1.25rem !important;
+  }
+
+  main.grid[class*="lg:grid-cols-[280px_1fr]"] aside img {
+    height: 18rem !important;
+    object-fit: contain !important;
+    background: #f8fafc !important;
+  }
+
+  .pdf-viewer-container {
+    background: #0f172a !important;
+  }
+
+  .pdf-viewer-container > div:first-child {
+    min-height: 100% !important;
+  }
+
+  .pdf-viewer-container div:has(> canvas) {
+    max-width: min(100%, 980px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .pdf-viewer-container canvas {
+    width: min(100%, 960px) !important;
+    height: auto !important;
+    max-width: 960px !important;
+  }
+
+  .pdf-viewer-container div:has(> canvas) + * {
+    display: none !important;
+  }
+}
