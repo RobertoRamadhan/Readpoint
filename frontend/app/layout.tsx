@@ -13,6 +13,7 @@ import "./reader-desktop-fix.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import SearchDropdownPatch from "@/components/siswa/SearchDropdownPatch";
+import ReaderLayoutPatch from "@/components/siswa/ReaderLayoutPatch";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
           <Providers>
             {children}
             <SearchDropdownPatch />
+            <ReaderLayoutPatch />
           </Providers>
         </ErrorBoundary>
       </body>
