@@ -17,16 +17,16 @@ export default function ReaderLayoutPatch() {
       const canvas = viewer.querySelector('canvas') as HTMLCanvasElement | null;
       const canvasBox = canvas?.parentElement as HTMLElement | null;
 
-      if (!isDesktop) {
-        return;
-      }
+      if (!isDesktop) return;
 
       if (main) {
         main.style.setProperty('display', 'block', 'important');
         main.style.setProperty('grid-template-columns', 'minmax(0, 1fr)', 'important');
         main.style.setProperty('width', '100%', 'important');
         main.style.setProperty('max-width', '100%', 'important');
+        main.style.setProperty('min-width', '0', 'important');
         main.style.setProperty('margin-left', '0', 'important');
+        main.style.setProperty('overflow', 'hidden', 'important');
         main.style.setProperty('background', '#0f172a', 'important');
       }
 
@@ -41,31 +41,46 @@ export default function ReaderLayoutPatch() {
       viewer.style.setProperty('max-width', '100%', 'important');
       viewer.style.setProperty('min-width', '0', 'important');
       viewer.style.setProperty('margin-left', '0', 'important');
+      viewer.style.setProperty('overflow-x', 'hidden', 'important');
+      viewer.style.setProperty('overflow-y', 'hidden', 'important');
       viewer.style.setProperty('background', '#0f172a', 'important');
 
       if (viewerRoot) {
+        viewerRoot.style.setProperty('display', 'flex', 'important');
+        viewerRoot.style.setProperty('flex-direction', 'column', 'important');
+        viewerRoot.style.setProperty('height', '100%', 'important');
+        viewerRoot.style.setProperty('min-height', '100%', 'important');
         viewerRoot.style.setProperty('width', '100%', 'important');
         viewerRoot.style.setProperty('max-width', '100%', 'important');
+        viewerRoot.style.setProperty('overflow', 'hidden', 'important');
       }
 
       if (viewerToolbar) {
         viewerToolbar.style.setProperty('width', '100%', 'important');
         viewerToolbar.style.setProperty('max-width', '100%', 'important');
+        viewerToolbar.style.setProperty('flex-shrink', '0', 'important');
       }
 
       if (viewerBody) {
         viewerBody.style.setProperty('width', '100%', 'important');
         viewerBody.style.setProperty('max-width', '100%', 'important');
+        viewerBody.style.setProperty('min-width', '0', 'important');
+        viewerBody.style.setProperty('min-height', '0', 'important');
+        viewerBody.style.setProperty('flex', '1 1 auto', 'important');
         viewerBody.style.setProperty('display', 'flex', 'important');
         viewerBody.style.setProperty('justify-content', 'center', 'important');
         viewerBody.style.setProperty('align-items', 'flex-start', 'important');
+        viewerBody.style.setProperty('overflow-x', 'hidden', 'important');
+        viewerBody.style.setProperty('overflow-y', 'auto', 'important');
         viewerBody.style.setProperty('padding-left', '2rem', 'important');
         viewerBody.style.setProperty('padding-right', '2rem', 'important');
+        viewerBody.style.setProperty('padding-top', '1.5rem', 'important');
+        viewerBody.style.setProperty('padding-bottom', '2rem', 'important');
       }
 
       if (canvas && canvasBox && canvas.width > 0 && canvas.height > 0) {
-        const viewerWidth = Math.max(900, viewer.clientWidth || window.innerWidth);
-        const targetWidth = Math.min(940, Math.max(680, Math.round(viewerWidth * 0.58)));
+        const safeWidth = Math.max(720, viewer.clientWidth || window.innerWidth);
+        const targetWidth = Math.min(920, Math.max(760, safeWidth - 96));
         const targetHeight = Math.round(targetWidth * (canvas.height / canvas.width));
 
         canvasBox.style.setProperty('width', `${targetWidth}px`, 'important');
@@ -73,6 +88,7 @@ export default function ReaderLayoutPatch() {
         canvasBox.style.setProperty('margin-left', 'auto', 'important');
         canvasBox.style.setProperty('margin-right', 'auto', 'important');
 
+        canvas.style.setProperty('display', 'block', 'important');
         canvas.style.setProperty('width', `${targetWidth}px`, 'important');
         canvas.style.setProperty('height', `${targetHeight}px`, 'important');
         canvas.style.setProperty('max-width', '100%', 'important');
