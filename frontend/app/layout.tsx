@@ -11,6 +11,7 @@ import "./siswa-desktop-final.css";
 import "./landing-mobile-fix.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import SearchDropdownPatch from "@/components/siswa/SearchDropdownPatch";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             {children}
+            <SearchDropdownPatch />
           </Providers>
         </ErrorBoundary>
       </body>
