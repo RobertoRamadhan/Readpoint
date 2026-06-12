@@ -1,0 +1,46 @@
+/* Focused desktop reader layout.
+   The old desktop reader kept a left book-info sidebar, so the PDF looked shifted to the right.
+   This hides that sidebar on desktop and centers the PDF in the full reader area. */
+
+@media (min-width: 1024px) {
+  main:has(.pdf-viewer-container) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    background: #0f172a !important;
+  }
+
+  main:has(.pdf-viewer-container) > aside {
+    display: none !important;
+  }
+
+  .pdf-viewer-container {
+    width: 100% !important;
+    min-width: 0 !important;
+    background: #0f172a !important;
+  }
+
+  .pdf-viewer-container > div:first-child {
+    min-height: 100% !important;
+  }
+
+  .pdf-viewer-container > div:first-child > div:nth-child(2) {
+    justify-content: center !important;
+    padding: 1.5rem 2rem !important;
+  }
+
+  .pdf-viewer-container div:has(> canvas) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: min(100%, 900px) !important;
+  }
+
+  .pdf-viewer-container canvas {
+    display: block !important;
+    width: auto !important;
+    max-width: min(100%, 880px) !important;
+    height: auto !important;
+  }
+}
