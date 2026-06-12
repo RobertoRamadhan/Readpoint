@@ -10,6 +10,7 @@ import "./siswa-dashboard-fix.css";
 import "./siswa-desktop-final.css";
 import "./landing-mobile-fix.css";
 import "./reader-desktop-fix.css";
+import "./quiz-layout-fix.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import SearchDropdownPatch from "@/components/siswa/SearchDropdownPatch";
