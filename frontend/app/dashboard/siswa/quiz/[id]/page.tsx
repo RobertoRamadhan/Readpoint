@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
-import QuizInterface, { QuizQuestion } from '@/components/QuizInterface';
+import QuizInterface, { QuizQuestion, QuizSubmitResult } from '@/components/QuizInterface';
 import { PageLoading, Loading, Card, RippleButton } from '@/components/shared';
 
 export default function QuizPage() {
@@ -39,7 +39,8 @@ export default function QuizPage() {
       const ebook = (ebookRes as any)?.data || ebookRes;
       setEbookTitle(ebook?.title || `Quiz Buku #${ebookId}`);
 
-      // Fetch quiz questions for this ebook
+      // Fetch quiz questions for this ebook.
+      // Backend intentionally does not send correct_answer for security.
       const quizRes = await api.getQuizzes(ebookId);
       const data = (quizRes as any)?.data;
       const rawQuestions = Array.isArray(data) ? data : [];
@@ -58,18 +59,24 @@ export default function QuizPage() {
     }
   };
 
-  const handleSubmit = async (answers: Record<number, string>, score: number) => {
-    if (submitted) return;
+  const handleSubmit = async (answers: Record<number, string>): Promise<QuizSubmitResult> => {
+    if (submitted) {
+      throw new Error('Kuis sudah dikirim');
+    }
+
     setSubmitted(true);
+
     try {
-      await api.submitQuiz({
+      const response = await api.submitQuiz({
         ebook_id: ebookId,
         answers,
-        score,
       });
+
+      return response as QuizSubmitResult;
     } catch (err) {
+      setSubmitted(false);
       console.error('[Quiz] Failed to submit quiz:', err);
-      // Don't block the UI — results are already shown
+      throw err instanceof Error ? err : new Error('Gagal mengirim kuis');
     }
   };
 
