@@ -5,15 +5,6 @@ import { api } from '@/lib/api';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
 
 interface UserRecord {
   id: number;
@@ -166,6 +157,10 @@ export default function AdminLaporanPage() {
     return { totalTeachers, totalClasses, totalClassPoints, goodTeachers };
   }, [reportData]);
 
+  const maxTotalPoints = useMemo(() => {
+    return Math.max(1, ...reportData.map((item) => item.totalPoints));
+  }, [reportData]);
+
   if (loading || !mounted || user?.role !== 'admin') {
     return null;
   }
@@ -252,16 +247,31 @@ export default function AdminLaporanPage() {
                   <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Grafik Produktivitas</p>
                   <h2 className="mt-2 text-xl font-black text-slate-900">Total poin siswa per wali kelas</h2>
                 </div>
-                <div className="h-80 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={reportData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="className" tick={{ fontSize: 12 }} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                      <Tooltip />
-                      <Bar dataKey="totalPoints" fill="#059669" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="space-y-4">
+                  {reportData.length > 0 ? (
+                    reportData.map((item) => {
+                      const width = Math.max(4, Math.round((item.totalPoints / maxTotalPoints) * 100));
+
+                      return (
+                        <div key={item.id} className="space-y-2">
+                          <div className="flex items-center justify-between gap-4 text-sm">
+                            <div className="min-w-0">
+                              <p className="truncate font-black text-slate-900">{item.className}</p>
+                              <p className="truncate text-xs font-semibold text-slate-500">{item.teacherName}</p>
+                            </div>
+                            <p className="shrink-0 font-black text-emerald-700">{item.totalPoints} poin</p>
+                          </div>
+                          <div className="h-4 overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-full rounded-full bg-emerald-600 transition-all" style={{ width: `${width}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-2xl bg-slate-50 p-10 text-center text-sm font-bold text-slate-500">
+                      Belum ada data untuk grafik.
+                    </div>
+                  )}
                 </div>
               </section>
 
