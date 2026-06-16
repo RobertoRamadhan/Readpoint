@@ -9,14 +9,25 @@ export interface QuizQuestion {
   option_b: string;
   option_c: string;
   option_d: string;
-  correct_answer: string;
+}
+
+export interface QuizSubmitResult {
+  score?: number;
+  passed?: boolean;
+  points_earned?: number;
+  quiz_attempt?: {
+    correct_answers?: number;
+    total_questions?: number;
+    score?: number;
+    passed?: boolean;
+  };
 }
 
 export interface QuizInterfaceProps {
   quizId: number;
   ebookTitle: string;
   questions: QuizQuestion[];
-  onSubmit: (answers: Record<number, string>, score: number) => void;
+  onSubmit: (answers: Record<number, string>) => Promise<QuizSubmitResult | void>;
   onCancel: () => void;
 }
 
@@ -25,6 +36,10 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const currentQuestion = questions[currentIndex];
   const options = [
@@ -40,16 +55,33 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   const progress = questions.length ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
 
   const selectAnswer = (key: string) => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || submitting) return;
     setSelectedAnswers((prev) => ({ ...prev, [currentQuestion.id]: key }));
   };
 
-  const submitQuiz = () => {
-    const correctCount = questions.filter((q) => selectedAnswers[q.id] === q.correct_answer.toLowerCase()).length;
-    const calculatedScore = Math.round((correctCount / questions.length) * 100);
-    setScore(calculatedScore);
-    setShowResults(true);
-    onSubmit(selectedAnswers, calculatedScore);
+  const submitQuiz = async () => {
+    if (!allAnswered || submitting) return;
+
+    try {
+      setSubmitting(true);
+      setSubmitError('');
+
+      const result = await onSubmit(selectedAnswers);
+      const backendScore = Number(result?.score ?? result?.quiz_attempt?.score ?? 0);
+      const backendCorrect = Number(
+        result?.quiz_attempt?.correct_answers ?? Math.round((backendScore / 100) * questions.length)
+      );
+      const backendPoints = Number(result?.points_earned ?? backendCorrect * 10);
+
+      setScore(Math.max(0, Math.min(100, Math.round(backendScore))));
+      setCorrectAnswers(Math.max(0, Math.min(questions.length, backendCorrect)));
+      setPointsEarned(Math.max(0, backendPoints));
+      setShowResults(true);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Gagal mengirim kuis');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const resetQuiz = () => {
@@ -57,6 +89,9 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
     setSelectedAnswers({});
     setShowResults(false);
     setScore(0);
+    setCorrectAnswers(0);
+    setPointsEarned(0);
+    setSubmitError('');
   };
 
   if (questions.length === 0) {
@@ -73,7 +108,6 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   }
 
   if (showResults) {
-    const correctAnswers = questions.filter((q) => selectedAnswers[q.id] === q.correct_answer.toLowerCase()).length;
     const resultMessage = score >= 80 ? 'Luar biasa, kamu menguasai materi ini.' : score >= 60 ? 'Bagus, terus tingkatkan pemahamanmu.' : 'Ayo coba lagi untuk hasil yang lebih baik.';
     const scoreColor = score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-slate-900' : 'text-red-600';
 
@@ -89,9 +123,10 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
 
           <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
             <ResultRow label="Jawaban Benar" value={`${correctAnswers}/${questions.length}`} success={score >= 60} />
-            <ResultRow label="Akurasi" value={`${Math.round((correctAnswers / questions.length) * 100)}%`} success={score >= 60} />
+            <ResultRow label="Akurasi" value={`${score}%`} success={score >= 60} />
+            <ResultRow label="Poin Didapat" value={`${pointsEarned} poin`} success={pointsEarned > 0} />
             <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-              <div className={`h-full rounded-full ${score >= 60 ? 'bg-emerald-700' : 'bg-red-500'}`} style={{ width: `${(correctAnswers / questions.length) * 100}%` }} />
+              <div className={`h-full rounded-full ${score >= 60 ? 'bg-emerald-700' : 'bg-red-500'}`} style={{ width: `${score}%` }} />
             </div>
           </div>
 
@@ -131,7 +166,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
         <section className="quiz-shell min-w-0">
           <div className="quiz-number-nav">
             {questions.map((q, index) => (
-              <button key={q.id} onClick={() => setCurrentIndex(index)} className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-4 text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white shadow-sm' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
+              <button key={q.id} onClick={() => setCurrentIndex(index)} disabled={submitting} className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-4 text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white shadow-sm' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
             ))}
           </div>
 
@@ -143,7 +178,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
               {options.map((option) => {
                 const isSelected = selectedAnswers[currentQuestion?.id] === option.key;
                 return (
-                  <button key={option.key} onClick={() => selectAnswer(option.key)} className={`quiz-answer-option flex w-full items-start gap-3 rounded-2xl border p-4 text-left font-semibold transition sm:p-5 ${isSelected ? 'border-emerald-700 bg-emerald-700 text-white shadow-md' : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'}`}>
+                  <button key={option.key} onClick={() => selectAnswer(option.key)} disabled={submitting} className={`quiz-answer-option flex w-full items-start gap-3 rounded-2xl border p-4 text-left font-semibold transition sm:p-5 ${isSelected ? 'border-emerald-700 bg-emerald-700 text-white shadow-md' : 'border-slate-200 bg-white text-slate-800 hover:border-emerald-700 hover:bg-slate-50'} disabled:cursor-not-allowed disabled:opacity-70`}>
                     <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black ${isSelected ? 'bg-white text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>{option.key.toUpperCase()}</span>
                     <span className="min-w-0 flex-1 leading-7">{option.label}</span>
                     {isSelected && <span className="shrink-0 text-lg font-black">✓</span>}
@@ -153,9 +188,11 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
             </div>
           </div>
 
+          {submitError && <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-700">{submitError}</p>}
+
           <div className="quiz-actions mt-5">
-            <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0} className="h-12 min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Sebelumnya</button>
-            {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered} className="h-12 min-w-0 rounded-2xl bg-emerald-700 px-4 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selesai & Kirim</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered} className="h-12 min-w-0 rounded-2xl bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selanjutnya</button>}
+            <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0 || submitting} className="h-12 min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Sebelumnya</button>
+            {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered || submitting} className="h-12 min-w-0 rounded-2xl bg-emerald-700 px-4 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">{submitting ? 'Mengirim...' : 'Selesai & Kirim'}</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered || submitting} className="h-12 min-w-0 rounded-2xl bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selanjutnya</button>}
           </div>
 
           {!allAnswered && currentIndex === questions.length - 1 && <p className="mt-4 text-center text-sm font-semibold text-red-600">Jawab semua soal sebelum mengirim. {questions.length - answeredCount} soal belum dijawab.</p>}
