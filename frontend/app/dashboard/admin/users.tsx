@@ -121,10 +121,14 @@ export default function UsersPage() {
   const handleResetPassword = async (userId: number) => {
     try {
       setActionLoading(true);
-      await api.users.resetPassword(userId);
+      const response = await api.users.resetPassword(userId);
+      const temporaryPassword = (response as any)?.temporary_password || (response as any)?.data?.temporary_password;
       
-      // Show success message (you could add a toast notification here)
-      alert('Password berhasil direset. Password baru telah dikirim ke email user.');
+      if (temporaryPassword) {
+        alert(`Password berhasil direset.\n\nPassword sementara:\n${temporaryPassword}\n\nSalin password ini dan berikan ke user.`);
+      } else {
+        alert('Password berhasil direset. Silakan cek response server atau hubungi admin sistem.');
+      }
     } catch (error) {
       console.error('Failed to reset password:', error);
       alert('Gagal reset password. Silakan coba lagi.');
