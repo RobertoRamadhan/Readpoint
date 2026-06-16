@@ -11,6 +11,7 @@ interface Ebook {
   title: string;
   author: string;
   pages: number;
+  poin_per_halaman?: number;
   pdf_file?: string;
   pdf_file_url?: string;
   cover_image?: string;
@@ -102,10 +103,14 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     scrollDebounceRef.current = setTimeout(() => {
       if (readingActivityId && ebook) {
         const pagesRead = Math.max(1, Math.round((readingProgress / 100) * ebook.pages));
-        api.updateActivityProgress(readingActivityId, { current_page: 1, final_page: pagesRead }).catch(() => {});
+        api.updateActivityProgress(readingActivityId, {
+          current_page: pagesRead,
+          final_page: pagesRead,
+          reading_time: readingTime,
+        }).catch(() => {});
       }
     }, 1500);
-  }, [readingActivityId, readingProgress, ebook]);
+  }, [readingActivityId, readingProgress, ebook, readingTime]);
 
   useEffect(() => {
     updateActivity();
@@ -137,7 +142,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const completeReading = async () => {
     const totalPages = ebook?.pages || 10;
     const finalPagesRead = Math.max(1, Math.round((Math.max(readingProgress, 100) / 100) * totalPages));
-    const points = finalPagesRead * 10;
+    const points = finalPagesRead * (ebook?.poin_per_halaman || 10);
     setEarnedPoints(points);
 
     if (readingActivityId) {
@@ -220,7 +225,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
           <div className="overflow-hidden rounded-2xl bg-slate-100">{coverUrl ? <img src={coverUrl} alt={ebook.title} className="h-64 w-full object-cover" /> : <div className="flex h-64 items-center justify-center text-5xl">📚</div>}</div>
           <h2 className="mt-5 line-clamp-2 text-lg font-black text-slate-950">{ebook.title}</h2>
           <p className="mt-1 text-sm font-semibold text-slate-500">{ebook.author}</p>
-          <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4"><InfoRow label="Halaman sekarang" value={String(pagesRead)} /><InfoRow label="Total halaman" value={String(ebook.pages || 10)} /><InfoRow label="Progress" value={`${readingProgress}%`} /><InfoRow label="Estimasi poin" value={String(pagesRead * 10)} /></div>
+          <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4"><InfoRow label="Halaman sekarang" value={String(pagesRead)} /><InfoRow label="Total halaman" value={String(ebook.pages || 10)} /><InfoRow label="Progress" value={`${readingProgress}%`} /><InfoRow label="Estimasi poin" value={String(pagesRead * (ebook.poin_per_halaman || 10))} /></div>
         </aside>
 
         <div className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-900">
@@ -236,7 +241,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   );
 }
 
-function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChange }: { src: string; title: string; isMobile: boolean; zoom: number; fitWidth: boolean; onProgressChange: (value: number) => void }) {
+function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChange }: { src: string; title: string; isMobile: boolean; zoom: number; fitWidth: boolean; onProgressChange: (progress: number) => void }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfRef = useRef<any>(null);
