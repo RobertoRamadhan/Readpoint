@@ -23,18 +23,19 @@ export default function LoginPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password minimal 8 karakter');
-      return;
-    }
-
     setLoading(true);
 
     try {
       const response = await api.login({ email, password });
+      const authData = (response.data ?? response) as {
+        user?: Parameters<typeof login>[0];
+        token?: string;
+        access_token?: string;
+      };
+      const token = authData.token ?? authData.access_token;
 
-      if (response.user && response.token) {
-        login(response.user, response.token);
+      if (authData.user && token) {
+        login(authData.user, token);
         router.push('/dashboard');
       } else {
         throw new Error('Respons server tidak valid');

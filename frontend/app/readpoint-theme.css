@@ -351,3 +351,262 @@ tbody tr:hover {
     padding-right: 2rem !important;
   }
 }
+
+/* Dashboard app shell: keep the top bar compact and stop content hiding under it. */
+.readpoint-dashboard-shell {
+  --readpoint-dashboard-header-height: 64px;
+  --readpoint-dashboard-sidebar-width: 272px;
+}
+
+.readpoint-dashboard-header {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  height: var(--readpoint-dashboard-header-height) !important;
+  min-height: var(--readpoint-dashboard-header-height) !important;
+  max-height: var(--readpoint-dashboard-header-height) !important;
+  overflow: visible !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  z-index: 70 !important;
+}
+
+.readpoint-dashboard-header-inner,
+.readpoint-dashboard-header-row,
+.readpoint-dashboard-brand {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.readpoint-dashboard-brand {
+  align-items: center !important;
+}
+
+.readpoint-dashboard-brand-icon {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+
+.readpoint-dashboard-brand-title {
+  display: block !important;
+  margin: 0 !important;
+  color: #0f172a !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+.readpoint-dashboard-brand-subtitle {
+  display: block !important;
+  margin-top: 4px !important;
+  color: #047857 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.readpoint-dashboard-user-name,
+.readpoint-dashboard-user-role {
+  display: block !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+}
+
+.readpoint-dashboard-user-name {
+  color: #0f172a !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+.readpoint-dashboard-user-role {
+  margin-top: 3px !important;
+  color: #64748b !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.readpoint-dashboard-main {
+  padding-top: var(--readpoint-dashboard-header-height) !important;
+}
+
+.readpoint-dashboard-footer {
+  width: 100% !important;
+}
+
+@media (min-width: 768px) {
+  .readpoint-dashboard-header {
+    left: var(--readpoint-dashboard-sidebar-width) !important;
+    width: calc(100% - var(--readpoint-dashboard-sidebar-width)) !important;
+  }
+
+  .readpoint-dashboard-footer {
+    margin-left: var(--readpoint-dashboard-sidebar-width) !important;
+    width: calc(100% - var(--readpoint-dashboard-sidebar-width)) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .readpoint-dashboard-header {
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  .readpoint-dashboard-brand-title {
+    font-size: 14px !important;
+  }
+
+  .readpoint-dashboard-brand-subtitle {
+    font-size: 10px !important;
+  }
+}
+
+/* Admin/Guru sidebar menu rhythm */
+.readpoint-admin-sidebar,
+.readpoint-guru-sidebar {
+  width: var(--readpoint-dashboard-sidebar-width) !important;
+  min-width: var(--readpoint-dashboard-sidebar-width) !important;
+  max-width: var(--readpoint-dashboard-sidebar-width) !important;
+  background: #020617 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-brand,
+.readpoint-guru-sidebar .readpoint-admin-brand {
+  padding: 24px 24px 26px !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-brand > div,
+.readpoint-guru-sidebar .readpoint-admin-brand > div {
+  border-radius: 24px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  background: #1a1f32 !important;
+  overflow: hidden !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-brand .flex,
+.readpoint-guru-sidebar .readpoint-admin-brand .flex {
+  min-height: 64px !important;
+  gap: 12px !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-brand .flex > div:first-child,
+.readpoint-guru-sidebar .readpoint-admin-brand .flex > div:first-child {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 20px !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-brand p:first-child,
+.readpoint-guru-sidebar .readpoint-admin-brand p:first-child {
+  font-size: 18px !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-brand p:last-child,
+.readpoint-guru-sidebar .readpoint-admin-brand p:last-child {
+  margin-top: 8px !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-nav,
+.readpoint-guru-sidebar .readpoint-admin-nav {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 22px 32px 132px !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-nav > :not([hidden]) ~ :not([hidden]),
+.readpoint-guru-sidebar .readpoint-admin-nav > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-group,
+.readpoint-guru-sidebar .readpoint-admin-menu-group {
+  width: 100% !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-item,
+.readpoint-guru-sidebar .readpoint-admin-menu-item {
+  width: 100% !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  justify-content: space-between !important;
+  border-radius: 14px !important;
+  padding: 0 12px !important;
+  background: #171c2e !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-item:hover,
+.readpoint-guru-sidebar .readpoint-admin-menu-item:hover {
+  background: #20263a !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-item[class*="bg-white"],
+.readpoint-guru-sidebar .readpoint-admin-menu-item[class*="bg-white"] {
+  background: #ffffff !important;
+  color: #020617 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-item > span,
+.readpoint-guru-sidebar .readpoint-admin-menu-item > span {
+  flex: 1 1 auto !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-item span span:first-child,
+.readpoint-guru-sidebar .readpoint-admin-menu-item span span:first-child {
+  width: 32px !important;
+  height: 32px !important;
+  background: transparent !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-label,
+.readpoint-guru-sidebar .readpoint-admin-menu-label {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: hidden !important;
+  clip: auto !important;
+  white-space: nowrap !important;
+  color: inherit !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-menu-item > svg,
+.readpoint-guru-sidebar .readpoint-admin-menu-item > svg {
+  position: static !important;
+  display: grid !important;
+  width: 26px !important;
+  height: 26px !important;
+  padding: 5px !important;
+  flex-shrink: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: currentColor !important;
+}
+
+.readpoint-admin-sidebar .readpoint-admin-submenu-item,
+.readpoint-guru-sidebar .readpoint-admin-submenu-item {
+  min-height: 44px !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+}
