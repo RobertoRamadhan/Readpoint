@@ -10,11 +10,6 @@
    Paste sudah digabung di file ini.
    ========================================================= */
 
-:global(html),
-:global(body) {
-  overflow-x: hidden !important;
-}
-
 @media (min-width: 768px) {
   .page {
     display: block !important;
