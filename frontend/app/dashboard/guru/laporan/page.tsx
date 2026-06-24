@@ -162,7 +162,7 @@ export default function GuruLaporanPage() {
   }
 
   return (
-    <div className="flex w-full min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-64px)] bg-slate-50">
+    <div className="relative flex min-h-[calc(100vh-56px)] w-full overflow-x-hidden bg-slate-50 sm:min-h-[calc(100vh-64px)]">
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="fixed top-16 left-4 z-40 rounded-lg bg-emerald-900 p-2 text-white transition hover:bg-emerald-800 md:hidden"
@@ -189,12 +189,12 @@ export default function GuruLaporanPage() {
         user={user}
       />
 
-      <main className="min-w-0 flex-1 bg-slate-50">
-        <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-          <section className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Siswa</p>
-            <h1 className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl lg:text-4xl">Pantau perkembangan literasi siswa</h1>
-            <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600 sm:text-base">
+      <main className="min-w-0 flex-1 overflow-x-hidden bg-slate-50 md:ml-72 md:w-[calc(100vw-18rem)] md:max-w-[calc(100vw-18rem)]">
+        <div className="mx-auto w-full max-w-4xl space-y-4 px-2.5 py-3 sm:px-3 sm:py-4 lg:px-4 lg:py-5">
+          <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4 lg:p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Siswa</p>
+            <h1 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">Pantau perkembangan literasi siswa</h1>
+            <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-600">
               Laporan ini membantu guru melihat siswa yang produktif, siswa yang perlu pendampingan, total poin, buku dibaca, dan perkembangan kuis.
             </p>
           </section>
@@ -212,35 +212,35 @@ export default function GuruLaporanPage() {
             </div>
           ) : (
             <>
-              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Total Siswa</p>
-                  <p className="mt-3 text-4xl font-black text-emerald-900">{summary.totalStudents}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Siswa pada kelas guru</p>
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Total Siswa</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-900">{summary.totalStudents}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Siswa pada kelas guru</p>
                 </div>
-                <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Total Poin</p>
-                  <p className="mt-3 text-4xl font-black text-emerald-900">{summary.totalPoints}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Akumulasi poin siswa</p>
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Total Poin</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-900">{summary.totalPoints}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Akumulasi poin siswa</p>
                 </div>
-                <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Buku Dibaca</p>
-                  <p className="mt-3 text-4xl font-black text-emerald-900">{summary.totalBooksRead}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Total buku selesai dibaca</p>
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Buku Dibaca</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-900">{summary.totalBooksRead}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Total buku selesai dibaca</p>
                 </div>
-                <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Siswa Produktif</p>
-                  <p className="mt-3 text-4xl font-black text-emerald-700">{summary.productiveStudents}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Status Baik/Sangat Baik</p>
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Siswa Produktif</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-700">{summary.productiveStudents}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Status Baik/Sangat Baik</p>
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="mb-6">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Grafik Produktivitas</p>
-                  <h2 className="mt-2 text-xl font-black text-slate-900">Total poin per siswa</h2>
+              <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4">
+                <div className="mb-3">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Grafik Produktivitas</p>
+                  <h2 className="mt-1 text-base font-black text-slate-900">Total poin per siswa</h2>
                 </div>
-                <div className="h-80 w-full">
+                <div className="h-64 w-full min-w-0 overflow-x-hidden">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={reportData.slice(0, 10)}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#dcfce7" />
@@ -253,47 +253,47 @@ export default function GuruLaporanPage() {
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="mb-5">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Tabel Evaluasi</p>
-                  <h2 className="mt-2 text-xl font-black text-slate-900">Produktivitas siswa</h2>
+              <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4">
+                <div className="mb-3">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Tabel Evaluasi</p>
+                  <h2 className="mt-1 text-base font-black text-slate-900">Produktivitas siswa</h2>
                   <p className="mt-2 text-sm font-medium text-slate-600">
                     Penilaian dihitung dari poin, jumlah buku dibaca, dan rata-rata nilai kuis jika tersedia dari API.
                   </p>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[1040px] text-left text-sm">
+                  <table className="w-full min-w-[760px] text-left text-sm">
                     <thead>
                       <tr className="border-b border-emerald-200 bg-emerald-50 text-xs uppercase tracking-wider text-emerald-800">
-                        <th className="px-4 py-3 font-black">Siswa</th>
-                        <th className="px-4 py-3 font-black">Kelas</th>
-                        <th className="px-4 py-3 font-black">Poin</th>
-                        <th className="px-4 py-3 font-black">Buku Dibaca</th>
-                        <th className="px-4 py-3 font-black">Kuis Selesai</th>
-                        <th className="px-4 py-3 font-black">Rata-rata Kuis</th>
-                        <th className="px-4 py-3 font-black">Status</th>
-                        <th className="px-4 py-3 font-black">Kesimpulan</th>
+                        <th className="px-3 py-2.5 font-black">Siswa</th>
+                        <th className="px-3 py-2.5 font-black">Kelas</th>
+                        <th className="px-3 py-2.5 font-black">Poin</th>
+                        <th className="px-3 py-2.5 font-black">Buku</th>
+                        <th className="px-3 py-2.5 font-black">Kuis</th>
+                        <th className="px-3 py-2.5 font-black">Nilai</th>
+                        <th className="px-3 py-2.5 font-black">Status</th>
+                        <th className="px-3 py-2.5 font-black">Kesimpulan</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-emerald-100">
                       {reportData.length > 0 ? (
                         reportData.map((item) => (
                           <tr key={item.id} className="align-top">
-                            <td className="px-4 py-4">
+                            <td className="px-3 py-3">
                               <p className="font-black text-slate-900">{item.name}</p>
                               <p className="text-xs font-medium text-slate-500">{item.email}</p>
                             </td>
-                            <td className="px-4 py-4 font-bold text-slate-700">{item.className}</td>
-                            <td className="px-4 py-4 font-black text-emerald-700">{item.totalPoints}</td>
-                            <td className="px-4 py-4 font-bold text-slate-700">{item.booksRead}</td>
-                            <td className="px-4 py-4 font-bold text-slate-700">{item.quizzesCompleted}</td>
-                            <td className="px-4 py-4 font-bold text-slate-700">{item.quizAverageScore}</td>
-                            <td className="px-4 py-4">
-                              <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${item.statusClass}`}>
+                            <td className="px-3 py-3 font-bold text-slate-700">{item.className}</td>
+                            <td className="px-3 py-3 font-black text-emerald-700">{item.totalPoints}</td>
+                            <td className="px-3 py-3 font-bold text-slate-700">{item.booksRead}</td>
+                            <td className="px-3 py-3 font-bold text-slate-700">{item.quizzesCompleted}</td>
+                            <td className="px-3 py-3 font-bold text-slate-700">{item.quizAverageScore}</td>
+                            <td className="px-3 py-3">
+                              <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-black ${item.statusClass}`}>
                                 {item.status}
                               </span>
                             </td>
-                            <td className="px-4 py-4 text-slate-600">{item.note}</td>
+                            <td className="px-3 py-3 text-slate-600">{item.note}</td>
                           </tr>
                         ))
                       ) : (
