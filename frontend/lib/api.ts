@@ -100,6 +100,12 @@ interface RewardRedeemRequest {
 
 }
 
+interface GoogleLoginRequest {
+
+  credential: string;
+
+}
+
 
 
 // CSRF token management
@@ -286,6 +292,16 @@ export const api = {
   register: (data: RegisterRequest): Promise<ApiResponse<AuthResponse>> =>
 
     apiCall('/auth/register', {
+
+      method: 'POST',
+
+      body: JSON.stringify(data),
+
+    }) as Promise<ApiResponse<AuthResponse>>,
+
+  googleLogin: (data: GoogleLoginRequest): Promise<ApiResponse<AuthResponse>> =>
+
+    apiCall('/auth/google-login', {
 
       method: 'POST',
 

@@ -1,10 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (options: {
+            client_id: string;
+            callback: (response: { credential?: string }) => void;
+            auto_select?: boolean;
+            cancel_on_tap_outside?: boolean;
+          }) => void;
+          renderButton: (
+            element: HTMLElement,
+            options: {
+              theme?: string;
+              size?: string;
+              text?: string;
+              shape?: string;
+              width?: number;
+            }
+          ) => void;
+        };
+      };
+    };
+  }
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +40,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { login } = useAuth();
+  const googleButtonRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +75,84 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+    if (!clientId || typeof window === 'undefined') {
+      return;
+    }
+
+    const initializeGoogle = async () => {
+      if (!window.google?.accounts?.id || !googleButtonRef.current) {
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          if (!response.credential) {
+            setError('Login Google dibatalkan');
+            return;
+          }
+
+          setLoading(true);
+          setError('');
+
+          try {
+            const googleResponse = await api.googleLogin({ credential: response.credential });
+            const authData = (googleResponse.data ?? googleResponse) as {
+              user?: Parameters<typeof login>[0];
+              token?: string;
+              access_token?: string;
+            };
+            const token = authData.token ?? authData.access_token;
+
+            if (authData.user && token) {
+              login(authData.user, token);
+              router.push('/dashboard');
+            } else {
+              throw new Error('Respons server tidak valid');
+            }
+          } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : 'Login Google gagal';
+            setError(errorMsg);
+          } finally {
+            setLoading(false);
+          }
+        },
+        auto_select: false,
+        cancel_on_tap_outside: false,
+      });
+
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'pill',
+        width: 360,
+      });
+    };
+
+    if (window.google?.accounts?.id) {
+      void initializeGoogle();
+      return;
+    }
+
+    const existingScript = document.getElementById('google-gsi-script');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => void initializeGoogle(), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-gsi-script';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => void initializeGoogle();
+    document.head.appendChild(script);
+  }, [login, router]);
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 px-6 py-6 text-slate-900 sm:px-10 sm:py-8 lg:px-12 lg:py-12">
@@ -139,9 +245,15 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="my-6 h-px w-full bg-slate-200" />
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs font-black uppercase tracking-[0.25em] text-slate-400">atau</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
 
-            <p className="text-center text-sm font-semibold text-slate-600 sm:text-base">
+            <div ref={googleButtonRef} className="flex justify-center" />
+
+            <p className="mt-6 text-center text-sm font-semibold text-slate-600 sm:text-base">
               Belum punya akun?{' '}
               <Link href="/register" className="font-black text-emerald-700 hover:text-emerald-800">
                 Daftar di sini
