@@ -41,6 +41,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  const googleInitRef = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,11 +78,13 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '688719292172-pj1onqtj1r0nf6ul48htp1attutv28co.apps.googleusercontent.com';
 
-    if (!clientId || typeof window === 'undefined') {
+    if (!clientId || typeof window === 'undefined' || googleInitRef.current) {
       return;
     }
+
+    googleInitRef.current = true;
 
     const initializeGoogle = async () => {
       if (!window.google?.accounts?.id || !googleButtonRef.current) {
