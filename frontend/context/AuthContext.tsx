@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (user: User, token: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -101,10 +101,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     validatedRef.current = true; // Just logged in — token is fresh
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      try {
+        await api.logout();
+      } catch (error) {
+        console.warn('[AuthContext] Server logout failed, continuing local logout:', error);
+      }
+    }
+
     logoutInternal();
-    // Fire-and-forget server logout
-    api.logout().catch(() => {});
   };
 
   const refreshUser = async () => {

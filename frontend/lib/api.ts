@@ -106,6 +106,9 @@ interface GoogleLoginRequest {
 
 }
 
+interface ApiCallOptions extends RequestInit {
+  suppressErrorLogging?: boolean;
+}
 
 
 // CSRF token management
@@ -152,7 +155,9 @@ console.log('[API] Initialized with URL:', API_URL);
 
 
 
-export async function apiCall(endpoint: string, options: RequestInit = {}): Promise<ApiResponse> {
+export async function apiCall(endpoint: string, options: ApiCallOptions = {}): Promise<ApiResponse> {
+
+  const { suppressErrorLogging = false, ...requestOptions } = options;
 
   const url = `${API_URL}${endpoint}`;
 
@@ -165,6 +170,8 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
   const defaultHeaders: HeadersInit = {
 
     'Content-Type': 'application/json',
+
+    Accept: 'application/json',
 
     ...(token && { Authorization: `Bearer ${token}` }),
 
@@ -182,7 +189,7 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
 
     const response = await fetch(url, {
 
-      ...options,
+      ...requestOptions,
 
       credentials: 'include', // Include cookies for Sanctum
 
@@ -190,7 +197,7 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
 
         ...defaultHeaders,
 
-        ...options.headers,
+        ...requestOptions.headers,
 
       },
 
@@ -208,7 +215,9 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
 
     } catch (e) {
 
-      console.warn('[API] Failed to parse JSON response');
+      if (!suppressErrorLogging) {
+        console.warn('[API] Failed to parse JSON response');
+      }
 
       data = { message: `HTTP ${response.status}`, token: null, user: null };
 
@@ -216,7 +225,9 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
 
 
 
-    console.log(`[API] Response (${response.status}):`, data);
+    if (!suppressErrorLogging) {
+      console.log(`[API] Response (${response.status}):`, data);
+    }
 
 
 
@@ -257,7 +268,9 @@ export async function apiCall(endpoint: string, options: RequestInit = {}): Prom
     
 
     // Suppress "Failed to fetch" errors - they're usually network timeouts
-    console.error('[API] Error:', errorMessage);
+    if (!suppressErrorLogging) {
+      console.error('[API] Error:', errorMessage);
+    }
 
     throw new Error(errorMessage);
 
@@ -526,6 +539,56 @@ export const api = {
 
     list: (): Promise<ApiResponse> => apiCall('/users'),
 
+    classes: async (): Promise<ApiResponse> => {
+      try {
+        const usersResponse = await api.users.list();
+        const users = Array.isArray(usersResponse?.data) ? usersResponse.data : [];
+
+        const seenStudentKeys = new Set<string>();
+        const seenTeacherKeys = new Set<string>();
+
+        const grouped = users.reduce<Record<string, { id: string; grade_level?: string; class_name?: string; teacher_name?: string; student_count?: number }>>((acc, user: any) => {
+          const role = user?.role;
+          const gradeLevel = user?.grade_level;
+          const className = user?.class_name;
+
+          if (!gradeLevel || !className) {
+            return acc;
+          }
+
+          const key = `${gradeLevel}|${className}`;
+          if (!acc[key]) {
+            acc[key] = {
+              id: key,
+              grade_level: gradeLevel,
+              class_name: className,
+              teacher_name: role === 'guru' ? user?.name : undefined,
+              student_count: 0,
+            };
+          }
+
+          const teacherKey = user?.id ? `teacher:${user.id}` : `teacher:${user?.name ?? ''}|${user?.email ?? ''}`;
+          const studentKey = user?.id ? `student:${user.id}` : `student:${user?.name ?? ''}|${user?.email ?? ''}`;
+
+          if (role === 'guru' && !seenTeacherKeys.has(teacherKey)) {
+            acc[key].teacher_name = user?.name;
+            seenTeacherKeys.add(teacherKey);
+          }
+
+          if (role === 'siswa' && !seenStudentKeys.has(studentKey)) {
+            acc[key].student_count = (acc[key].student_count || 0) + 1;
+            seenStudentKeys.add(studentKey);
+          }
+
+          return acc;
+        }, {});
+
+        return { data: Object.values(grouped) } as ApiResponse;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     get: (id: number): Promise<ApiResponse> => apiCall(`/users/${id}`),
 
     create: async (data: Record<string, unknown>): Promise<ApiResponse> => {
@@ -697,6 +760,29 @@ export const api = {
   },
 
 
+
+  classes: {
+    list: (): Promise<ApiResponse> => apiCall('/classes'),
+    get: (id: number | string): Promise<ApiResponse> => apiCall(`/classes/${id}`),
+    create: (data: Record<string, unknown>): Promise<ApiResponse> =>
+      apiCall('/classes', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<ApiResponse> =>
+      apiCall(`/classes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number | string): Promise<ApiResponse> =>
+      apiCall(`/classes/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+
+  teachers: {
+    list: (): Promise<ApiResponse> => apiCall('/teachers'),
+  },
 
   // Current User (for profile management - non-admin)
 

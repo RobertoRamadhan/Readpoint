@@ -48,6 +48,20 @@ function getStudentPoints(student: Student) {
   return Number(student.total_points ?? student.points ?? 0);
 }
 
+function normalizeClassValue(value?: string | number | null): string {
+  return String(value ?? '').trim().toLowerCase().replace(/\s+/g, '');
+}
+
+function isSameClass(
+  left: { grade_level?: string; class_name?: string; class_id?: string | number | null },
+  right: { grade_level?: string; class_name?: string; class_id?: string | number | null },
+): boolean {
+  if (left.class_id != null && right.class_id != null && String(left.class_id) === String(right.class_id)) return true;
+  const leftKey = [normalizeClassValue(left.grade_level), normalizeClassValue(left.class_name)].filter(Boolean).join('|');
+  const rightKey = [normalizeClassValue(right.grade_level), normalizeClassValue(right.class_name)].filter(Boolean).join('|');
+  return Boolean(leftKey && rightKey && leftKey === rightKey);
+}
+
 function getProductivityStatus(points: number, booksRead: number, quizAverageScore: number) {
   const score = points + booksRead * 50 + quizAverageScore * 5;
 
@@ -122,8 +136,18 @@ export default function GuruLaporanPage() {
     }
   }, [isAuthenticated, user?.role]);
 
+  const assignedGradeLevel = (user as { grade_level?: string } | undefined)?.grade_level?.trim() || '';
+  const assignedClassName = user?.class_name?.trim() || '';
+  const assignedClassId = (user as { class_id?: string | number } | undefined)?.class_id;
+
   const reportData = useMemo(() => {
-    return students.map((student) => {
+    return students.filter((student) => {
+      if (!assignedClassName && !assignedGradeLevel && assignedClassId == null) return true;
+      return isSameClass(
+        { grade_level: assignedGradeLevel, class_name: assignedClassName, class_id: assignedClassId },
+        { grade_level: (student as Student & { grade_level?: string }).grade_level, class_name: student.class_name, class_id: (student as Student & { class_id?: string | number }).class_id },
+      );
+    }).map((student) => {
       const totalPoints = getStudentPoints(student);
       const booksRead = Number(student.books_read ?? 0);
       const quizzesCompleted = Number(student.quizzes_passed ?? student.quizzes_taken ?? 0);
@@ -146,7 +170,7 @@ export default function GuruLaporanPage() {
         note: productivity.note,
       } satisfies StudentProductivity;
     }).sort((a, b) => b.totalPoints - a.totalPoints);
-  }, [students]);
+  }, [students, assignedClassName, assignedGradeLevel, assignedClassId]);
 
   const summary = useMemo(() => {
     const totalStudents = reportData.length;

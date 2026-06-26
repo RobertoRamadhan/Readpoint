@@ -50,6 +50,8 @@ type QuizSummary = { ebook_id?: number; ebook_title?: string; question_count?: n
 type QuestionForm = { question: string; option_a: string; option_b: string; option_c: string; option_d: string; correct_answer: AnswerKey };
 type StudentForm = { name: string; email: string; password: string; grade_level: string; class_name: string };
 
+type StudentDetail = Student & { reading_progress?: number; quiz_average_score?: number; quizzes_passed?: number };
+
 const tabs = new Set<GuruTab>(['beranda', 'validasi', 'kuis', 'siswa', 'pengaturan']);
 const emptyQuestion = (): QuestionForm => ({ question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct_answer: 'a' });
 const defaultStudentForm: StudentForm = { name: '', email: '', password: '', grade_level: '10', class_name: '' };
@@ -61,6 +63,13 @@ function statsOf(payload: unknown): GuruStats { const r = record(payload); if (!
 function n(value: unknown): number { const parsed = Number(value ?? 0); return Number.isFinite(parsed) ? parsed : 0; }
 function fmt(value: unknown): string { return n(value).toLocaleString('id-ID'); }
 function errText(error: unknown, fallback: string): string { return error instanceof Error ? error.message : fallback; }
+function normalizeClassValue(value?: string | number | null): string { return String(value ?? '').trim().toLowerCase().replace(/\s+/g, ''); }
+function isSameClass(left: { grade_level?: string; class_name?: string; class_id?: string | number | null }, right: { grade_level?: string; class_name?: string; class_id?: string | number | null }): boolean {
+  if (left.class_id != null && right.class_id != null && String(left.class_id) === String(right.class_id)) return true;
+  const leftKey = [normalizeClassValue(left.grade_level), normalizeClassValue(left.class_name)].filter(Boolean).join('|');
+  const rightKey = [normalizeClassValue(right.grade_level), normalizeClassValue(right.class_name)].filter(Boolean).join('|');
+  return Boolean(leftKey && rightKey && leftKey === rightKey);
+}
 
 function LoadingScreen() { return <div className={styles.loading}><div><Loader2 className="mx-auto mb-3 animate-spin text-emerald-700" size={34} />Memuat dashboard guru...</div></div>; }
 
@@ -123,12 +132,23 @@ function FormBox({ title, onClose, children }: { title: string; onClose: () => v
 function FormActions({ saving, onCancel, label = 'Simpan' }: { saving: boolean; onCancel: () => void; label?: string }) { return <div className={styles.formActions}><button type="button" className={styles.secondaryButton} onClick={onCancel}>Batal</button><button type="submit" className={styles.primaryButton} disabled={saving}>{saving ? <Loader2 className="animate-spin" size={16} /> : null}{label}</button></div>; }
 
 function ValidasiTab() {
+  const { user } = useAuth();
   const [items, setItems] = useState<ReadingActivity[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [selected, setSelected] = useState<ReadingActivity | null>(null); const [rejectNote, setRejectNote] = useState(''); const [processing, setProcessing] = useState(false);
+  const assignedGradeLevel = (user as { grade_level?: string } | undefined)?.grade_level?.trim() || '';
+  const assignedClassName = user?.class_name?.trim() || '';
+  const assignedClassId = (user as { class_id?: string | number } | undefined)?.class_id;
   async function load() { try { setLoading(true); setError(''); setItems(arrayOf<ReadingActivity>(await api.validations.getPending())); } catch (error) { setError(errText(error, 'Gagal memuat validasi')); } finally { setLoading(false); } }
   useEffect(() => { load(); }, []);
   async function approve(id: number) { try { setProcessing(true); await api.validations.approve(id); setSelected(null); await load(); } catch (error) { setError(errText(error, 'Gagal approve aktivitas')); } finally { setProcessing(false); } }
   async function reject(id: number) { if (!rejectNote.trim()) return setError('Alasan penolakan harus diisi'); try { setProcessing(true); await api.validations.reject(id, rejectNote.trim()); setSelected(null); setRejectNote(''); await load(); } catch (error) { setError(errText(error, 'Gagal reject aktivitas')); } finally { setProcessing(false); } }
-  return <div><SectionHeader eyebrow="Validasi Pembacaan" title="Aktivitas siswa pending" desc="Tinjau progres membaca siswa sebelum poin diberikan." Icon={ClipboardCheck} /><div className={styles.managementShell}><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat validasi...</div> : items.length === 0 ? <Empty text="Semua aktivitas sudah divalidasi." /> : <div className={styles.leaderList}>{items.map((a) => <button key={a.id} type="button" className={styles.leaderItem} onClick={() => setSelected(a)}><div className="min-w-0 text-left"><p className={styles.leaderName}>{a.ebook?.title || 'E-Book'}</p><p className={styles.leaderEmail}>{a.user?.name || 'Siswa'} • {a.user?.class_name || 'Tanpa kelas'}</p><p className={styles.mutedText}>Halaman {fmt(a.current_page)} / {fmt(a.ebook?.pages)} • {fmt(a.duration_minutes)} menit</p></div><span className={styles.statusBadge}>Pending</span></button>)}</div>}</div>{selected && <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/70 p-4" onClick={(e) => { if (e.currentTarget === e.target) setSelected(null); }}><div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-2xl"><div className={styles.formHeader}><div><p className={styles.sectionEyebrow}>Detail Validasi</p><h2 className={styles.formTitle}>{selected.ebook?.title || 'Aktivitas Membaca'}</h2></div><button className={styles.closeButton} onClick={() => setSelected(null)}><X size={18} /></button></div><div className={styles.formGrid}><Info label="Siswa" value={`${selected.user?.name || '-'} (${selected.user?.class_name || '-'})`} /><Info label="Halaman" value={`${fmt(selected.final_page || selected.current_page)} / ${fmt(selected.ebook?.pages)}`} /><Info label="Durasi" value={`${fmt(selected.duration_minutes)} menit`} /><Info label="Status" value={selected.status || 'pending'} /><Field label="Catatan Siswa" full><textarea className={styles.textarea} value={selected.notes || '-'} readOnly /></Field><Field label="Alasan penolakan" full><textarea className={styles.textarea} value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} placeholder="Isi jika aktivitas ditolak" /></Field></div><div className={styles.formActions}><button className={styles.dangerButton} disabled={processing} onClick={() => reject(selected.id)}>Tolak</button><button className={styles.primaryButton} disabled={processing} onClick={() => approve(selected.id)}>Approve</button></div></div></div>}</div>;
+  const visibleItems = useMemo(() => items.filter((activity) => {
+    if (!assignedClassName && !assignedGradeLevel && assignedClassId == null) return true;
+    return isSameClass(
+      { grade_level: assignedGradeLevel, class_name: assignedClassName, class_id: assignedClassId },
+      { grade_level: undefined, class_name: activity.user?.class_name, class_id: (activity.user as { class_id?: string | number } | undefined)?.class_id },
+    );
+  }), [items, assignedClassName, assignedGradeLevel, assignedClassId]);
+  return <div><SectionHeader eyebrow="Validasi Pembacaan" title="Aktivitas siswa pending" desc="Tinjau progres membaca siswa sebelum poin diberikan." Icon={ClipboardCheck} /><div className={styles.managementShell}><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat validasi...</div> : visibleItems.length === 0 ? <Empty text="Semua aktivitas sudah divalidasi." /> : <div className={styles.leaderList}>{visibleItems.map((a) => <button key={a.id} type="button" className={styles.leaderItem} onClick={() => setSelected(a)}><div className="min-w-0 text-left"><p className={styles.leaderName}>{a.ebook?.title || 'E-Book'}</p><p className={styles.leaderEmail}>{a.user?.name || 'Siswa'} • {a.user?.class_name || 'Tanpa kelas'}</p><p className={styles.mutedText}>Halaman {fmt(a.current_page)} / {fmt(a.ebook?.pages)} • {fmt(a.duration_minutes)} menit</p></div><span className={styles.statusBadge}>Pending</span></button>)}</div>}</div>{selected && <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/70 p-4" onClick={(e) => { if (e.currentTarget === e.target) setSelected(null); }}><div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-2xl"><div className={styles.formHeader}><div><p className={styles.sectionEyebrow}>Detail Validasi</p><h2 className={styles.formTitle}>{selected.ebook?.title || 'Aktivitas Membaca'}</h2></div><button className={styles.closeButton} onClick={() => setSelected(null)}><X size={18} /></button></div><div className={styles.formGrid}><Info label="Siswa" value={`${selected.user?.name || '-'} (${selected.user?.class_name || '-'})`} /><Info label="Halaman" value={`${fmt(selected.final_page || selected.current_page)} / ${fmt(selected.ebook?.pages)}`} /><Info label="Durasi" value={`${fmt(selected.duration_minutes)} menit`} /><Info label="Status" value={selected.status || 'pending'} /><Field label="Catatan Siswa" full><textarea className={styles.textarea} value={selected.notes || '-'} readOnly /></Field><Field label="Alasan penolakan" full><textarea className={styles.textarea} value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} placeholder="Isi jika aktivitas ditolak" /></Field></div><div className={styles.formActions}><button className={styles.dangerButton} disabled={processing} onClick={() => reject(selected.id)}>Tolak</button><button className={styles.primaryButton} disabled={processing} onClick={() => approve(selected.id)}>Approve</button></div></div></div>}</div>;
 }
 
 function Info({ label, value }: { label: string; value: string }) { return <div className={styles.todayCard}><p>{label}</p><p className="!text-lg">{value}</p></div>; }
@@ -144,16 +164,56 @@ function QuizTab() {
 }
 
 function StudentListTab() {
-  const { user } = useAuth(); const assignedClass = user?.class_name?.trim() || ''; const [students, setStudents] = useState<Student[]>([]); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [query, setQuery] = useState(''); const [formOpen, setFormOpen] = useState(false); const [editing, setEditing] = useState<Student | null>(null); const [form, setForm] = useState<StudentForm>({ ...defaultStudentForm, class_name: assignedClass }); const [error, setError] = useState(''); const [success, setSuccess] = useState('');
-  async function load() { try { setLoading(true); setError(''); setStudents(arrayOf<Student>(await api.dashboard.guruStudents())); } catch (error) { setError(errText(error, 'Gagal memuat siswa')); } finally { setLoading(false); } }
+  const { user } = useAuth();
+  const assignedGradeLevel = (user as { grade_level?: string } | undefined)?.grade_level?.trim() || '';
+  const assignedClassName = user?.class_name?.trim() || '';
+  const assignedClassId = (user as { class_id?: string | number } | undefined)?.class_id;
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  async function load() {
+    try {
+      setLoading(true);
+      setError('');
+      setStudents(arrayOf<Student>(await api.dashboard.guruStudents()));
+    } catch (error) {
+      setError(errText(error, 'Gagal memuat siswa'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => { load(); }, []);
-  const filtered = useMemo(() => students.filter((s) => `${s.name} ${s.email} ${s.class_name ?? ''}`.toLowerCase().includes(query.toLowerCase())), [students, query]);
-  function openCreate() { setEditing(null); setForm({ ...defaultStudentForm, class_name: assignedClass }); setFormOpen(true); setError(''); setSuccess(''); }
-  function openEdit(s: Student) { setEditing(s); setForm({ name: s.name, email: s.email, password: '', grade_level: s.grade_level || '10', class_name: s.class_name || assignedClass }); setFormOpen(true); setError(''); setSuccess(''); }
-  async function submit(e: FormEvent) { e.preventDefault(); const className = assignedClass || form.class_name.trim(); if (!form.name || !form.email) return setError('Nama dan email wajib diisi'); if (!className) return setError('Kelas siswa wajib diisi'); if (!editing && form.password.length < 8) return setError('Password siswa baru minimal 8 karakter'); try { setSaving(true); setError(''); const payload = { name: form.name, email: form.email, role: 'siswa', class_name: className, grade_level: form.grade_level, ...(form.password && { password: form.password, password_confirmation: form.password }) }; editing ? await api.users.update(editing.id, payload) : await api.users.create(payload); setSuccess(editing ? 'Data siswa berhasil diperbarui' : 'Siswa berhasil ditambahkan'); setFormOpen(false); await load(); } catch (error) { setError(errText(error, 'Gagal menyimpan siswa')); } finally { setSaving(false); } }
-  async function remove(s: Student) { if (!confirm(`Hapus siswa ${s.name}?`)) return; try { setSaving(true); await api.users.delete(s.id); setSuccess('Siswa berhasil dihapus'); await load(); } catch (error) { setError(errText(error, 'Gagal menghapus siswa')); } finally { setSaving(false); } }
-  async function reset(s: Student) { if (!confirm(`Reset password siswa ${s.name}?`)) return; try { setSaving(true); await api.users.resetPassword(s.id); setSuccess('Password siswa berhasil di-reset'); } catch (error) { setError(errText(error, 'Gagal reset password')); } finally { setSaving(false); } }
-  return <div><SectionHeader eyebrow="Daftar Siswa" title="Kelola Siswa Kelas" desc="Tambah siswa, perbarui data login, dan pantau progres literasi." Icon={Users} /><div className={styles.managementShell}><ErrorBox message={error} /><SuccessBox message={success} /><div className={styles.toolbar}><SearchBox value={query} onChange={setQuery} placeholder="Cari siswa..." /><button className={styles.primaryButton} onClick={openCreate} disabled={saving}><Plus size={18} />Tambah Siswa</button></div>{formOpen && <FormBox title={editing ? 'Edit Siswa' : 'Tambah Siswa'} onClose={() => setFormOpen(false)}><form onSubmit={submit}><div className={styles.formGrid}><Field label="Nama"><input className={styles.input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field><Field label="Email"><input className={styles.input} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field><Field label="Kelas"><input className={styles.input} value={assignedClass || form.class_name} readOnly={Boolean(assignedClass)} onChange={(e) => setForm({ ...form, class_name: e.target.value })} /></Field><Field label="Tingkat"><select className={styles.select} value={form.grade_level} onChange={(e) => setForm({ ...form, grade_level: e.target.value })}><option value="10">Kelas X</option><option value="11">Kelas XI</option><option value="12">Kelas XII</option><option value="1">Kelas X</option><option value="2">Kelas XI</option><option value="3">Kelas XII</option></select></Field><Field label={editing ? 'Password baru (opsional)' : 'Password'}><input className={styles.input} type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field></div><FormActions saving={saving} onCancel={() => setFormOpen(false)} /></form></FormBox>}{loading ? <div className={styles.loading}>Memuat siswa...</div> : filtered.length === 0 ? <Empty text="Siswa belum ditemukan." /> : <div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>Nama</th><th>Email</th><th>Kelas</th><th>Poin</th><th>Buku</th><th>Aksi</th></tr></thead><tbody>{filtered.map((s) => <tr key={s.id}><td><div className={styles.avatarCell}><span className={styles.avatar}>{s.profile_photo_url ? <img src={s.profile_photo_url} alt={s.name} /> : s.name.charAt(0).toUpperCase()}</span>{s.name}</div></td><td>{s.email}</td><td>{s.class_name || '-'}</td><td>{fmt(s.total_points)}</td><td>{fmt(s.books_read)}</td><td><div className={styles.cardActions}><button className={styles.editButton} onClick={() => openEdit(s)}>Edit</button><button className={styles.smallButton} onClick={() => reset(s)}>Reset</button><button className={styles.dangerButton} onClick={() => remove(s)}>Hapus</button></div></td></tr>)}</tbody></table></div>}</div></div>;
+
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return students.filter((student) => {
+      const matchesQuery = !normalizedQuery || `${student.name} ${student.email} ${student.class_name ?? ''}`.toLowerCase().includes(normalizedQuery);
+      const matchesClass = !assignedClassName && !assignedGradeLevel && assignedClassId == null
+        ? true
+        : isSameClass(
+            { grade_level: assignedGradeLevel, class_name: assignedClassName, class_id: assignedClassId },
+            { grade_level: student.grade_level, class_name: student.class_name, class_id: (student as Student & { class_id?: string | number }).class_id },
+          );
+      return matchesQuery && matchesClass;
+    });
+  }, [students, query, assignedClassName, assignedGradeLevel, assignedClassId]);
+
+  return <div>
+    <SectionHeader eyebrow="Daftar Murid" title="Daftar Murid" desc="Lihat daftar murid yang terdaftar pada kelas Anda." Icon={Users} />
+    <div className={styles.managementShell}>
+      <ErrorBox message={error} />
+      <SuccessBox message={success} />
+      <div className={styles.toolbar}>
+        <SearchBox value={query} onChange={setQuery} placeholder="Cari murid..." />
+      </div>
+      {loading ? <div className={styles.loading}>Memuat murid...</div> : filtered.length === 0 ? <Empty text="Murid belum ditemukan." /> : <div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>Nama</th><th>Email</th><th>Kelas</th><th>Poin</th><th>Buku</th></tr></thead><tbody>{filtered.map((s) => <tr key={s.id}><td><div className={styles.avatarCell}><span className={styles.avatar}>{s.profile_photo_url ? <img src={s.profile_photo_url} alt={s.name} /> : s.name.charAt(0).toUpperCase()}</span>{s.name}</div></td><td>{s.email}</td><td>{s.class_name || '-'}</td><td>{fmt(s.total_points)}</td><td>{fmt(s.books_read)}</td></tr>)}</tbody></table></div>}
+    </div>
+  </div>;
+
 }
 
 function SettingsTab({ refreshUser }: { refreshUser: () => Promise<void> }) {

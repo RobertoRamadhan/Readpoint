@@ -65,7 +65,10 @@ export default function AdminSidebar({
           subItems: [
             { id: 'ebooks', label: 'E-Book', Icon: BookOpen },
             { id: 'rewards', label: 'Reward', Icon: Gift },
-            { id: 'users', label: 'User', Icon: Users },
+            { id: 'users', label: 'Daftar Guru', Icon: Users },
+            { id: 'kelas', label: 'Daftar Kelas', Icon: LayoutGrid },
+            { id: 'siswa', label: 'Daftar Siswa', Icon: Users },
+            { id: 'admin', label: 'Daftar Admin', Icon: Users },
           ],
         },
         { id: 'laporan', label: 'Laporan', Icon: BarChart3 },
@@ -83,7 +86,6 @@ export default function AdminSidebar({
             { id: 'siswa', label: 'Daftar Siswa', Icon: Users },
           ],
         },
-        { id: 'laporan', label: 'Laporan', Icon: BarChart3 },
         { id: 'pengaturan', label: 'Pengaturan', Icon: Settings },
       ];
 
