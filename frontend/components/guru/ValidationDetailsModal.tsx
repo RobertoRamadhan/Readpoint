@@ -64,7 +64,7 @@ export default function ValidationDetailsModal({
                 <StatusBadge status={activity.status} />
               </div>
               <div>
-                <p className="text-sm text-gray-600 font-bold">Submitted</p>
+                <p className="text-sm text-gray-600 font-bold">Dikirim</p>
                 <p className="font-black text-gray-900">
                   {new Date(activity.completed_at || activity.started_at).toLocaleString('id-ID')}
                 </p>
@@ -84,7 +84,7 @@ export default function ValidationDetailsModal({
               <div className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-gray-600 font-bold">Progress Baca</p>
+                    <p className="text-sm text-gray-600 font-bold">Kemajuan Baca</p>
                     <p className="font-black text-gray-900">{progress}%</p>
                   </div>
                   <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -111,7 +111,7 @@ export default function ValidationDetailsModal({
             {activity.quiz_score && (
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-green-800 font-bold">📝 Quiz Score</span>
+                  <span className="text-green-800 font-bold">📝 Skor Kuis</span>
                   <span className="font-black text-green-700 text-lg">{activity.quiz_score}%</span>
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function ValidationDetailsModal({
                 className="flex-1"
                 disabled={loading}
               >
-                ❌ Reject
+                ❌ Tolak
               </Button>
               <Button
                 onClick={() => onApprove(activity.id)}
@@ -173,7 +173,7 @@ export default function ValidationDetailsModal({
                 className="flex-1"
                 disabled={loading}
               >
-                ✅ Approve
+                ✅ Setujui
               </Button>
             </>
           )}

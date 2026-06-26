@@ -45,28 +45,36 @@ export default function ValidationCard({
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'approved': return 'Disetujui';
+      case 'rejected': return 'Ditolak';
+      default: return 'Menunggu';
+    }
+  };
+
   const cardData: CardData = {
     title: activity.user_name,
     subtitle: activity.user_email,
-    status: activity.status.charAt(0).toUpperCase() + activity.status.slice(1),
+    status: getStatusLabel(activity.status),
     statusVariant: getStatusVariant(activity.status),
     metadata: [
-      { label: 'Book', value: activity.ebook_title, icon: '📚' },
-      { label: 'Submitted', value: new Date(activity.completed_at || activity.started_at).toLocaleDateString('id-ID'), icon: '📅' },
-      { label: 'Pages', value: `${activity.pages_read} / ${activity.total_pages}`, icon: '📄' },
-      ...(activity.quiz_score ? [{ label: 'Quiz Score', value: `${activity.quiz_score}%`, icon: '🎯' }] : [])
+      { label: 'Buku', value: activity.ebook_title, icon: '📚' },
+      { label: 'Dikirim', value: new Date(activity.completed_at || activity.started_at).toLocaleDateString('id-ID'), icon: '📅' },
+      { label: 'Halaman', value: `${activity.pages_read} / ${activity.total_pages}`, icon: '📄' },
+      ...(activity.quiz_score ? [{ label: 'Skor Kuis', value: `${activity.quiz_score}%`, icon: '🎯' }] : [])
     ],
     stats: [
-      { label: 'Progress', value: `${progress}%`, color: 'var(--primary-600)' },
-      { label: 'Potential Points', value: `${activity.pages_read * 5} pts`, color: 'var(--primary-600)' }
+      { label: 'Kemajuan', value: `${progress}%`, color: 'var(--primary-600)' },
+      { label: 'Poin Potensial', value: `${activity.pages_read * 5} poin`, color: 'var(--primary-600)' }
     ]
   };
 
   const actions: CardAction[] = [
-    { label: 'Details', onClick: () => onViewDetails(activity.id), variant: 'outline' as const, disabled: loading },
+    { label: 'Detail', onClick: () => onViewDetails(activity.id), variant: 'outline' as const, disabled: loading },
     ...(activity.status === 'pending' ? [
-      { label: 'Reject', onClick: () => onReject(activity.id), variant: 'danger' as const, disabled: loading },
-      { label: 'Approve', onClick: () => onApprove(activity.id), variant: 'success' as const, disabled: loading }
+      { label: 'Tolak', onClick: () => onReject(activity.id), variant: 'danger' as const, disabled: loading },
+      { label: 'Setujui', onClick: () => onApprove(activity.id), variant: 'success' as const, disabled: loading }
     ] : [])
   ];
 
@@ -80,7 +88,7 @@ export default function ValidationCard({
       
       {/* Progress Bar */}
       <div>
-        <p className="text-gray-600 font-bold mb-2">Reading Progress</p>
+        <p className="text-gray-600 font-bold mb-2">Kemajuan Membaca</p>
         <div className="flex items-center gap-3">
           <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
             <div 

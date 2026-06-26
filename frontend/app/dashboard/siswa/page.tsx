@@ -18,10 +18,10 @@ let dashboardCache: { stats: SiswaStats | null; ebooks: Ebook[]; rewards: Reward
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const tabs: Array<{ key: TabType; label: string; Icon: LucideIcon }> = [
-  { key: 'overview', label: 'Home', Icon: Home },
+  { key: 'overview', label: 'Beranda', Icon: Home },
   { key: 'ebooks', label: 'Buku', Icon: BookOpen },
   { key: 'quizzes', label: 'Kuis', Icon: CheckCircle2 },
-  { key: 'rewards', label: 'Gift', Icon: Gift },
+  { key: 'rewards', label: 'Hadiah', Icon: Gift },
   { key: 'account', label: 'Akun', Icon: User },
 ];
 

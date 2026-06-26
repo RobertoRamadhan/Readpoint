@@ -20,9 +20,9 @@ export default function ValidationFilters({
 }: ValidationFiltersProps) {
   const filters = [
     { key: 'all' as const, label: 'Semua', count: null },
-    { key: 'pending' as const, label: 'Pending', count: pendingCount },
-    { key: 'approved' as const, label: 'Approved', count: null },
-    { key: 'rejected' as const, label: 'Rejected', count: null }
+    { key: 'pending' as const, label: 'Menunggu', count: pendingCount },
+    { key: 'approved' as const, label: 'Disetujui', count: null },
+    { key: 'rejected' as const, label: 'Ditolak', count: null }
   ];
 
   return (

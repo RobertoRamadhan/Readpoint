@@ -52,26 +52,26 @@ export default function UserCard({
   const cardData: CardData = {
     title: user.name,
     subtitle: user.email,
-    status: user.is_active ? 'Active' : 'Inactive',
+    status: user.is_active ? 'Aktif' : 'Tidak Aktif',
     statusVariant: user.is_active ? 'success' : 'secondary',
     metadata: [
-      { label: 'Role', value: user.role.charAt(0).toUpperCase() + user.role.slice(1), icon: getRoleIcon(user.role) },
-      { label: 'Joined', value: new Date(user.created_at).toLocaleDateString('id-ID'), icon: '📅' },
-      ...(user.class_name ? [{ label: 'Class', value: user.class_name, icon: '🏫' }] : []),
-      ...(user.last_login ? [{ label: 'Last Login', value: new Date(user.last_login).toLocaleDateString('id-ID'), icon: '🕐' }] : [])
+      { label: 'Peran', value: user.role.charAt(0).toUpperCase() + user.role.slice(1), icon: getRoleIcon(user.role) },
+      { label: 'Bergabung', value: new Date(user.created_at).toLocaleDateString('id-ID'), icon: '📅' },
+      ...(user.class_name ? [{ label: 'Kelas', value: user.class_name, icon: '🏫' }] : []),
+      ...(user.last_login ? [{ label: 'Login Terakhir', value: new Date(user.last_login).toLocaleDateString('id-ID'), icon: '🕐' }] : [])
     ],
     stats: user.role === 'siswa' ? [
-      { label: 'Points', value: user.total_points || 0, color: 'var(--primary-600)' },
-      { label: 'Books', value: user.books_read || 0, color: 'var(--primary-600)' },
-      { label: 'Quiz Avg', value: `${user.quiz_average_score || 0}%`, color: 'var(--primary-600)' }
+      { label: 'Poin', value: user.total_points || 0, color: 'var(--primary-600)' },
+      { label: 'Buku', value: user.books_read || 0, color: 'var(--primary-600)' },
+      { label: 'Rata-rata Kuis', value: `${user.quiz_average_score || 0}%`, color: 'var(--primary-600)' }
     ] : undefined
   };
 
   const actions: CardAction[] = [
     { label: 'Edit', onClick: () => onEdit(user), variant: 'outline', disabled: loading },
-    { label: 'Reset', onClick: () => setShowResetModal(true), variant: 'secondary', disabled: loading },
-    { label: user.is_active ? 'Deactivate' : 'Activate', onClick: () => onToggleStatus(user.id, !user.is_active), variant: 'secondary', disabled: loading },
-    { label: 'Delete', onClick: () => setShowDeleteModal(true), variant: 'danger', disabled: loading }
+    { label: 'Reset Kata Sandi', onClick: () => setShowResetModal(true), variant: 'secondary', disabled: loading },
+    { label: user.is_active ? 'Nonaktifkan' : 'Aktifkan', onClick: () => onToggleStatus(user.id, !user.is_active), variant: 'secondary', disabled: loading },
+    { label: 'Hapus', onClick: () => setShowDeleteModal(true), variant: 'danger', disabled: loading }
   ];
 
   return (

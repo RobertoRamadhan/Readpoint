@@ -39,28 +39,28 @@ export default function QuizCard({
 }: QuizCardProps) {
   const cardData: CardData = {
     title: quiz.title,
-    subtitle: quiz.ebook_title || 'No Book',
+    subtitle: quiz.ebook_title || 'Tidak ada buku',
     description: quiz.description,
-    status: quiz.is_active ? 'Active' : 'Inactive',
+    status: quiz.is_active ? 'Aktif' : 'Tidak Aktif',
     statusVariant: quiz.is_active ? 'success' : 'secondary',
     metadata: [
-      { label: 'Difficulty', value: quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1), icon: '📊' },
-      { label: 'Questions', value: quiz.total_questions, icon: '❓' },
-      { label: 'Passing Score', value: `${quiz.passing_score}%`, icon: '🎯' },
-      { label: 'Time Limit', value: `${quiz.time_limit_minutes} minutes`, icon: '⏱️' },
-      { label: 'Created', value: new Date(quiz.created_at).toLocaleDateString(), icon: '📅' }
+      { label: 'Tingkat Kesulitan', value: quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1), icon: '📊' },
+      { label: 'Jumlah Soal', value: quiz.total_questions, icon: '❓' },
+      { label: 'Nilai Lulus', value: `${quiz.passing_score}%`, icon: '🎯' },
+      { label: 'Batas Waktu', value: `${quiz.time_limit_minutes} menit`, icon: '⏱️' },
+      { label: 'Dibuat', value: new Date(quiz.created_at).toLocaleDateString('id-ID'), icon: '📅' }
     ],
     stats: [
-      { label: 'Points Reward', value: quiz.points_reward, color: 'var(--primary-600)' },
-      { label: 'Time Limit', value: `${quiz.time_limit_minutes}m`, color: 'var(--primary-600)' }
+      { label: 'Hadiah Poin', value: quiz.points_reward, color: 'var(--primary-600)' },
+      { label: 'Batas Waktu', value: `${quiz.time_limit_minutes}m`, color: 'var(--primary-600)' }
     ]
   };
 
   const actions: CardAction[] = [
     { label: 'Edit', onClick: () => onEdit(quiz), variant: 'outline', disabled: loading },
-    { label: 'Results', onClick: () => onViewResults(quiz.id), variant: 'outline', disabled: loading },
-    { label: quiz.is_active ? 'Deactivate' : 'Activate', onClick: () => onToggleStatus(quiz.id, !quiz.is_active), variant: 'outline', disabled: loading },
-    { label: 'Delete', onClick: () => onDelete(quiz.id), variant: 'danger', disabled: loading }
+    { label: 'Hasil', onClick: () => onViewResults(quiz.id), variant: 'outline', disabled: loading },
+    { label: quiz.is_active ? 'Nonaktifkan' : 'Aktifkan', onClick: () => onToggleStatus(quiz.id, !quiz.is_active), variant: 'outline', disabled: loading },
+    { label: 'Hapus', onClick: () => onDelete(quiz.id), variant: 'danger', disabled: loading }
   ];
 
   return (

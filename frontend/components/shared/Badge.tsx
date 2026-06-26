@@ -60,14 +60,14 @@ export function StatusBadge({
   status: 'pending' | 'approved' | 'rejected' | 'completed' | 'active' | 'inactive' | 'in_progress' | 'failed' 
 }) {
   const statusConfig = {
-    pending: { variant: 'warning' as const, text: 'Pending', dot: true },
-    approved: { variant: 'success' as const, text: 'Approved', dot: true },
-    rejected: { variant: 'danger' as const, text: 'Rejected', dot: true },
-    completed: { variant: 'success' as const, text: 'Completed', dot: true },
-    active: { variant: 'success' as const, text: 'Active', dot: true },
-    inactive: { variant: 'secondary' as const, text: 'Inactive', dot: true },
-    in_progress: { variant: 'accent' as const, text: 'In Progress', dot: true },
-    failed: { variant: 'danger' as const, text: 'Failed', dot: true },
+    pending: { variant: 'warning' as const, text: 'Menunggu', dot: true },
+    approved: { variant: 'success' as const, text: 'Disetujui', dot: true },
+    rejected: { variant: 'danger' as const, text: 'Ditolak', dot: true },
+    completed: { variant: 'success' as const, text: 'Selesai', dot: true },
+    active: { variant: 'success' as const, text: 'Aktif', dot: true },
+    inactive: { variant: 'secondary' as const, text: 'Tidak Aktif', dot: true },
+    in_progress: { variant: 'accent' as const, text: 'Sedang Berjalan', dot: true },
+    failed: { variant: 'danger' as const, text: 'Gagal', dot: true },
   };
 
   const config = statusConfig[status];

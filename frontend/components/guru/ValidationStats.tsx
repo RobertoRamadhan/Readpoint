@@ -34,31 +34,31 @@ export default function ValidationStats({ stats, loading }: ValidationStatsProps
 
   const statCards = [
     {
-      title: '⏳ Pending',
+      title: '⏳ Menunggu',
       value: stats.pending_count,
       color: 'from-emerald-400 to-emerald-500',
       textColor: 'text-emerald-700'
     },
     {
-      title: '✅ Approved Today',
+      title: '✅ Disetujui Hari Ini',
       value: stats.approved_today,
       color: 'from-green-400 to-emerald-500',
       textColor: 'text-green-700'
     },
     {
-      title: '❌ Rejected Today',
+      title: '❌ Ditolak Hari Ini',
       value: stats.rejected_today,
       color: 'from-red-400 to-pink-500',
       textColor: 'text-red-700'
     },
     {
-      title: '📊 Total Validated',
+      title: '📊 Total Diverifikasi',
       value: stats.total_validated,
       color: 'from-blue-400 to-indigo-500',
       textColor: 'text-blue-700'
     },
     {
-      title: '💰 Points Distributed',
+      title: '💰 Poin Didistribusikan',
       value: stats.points_distributed_today,
       color: 'from-purple-400 to-pink-500',
       textColor: 'text-purple-700'

@@ -82,7 +82,7 @@ export default function ValidationPage() {
         setStats(statsRes.data as ValidationStats);
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to load validation data';
+      const errorMsg = err instanceof Error ? err.message : 'Gagal memuat data validasi';
       setError(errorMsg);
       console.error('[Validation] Error:', errorMsg);
     } finally {
@@ -205,7 +205,7 @@ export default function ValidationPage() {
           ) : filteredActivities.length === 0 ? (
             <div className="bg-white rounded-xl border-2 border-gray-200 p-12 text-center">
               <p className="text-gray-800 font-black text-lg">
-                {activeFilter === 'pending' ? '🎉 Tidak ada validasi pending' : '📋 Tidak ada data validasi'}
+                {activeFilter === 'pending' ? '🎉 Tidak ada validasi yang menunggu' : '📋 Tidak ada data validasi'}
               </p>
             </div>
           ) : (
