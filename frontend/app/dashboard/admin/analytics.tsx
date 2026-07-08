@@ -101,28 +101,8 @@ export default function AdminAnalyticsPage() {
     return null;
   }
 
-  // Mock data for demonstration
-  const mockStats: AdminStats = {
-    total_users: 245,
-    total_books: 48,
-    total_quizzes: 156,
-    total_rewards: 23,
-    active_users_today: 89,
-    books_read_today: 34,
-    quizzes_completed_today: 67,
-    rewards_redeemed_today: 12
-  };
-
-  const mockTopStudents: TopStudent[] = [
-    { id: 1, name: 'Ahmad Rizki', email: 'ahmad@email.com', total_points: 1250, books_read: 12, quiz_average_score: 85 },
-    { id: 2, name: 'Siti Nurhaliza', email: 'siti@email.com', total_points: 1180, books_read: 11, quiz_average_score: 82 },
-    { id: 3, name: 'Budi Santoso', email: 'budi@email.com', total_points: 980, books_read: 9, quiz_average_score: 78 },
-    { id: 4, name: 'Dewi Lestari', email: 'dewi@email.com', total_points: 920, books_read: 10, quiz_average_score: 80 },
-    { id: 5, name: 'Eko Prasetyo', email: 'eko@email.com', total_points: 850, books_read: 8, quiz_average_score: 75 }
-  ];
-
-  const currentStats = stats || mockStats;
-  const currentTopStudents = topStudents.length > 0 ? topStudents : mockTopStudents;
+  const currentStats = stats;
+  const currentTopStudents = topStudents;
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -161,33 +141,29 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
               title="Total Pengguna"
-              value={currentStats.total_users}
+              value={currentStats?.total_users ?? 0}
               icon="👥"
-              change={{ value: 12, type: 'increase', period: 'vs last month' }}
               color="accent"
               loading={loadingData}
             />
             <StatsCard
               title="Total Buku"
-              value={currentStats.total_books}
+              value={currentStats?.total_books ?? 0}
               icon="📚"
-              change={{ value: 8, type: 'increase', period: 'vs last month' }}
               color="primary"
               loading={loadingData}
             />
             <StatsCard
               title="Total Kuis"
-              value={currentStats.total_quizzes}
+              value={currentStats?.total_quizzes ?? 0}
               icon="📝"
-              change={{ value: 15, type: 'increase', period: 'vs last month' }}
               color="secondary"
               loading={loadingData}
             />
             <StatsCard
               title="Total Reward"
-              value={currentStats.total_rewards}
+              value={currentStats?.total_rewards ?? 0}
               icon="🎁"
-              change={{ value: 5, type: 'increase', period: 'vs last month' }}
               color="warning"
               loading={loadingData}
             />
@@ -213,33 +189,29 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
               title="Pengguna Aktif Hari Ini"
-              value={currentStats.active_users_today}
+              value={currentStats?.active_users_today ?? 0}
               icon="🟢"
-              change={{ value: 23, type: 'increase', period: 'vs yesterday' }}
               color="success"
               loading={loadingData}
             />
             <StatsCard
               title="Buku Dibaca Hari Ini"
-              value={currentStats.books_read_today}
+              value={currentStats?.books_read_today ?? 0}
               icon="📖"
-              change={{ value: 8, type: 'increase', period: 'vs yesterday' }}
               color="accent"
               loading={loadingData}
             />
             <StatsCard
               title="Kuis Selesai Hari Ini"
-              value={currentStats.quizzes_completed_today}
+              value={currentStats?.quizzes_completed_today ?? 0}
               icon="✅"
-              change={{ value: 12, type: 'decrease', period: 'vs yesterday' }}
               color="secondary"
               loading={loadingData}
             />
             <StatsCard
               title="Reward Ditukar Hari Ini"
-              value={currentStats.rewards_redeemed_today}
+              value={currentStats?.rewards_redeemed_today ?? 0}
               icon="🎉"
-              change={{ value: 3, type: 'increase', period: 'vs yesterday' }}
               color="warning"
               loading={loadingData}
             />
