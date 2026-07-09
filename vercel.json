@@ -6,4 +6,7 @@
       "use": "@vercel/next"
     }
   ]
+  ,"installCommand": "cd frontend 2>/dev/null || cd ../frontend; npm install",
+  "buildCommand": "cd frontend 2>/dev/null || cd ../frontend; npm run build",
+  "devCommand": "cd frontend 2>/dev/null || cd ../frontend; npm run dev"
 }
