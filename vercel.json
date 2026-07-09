@@ -5,11 +5,5 @@
       "src": "frontend/package.json",
       "use": "@vercel/next"
     }
-  ],
-  "installCommand": "cd frontend 2>/dev/null || cd ../frontend; npm install",
-  "buildCommand": "cd frontend 2>/dev/null || cd ../frontend; npm run build",
-  "devCommand": "cd frontend 2>/dev/null || cd ../frontend; npm run dev",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://readpoint-backend-main-odr7ck.laravel.cloud/api"
-  }
+  ]
 }
