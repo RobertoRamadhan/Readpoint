@@ -121,11 +121,12 @@ class UserController extends Controller
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
+            $disk = config('filesystems.default');
             // Delete old avatar if exists
-            if ($user->profile_photo_url && file_exists(storage_path('app/public/' . $user->profile_photo_url))) {
-                unlink(storage_path('app/public/' . $user->profile_photo_url));
+            if ($user->profile_photo_url) {
+                \Illuminate\Support\Facades\Storage::disk($disk)->delete($user->profile_photo_url);
             }
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $avatarPath = $request->file('avatar')->store('avatars', $disk);
             $user->profile_photo_url = $avatarPath;
             unset($validated['avatar']);
         }
@@ -139,7 +140,12 @@ class UserController extends Controller
 
         // Refresh and add full URL to response
         $user->refresh();
-        $user->profile_photo_url = $user->profile_photo_url ? asset('storage/' . $user->profile_photo_url) : null;
+        if ($user->profile_photo_url) {
+            $disk = config('filesystems.default');
+            $user->profile_photo_url = $disk === 'public'
+                ? asset('storage/' . $user->profile_photo_url)
+                : \Illuminate\Support\Facades\Storage::disk($disk)->url($user->profile_photo_url);
+        }
 
         return response()->json([
             'message' => 'User updated successfully',

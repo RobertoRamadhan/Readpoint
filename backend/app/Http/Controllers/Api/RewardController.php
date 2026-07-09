@@ -7,10 +7,24 @@ use App\Models\Redemption;
 use App\Models\PointTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
 class RewardController extends Controller
 {
+    /**
+     * Return a public URL for a stored file path.
+     */
+    private function fileUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+        $disk = config('filesystems.default');
+        if ($disk === 'public') {
+            return asset('storage/' . $path);
+        }
+        return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->url($path) : null;
+    }
+
     // Get semua reward aktif (reward catalog)
     public function index()
     {
@@ -18,10 +32,7 @@ class RewardController extends Controller
             ->select('id', 'name', 'description', 'points_required', 'stock', 'icon', 'category', 'image')
             ->get()
             ->map(function ($reward) {
-                // Convert storage path to full URL
-                if ($reward->image) {
-                    $reward->image = asset('storage/' . $reward->image);
-                }
+                $reward->image_url = $this->fileUrl($reward->image);
                 return $reward;
             });
 
@@ -43,28 +54,29 @@ class RewardController extends Controller
         ]);
 
         try {
+            $disk = config('filesystems.default');
+
             // Store image if provided
             $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('rewards/images', 'public');
+                $imagePath = $request->file('image')->store('rewards/images', $disk);
             }
 
             $reward = Reward::create([
-                'name' => $validated['name'],
-                'description' => $validated['description'],
+                'name'            => $validated['name'],
+                'description'     => $validated['description'],
                 'points_required' => $validated['points_required'],
-                'stock' => $validated['stock'],
-                'category' => $validated['category'],
-                'image' => $imagePath,
-                'is_active' => true,
+                'stock'           => $validated['stock'],
+                'category'        => $validated['category'],
+                'image'           => $imagePath,
+                'is_active'       => true,
             ]);
 
-            // Add full URL to response
-            $reward->image = $reward->image ? asset('storage/' . $reward->image) : null;
+            $reward->image_url = $this->fileUrl($reward->image);
 
             return response()->json([
                 'message' => 'Reward created',
-                'data' => $reward,
+                'data'    => $reward,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -99,34 +111,31 @@ class RewardController extends Controller
         ]);
 
         try {
+            $disk = config('filesystems.default');
+
             // Update image if provided
             if ($request->hasFile('image')) {
-                // Delete old image
-                if ($reward->image && file_exists(storage_path('app/public/' . $reward->image))) {
-                    unlink(storage_path('app/public/' . $reward->image));
+                if ($reward->image) {
+                    Storage::disk($disk)->delete($reward->image);
                 }
-                $imagePath = $request->file('image')->store('rewards/images', 'public');
-                $reward->image = $imagePath;
+                $reward->image = $request->file('image')->store('rewards/images', $disk);
             }
 
             // Update other fields
             $reward->update([
-                'name' => $validated['name'] ?? $reward->name,
-                'description' => $validated['description'] ?? $reward->description,
+                'name'            => $validated['name']            ?? $reward->name,
+                'description'     => $validated['description']     ?? $reward->description,
                 'points_required' => $validated['points_required'] ?? $reward->points_required,
-                'stock' => $validated['stock'] ?? $reward->stock,
-                'is_active' => $validated['is_active'] ?? $reward->is_active,
+                'stock'           => $validated['stock']           ?? $reward->stock,
+                'is_active'       => $validated['is_active']       ?? $reward->is_active,
             ]);
 
-            // Refresh the model
             $reward->refresh();
-
-            // Add full URL to response
-            $reward->image = $reward->image ? asset('storage/' . $reward->image) : null;
+            $reward->image_url = $this->fileUrl($reward->image);
 
             return response()->json([
                 'message' => 'Reward updated',
-                'data' => $reward,
+                'data'    => $reward,
             ]);
         } catch (\Exception $e) {
             return response()->json([

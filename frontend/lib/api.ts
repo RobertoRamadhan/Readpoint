@@ -149,11 +149,21 @@ async function getCsrfToken(): Promise<string> {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
+const isDev = process.env.NODE_ENV !== 'production';
 
+if (isDev) {
+  console.log('[API] Initialized with URL:', API_URL);
+}
 
-console.log('[API] Initialized with URL:', API_URL);
+/** Only logs in development — safe to call anywhere */
+function devLog(...args: unknown[]) {
+  if (isDev) console.log(...args);
+}
 
-
+/** Only logs errors in development — in production errors are thrown, not logged */
+function devError(...args: unknown[]) {
+  if (isDev) console.error(...args);
+}
 
 export async function apiCall(endpoint: string, options: ApiCallOptions = {}): Promise<ApiResponse> {
 
@@ -181,7 +191,7 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 
 
 
-  console.log(`[API] ${options.method || 'GET'} ${url}`);
+  devLog(`[API] ${options.method || 'GET'} ${url}`);
 
 
 
@@ -216,7 +226,7 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
     } catch (e) {
 
       if (!suppressErrorLogging) {
-        console.warn('[API] Failed to parse JSON response');
+        devLog('[API] Failed to parse JSON response');
       }
 
       data = { message: `HTTP ${response.status}`, token: null, user: null };
@@ -226,7 +236,7 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 
 
     if (!suppressErrorLogging) {
-      console.log(`[API] Response (${response.status}):`, data);
+      devLog(`[API] Response (${response.status}):`, data);
     }
 
 
@@ -269,7 +279,7 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 
     // Suppress "Failed to fetch" errors - they're usually network timeouts
     if (!suppressErrorLogging) {
-      console.error('[API] Error:', errorMessage);
+      devError('[API] Error:', errorMessage);
     }
 
     throw new Error(errorMessage);
@@ -599,7 +609,7 @@ export const api = {
 
       
 
-      console.log('[API] Creating user...');
+      devLog('[API] Creating user...');
 
       const response = await fetch(`${API_URL}/users/create`, {
 
@@ -631,7 +641,7 @@ export const api = {
 
       } catch (e) {
 
-        console.error('[API] Failed to parse response:', response.statusText);
+        devError('[API] Failed to parse response:', response.statusText);
 
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
@@ -641,7 +651,7 @@ export const api = {
 
       if (!response.ok) {
 
-        console.error('[API] User create failed:', result);
+        devError('[API] User create failed:', result);
 
         throw new Error(result.message || `HTTP ${response.status}: Failed to create user`);
 
@@ -649,7 +659,7 @@ export const api = {
 
       
 
-      console.log('[API] User created successfully:', result);
+      devLog('[API] User created successfully:', result);
 
       return result;
 
@@ -671,7 +681,7 @@ export const api = {
 
         
 
-        console.log('[API] Updating user with FormData...');
+        devLog('[API] Updating user with FormData...');
 
         const response = await fetch(`${API_URL}/users/${id}`, {
 
@@ -703,7 +713,7 @@ export const api = {
 
         } catch (e) {
 
-          console.error('[API] Failed to parse response:', response.statusText);
+          devError('[API] Failed to parse response:', response.statusText);
 
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
@@ -713,7 +723,7 @@ export const api = {
 
         if (!response.ok) {
 
-          console.error('[API] User update failed:', result);
+          devError('[API] User update failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to update user`);
 
@@ -721,7 +731,7 @@ export const api = {
 
         
 
-        console.log('[API] User updated successfully:', result);
+        devLog('[API] User updated successfully:', result);
 
         return result;
 
@@ -729,7 +739,7 @@ export const api = {
 
       
 
-      console.log('[API] Updating user with JSON...');
+      devLog('[API] Updating user with JSON...');
 
       return apiCall(`/users/${id}`, {
 
@@ -908,7 +918,7 @@ export const api = {
 
         
 
-        console.log('[API] Creating ebook with FormData...');
+        devLog('[API] Creating ebook with FormData...');
 
         const response = await fetch(`${API_URL}/ebooks`, {
 
@@ -940,7 +950,7 @@ export const api = {
 
         } catch (e) {
 
-          console.error('[API] Failed to parse response:', response.statusText);
+          devError('[API] Failed to parse response:', response.statusText);
 
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
@@ -950,7 +960,7 @@ export const api = {
 
         if (!response.ok) {
 
-          console.error('[API] Ebook create failed:', result);
+          devError('[API] Ebook create failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to upload ebook`);
 
@@ -958,7 +968,7 @@ export const api = {
 
         
 
-        console.log('[API] Ebook created successfully:', result);
+        devLog('[API] Ebook created successfully:', result);
 
         return result;
 
@@ -992,7 +1002,7 @@ export const api = {
 
         
 
-        console.log('[API] Updating ebook with FormData...');
+        devLog('[API] Updating ebook with FormData...');
 
         const response = await fetch(`${API_URL}/ebooks/${id}`, {
 
@@ -1024,7 +1034,7 @@ export const api = {
 
         } catch (e) {
 
-          console.error('[API] Failed to parse response:', response.statusText);
+          devError('[API] Failed to parse response:', response.statusText);
 
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
@@ -1034,7 +1044,7 @@ export const api = {
 
         if (!response.ok) {
 
-          console.error('[API] Ebook update failed:', result);
+          devError('[API] Ebook update failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to update ebook`);
 
@@ -1042,7 +1052,7 @@ export const api = {
 
         
 
-        console.log('[API] Ebook updated successfully:', result);
+        devLog('[API] Ebook updated successfully:', result);
 
         return result;
 
@@ -1094,7 +1104,7 @@ export const api = {
 
         
 
-        console.log('[API] Creating reward with FormData...');
+        devLog('[API] Creating reward with FormData...');
 
         const response = await fetch(`${API_URL}/rewards`, {
 
@@ -1126,7 +1136,7 @@ export const api = {
 
         } catch (e) {
 
-          console.error('[API] Failed to parse response:', response.statusText);
+          devError('[API] Failed to parse response:', response.statusText);
 
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
@@ -1136,7 +1146,7 @@ export const api = {
 
         if (!response.ok) {
 
-          console.error('[API] Reward create failed:', result);
+          devError('[API] Reward create failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to create reward`);
 
@@ -1144,7 +1154,7 @@ export const api = {
 
         
 
-        console.log('[API] Reward created successfully:', result);
+        devLog('[API] Reward created successfully:', result);
 
         return result;
 
@@ -1178,7 +1188,7 @@ export const api = {
 
         
 
-        console.log('[API] Updating reward with FormData...');
+        devLog('[API] Updating reward with FormData...');
 
         const response = await fetch(`${API_URL}/rewards/${id}`, {
 
@@ -1210,7 +1220,7 @@ export const api = {
 
         } catch (e) {
 
-          console.error('[API] Failed to parse response:', response.statusText);
+          devError('[API] Failed to parse response:', response.statusText);
 
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
@@ -1220,7 +1230,7 @@ export const api = {
 
         if (!response.ok) {
 
-          console.error('[API] Reward update failed:', result);
+          devError('[API] Reward update failed:', result);
 
           throw new Error(result.message || `HTTP ${response.status}: Failed to update reward`);
 
@@ -1228,7 +1238,7 @@ export const api = {
 
         
 
-        console.log('[API] Reward updated successfully:', result);
+        devLog('[API] Reward updated successfully:', result);
 
         return result;
 

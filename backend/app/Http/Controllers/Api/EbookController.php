@@ -4,10 +4,33 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Ebook;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
 class EbookController extends Controller
 {
+    /**
+     * Return a public URL for a stored file path.
+     * Works with both local/public disk and S3/cloud disks.
+     */
+    private function fileUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+
+        $disk = config('filesystems.default');
+
+        if ($disk === 'public') {
+            return asset('storage/' . $path);
+        }
+
+        // S3 or any cloud disk — generate a temporary or permanent URL
+        if (Storage::disk($disk)->exists($path)) {
+            return Storage::disk($disk)->url($path);
+        }
+
+        return null;
+    }
+
     // Get semua e-book aktif
     public function index()
     {
@@ -16,13 +39,8 @@ class EbookController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($ebook) {
-                // Convert storage paths to full URLs
-                if ($ebook->cover_image) {
-                    $ebook->cover_image = asset('storage/' . $ebook->cover_image);
-                }
-                if ($ebook->file_path) {
-                    $ebook->pdf_file = asset('storage/' . $ebook->file_path);
-                }
+                $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
+                $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
                 return $ebook;
             });
 
@@ -34,8 +52,10 @@ class EbookController extends Controller
     // Get e-book by ID (untuk baca)
     public function show($id)
     {
-        $ebook = Ebook::where('is_active', true)
-            ->findOrFail($id);
+        $ebook = Ebook::where('is_active', true)->findOrFail($id);
+
+        $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
+        $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
 
         return response()->json([
             'data' => $ebook,
@@ -45,14 +65,21 @@ class EbookController extends Controller
     // Get file PDF (stream untuk reader)
     public function getPDF($id)
     {
-        $ebook = Ebook::where('is_active', true)
-            ->findOrFail($id);
+        $ebook = Ebook::where('is_active', true)->findOrFail($id);
 
-        $filePath = storage_path('app/' . $ebook->file_path);
+        $disk = config('filesystems.default');
 
-        if (!file_exists($filePath)) {
+        if (!Storage::disk($disk)->exists($ebook->file_path)) {
             return response()->json(['message' => 'File not found'], 404);
         }
+
+        // For cloud disks, redirect to the signed/public URL instead of streaming
+        if ($disk !== 'local' && $disk !== 'public') {
+            $url = Storage::disk($disk)->temporaryUrl($ebook->file_path, now()->addMinutes(60));
+            return redirect($url);
+        }
+
+        $filePath = Storage::disk($disk)->path($ebook->file_path);
 
         return response()->file($filePath, [
             'Content-Disposition' => 'inline; filename="' . $ebook->title . '.pdf"',
@@ -64,46 +91,48 @@ class EbookController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'pages' => 'required|integer|min:1',
+            'title'            => 'required|string|max:255',
+            'author'           => 'required|string|max:255',
+            'pages'            => 'required|integer|min:1',
             'poin_per_halaman' => 'required|integer|min:1',
-            'category' => 'required|string',
-            'grade_level' => 'required|in:1,2,3,all',
-            'pdf_file' => 'required|file|mimes:pdf|max:50000', // max 50MB
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
+            'category'         => 'required|string',
+            'grade_level'      => 'required|in:1,2,3,all',
+            'pdf_file'         => 'required|file|mimes:pdf|max:51200', // max 50 MB
+            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         try {
-            // Store PDF to storage/app/public (accessible via /storage route)
-            $pdfPath = $request->file('pdf_file')->store('ebooks/pdfs', 'public');
+            $disk = config('filesystems.default');
 
-            // Store cover image jika ada
+            $pdfPath   = $request->file('pdf_file')->store('ebooks/pdfs', $disk);
             $coverPath = null;
             if ($request->hasFile('cover_image')) {
-                $coverPath = $request->file('cover_image')->store('ebooks/covers', 'public');
+                $coverPath = $request->file('cover_image')->store('ebooks/covers', $disk);
             }
 
             $ebook = Ebook::create([
-                'title' => $validated['title'],
-                'author' => $validated['author'],
-                'pages' => $validated['pages'],
+                'title'            => $validated['title'],
+                'author'           => $validated['author'],
+                'pages'            => $validated['pages'],
                 'poin_per_halaman' => $validated['poin_per_halaman'],
-                'category' => $validated['category'],
-                'grade_level' => $validated['grade_level'],
-                'file_path' => $pdfPath,
-                'cover_image' => $coverPath,
-                'is_active' => true,
+                'category'         => $validated['category'],
+                'grade_level'      => $validated['grade_level'],
+                'file_path'        => $pdfPath,
+                'cover_image'      => $coverPath,
+                'is_active'        => true,
             ]);
+
+            $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
+            $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
 
             return response()->json([
                 'message' => 'E-book uploaded successfully',
-                'data' => $ebook,
+                'data'    => $ebook,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to upload e-book',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -114,62 +143,54 @@ class EbookController extends Controller
         $ebook = Ebook::findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'author' => 'sometimes|string|max:255',
-            'pages' => 'sometimes|integer|min:1',
+            'title'            => 'sometimes|string|max:255',
+            'author'           => 'sometimes|string|max:255',
+            'pages'            => 'sometimes|integer|min:1',
             'poin_per_halaman' => 'sometimes|integer|min:1',
-            'category' => 'sometimes|string',
-            'is_active' => 'sometimes|boolean',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:50000',
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
+            'category'         => 'sometimes|string',
+            'is_active'        => 'sometimes|boolean',
+            'pdf_file'         => 'nullable|file|mimes:pdf|max:51200',
+            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         try {
-            // Update PDF if provided
+            $disk = config('filesystems.default');
+
             if ($request->hasFile('pdf_file')) {
-                // Delete old PDF
-                if ($ebook->file_path && file_exists(storage_path('app/public/' . $ebook->file_path))) {
-                    unlink(storage_path('app/public/' . $ebook->file_path));
+                if ($ebook->file_path) {
+                    Storage::disk($disk)->delete($ebook->file_path);
                 }
-                $pdfPath = $request->file('pdf_file')->store('ebooks/pdfs', 'public');
-                $ebook->file_path = $pdfPath;
+                $ebook->file_path = $request->file('pdf_file')->store('ebooks/pdfs', $disk);
             }
 
-            // Update cover image if provided
             if ($request->hasFile('cover_image')) {
-                // Delete old cover
-                if ($ebook->cover_image && file_exists(storage_path('app/public/' . $ebook->cover_image))) {
-                    unlink(storage_path('app/public/' . $ebook->cover_image));
+                if ($ebook->cover_image) {
+                    Storage::disk($disk)->delete($ebook->cover_image);
                 }
-                $coverPath = $request->file('cover_image')->store('ebooks/covers', 'public');
-                $ebook->cover_image = $coverPath;
+                $ebook->cover_image = $request->file('cover_image')->store('ebooks/covers', $disk);
             }
 
-            // Update other fields
             $ebook->update([
-                'title' => $validated['title'] ?? $ebook->title,
-                'author' => $validated['author'] ?? $ebook->author,
-                'pages' => $validated['pages'] ?? $ebook->pages,
+                'title'            => $validated['title']            ?? $ebook->title,
+                'author'           => $validated['author']           ?? $ebook->author,
+                'pages'            => $validated['pages']            ?? $ebook->pages,
                 'poin_per_halaman' => $validated['poin_per_halaman'] ?? $ebook->poin_per_halaman,
-                'category' => $validated['category'] ?? $ebook->category,
-                'is_active' => $validated['is_active'] ?? $ebook->is_active,
+                'category'         => $validated['category']         ?? $ebook->category,
+                'is_active'        => $validated['is_active']        ?? $ebook->is_active,
             ]);
 
-            // Refresh the model to get updated values
             $ebook->refresh();
-
-            // Add full URLs to response
-            $ebook->cover_image = $ebook->cover_image ? asset('storage/' . $ebook->cover_image) : null;
-            $ebook->pdf_file = $ebook->file_path ? asset('storage/' . $ebook->file_path) : null;
+            $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
+            $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
 
             return response()->json([
                 'message' => 'E-book updated',
-                'data' => $ebook,
+                'data'    => $ebook,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to update e-book',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
