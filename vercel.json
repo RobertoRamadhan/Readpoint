@@ -1,7 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "if [ -d frontend ]; then cd frontend; elif [ -d ../frontend ]; then cd ../frontend; else echo 'frontend not found' && exit 1; fi && npm install",
-  "buildCommand": "if [ -d frontend ]; then cd frontend; elif [ -d ../frontend ]; then cd ../frontend; else echo 'frontend not found' && exit 1; fi && npm run build",
-  "devCommand": "if [ -d frontend ]; then cd frontend; elif [ -d ../frontend ]; then cd ../frontend; else echo 'frontend not found' && exit 1; fi && npm run dev"
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "cd frontend && npm run build",
+  "devCommand": "cd frontend && npm run dev"
 }
