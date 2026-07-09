@@ -2,11 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "builds": [
     {
-      "src": "../frontend/package.json",
+      "src": "frontend/package.json",
       "use": "@vercel/next"
     }
-  ],
-  "installCommand": "if [ -f frontend/package.json ]; then npm --prefix frontend install; elif [ -f ../frontend/package.json ]; then npm --prefix ../frontend install; else echo 'frontend not found' && exit 1; fi",
-  "buildCommand": "if [ -f frontend/package.json ]; then npm --prefix frontend run build; elif [ -f ../frontend/package.json ]; then npm --prefix ../frontend run build; else echo 'frontend not found' && exit 1; fi",
-  "devCommand": "if [ -f frontend/package.json ]; then npm --prefix frontend run dev; elif [ -f ../frontend/package.json ]; then npm --prefix ../frontend run dev; else echo 'frontend not found' && exit 1; fi"
+  ]
 }
