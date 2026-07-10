@@ -105,45 +105,80 @@ class RewardController extends Controller
     // Update reward (Admin only)
     public function update(Request $request, string $id)
     {
-        $reward = Reward::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => 'sometimes|string',
-            'description' => 'sometimes|string',
-            'points_required' => 'sometimes|integer|min:1',
-            'stock' => 'sometimes|integer|min:0',
-            'is_active' => 'sometimes|boolean',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
+        \Log::info('Reward update request', [
+            'id' => $id,
+            'method' => $request->method(),
+            'all_data' => $request->all(),
+            'has_file' => $request->hasFile('image'),
         ]);
 
         try {
+            $reward = Reward::findOrFail($id);
+
+            // Validate - don't validate image if it's not uploaded
+            $rules = [
+                'name' => 'sometimes|string',
+                'description' => 'sometimes|string',
+                'points_required' => 'sometimes|integer|min:1',
+                'stock' => 'sometimes|integer|min:0',
+                'is_active' => 'sometimes|boolean',
+                'category' => 'sometimes|string',
+            ];
+
+            // Only validate image if file is actually uploaded
+            if ($request->hasFile('image')) {
+                $rules['image'] = 'nullable|image|mimes:jpg,jpeg,png|max:5000';
+            }
+
+            $validated = $request->validate($rules);
+
+            \Log::info('Validation passed', ['validated' => $validated]);
+
             $disk = config('filesystems.default');
 
             // Update image if provided
-            if ($request->hasFile('image')) {
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                \Log::info('Processing image upload');
                 if ($reward->image) {
                     Storage::disk($disk)->delete($reward->image);
                 }
                 $reward->image = $request->file('image')->store('rewards/images', $disk);
+                $reward->save();
             }
 
-            // Update other fields
-            $reward->update([
-                'name'            => $validated['name']            ?? $reward->name,
-                'description'     => $validated['description']     ?? $reward->description,
-                'points_required' => $validated['points_required'] ?? $reward->points_required,
-                'stock'           => $validated['stock']           ?? $reward->stock,
-                'is_active'       => $validated['is_active']       ?? $reward->is_active,
-            ]);
+            // Update other fields (only if provided)
+            $updateData = [];
+            if (isset($validated['name'])) $updateData['name'] = $validated['name'];
+            if (isset($validated['description'])) $updateData['description'] = $validated['description'];
+            if (isset($validated['points_required'])) $updateData['points_required'] = $validated['points_required'];
+            if (isset($validated['stock'])) $updateData['stock'] = $validated['stock'];
+            if (isset($validated['category'])) $updateData['category'] = $validated['category'];
+            if (isset($validated['is_active'])) $updateData['is_active'] = $validated['is_active'];
+
+            if (!empty($updateData)) {
+                $reward->update($updateData);
+            }
 
             $reward->refresh();
             $reward->image_url = $this->fileUrl($reward->image);
+
+            \Log::info('Reward updated successfully', ['reward_id' => $reward->id]);
 
             return response()->json([
                 'message' => 'Reward updated',
                 'data'    => $reward,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed', ['errors' => $e->errors()]);
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
+            \Log::error('Reward update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'message' => 'Failed to update reward',
                 'error' => $e->getMessage(),
