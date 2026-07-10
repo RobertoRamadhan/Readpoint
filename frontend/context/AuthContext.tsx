@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const validateTokenInBackground = async (parsedUser: User, token: string) => {
     try {
-      // Use a lightweight profile endpoint instead of heavy stats endpoint
+      // Suppress error logging for background validation to reduce console noise
       const response = await api.me.getProfile();
       if (response?.data) {
         const updatedUser = response.data as User;
@@ -80,9 +80,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       // Only logout if it's a 401 (token expired/invalid)
       // Don't logout on network errors or 500s
-      if (error?.status === 401 || (error instanceof Error && error.message.includes('401'))) {
-        console.warn('[AuthContext] Token expired, logging out');
+      const is401 = error?.status === 401 || 
+                    (error instanceof Error && (
+                      error.message.includes('401') || 
+                      error.message.includes('Unauthenticated')
+                    ));
+      
+      if (is401) {
+        console.warn('[AuthContext] Token expired or invalid, logging out');
         logoutInternal();
+        // Optionally redirect to login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      } else {
+        // For other errors (network, 500, etc.), keep the user logged in
+        console.warn('[AuthContext] Background validation failed (not 401), keeping user logged in:', error?.message);
       }
     }
   };

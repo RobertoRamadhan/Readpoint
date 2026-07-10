@@ -80,81 +80,105 @@ export default function LoginPage() {
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '688719292172-pj1onqtj1r0nf6ul48htp1attutv28co.apps.googleusercontent.com';
 
+    // Don't initialize if already initialized, or if running server-side, or if no client ID
     if (!clientId || typeof window === 'undefined' || googleInitRef.current) {
       return;
     }
 
-    googleInitRef.current = true;
-
     const initializeGoogle = async () => {
+      // Mark as initialized before any async operations to prevent race conditions
+      if (googleInitRef.current) return;
+      googleInitRef.current = true;
+
       if (!window.google?.accounts?.id || !googleButtonRef.current) {
+        // Reset flag if prerequisites not met so we can retry
+        googleInitRef.current = false;
         return;
       }
 
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: async (response) => {
-          if (!response.credential) {
-            setError('Login Google dibatalkan');
-            return;
-          }
-
-          setLoading(true);
-          setError('');
-
-          try {
-            const googleResponse = await api.googleLogin({ credential: response.credential });
-            const authData = (googleResponse.data ?? googleResponse) as {
-              user?: Parameters<typeof login>[0];
-              token?: string;
-              access_token?: string;
-            };
-            const token = authData.token ?? authData.access_token;
-
-            if (authData.user && token) {
-              login(authData.user, token);
-              router.push('/dashboard');
-            } else {
-              throw new Error('Respons server tidak valid');
+      // Only initialize once - check if already initialized
+      try {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            if (!response.credential) {
+              setError('Login Google dibatalkan');
+              return;
             }
-          } catch (err) {
-            const errorMsg = err instanceof Error ? err.message : 'Login Google gagal';
-            setError(errorMsg);
-          } finally {
-            setLoading(false);
-          }
-        },
-        auto_select: false,
-        cancel_on_tap_outside: false,
-      });
 
-      window.google.accounts.id.renderButton(googleButtonRef.current, {
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'pill',
-        width: 360,
-      });
+            setLoading(true);
+            setError('');
+
+            try {
+              const googleResponse = await api.googleLogin({ credential: response.credential });
+              const authData = (googleResponse.data ?? googleResponse) as {
+                user?: Parameters<typeof login>[0];
+                token?: string;
+                access_token?: string;
+              };
+              const token = authData.token ?? authData.access_token;
+
+              if (authData.user && token) {
+                login(authData.user, token);
+                router.push('/dashboard');
+              } else {
+                throw new Error('Respons server tidak valid');
+              }
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : 'Login Google gagal';
+              setError(errorMsg);
+            } finally {
+              setLoading(false);
+            }
+          },
+          auto_select: false,
+          cancel_on_tap_outside: false,
+        });
+
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'pill',
+          width: 360,
+        });
+      } catch (err) {
+        console.error('[Google Sign-In] Initialization error:', err);
+        googleInitRef.current = false; // Allow retry on error
+      }
     };
 
+    // If Google SDK is already loaded, initialize immediately
     if (window.google?.accounts?.id) {
       void initializeGoogle();
       return;
     }
 
+    // Check if script is already loading
     const existingScript = document.getElementById('google-gsi-script');
     if (existingScript) {
       existingScript.addEventListener('load', () => void initializeGoogle(), { once: true });
       return;
     }
 
+    // Load the Google SDK script
     const script = document.createElement('script');
     script.id = 'google-gsi-script';
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
     script.onload = () => void initializeGoogle();
+    script.onerror = () => {
+      console.error('[Google Sign-In] Failed to load Google SDK');
+      googleInitRef.current = false;
+    };
     document.head.appendChild(script);
+
+    // Cleanup function
+    return () => {
+      // Don't remove the script or reset the flag on cleanup
+      // This prevents reinitialization on navigation
+    };
   }, [login, router]);
 
   return (
