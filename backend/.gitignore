@@ -52,3 +52,6 @@ storage/logs/*
 /auth.json
 Homestead.json
 Homestead.yaml
+
+# Zip files
+*.zip
