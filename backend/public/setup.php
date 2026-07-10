@@ -1,52 +1,83 @@
 <?php
-// SECURITY: Delete this file immediately after use!
-// Hapus file ini segera setelah digunakan!
+/**
+ * ReadPoint Setup Script
+ * Run once via browser or cPanel deployment
+ * DELETE this file after successful setup!
+ */
 
 $basePath = dirname(__DIR__);
-$output = [];
+echo '<pre style="background:#1a1a1a;color:#00ff00;padding:20px;font-size:13px;">';
+echo "=== ReadPoint Server Setup ===\n";
+echo "PHP: " . PHP_VERSION . "\n";
+echo "Base: $basePath\n\n";
 
-function runCommand($cmd) {
-    $output = [];
-    exec($cmd . ' 2>&1', $output);
-    return implode("\n", $output);
+// Find PHP binary
+$phpBin = PHP_BINARY ?: '/usr/local/bin/php';
+echo "PHP Binary: $phpBin\n\n";
+
+// Find Composer
+$composerPaths = [
+    '/usr/local/bin/composer',
+    '/usr/bin/composer',
+    '/opt/cpanel/composer/bin/composer',
+    $basePath . '/composer.phar',
+];
+
+$composerBin = null;
+foreach ($composerPaths as $path) {
+    if (file_exists($path)) {
+        $composerBin = $path;
+        break;
+    }
 }
 
-echo '<pre style="background:#1a1a1a;color:#00ff00;padding:20px;font-family:monospace;">';
-echo "=== ReadPoint Setup Script ===\n\n";
+// Download composer if not found
+if (!$composerBin) {
+    echo "Downloading Composer...\n";
+    $composerSetup = file_get_contents('https://getcomposer.org/installer');
+    file_put_contents($basePath . '/composer-setup.php', $composerSetup);
+    exec("$phpBin $basePath/composer-setup.php --install-dir=$basePath --filename=composer.phar 2>&1", $out);
+    echo implode("\n", $out) . "\n";
+    @unlink($basePath . '/composer-setup.php');
+    $composerBin = $basePath . '/composer.phar';
+}
 
-// 1. Check PHP version
-echo "PHP Version: " . PHP_VERSION . "\n";
-echo "Base Path: $basePath\n\n";
+echo "Composer: $composerBin\n\n";
 
-// 2. Composer install
+// Run composer install
 echo "--- Running composer install ---\n";
-$result = runCommand("cd $basePath && composer install --no-dev --optimize-autoloader --no-interaction");
-echo $result . "\n\n";
+$cmd = "$phpBin $composerBin install --no-dev --optimize-autoloader --no-interaction --working-dir=$basePath 2>&1";
+exec($cmd, $out);
+echo implode("\n", $out) . "\n\n";
 
-// 3. Generate APP_KEY if empty
-echo "--- Generating APP_KEY ---\n";
-$result = runCommand("cd $basePath && php artisan key:generate --force");
-echo $result . "\n\n";
+// Check if vendor exists
+if (!is_dir($basePath . '/vendor')) {
+    echo "ERROR: vendor folder still missing after composer install!\n";
+    echo "Exiting...\n</pre>";
+    exit;
+}
 
-// 4. Run migrations
-echo "--- Running migrations ---\n";
-$result = runCommand("cd $basePath && php artisan migrate --force");
-echo $result . "\n\n";
+echo "vendor/ folder exists!\n\n";
 
-// 5. Storage link
-echo "--- Creating storage link ---\n";
-$result = runCommand("cd $basePath && php artisan storage:link");
-echo $result . "\n\n";
+// Run artisan commands
+$commands = [
+    'key:generate --force',
+    'config:clear',
+    'config:cache',
+    'route:clear',
+    'route:cache',
+    'view:clear',
+    'migrate --force',
+    'storage:link',
+];
 
-// 6. Cache config
-echo "--- Caching config ---\n";
-$result = runCommand("cd $basePath && php artisan config:cache");
-echo $result . "\n\n";
+foreach ($commands as $cmd) {
+    echo "--- php artisan $cmd ---\n";
+    exec("$phpBin $basePath/artisan $cmd 2>&1", $out, $code);
+    echo implode("\n", $out) . "\n\n";
+    $out = [];
+}
 
-// 7. Cache routes
-echo "--- Caching routes ---\n";
-$result = runCommand("cd $basePath && php artisan route:cache");
-echo $result . "\n\n";
-
-echo "=== DONE! DELETE THIS FILE NOW! ===\n";
+echo "=== SETUP COMPLETE! DELETE THIS FILE NOW! ===\n";
+echo "Delete: $basePath/public/setup.php\n";
 echo '</pre>';
