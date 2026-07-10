@@ -114,7 +114,8 @@ class UserController extends Controller
         }
 
         $users = $query->select('id', 'name', 'email', 'role', 'grade_level', 'class_name')
-            ->paginate(15);
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
         return response()->json([
             'data' => $users->items(),

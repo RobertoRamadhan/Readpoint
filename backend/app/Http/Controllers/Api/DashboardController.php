@@ -22,19 +22,29 @@ class DashboardController extends Controller
         try {
             $today = now()->format('Y-m-d');
             
-            $stats = [
-                'total_siswa' => User::where('role', 'siswa')->count(),
-                'total_guru' => User::where('role', 'guru')->count(),
-                'total_ebook' => Ebook::count(),
-                'total_reward' => Reward::count(),
-                'siswa_aktif_hari_ini' => ReadingActivity::whereDate('created_at', $today)
-                    ->pluck('user_id')
-                    ->unique()
-                    ->count(),
-                'buku_dibaca_hari_ini' => ReadingActivity::whereDate('created_at', $today)->count(),
-                'kuis_dikerjakan_hari_ini' => QuizAttempt::whereDate('created_at', $today)->count(),
-                'reward_diklaim_hari_ini' => DB::table('redemptions')->whereDate('created_at', $today)->count(),
-            ];
+            // Use cache for 5 minutes to reduce database load
+            $stats = \Cache::remember('admin_stats_' . $today, 300, function () use ($today) {
+                return [
+                    'total_siswa' => User::where('role', 'siswa')
+                        ->where('email', 'not like', 'deleted_%')
+                        ->where('email', 'not like', '%@deleted.local')
+                        ->count(),
+                    'total_guru' => User::where('role', 'guru')
+                        ->where('email', 'not like', 'deleted_%')
+                        ->where('email', 'not like', '%@deleted.local')
+                        ->count(),
+                    'total_ebook' => Ebook::where('is_active', true)->count(),
+                    'total_reward' => Reward::where('is_active', true)->count(),
+                    'siswa_aktif_hari_ini' => ReadingActivity::whereDate('created_at', $today)
+                        ->distinct('user_id')
+                        ->count('user_id'),
+                    'buku_dibaca_hari_ini' => ReadingActivity::whereDate('created_at', $today)->count(),
+                    'kuis_dikerjakan_hari_ini' => QuizAttempt::whereDate('created_at', $today)->count(),
+                    'reward_diklaim_hari_ini' => DB::table('redemptions')
+                        ->whereDate('created_at', $today)
+                        ->count(),
+                ];
+            });
             
             return response()->json($stats);
         } catch (\Exception $e) {
@@ -46,18 +56,20 @@ class DashboardController extends Controller
     public function topStudents()
     {
         try {
-            $topStudents = User::where('role', 'siswa')
-                ->select('id', 'name', 'email')
-                ->get()
-                ->map(function ($user) {
-                    $user->total_points = DB::table('point_transactions')
-                        ->where('user_id', $user->id)
-                        ->sum('points') ?? 0;
-                    return $user;
-                })
-                ->sortByDesc('total_points')
-                ->take(10)
-                ->values();
+            // Cache for 10 minutes
+            $topStudents = \Cache::remember('admin_top_students', 600, function () {
+                // Optimized query - single JOIN instead of N+1 queries
+                return User::where('users.role', 'siswa')
+                    ->where('users.email', 'not like', 'deleted_%')
+                    ->where('users.email', 'not like', '%@deleted.local')
+                    ->select('users.id', 'users.name', 'users.email')
+                    ->selectRaw('COALESCE(SUM(point_transactions.points), 0) as total_points')
+                    ->leftJoin('point_transactions', 'users.id', '=', 'point_transactions.user_id')
+                    ->groupBy('users.id', 'users.name', 'users.email')
+                    ->orderByDesc('total_points')
+                    ->limit(10)
+                    ->get();
+            });
 
             return response()->json($topStudents);
         } catch (\Exception $e) {
