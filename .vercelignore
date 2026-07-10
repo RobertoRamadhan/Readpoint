@@ -1,10 +1,9 @@
-backend/
-backend/**
-backend/node_modules/
-backend/vendor/
-backend/storage/
+backend
+.vscode
+.git
 *.env
 .env.*
-.vscode/
-.git/
+!frontend/.env
+!frontend/.env.local
+!frontend/.env.example
 README.md
