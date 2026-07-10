@@ -12,10 +12,64 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ValidationController;
 
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\EbookController;
+use App\Http\Controllers\Api\ReadingActivityController;
+use App\Http\Controllers\Api\QuizController;
+use App\Http\Controllers\Api\RewardController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ValidationController;
+
 // Public Routes
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/google-login', [AuthController::class, 'googleLogin']);
+
+// Temporary: reset default user passwords (DELETE THIS AFTER USE)
+Route::get('setup/init', function () {
+    $users = [
+        ['email' => 'admin@gmail.com', 'role' => 'admin',  'name' => 'Admin',       'grade_level' => null],
+        ['email' => 'guru@gmail.com',  'role' => 'guru',   'name' => 'Guru Budi',   'grade_level' => null],
+        ['email' => 'siswa@gmail.com', 'role' => 'siswa',  'name' => 'Rina Kusuma', 'grade_level' => '1'],
+    ];
+
+    $hashed = \Illuminate\Support\Facades\Hash::make('password');
+    $results = [];
+
+    foreach ($users as $u) {
+        $exists = \App\Models\User::where('email', $u['email'])->first();
+        if ($exists) {
+            $exists->update(['password' => $hashed, 'role' => $u['role']]);
+            $results[] = "Updated: {$u['email']} (role: {$u['role']})";
+        } else {
+            \App\Models\User::create([
+                'name'              => $u['name'],
+                'email'             => $u['email'],
+                'password'          => $hashed,
+                'role'              => $u['role'],
+                'grade_level'       => $u['grade_level'],
+                'email_verified_at' => now(),
+            ]);
+            $results[] = "Created: {$u['email']} (role: {$u['role']})";
+        }
+    }
+
+    return response()->json([
+        'message' => 'Done! Delete this route after use.',
+        'results' => $results,
+        'credentials' => [
+            'admin@gmail.com'  => 'password',
+            'guru@gmail.com'   => 'password',
+            'siswa@gmail.com'  => 'password',
+        ]
+    ]);
+});
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
