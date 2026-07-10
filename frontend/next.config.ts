@@ -4,23 +4,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "*.laravel.cloud",
-      },
-      {
-        protocol: "https",
-        hostname: "*.vercel.app",
-      },
-      {
-        protocol: "https",
-        hostname: "*.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "*.r2.cloudflarestorage.com",
-      },
-      // Fallback: allow any HTTPS image (useful during dev / staging)
-      {
         protocol: "http",
         hostname: "localhost",
       },
@@ -28,13 +11,25 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "127.0.0.1",
       },
+      {
+        protocol: "https",
+        hostname: "www.readpointku.com",
+      },
+      {
+        protocol: "https",
+        hostname: "readpointku.com",
+      },
+      {
+        protocol: "https",
+        hostname: "readpoint-backend-production.up.railway.app",
+      },
     ],
   },
 
-  // Silence Turbopack warning — empty config tells Next.js we're OK with Turbopack
+  // Silence Turbopack warning
   turbopack: {},
 
-  // Required for react-pdf / pdfjs-dist to work correctly on Vercel
+  // Required for react-pdf / pdfjs-dist to work correctly
   webpack: (config) => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
