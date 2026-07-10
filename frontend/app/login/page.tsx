@@ -78,10 +78,13 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '688719292172-pj1onqtj1r0nf6ul48htp1attutv28co.apps.googleusercontent.com';
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-    // Don't initialize if already initialized, or if running server-side, or if no client ID
+    // Don't initialize if no client ID, running server-side, or already initialized
     if (!clientId || typeof window === 'undefined' || googleInitRef.current) {
+      if (!clientId) {
+        console.warn('[Google Sign-In] No NEXT_PUBLIC_GOOGLE_CLIENT_ID found in environment variables');
+      }
       return;
     }
 
