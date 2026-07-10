@@ -553,7 +553,22 @@ function UsersTab() {
     try {
       await api.users.delete(id);
       await load();
-    } catch (error) {
+    } catch (error: any) {
+      // Check if error is due to existing activity records
+      const errorMsg = error?.message || String(error);
+      if (errorMsg.includes('existing activity records') || errorMsg.includes('foreign key') || errorMsg.includes('Cannot delete')) {
+        // Ask for force delete confirmation
+        if (confirm('Guru ini memiliki data aktivitas. Hapus permanen termasuk semua data terkait?')) {
+          try {
+            await api.users.delete(id, { force: true });
+            await load();
+            return;
+          } catch (forceError) {
+            setError(errText(forceError, 'Gagal menghapus guru secara permanen'));
+            return;
+          }
+        }
+      }
       setError(errText(error, 'Gagal menghapus guru'));
     }
   }
@@ -590,7 +605,22 @@ function StudentsTab() {
     try {
       await api.users.delete(id);
       await load();
-    } catch (error) {
+    } catch (error: any) {
+      // Check if error is due to existing activity records
+      const errorMsg = error?.message || String(error);
+      if (errorMsg.includes('existing activity records') || errorMsg.includes('foreign key') || errorMsg.includes('Cannot delete')) {
+        // Ask for force delete confirmation
+        if (confirm('Siswa ini memiliki data aktivitas. Hapus permanen termasuk semua data terkait (reading progress, quiz, points)?')) {
+          try {
+            await api.users.delete(id, { force: true });
+            await load();
+            return;
+          } catch (forceError) {
+            setError(errText(forceError, 'Gagal menghapus siswa secara permanen'));
+            return;
+          }
+        }
+      }
       setError(errText(error, 'Gagal menghapus siswa'));
     }
   }
@@ -627,7 +657,22 @@ function AdminsTab() {
     try {
       await api.users.delete(id);
       await load();
-    } catch (error) {
+    } catch (error: any) {
+      // Check if error is due to existing activity records
+      const errorMsg = error?.message || String(error);
+      if (errorMsg.includes('existing activity records') || errorMsg.includes('foreign key') || errorMsg.includes('Cannot delete')) {
+        // Ask for force delete confirmation
+        if (confirm('Admin ini memiliki data terkait. Hapus permanen termasuk semua data?')) {
+          try {
+            await api.users.delete(id, { force: true });
+            await load();
+            return;
+          } catch (forceError) {
+            setError(errText(forceError, 'Gagal menghapus admin secara permanen'));
+            return;
+          }
+        }
+      }
       setError(errText(error, 'Gagal menghapus admin'));
     }
   }

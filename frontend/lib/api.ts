@@ -750,13 +750,17 @@ export const api = {
 
     },
 
-    delete: (id: number): Promise<ApiResponse> =>
+    delete: (id: number, options?: { force?: boolean }): Promise<ApiResponse> => {
 
-      apiCall(`/users/${id}`, {
+      const queryParams = options?.force ? '?force=true' : '';
+
+      return apiCall(`/users/${id}${queryParams}`, {
 
         method: 'DELETE',
 
-      }),
+      });
+
+    },
 
     resetPassword: (id: number): Promise<ApiResponse> =>
 
