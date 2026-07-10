@@ -1,23 +1,37 @@
+# Laravel - Files yang TIDAK boleh push ke GitHub
 *.log
 .DS_Store
+Thumbs.db
+
+# Environment files - BERISI PASSWORD & SECRET
 .env
-.env.backup
+.env.*
+!.env.example
+
+# IDE configs
 .phpactor.json
-.phpunit.result.cache
 /.fleet
 /.idea
 /.nova
-/.phpunit.cache
 /.vscode
 /.zed
-/auth.json
+
+# Dependencies
 /node_modules
+/vendor
+
+# Build artifacts
 /public/build
 /public/hot
 /public/storage
+
+# Laravel specific
 /storage/*.key
 /storage/pail
-/vendor
+/.phpunit.cache
+.phpunit.result.cache
+
+# Auth & credentials
+/auth.json
 Homestead.json
 Homestead.yaml
-Thumbs.db

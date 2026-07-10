@@ -1,9 +1,14 @@
+# Ignore backend folder - tidak perlu untuk frontend deployment
 backend
+
+# Ignore config folders
 .vscode
 .git
+
+# Ignore semua environment files - gunakan Vercel Dashboard untuk set env vars
 *.env
 .env.*
-!frontend/.env
-!frontend/.env.local
-!frontend/.env.example
+
+# Ignore documentation
 README.md
+DEPLOYMENT.md

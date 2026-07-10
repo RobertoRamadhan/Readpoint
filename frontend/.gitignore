@@ -23,15 +23,19 @@
 # misc
 .DS_Store
 *.pem
+Thumbs.db
 
-# debug
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# Environment files - BERISI API KEYS & SECRETS - JANGAN PUSH!
+.env
+.env.*
 .env*.local
+!.env.example
 
 # vercel
 .vercel
@@ -39,8 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.env*.local
 
-# Ignore backend folder (separate repo)
-../backend/
+# IDE
+.vscode/
+.idea/
 
