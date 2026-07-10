@@ -179,23 +179,38 @@ class UserController extends Controller
 
         // Handle password change for self-update
         if (isset($validated['password'])) {
-            if (!$isSelfUpdate) {
+            // If admin is resetting password through update (not resetPassword endpoint)
+            if ($isAdmin && !$isSelfUpdate) {
+                $user->password = Hash::make($validated['password']);
+                unset($validated['password']);
+                unset($validated['password_confirmation']);
+                if (isset($validated['current_password'])) {
+                    unset($validated['current_password']);
+                }
+            } elseif ($isSelfUpdate) {
+                // Self-update requires current password
+                if (!isset($validated['current_password'])) {
+                    return response()->json([
+                        'message' => 'Current password is required to change your own password',
+                    ], 422);
+                }
+
+                // Verify current password
+                if (!Hash::check($validated['current_password'], $user->password)) {
+                    return response()->json([
+                        'message' => 'Current password is incorrect',
+                    ], 422);
+                }
+
+                $user->password = Hash::make($validated['password']);
+                unset($validated['password']);
+                unset($validated['password_confirmation']);
+                unset($validated['current_password']);
+            } else {
                 return response()->json([
-                    'message' => 'Cannot change password for other users',
+                    'message' => 'Unauthorized to change this user password',
                 ], 403);
             }
-
-            // Verify current password
-            if (!Hash::check($validated['current_password'], $user->password)) {
-                return response()->json([
-                    'message' => 'Current password is incorrect',
-                ], 422);
-            }
-
-            $user->password = Hash::make($validated['password']);
-            unset($validated['password']);
-            unset($validated['password_confirmation']);
-            unset($validated['current_password']);
         }
 
         // Handle avatar upload
@@ -250,6 +265,34 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User password reset successfully',
         ]);
+    }
+
+    /**
+     * Delete user (Admin only)
+     */
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        // Prevent deleting own account
+        if (auth()->id() === $user->id) {
+            return response()->json([
+                'message' => 'Cannot delete your own account',
+            ], 403);
+        }
+
+        // Delete associated data or handle foreign key constraints
+        try {
+            $user->delete();
+
+            return response()->json([
+                'message' => 'User deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete user: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

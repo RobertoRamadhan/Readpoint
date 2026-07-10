@@ -35,19 +35,26 @@ class EbookController extends Controller
     // Get semua e-book aktif
     public function index()
     {
-        $ebooks = Ebook::where('is_active', true)
-            ->select('id', 'title', 'author', 'pages', 'poin_per_halaman', 'file_path', 'cover_image', 'category', 'grade_level')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($ebook) {
-                $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
-                $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
-                return $ebook;
-            });
+        try {
+            $ebooks = Ebook::where('is_active', true)
+                ->select('id', 'title', 'author', 'pages', 'poin_per_halaman', 'file_path', 'cover_image', 'category', 'grade_level')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($ebook) {
+                    $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
+                    $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
+                    return $ebook;
+                });
 
-        return response()->json([
-            'data' => $ebooks,
-        ]);
+            return response()->json([
+                'data' => $ebooks,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to fetch ebooks',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     // Get e-book by ID (untuk baca)

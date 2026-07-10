@@ -21,9 +21,13 @@ class RewardController extends Controller
     {
         if (!$path) return null;
         $disk = config('filesystems.default');
-        if ($disk === 'public') {
-            return asset('storage/' . $path);
+        
+        // For local/public disk, use /api/files/ route
+        if ($disk === 'public' || $disk === 'local') {
+            return url('api/files/' . $path);
         }
+        
+        // S3 or cloud disk
         return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->url($path) : null;
     }
 
