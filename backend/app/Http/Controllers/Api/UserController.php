@@ -270,7 +270,7 @@ class UserController extends Controller
     /**
      * Delete user (Admin only)
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $user = User::findOrFail($id);
 
@@ -281,17 +281,59 @@ class UserController extends Controller
             ], 403);
         }
 
-        // Delete associated data or handle foreign key constraints
         try {
-            $user->delete();
+            // Check if force delete is requested (cascade delete all related data)
+            $forceDelete = $request->input('force', false);
 
-            return response()->json([
-                'message' => 'User deleted successfully',
-            ]);
+            if ($forceDelete) {
+                // Delete all related data first
+                \DB::transaction(function () use ($user) {
+                    // Delete reading activities
+                    $user->readingActivities()->delete();
+                    
+                    // Delete quiz attempts
+                    $user->quizAttempts()->delete();
+                    
+                    // Delete point transactions
+                    \App\Models\PointTransaction::where('user_id', $user->id)->delete();
+                    
+                    // Delete redemptions
+                    $user->redemptions()->delete();
+                    
+                    // Delete validations (if user is guru)
+                    \App\Models\Validation::where('validated_by', $user->id)->update(['validated_by' => null]);
+                    
+                    // Delete book assignments (if user is guru)
+                    \App\Models\BookAssignment::where('assigned_by', $user->id)->delete();
+                    
+                    // Delete quiz questions created by user (if guru)
+                    \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
+                    
+                    // Finally delete the user
+                    $user->forceDelete();
+                });
+
+                return response()->json([
+                    'message' => 'User and all related data deleted successfully',
+                ]);
+            } else {
+                // Try soft delete (just mark as deleted without removing data)
+                $user->update([
+                    'email' => $user->email . '_deleted_' . time(),
+                ]);
+                
+                $user->delete();
+
+                return response()->json([
+                    'message' => 'User deactivated successfully',
+                ]);
+            }
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to delete user: ' . $e->getMessage(),
-            ], 500);
+                'message' => 'Cannot delete user. User has existing activity records.',
+                'hint' => 'Use force=true parameter to delete user and all related data, or contact system administrator.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 409);
         }
     }
 
