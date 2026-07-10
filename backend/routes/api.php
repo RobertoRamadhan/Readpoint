@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ValidationController;
 // Public Routes
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('auth/register', [AuthController::class, 'register']);
+Route::post('auth/google-login', [AuthController::class, 'googleLogin']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {

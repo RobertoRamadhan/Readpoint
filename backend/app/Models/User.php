@@ -26,6 +26,8 @@ class User extends Authenticatable
         'grade_level',
         'class_name',
         'profile_photo_url',
+        'google_id',
+        'email_verified_at',
     ];
 
     /**

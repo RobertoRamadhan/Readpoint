@@ -97,4 +97,71 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+    public function googleLogin(Request $request)
+    {
+        $validated = $request->validate([
+            'credential' => 'required|string',
+        ]);
+
+        try {
+            // Decode Google JWT token
+            $credential = $validated['credential'];
+            
+            // Split the JWT token
+            $parts = explode('.', $credential);
+            if (count($parts) !== 3) {
+                return response()->json([
+                    'message' => 'Invalid Google token format'
+                ], 400);
+            }
+
+            // Decode the payload (second part)
+            $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1])), true);
+
+            if (!$payload || !isset($payload['email'])) {
+                return response()->json([
+                    'message' => 'Invalid Google token payload'
+                ], 400);
+            }
+
+            $email = $payload['email'];
+            $name = $payload['name'] ?? $payload['email'];
+            $googleId = $payload['sub'] ?? null;
+
+            // Find or create user
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                // Create new user with role siswa by default
+                $user = User::create([
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => Hash::make(uniqid()), // Random password for OAuth users
+                    'role' => 'siswa',
+                    'grade_level' => '1', // Default to grade 1
+                    'google_id' => $googleId,
+                    'email_verified_at' => now(),
+                ]);
+            } else {
+                // Update google_id if not set
+                if (!$user->google_id && $googleId) {
+                    $user->update(['google_id' => $googleId]);
+                }
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login berhasil',
+                'user' => $user,
+                'token' => $token,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Google login failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
