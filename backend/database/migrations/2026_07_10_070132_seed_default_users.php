@@ -14,6 +14,7 @@ return new class extends Migration
                 'email'             => 'admin@gmail.com',
                 'password'          => Hash::make('password'),
                 'role'              => 'admin',
+                'grade_level'       => null,
                 'email_verified_at' => now(),
                 'created_at'        => now(),
                 'updated_at'        => now(),
@@ -23,6 +24,7 @@ return new class extends Migration
                 'email'             => 'guru@gmail.com',
                 'password'          => Hash::make('password'),
                 'role'              => 'guru',
+                'grade_level'       => null,
                 'email_verified_at' => now(),
                 'created_at'        => now(),
                 'updated_at'        => now(),
@@ -40,10 +42,17 @@ return new class extends Migration
         ];
 
         foreach ($users as $user) {
-            DB::table('users')->updateOrInsert(
-                ['email' => $user['email']],
-                $user
-            );
+            $existing = DB::table('users')->where('email', $user['email'])->first();
+            if ($existing) {
+                // Update password and role for existing users
+                DB::table('users')->where('email', $user['email'])->update([
+                    'password'   => $user['password'],
+                    'role'       => $user['role'],
+                    'updated_at' => now(),
+                ]);
+            } else {
+                DB::table('users')->insert($user);
+            }
         }
     }
 
