@@ -31,9 +31,11 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Silence Turbopack warning — empty config tells Next.js we're OK with Turbopack
+  turbopack: {},
+
   // Required for react-pdf / pdfjs-dist to work correctly on Vercel
   webpack: (config) => {
-    // Prevent webpack from trying to bundle the PDF.js canvas worker
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
     return config;
