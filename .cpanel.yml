@@ -1,13 +1,12 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/mbjmtfwx/repositories/Readpoint/backend
-    - cd $DEPLOYPATH && composer install --no-dev --optimize-autoloader --no-interaction
-    - cd $DEPLOYPATH && php artisan config:clear
-    - cd $DEPLOYPATH && php artisan config:cache
-    - cd $DEPLOYPATH && php artisan route:clear
-    - cd $DEPLOYPATH && php artisan route:cache
-    - cd $DEPLOYPATH && php artisan view:clear
-    - cd $DEPLOYPATH && php artisan view:cache
-    - cd $DEPLOYPATH && php artisan migrate --force
-    - cd $DEPLOYPATH && php artisan storage:link
+    - /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --working-dir=/home/mbjmtfwx/repositories/Readpoint/backend
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan config:clear
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan config:cache
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan route:clear
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan route:cache
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan view:clear
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan view:cache
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan migrate --force
+    - /usr/local/bin/php /home/mbjmtfwx/repositories/Readpoint/backend/artisan storage:link
