@@ -103,8 +103,6 @@ class EbookController extends Controller
             'Access-Control-Allow-Credentials' => 'true',
         ]);
     }
-        ]);
-    }
 
     // Admin: Upload e-book baru
     public function store(Request $request)
