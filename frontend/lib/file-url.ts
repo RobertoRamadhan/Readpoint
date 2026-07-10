@@ -1,26 +1,26 @@
 /**
- * Derives the backend base URL exclusively from the NEXT_PUBLIC_API_URL
- * environment variable. No hardcoded fallback URLs — if the env var is not
- * set the app will surface a clear error rather than silently using a
- * stale/wrong URL.
+ * Derives a local-friendly backend base URL.
+ * Falls back to the local Laravel dev server when the env var is absent.
  */
 export function getBackendBaseUrl(): string {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  if (!apiUrl) {
-    // In dev you'll see this in the browser console; in production make sure
-    // NEXT_PUBLIC_API_URL is set in your Vercel environment variables.
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(
-        '[file-url] NEXT_PUBLIC_API_URL is not set. File URLs will be empty. ' +
-          'Set it in .env.local (dev) or Vercel dashboard (production).'
-      );
-    }
-    return '';
+  if (apiUrl) {
+    return apiUrl.replace(/\/api\/?$/, '');
   }
 
-  // Strip trailing /api or /api/ so we get the bare origin
-  return apiUrl.replace(/\/api\/?$/, '');
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:8000';
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('[file-url] NEXT_PUBLIC_API_URL is not set. Falling back to http://localhost:8000.');
+  }
+
+  return 'http://localhost:8000';
 }
 
 function getBackendOrigin(): string {

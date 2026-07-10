@@ -14,12 +14,9 @@ return [
     'allowed_origins' => [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
-        'https://readpoint.vercel.app',
-        'https://*.vercel.app',
     ],
 
     'allowed_origins_patterns' => [
-        '#^https://.*\.vercel\.app$#',
         '#^http://localhost:\d+$#',
         '#^http://127\.0\.0\.1:\d+$#',
     ],

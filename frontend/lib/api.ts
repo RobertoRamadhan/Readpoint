@@ -115,33 +115,10 @@ interface ApiCallOptions extends RequestInit {
 
 async function getCsrfToken(): Promise<string> {
 
-  try {
-
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-    if (token) return token;
-
-
-
-    // Fetch CSRF token from sanctum endpoint
-
-    const response = await fetch(`${API_URL.replace('/api', '')}/sanctum/csrf-cookie`, {
-
-      credentials: 'include',
-
-    });
-
-    
-
-    const newToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-    return newToken || '';
-
-  } catch {
-
-    return '';
-
-  }
+  // For token-based authentication (Bearer tokens), CSRF is not needed
+  // CSRF is only needed for cookie-based sessions and form submissions
+  // Our API uses Bearer tokens in Authorization header, so return empty string
+  return '';
 
 }
 
@@ -457,6 +434,8 @@ export const api = {
   // Quizzes
 
   getQuizzes: (bookId: number): Promise<ApiResponse> => apiCall(`/ebooks/${bookId}/quiz`),
+
+  getAllQuizzes: (): Promise<ApiResponse> => apiCall('/quiz/my-attempts'),
 
   submitQuiz: (data: Record<string, unknown>): Promise<ApiResponse> =>
 
