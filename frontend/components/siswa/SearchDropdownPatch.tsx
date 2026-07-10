@@ -49,6 +49,10 @@ export default function SearchDropdownPatch() {
     let ignore = false;
 
     async function loadBooks() {
+      // Jangan load kalau belum ada token (belum login)
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) return;
+
       try {
         const response = await api.ebooks.list();
         if (!ignore) setBooks(getArrayFromResponse<Ebook>(response));

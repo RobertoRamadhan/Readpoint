@@ -16,6 +16,36 @@ Route::post('auth/login',        [AuthController::class, 'login']);
 Route::post('auth/register',     [AuthController::class, 'register']);
 Route::post('auth/google-login', [AuthController::class, 'googleLogin']);
 
+// Public file serving with CORS support
+Route::get('files/{path}', function ($path) {
+    $disk = config('filesystems.default');
+    
+    // Decode path and normalize
+    $filePath = urldecode($path);
+    
+    // Check if file exists
+    if (!Storage::disk($disk)->exists($filePath)) {
+        return response()->json(['message' => 'File not found'], 404);
+    }
+    
+    // For cloud storage, redirect to signed URL
+    if ($disk !== 'local' && $disk !== 'public') {
+        $url = Storage::disk($disk)->temporaryUrl($filePath, now()->addHours(1));
+        return redirect($url);
+    }
+    
+    // For local storage, serve file directly
+    $fullPath = Storage::disk($disk)->path($filePath);
+    $mimeType = Storage::disk($disk)->mimeType($filePath);
+    
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+        'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+    ]);
+})->where('path', '.*');
+
 // Temporary: seed/reset default users — hit once then it stays idempotent
 Route::get('setup/init', function () {
     $users = [
@@ -73,11 +103,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reading Activities
     Route::post('reading-activities/start',             [ReadingActivityController::class, 'startReading']);
+    Route::get('reading-activities',                    [ReadingActivityController::class, 'getMyActivities']);
+    Route::get('reading-activities/frequently-read',    [ReadingActivityController::class, 'getFrequentlyReadBooks']);
+    Route::get('reading-activities/{id}',               [ReadingActivityController::class, 'getActivity']);
     Route::put('reading-activities/{id}/progress',      [ReadingActivityController::class, 'updateProgress']);
     Route::put('reading-activities/{id}/complete',      [ReadingActivityController::class, 'completeReading']);
-    Route::get('reading-activities',                    [ReadingActivityController::class, 'getMyActivities']);
-    Route::get('reading-activities/{id}',               [ReadingActivityController::class, 'getActivity']);
-    Route::get('reading-activities/frequently-read',    [ReadingActivityController::class, 'getFrequentlyReadBooks']);
 
     // Quizzes
     Route::get('ebooks/{id}/quiz',  [QuizController::class, 'getQuizForBook']);
@@ -93,11 +123,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Validations
     Route::middleware('guru')->group(function () {
         Route::get('validations/pending',        [ValidationController::class, 'getPending']);
+        Route::get('validations/history',        [ValidationController::class, 'getHistory']);
+        Route::get('validations/stats',          [ValidationController::class, 'getStatistics']);
         Route::get('validations/{id}',           [ValidationController::class, 'getDetail']);
         Route::put('validations/{id}/approve',   [ValidationController::class, 'approve']);
         Route::put('validations/{id}/reject',    [ValidationController::class, 'reject']);
-        Route::get('validations/history',        [ValidationController::class, 'getHistory']);
-        Route::get('validations/stats',          [ValidationController::class, 'getStatistics']);
     });
 
     // Rewards

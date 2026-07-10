@@ -19,8 +19,9 @@ class EbookController extends Controller
 
         $disk = config('filesystems.default');
 
-        if ($disk === 'public') {
-            return asset('storage/' . $path);
+        // For local/public disk, use /api/files/ route
+        if ($disk === 'public' || $disk === 'local') {
+            return url('api/files/' . $path);
         }
 
         // S3 or any cloud disk — generate a temporary or permanent URL
@@ -62,7 +63,7 @@ class EbookController extends Controller
         ]);
     }
 
-    // Get file PDF (stream untuk reader)
+    // Get file PDF (stream untuk reader) - dengan CORS header yang proper
     public function getPDF($id)
     {
         $ebook = Ebook::where('is_active', true)->findOrFail($id);
@@ -73,17 +74,28 @@ class EbookController extends Controller
             return response()->json(['message' => 'File not found'], 404);
         }
 
-        // For cloud disks, redirect to the signed/public URL instead of streaming
+        // For cloud disks (S3, dll), stream file through Laravel untuk consistent CORS
         if ($disk !== 'local' && $disk !== 'public') {
-            $url = Storage::disk($disk)->temporaryUrl($ebook->file_path, now()->addMinutes(60));
-            return redirect($url);
+            $file = Storage::disk($disk)->get($ebook->file_path);
+            $mimeType = Storage::disk($disk)->mimeType($ebook->file_path);
+            
+            return response($file, 200)
+                ->header('Content-Type', $mimeType)
+                ->header('Content-Disposition', 'inline; filename="' . $ebook->title . '.pdf"')
+                ->header('Access-Control-Allow-Origin', request()->header('Origin') ?? '*')
+                ->header('Access-Control-Allow-Credentials', 'true');
         }
 
+        // For local/public disk, stream the file directly
         $filePath = Storage::disk($disk)->path($ebook->file_path);
 
         return response()->file($filePath, [
             'Content-Disposition' => 'inline; filename="' . $ebook->title . '.pdf"',
             'Content-Type' => 'application/pdf',
+            'Access-Control-Allow-Origin' => request()->header('Origin') ?? '*',
+            'Access-Control-Allow-Credentials' => 'true',
+        ]);
+    }
         ]);
     }
 
@@ -96,7 +108,7 @@ class EbookController extends Controller
             'pages'            => 'required|integer|min:1',
             'poin_per_halaman' => 'required|integer|min:1',
             'category'         => 'required|string',
-            'grade_level'      => 'required|in:1,2,3,all',
+            'grade_level'      => 'required|string',
             'pdf_file'         => 'required|file|mimes:pdf|max:51200', // max 50 MB
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
@@ -122,12 +134,26 @@ class EbookController extends Controller
                 'is_active'        => true,
             ]);
 
-            $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
-            $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
+            // Return URLs via API endpoint untuk avoid CORS
+            $coverUrl = $ebook->cover_image ? url('api/files/' . $ebook->cover_image) : null;
+            $pdfUrl = url('api/ebooks/' . $ebook->id . '/pdf');
 
             return response()->json([
                 'message' => 'E-book uploaded successfully',
-                'data'    => $ebook,
+                'data'    => [
+                    'id'               => $ebook->id,
+                    'title'            => $ebook->title,
+                    'author'           => $ebook->author,
+                    'pages'            => $ebook->pages,
+                    'poin_per_halaman' => $ebook->poin_per_halaman,
+                    'category'         => $ebook->category,
+                    'grade_level'      => $ebook->grade_level,
+                    'is_active'        => $ebook->is_active,
+                    'cover_image_url'  => $coverUrl,
+                    'pdf_url'          => $pdfUrl,
+                    'created_at'       => $ebook->created_at,
+                    'updated_at'       => $ebook->updated_at,
+                ],
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -180,12 +206,27 @@ class EbookController extends Controller
             ]);
 
             $ebook->refresh();
-            $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
-            $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
+            
+            // Return URLs via API endpoint untuk avoid CORS
+            $coverUrl = $ebook->cover_image ? url('api/files/' . $ebook->cover_image) : null;
+            $pdfUrl = url('api/ebooks/' . $ebook->id . '/pdf');
 
             return response()->json([
                 'message' => 'E-book updated',
-                'data'    => $ebook,
+                'data'    => [
+                    'id'               => $ebook->id,
+                    'title'            => $ebook->title,
+                    'author'           => $ebook->author,
+                    'pages'            => $ebook->pages,
+                    'poin_per_halaman' => $ebook->poin_per_halaman,
+                    'category'         => $ebook->category,
+                    'grade_level'      => $ebook->grade_level,
+                    'is_active'        => $ebook->is_active,
+                    'cover_image_url'  => $coverUrl,
+                    'pdf_url'          => $pdfUrl,
+                    'created_at'       => $ebook->created_at,
+                    'updated_at'       => $ebook->updated_at,
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
