@@ -19,6 +19,8 @@ Route::post('auth/register', [AuthController::class, 'register']);
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::get('user/profile', [UserController::class, 'getProfile']);
+    Route::put('user/profile', [UserController::class, 'updateProfile']);
     
     // E-Books (Siswa: read, Admin: manage)
     Route::get('ebooks', [EbookController::class, 'index']);
