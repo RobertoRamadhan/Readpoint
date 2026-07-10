@@ -457,7 +457,6 @@ export const api = {
   // Quizzes
 
   getQuizzes: (bookId: number): Promise<ApiResponse> => apiCall(`/ebooks/${bookId}/quiz`),
-  getAllQuizzes: (): Promise<ApiResponse> => apiCall('/quizzes'), // Get all quizzes (siswa)
 
   submitQuiz: (data: Record<string, unknown>): Promise<ApiResponse> =>
 

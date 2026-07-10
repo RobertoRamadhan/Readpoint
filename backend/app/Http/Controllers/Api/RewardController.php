@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Models\Reward;
 use App\Models\Redemption;
 use App\Models\PointTransaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class RewardController extends Controller
