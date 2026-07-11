@@ -78,7 +78,7 @@ async function uploadFormData(
   method: 'POST',
   endpoint: string,
   data: FormData,
-  timeoutMs = 120000,
+  timeoutMs = 300000, // 5 menit untuk file besar
 ): Promise<ApiResponse> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);

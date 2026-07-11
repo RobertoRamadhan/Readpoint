@@ -70,7 +70,7 @@ class EbookController extends Controller
             'poin_per_halaman' => 'required|integer|min:1',
             'category'         => 'required|string',
             'grade_level'      => 'required|in:1,2,3,all',
-            'pdf_file'         => 'required|file|mimes:pdf|max:51200',
+            'pdf_file'         => 'required|file|mimes:pdf|max:204800',  // max 200 MB
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
@@ -128,7 +128,7 @@ class EbookController extends Controller
             'category'         => 'sometimes|string',
             'grade_level'      => 'sometimes|in:1,2,3,all',
             'is_active'        => 'sometimes|boolean',
-            'pdf_file'         => 'nullable|file|mimes:pdf|max:51200',
+            'pdf_file'         => 'nullable|file|mimes:pdf|max:204800',  // max 200 MB
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
