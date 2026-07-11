@@ -141,7 +141,8 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
 
   const completeReading = async () => {
     const totalPages = ebook?.pages || 10;
-    const finalPagesRead = Math.max(1, Math.round((Math.max(readingProgress, 100) / 100) * totalPages));
+    // Gunakan progress nyata, bukan paksa 100%
+    const finalPagesRead = Math.max(1, Math.round((readingProgress / 100) * totalPages));
     const points = finalPagesRead * (ebook?.poin_per_halaman || 10);
     setEarnedPoints(points);
 
@@ -149,7 +150,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       try {
         await api.completeReading(readingActivityId, {
           final_page: finalPagesRead,
-          notes: `Reading time: ${readingTime}s, Progress: ${Math.max(readingProgress, 100)}%, Pages: ${finalPagesRead}/${totalPages}`,
+          notes: `Reading time: ${readingTime}s, Progress: ${readingProgress}%, Pages: ${finalPagesRead}/${totalPages}`,
         });
       } catch {
         // Tetap tampilkan modal selesai walau sinkronisasi gagal.
@@ -159,7 +160,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     setShowPointsModal(true);
     setTimeout(() => {
       setShowPointsModal(false);
-      const goToQuiz = window.confirm(`Selesai membaca "${ebook?.title}"! 🎉\n\nPoin: ${points}\n\nMau kerjakan kuis untuk poin tambahan?`);
+      const goToQuiz = window.confirm(`Selesai membaca "${ebook?.title}"! 🎉\n\nPoin menunggu validasi guru.\n\nMau kerjakan kuis untuk poin tambahan?`);
       router.push(goToQuiz ? `/dashboard/siswa/quiz/${ebookId}` : '/dashboard/siswa');
     }, 1800);
   };

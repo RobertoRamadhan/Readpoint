@@ -50,13 +50,14 @@ class EbookController extends Controller
     {
         $ebook = Ebook::where('is_active', true)->findOrFail($id);
 
-        // Untuk Supabase — redirect ke public URL
+        // Kembalikan URL Supabase langsung — frontend fetch PDF dari Supabase tanpa credentials
         $url = StorageHelper::url($ebook->file_path, 'ebook');
         if (!$url) {
             return response()->json(['message' => 'File not found'], 404);
         }
 
-        return redirect($url);
+        // Return URL supaya frontend bisa fetch langsung ke Supabase (tanpa CORS issue)
+        return response()->json(['url' => $url, 'title' => $ebook->title]);
     }
 
     // Admin: Upload e-book baru

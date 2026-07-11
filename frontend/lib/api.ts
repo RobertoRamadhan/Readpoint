@@ -152,8 +152,6 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 
   const csrfToken = await getCsrfToken();
 
-
-
   const defaultHeaders: HeadersInit = {
 
     'Content-Type': 'application/json',
@@ -166,11 +164,7 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 
   };
 
-
-
   devLog(`[API] ${options.method || 'GET'} ${url}`);
-
-
 
   try {
 
@@ -178,7 +172,8 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 
       ...requestOptions,
 
-      credentials: 'include', // Include cookies for Sanctum
+      // Hanya kirim credentials ke backend kita sendiri, bukan ke Supabase/CDN
+      credentials: 'include',
 
       headers: {
 
@@ -526,7 +521,7 @@ export const api = {
 
   users: {
 
-    list: (): Promise<ApiResponse> => apiCall('/users'),
+    list: (): Promise<ApiResponse> => apiCall('/users?per_page=500'),
 
     classes: async (): Promise<ApiResponse> => {
       try {
@@ -580,69 +575,11 @@ export const api = {
 
     get: (id: number): Promise<ApiResponse> => apiCall(`/users/${id}`),
 
-    create: async (data: Record<string, unknown>): Promise<ApiResponse> => {
-
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-      const csrfToken = await getCsrfToken();
-
-      
-
-      devLog('[API] Creating user...');
-
-      const response = await fetch(`${API_URL}/users/create`, {
-
+    create: (data: Record<string, unknown>): Promise<ApiResponse> =>
+      apiCall('/users/create', {
         method: 'POST',
-
-        headers: {
-
-          'Content-Type': 'application/json',
-
-          ...(token && { Authorization: `Bearer ${token}` }),
-
-          ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
-
-        },
-
-        credentials: 'include',
-
         body: JSON.stringify(data),
-
-      });
-
-      
-
-      let result;
-
-      try {
-
-        result = await response.json();
-
-      } catch (e) {
-
-        devError('[API] Failed to parse response:', response.statusText);
-
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-
-      }
-
-      
-
-      if (!response.ok) {
-
-        devError('[API] User create failed:', result);
-
-        throw new Error(result.message || `HTTP ${response.status}: Failed to create user`);
-
-      }
-
-      
-
-      devLog('[API] User created successfully:', result);
-
-      return result;
-
-    },
+      }),
 
     update: async (id: number, data: FormData | Record<string, unknown>): Promise<ApiResponse> => {
 

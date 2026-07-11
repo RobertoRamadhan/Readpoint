@@ -52,15 +52,14 @@ class QuizController extends Controller
         $user = $request->user();
 
         // Cek apakah siswa sudah pernah mendapat poin dari kuis ini
-        $alreadyAwardedPoints = PointTransaction::where('user_id', $user->id)
-            ->where('type', 'quiz_completed')
-            ->whereExists(function ($query) use ($ebook) {
-                $query->select(\DB::raw(1))
-                    ->from('quiz_attempts')
-                    ->whereColumn('quiz_attempts.id', 'point_transactions.quiz_attempt_id')
-                    ->where('quiz_attempts.ebook_id', $ebook->id);
-            })
-            ->exists();
+        // Cukup cek apakah ada attempt sebelumnya yang sudah dapat poin
+        $alreadyAwardedPoints = QuizAttempt::where('user_id', $user->id)
+            ->where('ebook_id', $ebook->id)
+            ->exists()
+            && PointTransaction::where('user_id', $user->id)
+                ->where('type', 'quiz_completed')
+                ->where('description', 'like', "%{$ebook->title}%")
+                ->exists();
         
         // Get all questions for this ebook
         $questions = QuizQuestion::where('ebook_id', $ebook->id)->orderBy('id')->limit(5)->get();
@@ -99,7 +98,6 @@ class QuizController extends Controller
             PointTransaction::create([
                 'user_id' => $user->id,
                 'reading_activity_id' => null,
-                'quiz_attempt_id' => $attempt->id,
                 'points' => $pointsEarned,
                 'type' => 'quiz_completed',
                 'description' => "Poin dari kuis '{$ebook->title}' ({$correctAnswers}/{$totalQuestions} benar)",
