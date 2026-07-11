@@ -72,6 +72,7 @@ type Reward = {
   stock?: number;
   is_active?: boolean | number;
   image?: string;
+  image_url?: string;  // Supabase URL
   icon?: string;
 };
 
@@ -520,7 +521,8 @@ function RewardsTab() {
 }
 
 function RewardCard({ reward, onEdit, onDelete }: { reward: Reward; onEdit: () => void; onDelete: () => void }) {
-  return <article className={styles.itemCard}><div className={styles.cover}>{reward.image ? <img src={normalizeFileUrl(reward.image)} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || '🎁'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  const image = reward.image_url || reward.image;
+  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || '🎁'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
 function RewardForm({ editing, onClose, onSaved }: { editing: Reward | null; onClose: () => void; onSaved: () => Promise<void> }) {
