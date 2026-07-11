@@ -13,14 +13,13 @@ export default function SiswaProfilePage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    wali_kelas: '',
     current_password: '',
     new_password: '',
     password_confirmation: '',
     avatar: null as File | null,
   });
-  const [guruList, setGuruList] = useState<Array<{ id: string; name: string }>>([]);
-  const [loadingGuru, setLoadingGuru] = useState(false);
+  const [guruList] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingGuru] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -39,7 +38,6 @@ export default function SiswaProfilePage() {
     setFormData({
       name: user.name,
       email: user.email,
-      wali_kelas: (user as any).wali_kelas || '',
       current_password: '',
       new_password: '',
       password_confirmation: '',
@@ -47,30 +45,7 @@ export default function SiswaProfilePage() {
     });
   }, [mounted, loading, isAuthenticated, user, router]);
 
-  useEffect(() => {
-    const fetchGuru = async () => {
-      try {
-        setLoadingGuru(true);
-        const res = await api.users.list();
-        const users = Array.isArray(res.data) ? res.data : [];
-
-        setGuruList(
-          users
-            .filter((item: any) => item.role === 'guru')
-            .map((item: any) => ({
-              id: String(item.id),
-              name: item.name,
-            }))
-        );
-      } catch {
-        // Daftar guru tidak wajib memblokir halaman profil.
-      } finally {
-        setLoadingGuru(false);
-      }
-    };
-
-    fetchGuru();
-  }, []);
+  // guruList tidak digunakan — wali_kelas tidak ada di skema DB
 
   const handleLogout = async () => {
     await logout();
@@ -102,7 +77,6 @@ export default function SiswaProfilePage() {
       const payload = new FormData();
       payload.append('name', formData.name);
       payload.append('email', formData.email);
-      payload.append('wali_kelas', formData.wali_kelas);
 
       if (formData.avatar) {
         payload.append('avatar', formData.avatar);
@@ -258,10 +232,8 @@ export default function SiswaProfilePage() {
             <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
               <ProfileInfo label="Email" value={user.email} />
               <ProfileInfo label="Role" value="Siswa" />
-              <ProfileInfo
-                label="Wali Kelas"
-                value={(user as any).wali_kelas_name || formData.wali_kelas || '-'}
-              />
+              <ProfileInfo label="Kelas" value={(user as any).grade_level ? `Kelas ${(user as any).grade_level}` : '-'} />
+              <ProfileInfo label="Nama Kelas" value={(user as any).class_name || '-'} />
             </div>
           </aside>
 
@@ -286,22 +258,6 @@ export default function SiswaProfilePage() {
                     className={inputClass}
                     required
                   />
-                </Field>
-
-                <Field label={loadingGuru ? 'Wali Kelas - memuat...' : 'Wali Kelas'} full>
-                  <select
-                    value={formData.wali_kelas}
-                    onChange={(event) => setFormData({ ...formData, wali_kelas: event.target.value })}
-                    className={inputClass}
-                    disabled={loadingGuru}
-                  >
-                    <option value="">Pilih Wali Kelas</option>
-                    {guruList.map((guru) => (
-                      <option key={guru.id} value={guru.id}>
-                        {guru.name}
-                      </option>
-                    ))}
-                  </select>
                 </Field>
 
                 <div className="md:col-span-2 flex justify-end">
