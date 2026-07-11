@@ -25,6 +25,7 @@ class User extends Authenticatable
         'role',
         'grade_level',
         'class_name',
+        'wali_kelas_id',
         'profile_photo_url',
         'google_id',
         'email_verified_at',
@@ -82,6 +83,18 @@ class User extends Authenticatable
     public function bookAssignments()
     {
         return $this->hasMany(BookAssignment::class);
+    }
+
+    // Wali kelas (guru) dari siswa ini
+    public function waliKelas()
+    {
+        return $this->belongsTo(User::class, 'wali_kelas_id');
+    }
+
+    // Siswa-siswa yang diwali oleh guru ini
+    public function murid()
+    {
+        return $this->hasMany(User::class, 'wali_kelas_id');
     }
 
     // Get total points for user

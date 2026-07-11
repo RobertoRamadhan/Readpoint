@@ -14,19 +14,13 @@ class UserController extends Controller
      */
     public function getProfile(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user()->load('waliKelas:id,name,email');
         
-        // Add avatar URL if exists
         if ($user->profile_photo_url) {
-            $disk = config('filesystems.default');
-            $user->profile_photo_url = $disk === 'public'
-                ? asset('storage/' . $user->profile_photo_url)
-                : \Illuminate\Support\Facades\Storage::disk($disk)->url($user->profile_photo_url);
+            $user->profile_photo_url = StorageHelper::url($user->profile_photo_url, 'avatar');
         }
         
-        return response()->json([
-            'data' => $user,
-        ]);
+        return response()->json(['data' => $user]);
     }
 
     /**
@@ -61,12 +55,11 @@ class UserController extends Controller
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            $disk = config('filesystems.default');
             // Delete old avatar if exists
             if ($user->profile_photo_url) {
-                \Illuminate\Support\Facades\Storage::disk($disk)->delete($user->profile_photo_url);
+                StorageHelper::delete($user->profile_photo_url, 'avatar');
             }
-            $avatarPath = $request->file('avatar')->store('avatars', $disk);
+            $avatarPath = StorageHelper::upload($request->file('avatar'), 'avatar');
             $user->profile_photo_url = $avatarPath;
             unset($validated['avatar']);
         }
@@ -76,10 +69,7 @@ class UserController extends Controller
         // Refresh and add full URL to response
         $user->refresh();
         if ($user->profile_photo_url) {
-            $disk = config('filesystems.default');
-            $user->profile_photo_url = $disk === 'public'
-                ? asset('storage/' . $user->profile_photo_url)
-                : \Illuminate\Support\Facades\Storage::disk($disk)->url($user->profile_photo_url);
+            $user->profile_photo_url = StorageHelper::url($user->profile_photo_url, 'avatar');
         }
 
         return response()->json([
@@ -220,12 +210,11 @@ class UserController extends Controller
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            $disk = config('filesystems.default');
             // Delete old avatar if exists
             if ($user->profile_photo_url) {
-                \Illuminate\Support\Facades\Storage::disk($disk)->delete($user->profile_photo_url);
+                StorageHelper::delete($user->profile_photo_url, 'avatar');
             }
-            $avatarPath = $request->file('avatar')->store('avatars', $disk);
+            $avatarPath = StorageHelper::upload($request->file('avatar'), 'avatar');
             $user->profile_photo_url = $avatarPath;
             unset($validated['avatar']);
         }
@@ -240,10 +229,7 @@ class UserController extends Controller
         // Refresh and add full URL to response
         $user->refresh();
         if ($user->profile_photo_url) {
-            $disk = config('filesystems.default');
-            $user->profile_photo_url = $disk === 'public'
-                ? asset('storage/' . $user->profile_photo_url)
-                : \Illuminate\Support\Facades\Storage::disk($disk)->url($user->profile_photo_url);
+            $user->profile_photo_url = StorageHelper::url($user->profile_photo_url, 'avatar');
         }
 
         return response()->json([
@@ -393,6 +379,41 @@ class UserController extends Controller
                 'total_admin' => $totalAdmin,
                 'total_users' => $totalSiswa + $totalGuru + $totalAdmin,
             ],
+        ]);
+    }
+
+    /**
+     * Guru set kelas mereka — otomatis assign wali_kelas_id
+     * ke semua siswa yang grade_level + class_name cocok.
+     *
+     * POST /api/user/set-class
+     * Body: { grade_level: "1", class_name: "IPA" }
+     */
+    public function setGuruClass(Request $request)
+    {
+        $validated = $request->validate([
+            'grade_level' => 'required|in:1,2,3',
+            'class_name'  => 'required|string|max:100',
+        ]);
+
+        $guru = $request->user();
+
+        // Update profil guru dengan kelas yang dipilih
+        $guru->update([
+            'grade_level' => $validated['grade_level'],
+            'class_name'  => $validated['class_name'],
+        ]);
+
+        // Assign semua siswa di kelas tersebut ke guru ini sebagai wali kelas
+        $updated = User::where('role', 'siswa')
+            ->where('grade_level', $validated['grade_level'])
+            ->where('class_name', $validated['class_name'])
+            ->update(['wali_kelas_id' => $guru->id]);
+
+        return response()->json([
+            'message'       => "Kelas {$validated['grade_level']} {$validated['class_name']} berhasil diatur",
+            'guru'          => $guru->fresh(),
+            'siswa_updated' => $updated,
         ]);
     }
 }

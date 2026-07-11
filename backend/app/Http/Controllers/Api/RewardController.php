@@ -20,15 +20,7 @@ class RewardController extends Controller
     private function fileUrl(?string $path): ?string
     {
         if (!$path) return null;
-        $disk = config('filesystems.default');
-        
-        // For local/public disk, use /api/files/ route
-        if ($disk === 'public' || $disk === 'local') {
-            return url('api/files/' . $path);
-        }
-        
-        // S3 or cloud disk
-        return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->url($path) : null;
+        return StorageHelper::url($path, 'reward');
     }
 
     // Get semua reward aktif (reward catalog)
@@ -51,21 +43,18 @@ class RewardController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'points_required' => 'required|integer|min:1',
-            'stock' => 'required|integer|min:0',
-            'category' => 'required|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
+            'name'             => 'required|string',
+            'description'      => 'required|string',
+            'points_required'  => 'required|integer|min:1',
+            'stock'            => 'required|integer|min:0',
+            'category'         => 'required|string',
+            'image'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5000',
         ]);
 
         try {
-            $disk = config('filesystems.default');
-
-            // Store image if provided
             $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('rewards/images', $disk);
+                $imagePath = StorageHelper::upload($request->file('image'), 'reward');
             }
 
             $reward = Reward::create([
@@ -80,15 +69,9 @@ class RewardController extends Controller
 
             $reward->image_url = $this->fileUrl($reward->image);
 
-            return response()->json([
-                'message' => 'Reward created',
-                'data'    => $reward,
-            ], 201);
+            return response()->json(['message' => 'Reward created', 'data' => $reward], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to create reward',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Failed to create reward', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -105,55 +88,37 @@ class RewardController extends Controller
     // Update reward (Admin only)
     public function update(Request $request, string $id)
     {
-        \Log::info('Reward update request', [
-            'id' => $id,
-            'method' => $request->method(),
-            'all_data' => $request->all(),
-            'has_file' => $request->hasFile('image'),
-        ]);
-
         try {
             $reward = Reward::findOrFail($id);
 
-            // Validate - don't validate image if it's not uploaded
             $rules = [
-                'name' => 'sometimes|string',
-                'description' => 'sometimes|string',
-                'points_required' => 'sometimes|integer|min:1',
-                'stock' => 'sometimes|integer|min:0',
-                'is_active' => 'sometimes|boolean',
-                'category' => 'sometimes|string',
+                'name'             => 'sometimes|string',
+                'description'      => 'sometimes|string',
+                'points_required'  => 'sometimes|integer|min:1',
+                'stock'            => 'sometimes|integer|min:0',
+                'is_active'        => 'sometimes|boolean',
+                'category'         => 'sometimes|string',
             ];
-
-            // Only validate image if file is actually uploaded
             if ($request->hasFile('image')) {
-                $rules['image'] = 'nullable|image|mimes:jpg,jpeg,png|max:5000';
+                $rules['image'] = 'nullable|image|mimes:jpg,jpeg,png,webp|max:5000';
             }
 
             $validated = $request->validate($rules);
 
-            \Log::info('Validation passed', ['validated' => $validated]);
-
-            $disk = config('filesystems.default');
-
-            // Update image if provided
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                \Log::info('Processing image upload');
-                if ($reward->image) {
-                    Storage::disk($disk)->delete($reward->image);
-                }
-                $reward->image = $request->file('image')->store('rewards/images', $disk);
+                StorageHelper::delete($reward->image, 'reward');
+                $reward->image = StorageHelper::upload($request->file('image'), 'reward');
                 $reward->save();
             }
 
-            // Update other fields (only if provided)
-            $updateData = [];
-            if (isset($validated['name'])) $updateData['name'] = $validated['name'];
-            if (isset($validated['description'])) $updateData['description'] = $validated['description'];
-            if (isset($validated['points_required'])) $updateData['points_required'] = $validated['points_required'];
-            if (isset($validated['stock'])) $updateData['stock'] = $validated['stock'];
-            if (isset($validated['category'])) $updateData['category'] = $validated['category'];
-            if (isset($validated['is_active'])) $updateData['is_active'] = $validated['is_active'];
+            $updateData = array_filter([
+                'name'            => $validated['name'] ?? null,
+                'description'     => $validated['description'] ?? null,
+                'points_required' => $validated['points_required'] ?? null,
+                'stock'           => $validated['stock'] ?? null,
+                'category'        => $validated['category'] ?? null,
+                'is_active'       => $validated['is_active'] ?? null,
+            ], fn($v) => $v !== null);
 
             if (!empty($updateData)) {
                 $reward->update($updateData);
@@ -162,27 +127,11 @@ class RewardController extends Controller
             $reward->refresh();
             $reward->image_url = $this->fileUrl($reward->image);
 
-            \Log::info('Reward updated successfully', ['reward_id' => $reward->id]);
-
-            return response()->json([
-                'message' => 'Reward updated',
-                'data'    => $reward,
-            ]);
+            return response()->json(['message' => 'Reward updated', 'data' => $reward]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed', ['errors' => $e->errors()]);
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            \Log::error('Reward update failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json([
-                'message' => 'Failed to update reward',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Failed to update reward', 'error' => $e->getMessage()], 500);
         }
     }
 

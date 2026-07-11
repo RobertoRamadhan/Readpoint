@@ -54,6 +54,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user/profile',    [UserController::class, 'getProfile']);
     Route::put('user/profile',    [UserController::class, 'updateProfile']);
 
+    // Guru set kelas mereka (otomatis assign wali kelas ke siswa sekelas)
+    Route::middleware('guru')->group(function () {
+        Route::post('user/set-class', [UserController::class, 'setGuruClass']);
+    });
+
     // E-Books
     Route::get('ebooks',               [EbookController::class, 'index']);
     Route::get('ebooks/{id}',          [EbookController::class, 'show']);

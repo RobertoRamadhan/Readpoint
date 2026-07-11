@@ -9,27 +9,10 @@ use App\Http\Controllers\Controller;
 
 class EbookController extends Controller
 {
-    /**
-     * Return a public URL for a stored file path.
-     * Works with both local/public disk and S3/cloud disks.
-     */
-    private function fileUrl(?string $path): ?string
+    private function fileUrl(?string $path, string $type = 'cover'): ?string
     {
         if (!$path) return null;
-
-        $disk = config('filesystems.default');
-
-        // For local/public disk, use /api/files/ route
-        if ($disk === 'public' || $disk === 'local') {
-            return url('api/files/' . $path);
-        }
-
-        // S3 or any cloud disk — generate a temporary or permanent URL
-        if (Storage::disk($disk)->exists($path)) {
-            return Storage::disk($disk)->url($path);
-        }
-
-        return null;
+        return StorageHelper::url($path, $type);
     }
 
     // Get semua e-book aktif
@@ -41,67 +24,38 @@ class EbookController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($ebook) {
-                    $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
-                    $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
+                    $ebook->cover_image_url = $this->fileUrl($ebook->cover_image, 'cover');
+                    $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path, 'ebook');
                     return $ebook;
                 });
 
-            return response()->json([
-                'data' => $ebooks,
-            ]);
+            return response()->json(['data' => $ebooks]);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to fetch ebooks',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Failed to fetch ebooks', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // Get e-book by ID (untuk baca)
+    // Get e-book by ID
     public function show($id)
     {
         $ebook = Ebook::where('is_active', true)->findOrFail($id);
-
-        $ebook->cover_image_url = $this->fileUrl($ebook->cover_image);
-        $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path);
-
-        return response()->json([
-            'data' => $ebook,
-        ]);
+        $ebook->cover_image_url = $this->fileUrl($ebook->cover_image, 'cover');
+        $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path, 'ebook');
+        return response()->json(['data' => $ebook]);
     }
 
-    // Get file PDF (stream untuk reader) - dengan CORS header yang proper
+    // Stream PDF
     public function getPDF($id)
     {
         $ebook = Ebook::where('is_active', true)->findOrFail($id);
 
-        $disk = config('filesystems.default');
-
-        if (!Storage::disk($disk)->exists($ebook->file_path)) {
+        // Untuk Supabase — redirect ke public URL
+        $url = StorageHelper::url($ebook->file_path, 'ebook');
+        if (!$url) {
             return response()->json(['message' => 'File not found'], 404);
         }
 
-        // For cloud disks (S3, dll), stream file through Laravel untuk consistent CORS
-        if ($disk !== 'local' && $disk !== 'public') {
-            $file = Storage::disk($disk)->get($ebook->file_path);
-            $mimeType = Storage::disk($disk)->mimeType($ebook->file_path);
-            
-            return response($file, 200)
-                ->header('Content-Type', $mimeType)
-                ->header('Content-Disposition', 'inline; filename="' . $ebook->title . '.pdf"')
-                ->header('Access-Control-Allow-Origin', request()->header('Origin') ?? '*')
-                ->header('Access-Control-Allow-Credentials', 'true');
-        }
-
-        // For local/public disk, stream the file directly
-        $filePath = Storage::disk($disk)->path($ebook->file_path);
-
-        return response()->file($filePath, [
-            'Content-Disposition' => 'inline; filename="' . $ebook->title . '.pdf"',
-            'Content-Type' => 'application/pdf',
-            'Access-Control-Allow-Origin' => request()->header('Origin') ?? '*',
-            'Access-Control-Allow-Credentials' => 'true',
-        ]);
+        return redirect($url);
     }
 
     // Admin: Upload e-book baru
@@ -114,17 +68,15 @@ class EbookController extends Controller
             'poin_per_halaman' => 'required|integer|min:1',
             'category'         => 'required|string',
             'grade_level'      => 'required|in:1,2,3,all',
-            'pdf_file'         => 'required|file|mimes:pdf|max:51200', // max 50 MB
-            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'pdf_file'         => 'required|file|mimes:pdf|max:51200',
+            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         try {
-            $disk = config('filesystems.default');
-
-            $pdfPath   = $request->file('pdf_file')->store('ebooks/pdfs', $disk);
+            $pdfPath   = StorageHelper::upload($request->file('pdf_file'), 'ebook');
             $coverPath = null;
             if ($request->hasFile('cover_image')) {
-                $coverPath = $request->file('cover_image')->store('ebooks/covers', $disk);
+                $coverPath = StorageHelper::upload($request->file('cover_image'), 'cover');
             }
 
             $ebook = Ebook::create([
@@ -139,10 +91,6 @@ class EbookController extends Controller
                 'is_active'        => true,
             ]);
 
-            // Return URLs via API endpoint untuk avoid CORS
-            $coverUrl = $ebook->cover_image ? url('api/files/' . $ebook->cover_image) : null;
-            $pdfUrl = url('api/ebooks/' . $ebook->id . '/pdf');
-
             return response()->json([
                 'message' => 'E-book uploaded successfully',
                 'data'    => [
@@ -154,67 +102,57 @@ class EbookController extends Controller
                     'category'         => $ebook->category,
                     'grade_level'      => $ebook->grade_level,
                     'is_active'        => $ebook->is_active,
-                    'cover_image_url'  => $coverUrl,
-                    'pdf_url'          => $pdfUrl,
+                    'cover_image_url'  => StorageHelper::url($coverPath, 'cover'),
+                    'pdf_url'          => StorageHelper::url($pdfPath, 'ebook'),
                     'created_at'       => $ebook->created_at,
                     'updated_at'       => $ebook->updated_at,
                 ],
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to upload e-book',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Failed to upload e-book', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // Admin: Update e-book metadata
+    // Admin: Update e-book
     public function update(Request $request, $id)
     {
         $ebook = Ebook::findOrFail($id);
 
-        $validated = $request->validate([
+        $request->validate([
             'title'            => 'sometimes|string|max:255',
             'author'           => 'sometimes|string|max:255',
             'pages'            => 'sometimes|integer|min:1',
             'poin_per_halaman' => 'sometimes|integer|min:1',
             'category'         => 'sometimes|string',
+            'grade_level'      => 'sometimes|in:1,2,3,all',
             'is_active'        => 'sometimes|boolean',
             'pdf_file'         => 'nullable|file|mimes:pdf|max:51200',
-            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         try {
-            $disk = config('filesystems.default');
-
             if ($request->hasFile('pdf_file')) {
-                if ($ebook->file_path) {
-                    Storage::disk($disk)->delete($ebook->file_path);
-                }
-                $ebook->file_path = $request->file('pdf_file')->store('ebooks/pdfs', $disk);
+                StorageHelper::delete($ebook->file_path, 'ebook');
+                $ebook->file_path = StorageHelper::upload($request->file('pdf_file'), 'ebook');
             }
 
             if ($request->hasFile('cover_image')) {
-                if ($ebook->cover_image) {
-                    Storage::disk($disk)->delete($ebook->cover_image);
-                }
-                $ebook->cover_image = $request->file('cover_image')->store('ebooks/covers', $disk);
+                StorageHelper::delete($ebook->cover_image, 'cover');
+                $ebook->cover_image = StorageHelper::upload($request->file('cover_image'), 'cover');
             }
 
-            $ebook->update([
-                'title'            => $validated['title']            ?? $ebook->title,
-                'author'           => $validated['author']           ?? $ebook->author,
-                'pages'            => $validated['pages']            ?? $ebook->pages,
-                'poin_per_halaman' => $validated['poin_per_halaman'] ?? $ebook->poin_per_halaman,
-                'category'         => $validated['category']         ?? $ebook->category,
-                'is_active'        => $validated['is_active']        ?? $ebook->is_active,
-            ]);
+            $ebook->update(array_filter([
+                'title'            => $request->title,
+                'author'           => $request->author,
+                'pages'            => $request->pages,
+                'poin_per_halaman' => $request->poin_per_halaman,
+                'category'         => $request->category,
+                'grade_level'      => $request->grade_level,
+                'is_active'        => $request->is_active,
+            ], fn($v) => $v !== null));
 
+            $ebook->save();
             $ebook->refresh();
-            
-            // Return URLs via API endpoint untuk avoid CORS
-            $coverUrl = $ebook->cover_image ? url('api/files/' . $ebook->cover_image) : null;
-            $pdfUrl = url('api/ebooks/' . $ebook->id . '/pdf');
 
             return response()->json([
                 'message' => 'E-book updated',
@@ -227,29 +165,23 @@ class EbookController extends Controller
                     'category'         => $ebook->category,
                     'grade_level'      => $ebook->grade_level,
                     'is_active'        => $ebook->is_active,
-                    'cover_image_url'  => $coverUrl,
-                    'pdf_url'          => $pdfUrl,
+                    'cover_image_url'  => StorageHelper::url($ebook->cover_image, 'cover'),
+                    'pdf_url'          => StorageHelper::url($ebook->file_path, 'ebook'),
                     'created_at'       => $ebook->created_at,
                     'updated_at'       => $ebook->updated_at,
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update e-book',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Failed to update e-book', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // Admin: Soft delete e-book
+    // Admin: Deactivate e-book
     public function destroy($id)
     {
         $ebook = Ebook::findOrFail($id);
         $ebook->update(['is_active' => false]);
-
-        return response()->json([
-            'message' => 'E-book deactivated',
-        ]);
+        return response()->json(['message' => 'E-book deactivated']);
     }
 
     // Get user's reading progress for specific e-book
@@ -259,9 +191,6 @@ class EbookController extends Controller
             ->where('ebook_id', $ebookId)
             ->latest()
             ->first();
-
-        return response()->json([
-            'data' => $activity,
-        ]);
+        return response()->json(['data' => $activity]);
     }
 }

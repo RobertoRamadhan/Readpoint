@@ -85,13 +85,8 @@ class DashboardController extends Controller
                 ->select('id', 'title', 'author', 'pages', 'category', 'is_active', 'poin_per_halaman', 'file_path', 'cover_image')
                 ->get()
                 ->map(function ($book) {
-                    // Convert storage paths to full URLs
-                    if ($book->cover_image) {
-                        $book->cover_image = asset('storage/' . $book->cover_image);
-                    }
-                    if ($book->file_path) {
-                        $book->pdf_file = asset('storage/' . $book->file_path);
-                    }
+                    $book->cover_image_url = \App\Http\Controllers\Api\StorageHelper::url($book->cover_image, 'cover');
+                    $book->pdf_file_url    = \App\Http\Controllers\Api\StorageHelper::url($book->file_path, 'ebook');
                     return $book;
                 });
 

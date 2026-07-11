@@ -129,7 +129,6 @@ class ReadingActivityController extends Controller
     // Get buku yang sering dibaca siswa
     public function getFrequentlyReadBooks(Request $request)
     {
-        // Get ebooks with most reading activities across ALL users
         $frequentlyReadBooks = ReadingActivity::select('ebook_id', \DB::raw('COUNT(*) as read_count'))
             ->groupBy('ebook_id')
             ->orderBy('read_count', 'desc')
@@ -139,23 +138,14 @@ class ReadingActivityController extends Controller
             ->map(function ($activity) {
                 $ebook = $activity->ebook;
                 if ($ebook) {
-                    // Convert storage paths to full URLs
-                    if ($ebook->cover_image) {
-                        $ebook->cover_image = asset('storage/' . $ebook->cover_image);
-                    }
-                    if ($ebook->file_path) {
-                        $ebook->pdf_file = asset('storage/' . $ebook->file_path);
-                    }
+                    $ebook->cover_image_url = \App\Http\Controllers\Api\StorageHelper::url($ebook->cover_image, 'cover');
+                    $ebook->pdf_file_url    = \App\Http\Controllers\Api\StorageHelper::url($ebook->file_path, 'ebook');
                     $ebook->read_count = $activity->read_count;
                 }
                 return $ebook;
             })
-            ->filter(function ($ebook) {
-                return $ebook !== null;
-            });
+            ->filter(fn($e) => $e !== null);
 
-        return response()->json([
-            'data' => $frequentlyReadBooks,
-        ]);
+        return response()->json(['data' => $frequentlyReadBooks]);
     }
 }
