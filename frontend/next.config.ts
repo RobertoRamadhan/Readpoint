@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Cloudflare Pages + next-on-pages requires edge runtime
+  // untuk dynamic routes
   images: {
     remotePatterns: [
       {
@@ -13,23 +15,30 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.readpointku.com",
+        hostname: "*.railway.app",
       },
       {
         protocol: "https",
-        hostname: "readpointku.com",
+        hostname: "readpoint-production.up.railway.app",
       },
       {
         protocol: "https",
-        hostname: "readpoint-backend-production.up.railway.app",
+        hostname: "*.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "*.pages.dev",
+      },
+      {
+        protocol: "https",
+        hostname: "*.vercel.app",
       },
     ],
+    // Cloudflare Pages tidak support next/image optimization — pakai unoptimized
+    unoptimized: true,
   },
 
-  // Silence Turbopack warning
-  turbopack: {},
-
-  // Required for react-pdf / pdfjs-dist to work correctly
+  // Required for react-pdf / pdfjs-dist
   webpack: (config) => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;

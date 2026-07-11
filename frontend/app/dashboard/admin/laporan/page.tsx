@@ -103,9 +103,17 @@ export default function AdminLaporanPage() {
         try {
           setDataLoading(true);
           setError('');
-          const usersRes = await api.users.list();
+          // Pakai guruStudents yang sudah include total_points, books_read, quiz stats
+          const [usersRes, studentsRes] = await Promise.all([
+            api.users.list(),
+            api.dashboard.guruStudents(),
+          ]);
           const userData = (usersRes?.data || usersRes || []) as UserRecord[];
-          setUsers(Array.isArray(userData) ? userData : []);
+          const studentData = (Array.isArray(studentsRes) ? studentsRes : (studentsRes as any)?.data || []) as UserRecord[];
+          // Merge: pakai studentData untuk siswa (ada stats), userData untuk guru
+          const teachers = Array.isArray(userData) ? userData.filter((u: any) => u.role === 'guru') : [];
+          const combined = [...teachers, ...studentData];
+          setUsers(combined);
         } catch (err) {
           console.error('Error fetching teacher productivity report:', err);
           setError('Gagal memuat laporan produktivitas guru');
