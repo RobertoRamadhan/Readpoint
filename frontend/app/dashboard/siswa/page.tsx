@@ -12,9 +12,10 @@ type TabType = 'overview' | 'ebooks' | 'quizzes' | 'rewards' | 'account';
 interface SiswaStats { total_points: number; books_read: number; pages_read: number; quizzes_taken: number; }
 interface Ebook { id: number; title: string; author: string; pages: number; poin_per_halaman: number; category: string; cover_image?: string; cover_image_url?: string; pdf_file?: string; pdf_file_url?: string; }
 interface Reward { id: number; name: string; description: string; points_required: number; stock: number; image?: string; image_url?: string; }
-interface Quiz { id: number; ebook_id?: number; ebook_title?: string; title?: string; total_questions?: number; points_reward?: number; }
+interface Quiz { id: number; ebook_id?: number; ebook_title?: string; title?: string; total_questions?: number; points_reward?: number; already_attempted?: boolean; last_score?: number | null; passed?: boolean; }
+interface ReadingActivityItem { id: number; ebook_id: number; status: string; current_page: number; final_page?: number; duration_minutes: number; started_at: string; completed_at?: string; ebook?: { id: number; title: string; author: string; pages: number; }; }
 
-let dashboardCache: { stats: SiswaStats | null; ebooks: Ebook[]; rewards: Reward[]; quizzes: Quiz[]; cachedAt: number } | null = null;
+let dashboardCache: { stats: SiswaStats | null; ebooks: Ebook[]; rewards: Reward[]; quizzes: Quiz[]; activities: ReadingActivityItem[]; cachedAt: number } | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const tabs: Array<{ key: TabType; label: string; Icon: LucideIcon }> = [
@@ -55,6 +56,7 @@ export default function SiswaDashboard() {
   const [ebooks, setEbooks] = useState<Ebook[]>(dashboardCache?.ebooks ?? []);
   const [rewards, setRewards] = useState<Reward[]>(dashboardCache?.rewards ?? []);
   const [quizzes, setQuizzes] = useState<Quiz[]>(dashboardCache?.quizzes ?? []);
+  const [activities, setActivities] = useState<ReadingActivityItem[]>(dashboardCache?.activities ?? []);
   const isCacheFresh = dashboardCache && Date.now() - dashboardCache.cachedAt < CACHE_TTL_MS;
   const [loadingData, setLoadingData] = useState(!isCacheFresh);
   const [error, setError] = useState<string | null>(null);
@@ -75,13 +77,20 @@ export default function SiswaDashboard() {
   const loadDashboardData = async () => {
     try {
       setLoadingData(true); setError(null);
-      const [statsRes, ebooksRes, rewardsRes, quizzesRes] = await Promise.allSettled([api.dashboard.siswaStats(), api.ebooks.list(), api.rewards.list(), api.getAllQuizzes()]);
+      const [statsRes, ebooksRes, rewardsRes, quizzesRes, activitiesRes] = await Promise.allSettled([
+        api.dashboard.siswaStats(),
+        api.ebooks.list(),
+        api.rewards.list(),
+        api.getAllQuizzes(),
+        api.getMyActivities(),
+      ]);
       const newStats = statsRes.status === 'fulfilled' ? getStatsFromResponse(statsRes.value) : null;
       const newEbooks = ebooksRes.status === 'fulfilled' ? getArrayFromResponse<Ebook>(ebooksRes.value) : [];
       const newRewards = rewardsRes.status === 'fulfilled' ? getArrayFromResponse<Reward>(rewardsRes.value) : [];
       const newQuizzes = quizzesRes.status === 'fulfilled' ? getArrayFromResponse<Quiz>(quizzesRes.value) : [];
-      setStats(newStats); setEbooks(newEbooks); setRewards(newRewards); setQuizzes(newQuizzes);
-      dashboardCache = { stats: newStats, ebooks: newEbooks, rewards: newRewards, quizzes: newQuizzes, cachedAt: Date.now() };
+      const newActivities = activitiesRes.status === 'fulfilled' ? getArrayFromResponse<ReadingActivityItem>(activitiesRes.value) : [];
+      setStats(newStats); setEbooks(newEbooks); setRewards(newRewards); setQuizzes(newQuizzes); setActivities(newActivities);
+      dashboardCache = { stats: newStats, ebooks: newEbooks, rewards: newRewards, quizzes: newQuizzes, activities: newActivities, cachedAt: Date.now() };
     } catch (err) { setError(err instanceof Error ? err.message : 'Gagal memuat dashboard siswa'); }
     finally { setLoadingData(false); }
   };
@@ -93,7 +102,14 @@ export default function SiswaDashboard() {
   }, [ebooks, searchQuery]);
 
   const totalPoints = stats?.total_points ?? 0;
-  const continueBook = ebooks[0] || null;
+  // Use the most recent ongoing reading activity for "Continue Reading"
+  const ongoingActivity = activities.find((a) => a.status === 'ongoing') ?? activities[0] ?? null;
+  const continueBook = ongoingActivity
+    ? (ebooks.find((e) => e.id === ongoingActivity.ebook_id) ?? ebooks[0] ?? null)
+    : ebooks[0] ?? null;
+  const continueProgress = ongoingActivity && continueBook
+    ? Math.min(100, Math.round(((ongoingActivity.current_page) / (continueBook.pages || 1)) * 100))
+    : 0;
   const levelProgress = Math.min(100, Math.round((totalPoints / 500) * 100));
 
   const handleLogout = async () => { await logout(); router.push('/login'); };
@@ -116,10 +132,10 @@ export default function SiswaDashboard() {
             {activeTab === 'overview' && <StatsGrid stats={stats} totalPoints={totalPoints} />}
             {loadingData ? <Panel><Loading text="Memuat data..." inline /></Panel> : (
               <>
-                {activeTab === 'overview' && <Overview continueBook={continueBook} books={filteredBooks} rewards={rewards.slice(0, 4)} totalPoints={totalPoints} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} onRedeem={redeemReward} setActiveTab={setActiveTab} />}
+                {activeTab === 'overview' && <Overview continueBook={continueBook} continueProgress={continueProgress} books={filteredBooks} rewards={rewards.slice(0, 4)} totalPoints={totalPoints} activities={activities} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} onRedeem={redeemReward} setActiveTab={setActiveTab} />}
                 {activeTab === 'ebooks' && <BooksScreen books={filteredBooks} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} />}
                 {activeTab === 'quizzes' && <QuizzesScreen quizzes={quizzes} onStart={(id) => router.push(`/dashboard/siswa/quiz/${id}`)} />}
-                {activeTab === 'rewards' && <RewardsScreen rewards={rewards} totalPoints={totalPoints} onRedeem={redeemReward} />}
+                {activeTab === 'rewards' && <RewardsScreen rewards={rewards} totalPoints={totalPoints} onRedeem={redeemReward} activities={activities} />}
                 {activeTab === 'account' && <AccountScreen userName={user.name} totalPoints={totalPoints} onNavigate={setActiveTab} onLogout={handleLogout} />}
               </>
             )}
@@ -155,22 +171,23 @@ function StatsGrid({ stats, totalPoints }: { stats: SiswaStats | null; totalPoin
   return <section><div className="mb-3"><h2 className="text-2xl font-black tracking-tight">Ringkasan Literasi</h2><p className="text-sm font-semibold text-slate-500">Pantau poin dan progres membaca kamu</p></div><div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">{items.map(({ title, value, helper, Icon }) => <div key={title} className="min-w-0 rounded-[22px] border border-[#eee7dc] bg-white p-3 shadow-[0_12px_28px_rgba(45,34,18,0.05)] sm:p-5"><div className="flex items-start justify-between gap-2"><div className="min-w-0"><p className="truncate text-[10px] font-black uppercase tracking-wider text-slate-400 sm:text-sm">{title}</p><p className="mt-1 truncate text-xl font-black text-slate-950 sm:mt-2 sm:text-3xl">{value}</p></div><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-[#f6f2ea] text-emerald-700 sm:h-10 sm:w-10"><Icon className="h-4 w-4 sm:h-5 sm:w-5" /></div></div><p className="mt-2 truncate text-[11px] font-black text-emerald-700 sm:text-xs">{helper}</p></div>)}</div></section>;
 }
 
-function Overview({ continueBook, books, rewards, totalPoints, onRead, onRedeem, setActiveTab }: { continueBook: Ebook | null; books: Ebook[]; rewards: Reward[]; totalPoints: number; onRead: (id: number) => void; onRedeem: (id: number) => void; setActiveTab: (tab: TabType) => void }) {
+function Overview({ continueBook, continueProgress, books, rewards, totalPoints, activities, onRead, onRedeem, setActiveTab }: { continueBook: Ebook | null; continueProgress: number; books: Ebook[]; rewards: Reward[]; totalPoints: number; activities: ReadingActivityItem[]; onRead: (id: number) => void; onRedeem: (id: number) => void; setActiveTab: (tab: TabType) => void }) {
   const latest = books.slice(0, 8);
-  return <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"><div className="min-w-0 space-y-4 sm:space-y-5"><ContinueCard book={continueBook} onRead={onRead} /><Shelf title="Terbaru" books={latest} onRead={onRead} onViewAll={() => setActiveTab('ebooks')} /></div><aside className="hidden min-w-0 space-y-5 xl:block"><Panel title="Reward" action="Lihat semua →" onAction={() => setActiveTab('rewards')} compact>{rewards.length ? <div className="space-y-3">{rewards.map((reward) => <RewardRow key={reward.id} reward={reward} disabled={totalPoints < reward.points_required || reward.stock <= 0} onRedeem={() => onRedeem(reward.id)} />)}</div> : <EmptyState title="Belum ada reward" />}</Panel><Panel title="Aktivitas" action="Lihat semua →" onAction={() => setActiveTab('account')} compact><ActivityList /></Panel></aside></div>;
+  return <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"><div className="min-w-0 space-y-4 sm:space-y-5"><ContinueCard book={continueBook} progress={continueProgress} onRead={onRead} /><Shelf title="Terbaru" books={latest} onRead={onRead} onViewAll={() => setActiveTab('ebooks')} /></div><aside className="hidden min-w-0 space-y-5 xl:block"><Panel title="Reward" action="Lihat semua →" onAction={() => setActiveTab('rewards')} compact>{rewards.length ? <div className="space-y-3">{rewards.map((reward) => <RewardRow key={reward.id} reward={reward} disabled={totalPoints < reward.points_required || reward.stock <= 0} onRedeem={() => onRedeem(reward.id)} />)}</div> : <EmptyState title="Belum ada reward" />}</Panel><Panel title="Aktivitas" action="Lihat semua →" onAction={() => setActiveTab('account')} compact><ActivityList activities={activities} /></Panel></aside></div>;
 }
 
-function ContinueCard({ book, onRead }: { book: Ebook | null; onRead: (id: number) => void }) {
+function ContinueCard({ book, progress, onRead }: { book: Ebook | null; progress: number; onRead: (id: number) => void }) {
   if (!book) return <Panel><EmptyState title="Belum ada buku" /></Panel>;
   const cover = normalizeCover(book);
-  return <section className="overflow-hidden rounded-[28px] border border-[#eee7dc] bg-white shadow-[0_18px_45px_rgba(45,34,18,0.06)]"><div className="grid grid-cols-[90px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5 lg:grid-cols-[210px_minmax(0,1fr)]"><div className="w-full overflow-hidden rounded-[18px] bg-[#f0eadf] shadow-lg sm:rounded-[24px]"><SafeImage src={cover} alt={book.title} className="aspect-[3/4] h-full w-full object-cover" fallback={<BookPlaceholder />} /></div><div className="flex min-w-0 flex-col justify-between"><div className="min-w-0"><span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">Lanjutkan Membaca</span><h2 className="mt-2 line-clamp-2 text-lg font-black tracking-tight text-slate-950 sm:text-2xl lg:text-4xl">{book.title}</h2><p className="mt-1 truncate text-xs font-semibold text-slate-500 sm:text-sm">{book.author}</p></div><div className="mt-3"><div className="flex items-center justify-between text-[10px] font-black text-slate-500"><span>Progress baca</span><span>57%</span></div><div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f0eadf]"><div className="h-full w-[57%] rounded-full bg-emerald-600" /></div><button onClick={() => onRead(book.id)} className="mt-3 w-full rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow-lg hover:bg-emerald-700 sm:w-auto sm:px-6 sm:text-sm">Baca Sekarang</button></div></div></div></section>;
+  const displayProgress = progress > 0 ? progress : null;
+  return <section className="overflow-hidden rounded-[28px] border border-[#eee7dc] bg-white shadow-[0_18px_45px_rgba(45,34,18,0.06)]"><div className="grid grid-cols-[90px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5 lg:grid-cols-[210px_minmax(0,1fr)]"><div className="w-full overflow-hidden rounded-[18px] bg-[#f0eadf] shadow-lg sm:rounded-[24px]"><SafeImage src={cover} alt={book.title} className="aspect-[3/4] h-full w-full object-cover" fallback={<BookPlaceholder />} /></div><div className="flex min-w-0 flex-col justify-between"><div className="min-w-0"><span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">Lanjutkan Membaca</span><h2 className="mt-2 line-clamp-2 text-lg font-black tracking-tight text-slate-950 sm:text-2xl lg:text-4xl">{book.title}</h2><p className="mt-1 truncate text-xs font-semibold text-slate-500 sm:text-sm">{book.author}</p></div><div className="mt-3">{displayProgress !== null && (<><div className="flex items-center justify-between text-[10px] font-black text-slate-500"><span>Progress baca</span><span>{displayProgress}%</span></div><div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f0eadf]"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${displayProgress}%` }} /></div></>)}<button onClick={() => onRead(book.id)} className="mt-3 w-full rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow-lg hover:bg-emerald-700 sm:w-auto sm:px-6 sm:text-sm">Baca Sekarang</button></div></div></div></section>;
 }
 
 function BooksScreen({ books, onRead }: { books: Ebook[]; onRead: (id: number) => void }) { return <Panel title="Semua E-Book" subtitle="Pilih buku dan mulai membaca">{books.length ? <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">{books.map((book) => <BookCard key={book.id} book={book} onClick={() => onRead(book.id)} />)}</div> : <EmptyState title="Buku tidak ditemukan" />}</Panel>; }
-function QuizzesScreen({ quizzes, onStart }: { quizzes: Quiz[]; onStart: (id: number) => void }) { return <Panel title="Kuis Buku" subtitle="Kerjakan kuis untuk menambah poin">{quizzes.length ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{quizzes.slice(0, 8).map((quiz) => <QuizCard key={quiz.id} quiz={quiz} onClick={() => onStart(quiz.ebook_id || quiz.id)} />)}</div> : <EmptyState title="Belum ada kuis" />}</Panel>; }
+function QuizzesScreen({ quizzes, onStart }: { quizzes: Quiz[]; onStart: (id: number) => void }) { return <Panel title="Kuis Buku" subtitle="Kerjakan kuis untuk menambah poin">{quizzes.length ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{quizzes.slice(0, 8).map((quiz) => <QuizCard key={quiz.id} quiz={quiz} onClick={() => onStart(quiz.ebook_id || quiz.id)} />)}</div> : <EmptyState title="Belum ada kuis tersedia" />}</Panel>; }
 
-function RewardsScreen({ rewards, totalPoints, onRedeem }: { rewards: Reward[]; totalPoints: number; onRedeem: (id: number) => void }) {
-  return <div className="space-y-4"><section className="rounded-[24px] border border-[#eee7dc] bg-white p-5 shadow-sm"><p className="text-sm font-black text-slate-500">Poin Kamu</p><div className="mt-2 flex items-center justify-between"><p className="text-4xl font-black text-slate-950">{formatNumber(totalPoints)}</p><span className="rounded-full bg-[#f6f2ea] px-4 py-2 text-xs font-black text-slate-500">{totalPoints > 0 ? 'Siap tukar' : 'Belum cukup'}</span></div></section>{rewards.length ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{rewards.map((reward) => <RewardCard key={reward.id} reward={reward} totalPoints={totalPoints} onRedeem={() => onRedeem(reward.id)} />)}</div> : <Panel><EmptyState title="Belum ada reward" /></Panel>}<Panel title="Riwayat" compact><ActivityList /></Panel></div>;
+function RewardsScreen({ rewards, totalPoints, onRedeem, activities }: { rewards: Reward[]; totalPoints: number; onRedeem: (id: number) => void; activities: ReadingActivityItem[] }) {
+  return <div className="space-y-4"><section className="rounded-[24px] border border-[#eee7dc] bg-white p-5 shadow-sm"><p className="text-sm font-black text-slate-500">Poin Kamu</p><div className="mt-2 flex items-center justify-between"><p className="text-4xl font-black text-slate-950">{formatNumber(totalPoints)}</p><span className="rounded-full bg-[#f6f2ea] px-4 py-2 text-xs font-black text-slate-500">{totalPoints > 0 ? 'Siap tukar' : 'Belum cukup'}</span></div></section>{rewards.length ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{rewards.map((reward) => <RewardCard key={reward.id} reward={reward} totalPoints={totalPoints} onRedeem={() => onRedeem(reward.id)} />)}</div> : <Panel><EmptyState title="Belum ada reward" /></Panel>}<Panel title="Riwayat Aktivitas" compact><ActivityList activities={activities} /></Panel></div>;
 }
 
 function AccountScreen({ userName, totalPoints, onNavigate, onLogout }: { userName: string; totalPoints: number; onNavigate: (tab: TabType) => void; onLogout: () => void }) {
@@ -191,8 +208,37 @@ function RewardRow({ reward, disabled, onRedeem }: { reward: Reward; disabled: b
 function RewardCard({ reward, totalPoints, onRedeem }: { reward: Reward; totalPoints: number; onRedeem: () => void }) { const image = normalizeReward(reward); const disabled = totalPoints < reward.points_required || reward.stock <= 0; return <div className="overflow-hidden rounded-[24px] border border-[#eee7dc] bg-white shadow-md lg:grid lg:grid-cols-[160px_minmax(0,1fr)]"><div className="h-36 bg-emerald-50 lg:h-full lg:min-h-[190px]"><SafeImage src={image} alt={reward.name} className="h-full w-full object-contain p-3" fallback={<RewardPlaceholder large />} /></div><div className="flex min-w-0 flex-col justify-between gap-3 p-4"><div><h3 className="line-clamp-2 text-base font-black text-slate-950">{reward.name}</h3><p className="mt-1 line-clamp-2 text-sm font-medium text-slate-500">{reward.description}</p></div><div className="flex items-center justify-between rounded-2xl bg-[#fbfaf7] p-3 text-sm font-black"><span>{formatNumber(reward.points_required)} poin</span><span>{reward.stock} stok</span></div><button onClick={onRedeem} disabled={disabled} className="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-black text-white hover:bg-emerald-700 disabled:border disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-700">{disabled ? 'Belum Bisa Ditukar' : 'Tukar Reward'}</button></div></div>; }
 function RewardPlaceholder({ large = false }: { large?: boolean }) { return <div className={`flex h-full w-full items-center justify-center bg-emerald-50 text-emerald-700 ${large ? 'min-h-36 lg:min-h-[190px]' : ''}`}><Gift className={large ? 'h-10 w-10' : 'h-6 w-6'} /></div>; }
 
-function QuizCard({ quiz, onClick }: { quiz: Quiz; onClick: () => void }) { return <button onClick={onClick} className="rounded-[24px] border border-[#eee7dc] bg-white p-5 text-left shadow-md transition hover:-translate-y-1 hover:bg-[#fbfaf7]"><p className="text-sm font-black text-emerald-700">Kuis Buku</p><h3 className="mt-2 line-clamp-2 text-lg font-black">{quiz.ebook_title || quiz.title || 'Kuis'}</h3><p className="mt-2 text-sm font-semibold text-slate-500">{quiz.total_questions || 5} soal • {quiz.points_reward || 50} poin</p><span className="mt-5 inline-flex rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">Mulai Kuis</span></button>; }
-function ActivityList() { return <EmptyState title="Belum ada aktivitas" />; }
+function QuizCard({ quiz, onClick }: { quiz: Quiz; onClick: () => void }) {
+  const attempted = quiz.already_attempted;
+  const score = quiz.last_score;
+  return <button onClick={onClick} className="rounded-[24px] border border-[#eee7dc] bg-white p-5 text-left shadow-md transition hover:-translate-y-1 hover:bg-[#fbfaf7]"><div className="flex items-start justify-between gap-2"><p className="text-sm font-black text-emerald-700">Kuis Buku</p>{attempted && <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${quiz.passed ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{quiz.passed ? `✓ ${Math.round(score ?? 0)}%` : `${Math.round(score ?? 0)}%`}</span>}</div><h3 className="mt-2 line-clamp-2 text-lg font-black">{quiz.ebook_title || quiz.title || 'Kuis'}</h3><p className="mt-2 text-sm font-semibold text-slate-500">{quiz.total_questions || 5} soal • {quiz.points_reward || 50} poin</p><span className={`mt-5 inline-flex rounded-full px-4 py-2 text-xs font-black ${attempted ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-700'}`}>{attempted ? 'Kerjakan Lagi' : 'Mulai Kuis'}</span></button>;
+}
+
+function ActivityList({ activities }: { activities: ReadingActivityItem[] }) {
+  if (!activities || activities.length === 0) return <EmptyState title="Belum ada aktivitas" />;
+  const statusLabel: Record<string, { label: string; cls: string }> = {
+    ongoing: { label: 'Sedang Baca', cls: 'bg-blue-50 text-blue-700' },
+    pending_validation: { label: 'Menunggu Validasi', cls: 'bg-amber-50 text-amber-700' },
+    completed: { label: 'Selesai', cls: 'bg-emerald-50 text-emerald-700' },
+    rejected: { label: 'Ditolak', cls: 'bg-red-50 text-red-700' },
+  };
+  return (
+    <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+      {activities.slice(0, 10).map((activity) => {
+        const s = statusLabel[activity.status] ?? { label: activity.status, cls: 'bg-slate-100 text-slate-600' };
+        return (
+          <div key={activity.id} className="flex items-start justify-between gap-3 rounded-2xl border border-[#eee7dc] bg-[#fbfaf7] p-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-black text-slate-950">{activity.ebook?.title ?? `Buku #${activity.ebook_id}`}</p>
+              <p className="mt-0.5 text-[11px] font-semibold text-slate-500">Hal {activity.current_page}{activity.final_page ? `→${activity.final_page}` : ''} • {activity.duration_minutes} menit</p>
+            </div>
+            <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${s.cls}`}>{s.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 function EmptyState({ title }: { title: string }) { return <div className="rounded-3xl border border-dashed border-[#e5dccf] bg-[#fbfaf7] p-6 text-center"><BookOpen className="mx-auto h-8 w-8 text-emerald-700" /><h3 className="mt-3 text-base font-black">{title}</h3><p className="mt-1 text-sm font-semibold text-slate-500">Data akan muncul setelah tersedia.</p></div>; }
 function MobileTabBar({ activeTab, onChangeTab }: { activeTab: TabType; onChangeTab: (tab: TabType) => void }) { return <nav className="fixed inset-x-0 bottom-0 z-[999] border-t border-[#eee7dc] bg-white px-3 pb-[calc(0.55rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_40px_rgba(45,34,18,0.12)] lg:hidden"><div className="mx-auto grid max-w-md grid-cols-5 gap-1">{tabs.map(({ key, label, Icon }) => <button key={key} onClick={() => onChangeTab(key)} className={`flex min-h-[56px] flex-col items-center justify-center rounded-2xl text-[10px] font-black transition ${activeTab === key ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500 hover:bg-[#f6f2ea]'}`}><Icon className="h-4 w-4" /><span className="mt-1">{label}</span></button>)}</div></nav>; }
 function Loading({ text, inline = false }: { text: string; inline?: boolean }) { return <div className={`flex items-center justify-center ${inline ? 'py-12' : 'min-h-screen bg-[#fbfaf7]'}`}><div className="text-center"><div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" /><p className="text-sm font-semibold text-emerald-700">{text}</p></div></div>; }

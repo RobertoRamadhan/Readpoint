@@ -208,4 +208,45 @@ class QuizController extends Controller
             'message' => 'Quiz question deleted',
         ]);
     }
+
+    // Get all ebooks that have quiz questions (for siswa quiz tab)
+    public function getEbooksWithQuiz(Request $request)
+    {
+        $user = $request->user();
+
+        // Get distinct ebook IDs that have at least one quiz question
+        $ebookIds = QuizQuestion::distinct()->pluck('ebook_id');
+
+        $ebooks = \App\Models\Ebook::whereIn('id', $ebookIds)
+            ->where('is_active', true)
+            ->select('id', 'title', 'author', 'cover_image', 'pages', 'poin_per_halaman', 'category')
+            ->get()
+            ->map(function ($ebook) use ($user) {
+                $totalQuestions = QuizQuestion::where('ebook_id', $ebook->id)->count();
+
+                // Check if this user has already attempted
+                $attempt = QuizAttempt::where('user_id', $user->id)
+                    ->where('ebook_id', $ebook->id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                return [
+                    'id' => $ebook->id,
+                    'ebook_id' => $ebook->id,
+                    'ebook_title' => $ebook->title,
+                    'title' => $ebook->title,
+                    'author' => $ebook->author,
+                    'cover_image' => $ebook->cover_image,
+                    'total_questions' => min($totalQuestions, 5),
+                    'points_reward' => min($totalQuestions, 5) * 10,
+                    'already_attempted' => $attempt !== null,
+                    'last_score' => $attempt ? $attempt->score : null,
+                    'passed' => $attempt ? $attempt->passed : false,
+                ];
+            });
+
+        return response()->json([
+            'data' => $ebooks,
+        ]);
+    }
 }

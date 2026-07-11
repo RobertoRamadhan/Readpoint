@@ -46,42 +46,6 @@ Route::get('files/{path}', function ($path) {
     ]);
 })->where('path', '.*');
 
-// Temporary: seed/reset default users — hit once then it stays idempotent
-Route::get('setup/init', function () {
-    $users = [
-        ['email' => 'admin@gmail.com', 'role' => 'admin', 'name' => 'Admin',       'grade_level' => null],
-        ['email' => 'guru@gmail.com',  'role' => 'guru',  'name' => 'Guru Budi',   'grade_level' => null],
-        ['email' => 'siswa@gmail.com', 'role' => 'siswa', 'name' => 'Rina Kusuma', 'grade_level' => '1'],
-    ];
-
-    $hashed  = \Illuminate\Support\Facades\Hash::make('password');
-    $results = [];
-
-    foreach ($users as $u) {
-        $existing = \App\Models\User::where('email', $u['email'])->first();
-        if ($existing) {
-            $existing->update(['password' => $hashed, 'role' => $u['role']]);
-            $results[] = "Updated: {$u['email']}";
-        } else {
-            \App\Models\User::create([
-                'name'              => $u['name'],
-                'email'             => $u['email'],
-                'password'          => $hashed,
-                'role'              => $u['role'],
-                'grade_level'       => $u['grade_level'],
-                'email_verified_at' => now(),
-            ]);
-            $results[] = "Created: {$u['email']}";
-        }
-    }
-
-    return response()->json([
-        'status'      => 'ok',
-        'results'     => $results,
-        'credentials' => ['email' => '...@gmail.com', 'password' => 'password'],
-    ]);
-});
-
 // ─── Protected Routes ─────────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -111,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Quizzes
     Route::get('ebooks/{id}/quiz',  [QuizController::class, 'getQuizForBook']);
+    Route::get('ebooks-with-quiz',  [QuizController::class, 'getEbooksWithQuiz']);
     Route::post('quiz/submit',      [QuizController::class, 'submitQuiz']);
     Route::get('quiz/my-attempts',  [QuizController::class, 'getMyAttempts']);
 

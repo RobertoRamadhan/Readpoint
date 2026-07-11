@@ -435,7 +435,8 @@ export const api = {
 
   getQuizzes: (bookId: number): Promise<ApiResponse> => apiCall(`/ebooks/${bookId}/quiz`),
 
-  getAllQuizzes: (): Promise<ApiResponse> => apiCall('/quiz/my-attempts'),
+  /** Returns ebooks that have quiz questions — for the siswa quiz tab */
+  getAllQuizzes: (): Promise<ApiResponse> => apiCall('/ebooks-with-quiz'),
 
   submitQuiz: (data: Record<string, unknown>): Promise<ApiResponse> =>
 
@@ -753,27 +754,33 @@ export const api = {
 
 
 
+  // NOTE: /api/classes does not exist on the backend.
+  // list() is re-routed to api.users.classes() which groups users by grade_level+class_name.
+  // create/update/delete fall back to localStorage (handled in admin page).
   classes: {
-    list: (): Promise<ApiResponse> => apiCall('/classes'),
-    get: (id: number | string): Promise<ApiResponse> => apiCall(`/classes/${id}`),
+    list: (): Promise<ApiResponse> => {
+      // Delegate to the user-derived class grouping
+      return api.users.classes();
+    },
+    get: (_id: number | string): Promise<ApiResponse> =>
+      Promise.resolve({ data: null, message: 'not implemented', token: null, user: null }),
     create: (data: Record<string, unknown>): Promise<ApiResponse> =>
-      apiCall('/classes', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-    update: (id: number, data: Record<string, unknown>): Promise<ApiResponse> =>
-      apiCall(`/classes/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      }),
-    delete: (id: number | string): Promise<ApiResponse> =>
-      apiCall(`/classes/${id}`, {
-        method: 'DELETE',
-      }),
+      Promise.resolve({ data, message: 'saved locally', token: null, user: null }),
+    update: (_id: number, data: Record<string, unknown>): Promise<ApiResponse> =>
+      Promise.resolve({ data, message: 'saved locally', token: null, user: null }),
+    delete: (_id: number | string): Promise<ApiResponse> =>
+      Promise.resolve({ data: null, message: 'deleted locally', token: null, user: null }),
   },
 
   teachers: {
-    list: (): Promise<ApiResponse> => apiCall('/teachers'),
+    list: (): Promise<ApiResponse> => {
+      // Derive teacher list from users endpoint
+      return api.users.list().then((res) => {
+        const users = Array.isArray(res?.data) ? res.data : [];
+        const teachers = (users as any[]).filter((u: any) => u?.role === 'guru');
+        return { data: teachers, message: undefined, token: null, user: null };
+      });
+    },
   },
 
   // Current User (for profile management - non-admin)
