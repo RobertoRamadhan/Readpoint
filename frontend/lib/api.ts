@@ -913,65 +913,63 @@ export const api = {
 
         const csrfToken = await getCsrfToken();
 
-        
-
         devLog('[API] Creating ebook with FormData...');
 
-        const response = await fetch(`${API_URL}/ebooks`, {
-
-          method: 'POST',
-
-          headers: {
-
-            ...(token && { Authorization: `Bearer ${token}` }),
-
-            ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
-
-            // DO NOT set Content-Type - browser will set it with boundary
-
-          },
-
-          credentials: 'include',
-
-          body: data,
-
-        });
-
-        
-
-        let result;
+        // Timeout 120s untuk upload file besar
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
 
         try {
+          const response = await fetch(`${API_URL}/ebooks`, {
 
-          result = await response.json();
+            method: 'POST',
 
-        } catch (e) {
+            headers: {
 
-          devError('[API] Failed to parse response:', response.statusText);
+              ...(token && { Authorization: `Bearer ${token}` }),
 
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
 
+            },
+
+            credentials: 'include',
+
+            body: data,
+
+            signal: controller.signal,
+
+          });
+
+          clearTimeout(timeoutId);
+
+          let result;
+
+          try {
+
+            result = await response.json();
+
+          } catch (e) {
+
+            devError('[API] Failed to parse response:', response.statusText);
+
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+          }
+
+          if (!response.ok) {
+
+            throw new Error(result.message || `HTTP ${response.status}: Failed to upload ebook`);
+
+          }
+
+          return result;
+        } catch (e: any) {
+          clearTimeout(timeoutId);
+          if (e.name === 'AbortError') throw new Error('Upload timeout - file terlalu besar atau koneksi lambat');
+          throw e;
         }
-
-        
-
-        if (!response.ok) {
-
-          devError('[API] Ebook create failed:', result);
-
-          throw new Error(result.message || `HTTP ${response.status}: Failed to upload ebook`);
-
-        }
-
-        
-
-        devLog('[API] Ebook created successfully:', result);
-
-        return result;
 
       }
-
-      
 
       return apiCall('/ebooks', {
 
