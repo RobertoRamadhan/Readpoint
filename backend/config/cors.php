@@ -18,6 +18,7 @@ return [
         'https://www.readpointku.com',
         'https://readpoint.vercel.app',
         'https://*.vercel.app',
+        'https://readpoint-production.up.railway.app',
     ],
 
     'allowed_origins_patterns' => [
