@@ -235,8 +235,8 @@ export function useGuruWorkflow(): GuruWorkflow {
    * Reset student password
    * Generate new temporary password
    */
-  const resetStudentPassword = async (studentId: number): Promise<void> => {
-    await api.users.resetPassword(studentId);
+  const resetStudentPassword = async (studentId: number, newPassword = 'Password123'): Promise<void> => {
+    await api.users.resetPassword(studentId, newPassword);
   };
 
   // =========================================================================

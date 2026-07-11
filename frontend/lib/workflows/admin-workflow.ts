@@ -337,8 +337,8 @@ export function useAdminWorkflow(): AdminWorkflow {
    * Reset user password to temporary password
    * User will need to change it on first login
    */
-  const resetUserPassword = async (userId: number): Promise<void> => {
-    await api.users.resetPassword(userId);
+  const resetUserPassword = async (userId: number, newPassword = 'Password123'): Promise<void> => {
+    await api.users.resetPassword(userId, newPassword);
   };
 
   /**
