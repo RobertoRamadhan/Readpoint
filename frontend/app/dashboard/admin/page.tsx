@@ -58,8 +58,10 @@ type Ebook = {
   poin_per_halaman?: number;
   cover_image?: string;
   cover_url?: string;
+  cover_image_url?: string;  // Supabase URL
   pdf_file?: string;
   pdf_url?: string;
+  pdf_file_url?: string;     // Supabase URL
 };
 
 type Reward = {
@@ -483,9 +485,10 @@ function EbooksTab() {
 }
 
 function BookCard({ book, onEdit, onDelete }: { book: Ebook; onEdit: () => void; onDelete: () => void }) {
-  const cover = book.cover_image || book.cover_url;
-  const pdf = book.pdf_file || book.pdf_url;
-  return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={normalizeFileUrl(cover)} alt={book.title} /> : <div className={styles.coverFallback}>📚</div>}</div>{pdf && <a className={styles.smallButton} href={normalizeFileUrl(pdf)} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>🏷️ {book.category || '-'}</p><p className={styles.itemMeta}>⭐ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  // Prioritaskan URL Supabase (cover_image_url), fallback ke path lama
+  const cover = book.cover_image_url || book.cover_url || book.cover_image;
+  const pdf   = book.pdf_file_url   || book.pdf_url   || book.pdf_file;
+  return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={cover} alt={book.title} /> : <div className={styles.coverFallback}>📚</div>}</div>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>🏷️ {book.category || '-'}</p><p className={styles.itemMeta}>⭐ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
 function EbookForm({ editing, onClose, onSaved }: { editing: Ebook | null; onClose: () => void; onSaved: () => Promise<void> }) {

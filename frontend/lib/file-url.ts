@@ -44,40 +44,18 @@ function normalizeStoragePath(pathname: string): string {
 
 export function normalizeFileUrl(value?: string | null): string {
   if (!value) return '';
-
-  const backendOrigin = getBackendOrigin();
   const rawValue = value.trim();
-
   if (!rawValue) return '';
 
-  // Already a full URL
+  // Sudah full URL — return langsung (termasuk Supabase URL)
   if (rawValue.startsWith('http://') || rawValue.startsWith('https://')) {
-    try {
-      const url = new URL(rawValue);
-      if (
-        backendOrigin &&
-        (url.pathname.startsWith('/storage/') || url.pathname.startsWith('/api/files/'))
-      ) {
-        return `${backendOrigin}/api/files/${normalizeStoragePath(url.pathname)}${url.search}`;
-      }
-      return rawValue;
-    } catch {
-      return rawValue;
-    }
+    return rawValue;
   }
 
+  const backendOrigin = getBackendOrigin();
   if (!backendOrigin) return '';
 
-  // Relative storage or api/files path
-  if (rawValue.startsWith('/storage/') || rawValue.startsWith('storage/')) {
-    return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
-  }
-
-  if (rawValue.startsWith('/api/files/') || rawValue.startsWith('api/files/')) {
-    return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
-  }
-
-  // Bare filename — treat as storage path
+  // Relative path — build via backend /api/files/
   return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
 }
 
