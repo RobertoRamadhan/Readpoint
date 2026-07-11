@@ -525,15 +525,19 @@ function GuruStudentCrud() {
   };
 
   const resetPassword = async (student: Student) => {
-    const confirmed = window.confirm(`Reset password siswa ${student.name}?`);
-    if (!confirmed) return;
+    const newPassword = window.prompt(`Reset password siswa ${student.name}.\nMasukkan password baru (min 6 karakter):`);
+    if (!newPassword) return;
+    if (newPassword.length < 6) {
+      alert('Password minimal 6 karakter');
+      return;
+    }
 
     try {
       setSaving(true);
       setError('');
       setMessage('');
-      await api.users.resetPassword(student.id);
-      setMessage('Password siswa berhasil di-reset');
+      await api.users.resetPassword(student.id, newPassword);
+      setMessage(`Password siswa ${student.name} berhasil di-reset`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal reset password siswa');
     } finally {

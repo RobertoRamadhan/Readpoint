@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\EbookController;
 use App\Http\Controllers\Api\ReadingActivityController;
+use App\Http\Controllers\Api\ReadingProgressController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\RewardController;
 use App\Http\Controllers\Api\DashboardController;
@@ -66,12 +67,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Reading Activities
-    Route::post('reading-activities/start',             [ReadingActivityController::class, 'startReading']);
+    Route::middleware('siswa')->group(function () {
+        Route::post('reading-activities/start',             [ReadingActivityController::class, 'startReading']);
+        Route::put('reading-activities/{id}/progress',      [ReadingActivityController::class, 'updateProgress']);
+        Route::put('reading-activities/{id}/complete',      [ReadingActivityController::class, 'completeReading']);
+    });
     Route::get('reading-activities',                    [ReadingActivityController::class, 'getMyActivities']);
     Route::get('reading-activities/frequently-read',    [ReadingActivityController::class, 'getFrequentlyReadBooks']);
     Route::get('reading-activities/{id}',               [ReadingActivityController::class, 'getActivity']);
-    Route::put('reading-activities/{id}/progress',      [ReadingActivityController::class, 'updateProgress']);
-    Route::put('reading-activities/{id}/complete',      [ReadingActivityController::class, 'completeReading']);
+
+    // Reading Progress (upsert bookmark per ebook)
+    Route::get('reading-progress',             [ReadingProgressController::class, 'index']);
+    Route::post('reading-progress',            [ReadingProgressController::class, 'store']);
+    Route::get('reading-progress/{id}',        [ReadingProgressController::class, 'show']);
+    Route::put('reading-progress/{id}',        [ReadingProgressController::class, 'update']);
+    Route::delete('reading-progress/{id}',     [ReadingProgressController::class, 'destroy']);
 
     // Quizzes
     Route::get('ebooks/{id}/quiz',  [QuizController::class, 'getQuizForBook']);
@@ -118,6 +128,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('dashboard/admin/top-students',[DashboardController::class, 'topStudents']);
         Route::get('dashboard/admin/books',       [DashboardController::class, 'adminBooks']);
         Route::get('dashboard/admin/users-stats', [UserController::class,      'getStatistics']);
+        Route::get('dashboard/admin/history',     [DashboardController::class, 'adminHistory']);
     });
 
     // Dashboard — Guru
@@ -126,6 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('dashboard/guru/students',    [DashboardController::class, 'guruStudents']);
         Route::get('dashboard/guru/class-stats', [DashboardController::class, 'guruClassStats']);
         Route::get('dashboard/guru/quizzes',     [DashboardController::class, 'guruQuizzes']);
+        Route::get('dashboard/guru/history',     [DashboardController::class, 'guruHistory']);
     });
 
     // Dashboard — Siswa
@@ -138,6 +150,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('dashboard/siswa/reading-activities', [DashboardController::class, 'siswaReadingActivities']);
         Route::get('dashboard/siswa/weekly-progress',    [DashboardController::class, 'siswaWeeklyProgress']);
         Route::get('dashboard/siswa/completed-books',    [DashboardController::class, 'siswaCompletedBooks']);
+        Route::get('dashboard/siswa/history',            [DashboardController::class, 'siswaHistory']);
     });
 
     // User Management — Admin

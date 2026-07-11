@@ -50,6 +50,17 @@ class QuizController extends Controller
 
         $ebook = \App\Models\Ebook::findOrFail($validated['ebook_id']);
         $user = $request->user();
+
+        // Cek apakah siswa sudah pernah mendapat poin dari kuis ini
+        $alreadyAwardedPoints = PointTransaction::where('user_id', $user->id)
+            ->where('type', 'quiz_completed')
+            ->whereExists(function ($query) use ($ebook) {
+                $query->select(\DB::raw(1))
+                    ->from('quiz_attempts')
+                    ->whereColumn('quiz_attempts.id', 'point_transactions.quiz_attempt_id')
+                    ->where('quiz_attempts.ebook_id', $ebook->id);
+            })
+            ->exists();
         
         // Get all questions for this ebook
         $questions = QuizQuestion::where('ebook_id', $ebook->id)->orderBy('id')->limit(5)->get();
@@ -57,10 +68,11 @@ class QuizController extends Controller
         $correctAnswers = 0;
         $totalQuestions = count($questions);
         
-        // Hitung jawaban yang benar - answers array uses question ID as key
+        // Hitung jawaban yang benar — answers array uses question ID as key
         foreach ($questions as $question) {
             $submittedAnswer = $validated['answers'][$question->id] ?? null;
-            if ($submittedAnswer && strtolower($submittedAnswer[0]) === $question->correct_answer) {
+            // Ambil karakter pertama saja untuk validasi (a/b/c/d)
+            if ($submittedAnswer && strtolower(substr($submittedAnswer, 0, 1)) === $question->correct_answer) {
                 $correctAnswers++;
             }
         }
@@ -72,32 +84,37 @@ class QuizController extends Controller
         $attempt = QuizAttempt::create([
             'user_id' => $user->id,
             'ebook_id' => $ebook->id,
-            'reading_activity_id' => null, // Optional
+            'reading_activity_id' => null,
             'total_questions' => $totalQuestions,
             'correct_answers' => $correctAnswers,
             'score' => $score,
             'passed' => $passed,
         ]);
 
-        // Award points regardless of pass/fail for frontend quiz purposes
-        // Points are based on questions answered correctly
-        $pointsEarned = $correctAnswers * 10; // 10 points per correct answer
+        // Hanya berikan poin pada attempt pertama (mencegah farming poin)
+        $pointsEarned = 0;
+        if (!$alreadyAwardedPoints) {
+            $pointsEarned = $correctAnswers * 10; // 10 poin per jawaban benar
 
-        // Create point transaction
-        PointTransaction::create([
-            'user_id' => $user->id,
-            'reading_activity_id' => null,
-            'points' => $pointsEarned,
-            'type' => 'quiz_completed',
-            'description' => "Poin dari mengerjakan kuis '{$ebook->title}' ({$correctAnswers}/{$totalQuestions} benar)",
-        ]);
+            PointTransaction::create([
+                'user_id' => $user->id,
+                'reading_activity_id' => null,
+                'quiz_attempt_id' => $attempt->id,
+                'points' => $pointsEarned,
+                'type' => 'quiz_completed',
+                'description' => "Poin dari kuis '{$ebook->title}' ({$correctAnswers}/{$totalQuestions} benar)",
+            ]);
+        }
 
         return response()->json([
-            'message' => 'Quiz submitted successfully',
+            'message' => $alreadyAwardedPoints
+                ? 'Kuis dikerjakan ulang — poin tidak diberikan lagi'
+                : 'Quiz submitted successfully',
             'quiz_attempt' => $attempt,
             'points_earned' => $pointsEarned,
             'score' => round($score, 2),
             'passed' => $passed,
+            'first_attempt' => !$alreadyAwardedPoints,
         ], 200);
     }
 

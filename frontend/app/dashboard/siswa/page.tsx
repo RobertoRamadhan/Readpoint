@@ -7,13 +7,20 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { normalizeFileUrl } from '@/lib/file-url';
 
-type TabType = 'overview' | 'ebooks' | 'quizzes' | 'rewards' | 'account';
+type TabType = 'overview' | 'ebooks' | 'quizzes' | 'rewards' | 'account' | 'history';
 
 interface SiswaStats { total_points: number; books_read: number; pages_read: number; quizzes_taken: number; }
 interface Ebook { id: number; title: string; author: string; pages: number; poin_per_halaman: number; category: string; cover_image?: string; cover_image_url?: string; pdf_file?: string; pdf_file_url?: string; }
 interface Reward { id: number; name: string; description: string; points_required: number; stock: number; image?: string; image_url?: string; }
 interface Quiz { id: number; ebook_id?: number; ebook_title?: string; title?: string; total_questions?: number; points_reward?: number; already_attempted?: boolean; last_score?: number | null; passed?: boolean; }
 interface ReadingActivityItem { id: number; ebook_id: number; status: string; current_page: number; final_page?: number; duration_minutes: number; started_at: string; completed_at?: string; ebook?: { id: number; title: string; author: string; pages: number; }; }
+interface HistoryData {
+  reading_history: Array<{ id: number; type: 'reading'; ebook?: { id: number; title: string; author: string; cover_image?: string }; status: string; current_page: number; final_page?: number; duration_minutes: number; started_at: string; completed_at?: string; created_at: string; validation?: { status: string; validated_at: string; notes?: string } }>;
+  quiz_history: Array<{ id: number; type: 'quiz'; ebook?: { id: number; title: string; author: string }; score: number; correct_answers: number; total_questions: number; passed: boolean; created_at: string }>;
+  point_history: Array<{ id: number; points: number; type: string; description: string; created_at: string }>;
+  redemption_history: Array<{ id: number; claim_code: string; status: string; points_used: number; quantity: number; created_at: string; claimed_at?: string; reward?: { id: number; name: string; points_required: number } }>;
+  summary: { total_reading: number; completed_reading: number; total_quiz_attempts: number; total_points_earned: number; total_points_used: number; total_redemptions: number };
+}
 
 let dashboardCache: { stats: SiswaStats | null; ebooks: Ebook[]; rewards: Reward[]; quizzes: Quiz[]; activities: ReadingActivityItem[]; cachedAt: number } | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -23,6 +30,7 @@ const tabs: Array<{ key: TabType; label: string; Icon: LucideIcon }> = [
   { key: 'ebooks', label: 'Buku', Icon: BookOpen },
   { key: 'quizzes', label: 'Kuis', Icon: CheckCircle2 },
   { key: 'rewards', label: 'Hadiah', Icon: Gift },
+  { key: 'history', label: 'Histori', Icon: History },
   { key: 'account', label: 'Akun', Icon: User },
 ];
 
@@ -57,6 +65,8 @@ export default function SiswaDashboard() {
   const [rewards, setRewards] = useState<Reward[]>(dashboardCache?.rewards ?? []);
   const [quizzes, setQuizzes] = useState<Quiz[]>(dashboardCache?.quizzes ?? []);
   const [activities, setActivities] = useState<ReadingActivityItem[]>(dashboardCache?.activities ?? []);
+  const [historyData, setHistoryData] = useState<HistoryData | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const isCacheFresh = dashboardCache && Date.now() - dashboardCache.cachedAt < CACHE_TTL_MS;
   const [loadingData, setLoadingData] = useState(!isCacheFresh);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +128,24 @@ export default function SiswaDashboard() {
     catch (err) { alert(err instanceof Error ? err.message : 'Gagal menukar reward'); }
   };
 
+  const loadHistory = async () => {
+    if (historyData || historyLoading) return;
+    try {
+      setHistoryLoading(true);
+      const res = await api.dashboard.siswaHistory();
+      const d = (res as any)?.data;
+      if (d) setHistoryData(d as HistoryData);
+    } catch {
+      // gagal muat histori — tidak critical
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'history') loadHistory();
+  }, [activeTab]);
+
   if (!mounted || loading) return <Loading text="Memuat dashboard..." />;
   if (!isAuthenticated || !user || user.role !== 'siswa') return null;
 
@@ -126,7 +154,7 @@ export default function SiswaDashboard() {
       <div className="flex min-h-screen min-w-0">
         <DesktopRail activeTab={activeTab} levelProgress={levelProgress} totalPoints={totalPoints} onChangeTab={setActiveTab} onLogout={handleLogout} />
         <main className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
-          <Header userName={user.name} subtitle={activeTab === 'ebooks' ? 'Koleksi Buku' : activeTab === 'quizzes' ? 'Kuis Buku' : activeTab === 'rewards' ? 'Tukar poin siswa' : activeTab === 'account' ? 'Profil dan pengaturan' : 'Dashboard Siswa'} searchQuery={searchQuery} onSearch={setSearchQuery} />
+          <Header userName={user.name} subtitle={activeTab === 'ebooks' ? 'Koleksi Buku' : activeTab === 'quizzes' ? 'Kuis Buku' : activeTab === 'rewards' ? 'Tukar poin siswa' : activeTab === 'history' ? 'Riwayat aktivitas' : activeTab === 'account' ? 'Profil dan pengaturan' : 'Dashboard Siswa'} searchQuery={searchQuery} onSearch={setSearchQuery} />
           <div className="mx-auto w-full max-w-[1440px] space-y-4 px-4 py-4 sm:space-y-5 sm:px-6 sm:py-6 lg:px-8">
             {error && <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700 shadow-sm">{error}</div>}
             {activeTab === 'overview' && <StatsGrid stats={stats} totalPoints={totalPoints} />}
@@ -136,6 +164,7 @@ export default function SiswaDashboard() {
                 {activeTab === 'ebooks' && <BooksScreen books={filteredBooks} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} />}
                 {activeTab === 'quizzes' && <QuizzesScreen quizzes={quizzes} onStart={(id) => router.push(`/dashboard/siswa/quiz/${id}`)} />}
                 {activeTab === 'rewards' && <RewardsScreen rewards={rewards} totalPoints={totalPoints} onRedeem={redeemReward} activities={activities} />}
+                {activeTab === 'history' && <HistoryScreen data={historyData} loading={historyLoading} />}
                 {activeTab === 'account' && <AccountScreen userName={user.name} totalPoints={totalPoints} onNavigate={setActiveTab} onLogout={handleLogout} />}
               </>
             )}
@@ -191,7 +220,169 @@ function RewardsScreen({ rewards, totalPoints, onRedeem, activities }: { rewards
 }
 
 function AccountScreen({ userName, totalPoints, onNavigate, onLogout }: { userName: string; totalPoints: number; onNavigate: (tab: TabType) => void; onLogout: () => void }) {
-  return <div className="space-y-4"><section className="rounded-[24px] border border-[#eee7dc] bg-white p-5 shadow-sm"><div className="flex items-center gap-4"><Avatar name={userName} /><div className="min-w-0"><h2 className="truncate text-xl font-black text-slate-950">{userName}</h2><p className="text-sm font-semibold text-slate-500">Siswa • READPOINT</p><span className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{formatNumber(totalPoints)} poin</span></div></div></section><div className="space-y-3"><AccountItem icon={<User className="h-5 w-5" />} title="Profil Saya" subtitle="Data akun siswa" /><AccountItem icon={<History className="h-5 w-5" />} title="Riwayat Baca" subtitle="Aktivitas literasi" onClick={() => onNavigate('rewards')} /><AccountItem icon={<HelpCircle className="h-5 w-5" />} title="Bantuan" subtitle="Cara pakai aplikasi" /><AccountItem danger icon={<LogOut className="h-5 w-5" />} title="Logout" subtitle="Keluar dari akun" onClick={onLogout} /></div></div>;
+  return <div className="space-y-4"><section className="rounded-[24px] border border-[#eee7dc] bg-white p-5 shadow-sm"><div className="flex items-center gap-4"><Avatar name={userName} /><div className="min-w-0"><h2 className="truncate text-xl font-black text-slate-950">{userName}</h2><p className="text-sm font-semibold text-slate-500">Siswa • READPOINT</p><span className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{formatNumber(totalPoints)} poin</span></div></div></section><div className="space-y-3"><AccountItem icon={<User className="h-5 w-5" />} title="Profil Saya" subtitle="Data akun siswa" onClick={() => alert('Fitur profil segera hadir')} /><AccountItem icon={<History className="h-5 w-5" />} title="Riwayat Aktivitas" subtitle="Baca, kuis, poin & reward" onClick={() => onNavigate('history')} /><AccountItem icon={<HelpCircle className="h-5 w-5" />} title="Bantuan" subtitle="Cara pakai aplikasi" onClick={() => alert('Hubungi guru atau admin untuk bantuan')} /><AccountItem danger icon={<LogOut className="h-5 w-5" />} title="Logout" subtitle="Keluar dari akun" onClick={onLogout} /></div></div>;
+}
+
+function HistoryScreen({ data, loading }: { data: HistoryData | null; loading: boolean }) {
+  const [activeHistoryTab, setActiveHistoryTab] = useState<'reading' | 'quiz' | 'points' | 'rewards'>('reading');
+  if (loading) return <Panel><Loading text="Memuat riwayat..." inline /></Panel>;
+  if (!data) return <Panel><EmptyState title="Riwayat belum tersedia" /></Panel>;
+
+  const { reading_history, quiz_history, point_history, redemption_history, summary } = data;
+
+  const statusLabel: Record<string, { label: string; cls: string }> = {
+    ongoing: { label: 'Sedang Baca', cls: 'bg-blue-50 text-blue-700' },
+    pending_validation: { label: 'Menunggu Validasi', cls: 'bg-amber-50 text-amber-700' },
+    completed: { label: 'Selesai', cls: 'bg-emerald-50 text-emerald-700' },
+    rejected: { label: 'Ditolak', cls: 'bg-red-50 text-red-700' },
+  };
+
+  const historyTabs = [
+    { key: 'reading' as const, label: 'Baca', count: summary.total_reading },
+    { key: 'quiz' as const, label: 'Kuis', count: summary.total_quiz_attempts },
+    { key: 'points' as const, label: 'Poin', count: point_history.length },
+    { key: 'rewards' as const, label: 'Reward', count: summary.total_redemptions },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Summary */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        {[
+          { label: 'Total Baca', value: summary.total_reading },
+          { label: 'Selesai', value: summary.completed_reading },
+          { label: 'Kuis Dikerjakan', value: summary.total_quiz_attempts },
+          { label: 'Poin Diperoleh', value: formatNumber(summary.total_points_earned) },
+          { label: 'Poin Dipakai', value: formatNumber(summary.total_points_used) },
+          { label: 'Reward Ditukar', value: summary.total_redemptions },
+        ].map((s) => (
+          <div key={s.label} className="rounded-[20px] border border-[#eee7dc] bg-white p-3 text-center shadow-sm">
+            <p className="text-lg font-black text-slate-950">{s.value}</p>
+            <p className="mt-0.5 text-[10px] font-bold text-slate-500">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tab switcher */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {historyTabs.map((t) => (
+          <button key={t.key} onClick={() => setActiveHistoryTab(t.key)}
+            className={`shrink-0 rounded-full px-4 py-2 text-xs font-black transition ${activeHistoryTab === t.key ? 'bg-emerald-600 text-white shadow' : 'bg-white border border-[#eee7dc] text-slate-600 hover:bg-emerald-50'}`}>
+            {t.label} ({t.count})
+          </button>
+        ))}
+      </div>
+
+      {/* Reading history */}
+      {activeHistoryTab === 'reading' && (
+        <Panel title="Riwayat Membaca">
+          {reading_history.length === 0 ? <EmptyState title="Belum ada riwayat membaca" /> : (
+            <div className="space-y-3">
+              {reading_history.map((item) => {
+                const s = statusLabel[item.status] ?? { label: item.status, cls: 'bg-slate-100 text-slate-600' };
+                return (
+                  <div key={item.id} className="rounded-[18px] border border-[#eee7dc] bg-[#fbfaf7] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-black text-slate-950">{item.ebook?.title ?? `Buku #${item.id}`}</p>
+                        <p className="mt-0.5 text-xs font-semibold text-slate-500">{item.ebook?.author}</p>
+                      </div>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${s.cls}`}>{s.label}</span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold text-slate-500">
+                      <span>Hal {item.current_page}{item.final_page ? `→${item.final_page}` : ''}</span>
+                      <span>{item.duration_minutes} menit</span>
+                      <span>{new Date(item.created_at).toLocaleDateString('id-ID')}</span>
+                    </div>
+                    {item.validation && (
+                      <div className={`mt-2 rounded-xl px-3 py-2 text-xs ${item.validation.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                        Validasi: {item.validation.status === 'approved' ? '✓ Disetujui' : '✗ Ditolak'}
+                        {item.validation.notes && ` — ${item.validation.notes}`}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Panel>
+      )}
+
+      {/* Quiz history */}
+      {activeHistoryTab === 'quiz' && (
+        <Panel title="Riwayat Kuis">
+          {quiz_history.length === 0 ? <EmptyState title="Belum ada riwayat kuis" /> : (
+            <div className="space-y-3">
+              {quiz_history.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-[18px] border border-[#eee7dc] bg-[#fbfaf7] p-4">
+                  <div className="min-w-0">
+                    <p className="font-black text-slate-950">{item.ebook?.title ?? 'Kuis'}</p>
+                    <p className="mt-0.5 text-xs font-semibold text-slate-500">
+                      {item.correct_answers}/{item.total_questions} benar • {new Date(item.created_at).toLocaleDateString('id-ID')}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className={`text-lg font-black ${item.passed ? 'text-emerald-700' : 'text-amber-600'}`}>{Math.round(item.score)}%</p>
+                    <p className={`text-[10px] font-black ${item.passed ? 'text-emerald-600' : 'text-amber-500'}`}>{item.passed ? 'Lulus' : 'Belum Lulus'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+      )}
+
+      {/* Point history */}
+      {activeHistoryTab === 'points' && (
+        <Panel title="Riwayat Poin">
+          {point_history.length === 0 ? <EmptyState title="Belum ada transaksi poin" /> : (
+            <div className="space-y-2">
+              {point_history.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-[18px] border border-[#eee7dc] bg-[#fbfaf7] p-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-slate-950">{item.description}</p>
+                    <p className="mt-0.5 text-[11px] font-semibold text-slate-500">{new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                  <span className={`shrink-0 text-base font-black ${item.points > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                    {item.points > 0 ? '+' : ''}{formatNumber(item.points)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+      )}
+
+      {/* Redemption history */}
+      {activeHistoryTab === 'rewards' && (
+        <Panel title="Riwayat Penukaran Reward">
+          {redemption_history.length === 0 ? <EmptyState title="Belum ada penukaran reward" /> : (
+            <div className="space-y-3">
+              {redemption_history.map((item) => {
+                const statusCls = item.status === 'claimed' ? 'bg-emerald-50 text-emerald-700' : item.status === 'expired' ? 'bg-slate-100 text-slate-500' : 'bg-amber-50 text-amber-700';
+                const statusText = item.status === 'claimed' ? 'Sudah Diambil' : item.status === 'expired' ? 'Kedaluwarsa' : 'Menunggu Pengambilan';
+                return (
+                  <div key={item.id} className="rounded-[18px] border border-[#eee7dc] bg-[#fbfaf7] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-black text-slate-950">{item.reward?.name ?? 'Reward'}</p>
+                        <p className="mt-0.5 text-xs font-semibold text-slate-500">{formatNumber(item.points_used)} poin • {item.quantity}x</p>
+                      </div>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${statusCls}`}>{statusText}</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="rounded-lg bg-white border border-[#eee7dc] px-2 py-1 font-mono text-xs font-bold text-slate-700">{item.claim_code}</span>
+                      <span className="text-[11px] text-slate-400">{new Date(item.created_at).toLocaleDateString('id-ID')}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Panel>
+      )}
+    </div>
+  );
 }
 
 function AccountItem({ icon, title, subtitle, onClick, danger = false }: { icon: ReactNode; title: string; subtitle: string; onClick?: () => void; danger?: boolean }) { return <button onClick={onClick} className="flex w-full items-center gap-4 rounded-[20px] border border-[#eee7dc] bg-white p-4 text-left shadow-sm"><div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${danger ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-700'}`}>{icon}</div><div><p className={`text-base font-black ${danger ? 'text-red-500' : 'text-slate-950'}`}>{title}</p><p className="text-xs font-semibold text-slate-500">{subtitle}</p></div></button>; }

@@ -431,4 +431,214 @@ class DashboardController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── HISTORI ENDPOINTS ────────────────────────────────────────────────────
+
+    /**
+     * Siswa - Riwayat lengkap: baca + kuis + poin + penukaran reward
+     */
+    public function siswaHistory(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            // Riwayat membaca (semua status)
+            $readingHistory = ReadingActivity::where('user_id', $user->id)
+                ->with([
+                    'ebook:id,title,author,pages,cover_image',
+                    'validation:id,reading_activity_id,status,validated_at,notes',
+                ])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($activity) {
+                    return [
+                        'id'               => $activity->id,
+                        'type'             => 'reading',
+                        'ebook'            => $activity->ebook,
+                        'status'           => $activity->status,
+                        'current_page'     => $activity->current_page,
+                        'final_page'       => $activity->final_page,
+                        'duration_minutes' => $activity->duration_minutes,
+                        'started_at'       => $activity->started_at,
+                        'completed_at'     => $activity->completed_at,
+                        'created_at'       => $activity->created_at,
+                        'validation'       => $activity->validation,
+                    ];
+                });
+
+            // Riwayat kuis
+            $quizHistory = \App\Models\QuizAttempt::where('user_id', $user->id)
+                ->with('ebook:id,title,author')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($attempt) {
+                    return [
+                        'id'              => $attempt->id,
+                        'type'            => 'quiz',
+                        'ebook'           => $attempt->ebook,
+                        'score'           => $attempt->score,
+                        'correct_answers' => $attempt->correct_answers,
+                        'total_questions' => $attempt->total_questions,
+                        'passed'          => $attempt->passed,
+                        'created_at'      => $attempt->created_at,
+                    ];
+                });
+
+            // Riwayat poin (transaksi masuk dan keluar)
+            $pointHistory = \App\Models\PointTransaction::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Riwayat penukaran reward
+            $redemptionHistory = \App\Models\Redemption::where('user_id', $user->id)
+                ->with('reward:id,name,description,points_required,image')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'data' => [
+                    'reading_history'    => $readingHistory,
+                    'quiz_history'       => $quizHistory,
+                    'point_history'      => $pointHistory,
+                    'redemption_history' => $redemptionHistory,
+                    'summary' => [
+                        'total_reading'       => $readingHistory->count(),
+                        'completed_reading'   => $readingHistory->where('status', 'completed')->count(),
+                        'total_quiz_attempts' => $quizHistory->count(),
+                        'total_points_earned' => $pointHistory->where('points', '>', 0)->sum('points'),
+                        'total_points_used'   => abs($pointHistory->where('points', '<', 0)->sum('points')),
+                        'total_redemptions'   => $redemptionHistory->count(),
+                    ],
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Guru - Riwayat validasi yang sudah dilakukan guru ini
+     */
+    public function guruHistory(Request $request)
+    {
+        try {
+            $guru = $request->user();
+
+            $validations = \App\Models\Validation::where('validated_by', $guru->id)
+                ->with([
+                    'readingActivity' => function ($q) {
+                        $q->with([
+                            'user:id,name,email,class_name,grade_level',
+                            'ebook:id,title,author,pages,poin_per_halaman',
+                        ]);
+                    },
+                ])
+                ->orderBy('validated_at', 'desc')
+                ->paginate(20);
+
+            $stats = [
+                'total_approved'      => \App\Models\Validation::where('validated_by', $guru->id)
+                    ->where('status', 'approved')->count(),
+                'total_rejected'      => \App\Models\Validation::where('validated_by', $guru->id)
+                    ->where('status', 'rejected')->count(),
+                'this_month'          => \App\Models\Validation::where('validated_by', $guru->id)
+                    ->whereMonth('validated_at', now()->month)
+                    ->whereYear('validated_at', now()->year)
+                    ->count(),
+                'total_points_awarded' => \App\Models\PointTransaction::where('type', 'reading_validation')
+                    ->whereIn(
+                        'reading_activity_id',
+                        \App\Models\Validation::where('validated_by', $guru->id)
+                            ->where('status', 'approved')
+                            ->pluck('reading_activity_id')
+                    )
+                    ->sum('points'),
+            ];
+
+            return response()->json([
+                'data'       => $validations->items(),
+                'pagination' => [
+                    'current_page' => $validations->currentPage(),
+                    'per_page'     => $validations->perPage(),
+                    'total'        => $validations->total(),
+                    'last_page'    => $validations->lastPage(),
+                ],
+                'stats' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Admin - Riwayat aktivitas platform: registrasi user, transaksi poin, klaim reward
+     */
+    public function adminHistory(Request $request)
+    {
+        try {
+            $period = (int) $request->input('period', 30); // hari
+            $since  = now()->subDays($period);
+
+            // Registrasi user terbaru
+            $newUsers = User::where('created_at', '>=', $since)
+                ->where('email', 'not like', 'deleted_%')
+                ->where('email', 'not like', '%@deleted.local')
+                ->select('id', 'name', 'email', 'role', 'grade_level', 'class_name', 'created_at')
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get();
+
+            // Transaksi poin terbaru (semua user)
+            $recentPoints = \App\Models\PointTransaction::where('created_at', '>=', $since)
+                ->with('user:id,name,email')
+                ->orderBy('created_at', 'desc')
+                ->limit(100)
+                ->get();
+
+            // Klaim reward terbaru
+            $recentRedemptions = \App\Models\Redemption::where('created_at', '>=', $since)
+                ->with([
+                    'user:id,name,email',
+                    'reward:id,name,points_required',
+                ])
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get();
+
+            // Aktivitas membaca terbaru
+            $recentReading = ReadingActivity::where('created_at', '>=', $since)
+                ->with([
+                    'user:id,name,email',
+                    'ebook:id,title,author',
+                ])
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get();
+
+            // Statistik ringkasan periode
+            $summary = [
+                'period_days'          => $period,
+                'new_users'            => $newUsers->count(),
+                'new_siswa'            => $newUsers->where('role', 'siswa')->count(),
+                'new_guru'             => $newUsers->where('role', 'guru')->count(),
+                'total_points_awarded' => $recentPoints->where('points', '>', 0)->sum('points'),
+                'total_points_used'    => abs($recentPoints->where('points', '<', 0)->sum('points')),
+                'total_redemptions'    => $recentRedemptions->count(),
+                'reading_sessions'     => $recentReading->count(),
+                'completed_readings'   => $recentReading->where('status', 'completed')->count(),
+            ];
+
+            return response()->json([
+                'data' => [
+                    'new_users'          => $newUsers,
+                    'recent_points'      => $recentPoints,
+                    'recent_redemptions' => $recentRedemptions,
+                    'recent_reading'     => $recentReading,
+                ],
+                'summary' => $summary,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

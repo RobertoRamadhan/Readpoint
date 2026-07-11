@@ -35,18 +35,35 @@ class ReadingActivityController extends Controller
     public function updateProgress(Request $request, $activityId)
     {
         $validated = $request->validate([
-            'current_page' => 'required|integer|min:1',
-            'duration_minutes' => 'required|integer|min:0',
+            'current_page'     => 'required|integer|min:1',
+            'duration_minutes' => 'sometimes|integer|min:0',
+            'reading_time'     => 'sometimes|integer|min:0', // dalam detik (dari frontend)
+            'final_page'       => 'sometimes|integer|min:1',
         ]);
 
         $activity = ReadingActivity::where('id', $activityId)
             ->where('user_id', $request->user()->id)
             ->firstOrFail();
 
-        $activity->update([
+        // Hitung durasi: terima reading_time (detik) atau duration_minutes (menit)
+        $durationMinutes = null;
+        if (isset($validated['duration_minutes'])) {
+            $durationMinutes = $validated['duration_minutes'];
+        } elseif (isset($validated['reading_time'])) {
+            $durationMinutes = (int) ceil($validated['reading_time'] / 60);
+        }
+
+        $updateData = [
             'current_page' => $validated['current_page'],
-            'duration_minutes' => $validated['duration_minutes'],
-        ]);
+        ];
+        if ($durationMinutes !== null) {
+            $updateData['duration_minutes'] = $durationMinutes;
+        }
+        if (isset($validated['final_page'])) {
+            $updateData['final_page'] = $validated['final_page'];
+        }
+
+        $activity->update($updateData);
 
         return response()->json([
             'message' => 'Progress updated',

@@ -119,16 +119,16 @@ export default function UsersPage() {
   };
 
   const handleResetPassword = async (userId: number) => {
+    const newPassword = window.prompt('Masukkan password baru untuk user ini (min 6 karakter):');
+    if (!newPassword) return;
+    if (newPassword.length < 6) {
+      alert('Password minimal 6 karakter');
+      return;
+    }
     try {
       setActionLoading(true);
-      const response = await api.users.resetPassword(userId);
-      const temporaryPassword = (response as any)?.temporary_password || (response as any)?.data?.temporary_password;
-      
-      if (temporaryPassword) {
-        alert(`Password berhasil direset.\n\nPassword sementara:\n${temporaryPassword}\n\nSalin password ini dan berikan ke user.`);
-      } else {
-        alert('Password berhasil direset. Silakan cek response server atau hubungi admin sistem.');
-      }
+      await api.users.resetPassword(userId, newPassword);
+      alert('Password berhasil direset.');
     } catch (error) {
       console.error('Failed to reset password:', error);
       alert('Gagal reset password. Silakan coba lagi.');

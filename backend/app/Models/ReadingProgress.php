@@ -13,7 +13,7 @@ class ReadingProgress extends Model
         'ebook_id',
         'current_page',
         'total_pages',
-        'percentage_completed',
+        'progress_percentage',
         'last_read_at',
     ];
 

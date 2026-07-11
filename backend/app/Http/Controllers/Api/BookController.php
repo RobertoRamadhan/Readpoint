@@ -100,7 +100,7 @@ class BookController extends Controller
             'published_year' => 'sometimes|integer|min:1900|max:' . date('Y'),
             'pages' => 'sometimes|integer|min:1',
             'genre' => 'sometimes|string',
-            'grade_level' => 'sometimes|in:sd,smp,sma',
+            'grade_level' => 'sometimes|in:1,2,3,all',
             'description' => 'sometimes|string',
             'cover_image_url' => 'sometimes|url',
             'is_active' => 'sometimes|boolean',

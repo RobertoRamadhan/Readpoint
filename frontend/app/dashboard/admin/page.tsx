@@ -13,6 +13,7 @@ import {
   ClipboardList,
   Gift,
   GraduationCap,
+  History,
   Library,
   ListChecks,
   Loader2,
@@ -29,7 +30,7 @@ import {
 } from 'lucide-react';
 import styles from './admin-dashboard.module.css';
 
-type AdminTab = 'beranda' | 'ebooks' | 'rewards' | 'users' | 'kelas' | 'siswa' | 'admin' | 'pengaturan';
+type AdminTab = 'beranda' | 'ebooks' | 'rewards' | 'users' | 'kelas' | 'siswa' | 'admin' | 'histori' | 'pengaturan';
 type Role = 'admin' | 'guru' | 'siswa';
 
 type AdminStats = {
@@ -102,7 +103,7 @@ type TopStudent = {
 
 const CLASS_STORAGE_KEY = 'readpoint_admin_classes_v1';
 
-const adminTabs = new Set<AdminTab>(['beranda', 'ebooks', 'rewards', 'users', 'kelas', 'siswa', 'admin', 'pengaturan']);
+const adminTabs = new Set<AdminTab>(['beranda', 'ebooks', 'rewards', 'users', 'kelas', 'siswa', 'admin', 'histori', 'pengaturan']);
 
 function getClassStorageKey(item: Pick<SchoolClass, 'grade_level' | 'class_name'>): string {
   return `${item.grade_level ?? ''}|${item.class_name ?? ''}`.trim();
@@ -306,6 +307,7 @@ function AdminDashboardContent() {
         {activeTab === 'kelas' && <ClassesTab />}
         {activeTab === 'siswa' && <StudentsTab />}
         {activeTab === 'admin' && <AdminsTab />}
+        {activeTab === 'histori' && <HistoriTab />}
         {activeTab === 'pengaturan' && <SettingsTab refreshUser={refreshUser} />}
       </main>
     </div>
@@ -487,7 +489,7 @@ function BookCard({ book, onEdit, onDelete }: { book: Ebook; onEdit: () => void;
 }
 
 function EbookForm({ editing, onClose, onSaved }: { editing: Ebook | null; onClose: () => void; onSaved: () => Promise<void> }) {
-  const [data, setData] = useState({ title: editing?.title || '', author: editing?.author || '', pages: n(editing?.pages) || 100, category: editing?.category || '', poin_per_halaman: n(editing?.poin_per_halaman) || 5, grade_level: editing?.grade_level || '10', pdf_file: null as File | null, cover_image: null as File | null });
+  const [data, setData] = useState({ title: editing?.title || '', author: editing?.author || '', pages: n(editing?.pages) || 100, category: editing?.category || '', poin_per_halaman: n(editing?.poin_per_halaman) || 5, grade_level: editing?.grade_level || '1', pdf_file: null as File | null, cover_image: null as File | null });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -502,7 +504,7 @@ function EbookForm({ editing, onClose, onSaved }: { editing: Ebook | null; onClo
     finally { setSaving(false); }
   }
 
-  return <FormBox title={editing ? 'Edit E-Book' : 'Tambah E-Book'} onClose={onClose}><form onSubmit={submit}><ErrorBox message={error} /><div className={styles.formGrid}><Field label="Judul Buku"><input className={styles.input} value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} /></Field><Field label="Pengarang"><input className={styles.input} value={data.author} onChange={(e) => setData({ ...data, author: e.target.value })} /></Field><Field label="Halaman"><input className={styles.input} type="number" value={data.pages} onChange={(e) => setData({ ...data, pages: Number(e.target.value) })} /></Field><Field label="Kategori"><input className={styles.input} value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })} /></Field><Field label="Poin/Halaman"><input className={styles.input} type="number" value={data.poin_per_halaman} onChange={(e) => setData({ ...data, poin_per_halaman: Number(e.target.value) })} /></Field><Field label="Kelas"><select className={styles.select} value={data.grade_level} onChange={(e) => setData({ ...data, grade_level: e.target.value })}><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option><option value="umum">Umum</option></select></Field><Field label="PDF"><input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(e: ChangeEvent<HTMLInputElement>) => setData({ ...data, pdf_file: e.target.files?.[0] || null })} /></Field><Field label="Cover"><input className={styles.fileInput} type="file" accept="image/*" onChange={(e) => setData({ ...data, cover_image: e.target.files?.[0] || null })} /></Field></div><FormActions saving={saving} onCancel={onClose} /></form></FormBox>;
+  return <FormBox title={editing ? 'Edit E-Book' : 'Tambah E-Book'} onClose={onClose}><form onSubmit={submit}><ErrorBox message={error} /><div className={styles.formGrid}><Field label="Judul Buku"><input className={styles.input} value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} /></Field><Field label="Pengarang"><input className={styles.input} value={data.author} onChange={(e) => setData({ ...data, author: e.target.value })} /></Field><Field label="Halaman"><input className={styles.input} type="number" value={data.pages} onChange={(e) => setData({ ...data, pages: Number(e.target.value) })} /></Field><Field label="Kategori"><input className={styles.input} value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })} /></Field><Field label="Poin/Halaman"><input className={styles.input} type="number" value={data.poin_per_halaman} onChange={(e) => setData({ ...data, poin_per_halaman: Number(e.target.value) })} /></Field><Field label="Kelas"><select className={styles.select} value={data.grade_level} onChange={(e) => setData({ ...data, grade_level: e.target.value })}><option value="1">Kelas 1</option><option value="2">Kelas 2</option><option value="3">Kelas 3</option><option value="all">Semua Kelas</option></select></Field><Field label="PDF"><input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(e: ChangeEvent<HTMLInputElement>) => setData({ ...data, pdf_file: e.target.files?.[0] || null })} /></Field><Field label="Cover"><input className={styles.fileInput} type="file" accept="image/*" onChange={(e) => setData({ ...data, cover_image: e.target.files?.[0] || null })} /></Field></div><FormActions saving={saving} onCancel={onClose} /></form></FormBox>;
 }
 
 function RewardsTab() {
@@ -942,4 +944,223 @@ function Field({ label, children, full = false }: { label: string; children: Rea
 
 function FormActions({ saving, onCancel }: { saving: boolean; onCancel: () => void }) {
   return <div className={styles.formActions}><button type="button" className={styles.secondaryButton} onClick={onCancel}>Batal</button><button className={styles.primaryButton} disabled={saving}>{saving ? <Loader2 className="animate-spin" size={16} /> : null}Simpan</button></div>;
+}
+
+// ─── HistoriTab Admin ─────────────────────────────────────────────────────────
+
+type AdminHistoryData = {
+  new_users: Array<{ id: number; name: string; email: string; role: string; grade_level?: string; class_name?: string; created_at: string }>;
+  recent_points: Array<{ id: number; points: number; type: string; description: string; created_at: string; user?: { id: number; name: string; email: string } }>;
+  recent_redemptions: Array<{ id: number; claim_code: string; status: string; points_used: number; quantity: number; created_at: string; user?: { id: number; name: string; email: string }; reward?: { id: number; name: string; points_required: number } }>;
+  recent_reading: Array<{ id: number; status: string; created_at: string; user?: { id: number; name: string; email: string }; ebook?: { id: number; title: string; author?: string } }>;
+};
+
+type AdminHistorySummary = {
+  period_days: number;
+  new_users: number;
+  new_siswa: number;
+  new_guru: number;
+  total_points_awarded: number;
+  total_points_used: number;
+  total_redemptions: number;
+  reading_sessions: number;
+  completed_readings: number;
+};
+
+function HistoriTab() {
+  const [data, setData] = useState<AdminHistoryData | null>(null);
+  const [summary, setSummary] = useState<AdminHistorySummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [period, setPeriod] = useState(30);
+  const [activeSection, setActiveSection] = useState<'users' | 'points' | 'redemptions' | 'reading'>('users');
+
+  async function load(p: number) {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await api.dashboard.adminHistory(p) as any;
+      const d = res?.data ?? res;
+      if (d) setData(d as AdminHistoryData);
+      if (res?.summary) setSummary(res.summary as AdminHistorySummary);
+    } catch (e) {
+      setError(errText(e, 'Gagal memuat histori'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(period); }, [period]);
+
+  const sections = [
+    { key: 'users' as const, label: 'Pengguna Baru', count: summary?.new_users ?? 0 },
+    { key: 'points' as const, label: 'Transaksi Poin', count: data?.recent_points.length ?? 0 },
+    { key: 'redemptions' as const, label: 'Klaim Reward', count: summary?.total_redemptions ?? 0 },
+    { key: 'reading' as const, label: 'Sesi Baca', count: summary?.reading_sessions ?? 0 },
+  ];
+
+  const roleColor: Record<string, string> = {
+    siswa: 'bg-blue-50 text-blue-700',
+    guru: 'bg-purple-50 text-purple-700',
+    admin: 'bg-amber-50 text-amber-700',
+  };
+
+  return (
+    <div>
+      <SectionHeader
+        eyebrow="Histori Platform"
+        title="Histori Aktivitas"
+        desc="Pantau seluruh pergerakan pengguna, poin, dan reward dalam platform."
+        Icon={History}
+      />
+
+      {/* Period Selector */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <span className="text-sm font-black text-slate-500">Periode:</span>
+        {[7, 14, 30, 90].map((p) => (
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${period === p ? 'bg-emerald-600 text-white shadow' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+          >
+            {p} hari
+          </button>
+        ))}
+      </div>
+
+      <ErrorBox message={error} />
+
+      {/* Summary Cards */}
+      {summary && (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          {[
+            { label: 'Pengguna Baru', value: fmt(summary.new_users), sub: `${fmt(summary.new_siswa)} siswa · ${fmt(summary.new_guru)} guru` },
+            { label: 'Poin Diberikan', value: fmt(summary.total_points_awarded), sub: `−${fmt(summary.total_points_used)} dipakai` },
+            { label: 'Reward Ditukar', value: fmt(summary.total_redemptions), sub: 'klaim reward' },
+            { label: 'Sesi Membaca', value: fmt(summary.reading_sessions), sub: `${fmt(summary.completed_readings)} selesai` },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-2xl font-black text-slate-950">{s.value}</p>
+              <p className="mt-0.5 text-xs font-black text-slate-500">{s.label}</p>
+              <p className="mt-0.5 text-[11px] font-semibold text-emerald-700">{s.sub}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Section tabs */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {sections.map((s) => (
+          <button
+            key={s.key}
+            onClick={() => setActiveSection(s.key)}
+            className={`rounded-xl px-4 py-2 text-xs font-black transition ${activeSection === s.key ? 'bg-slate-950 text-white shadow' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+          >
+            {s.label} ({s.count})
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className={styles.loading}>Memuat histori...</div>
+      ) : !data ? null : (
+        <div className={styles.managementShell}>
+
+          {/* Pengguna Baru */}
+          {activeSection === 'users' && (
+            data.new_users.length === 0
+              ? <Empty text="Tidak ada pengguna baru pada periode ini." />
+              : <div className={styles.tableWrap}>
+                  <table className={styles.table}>
+                    <thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Kelas</th><th>Tanggal Daftar</th></tr></thead>
+                    <tbody>
+                      {data.new_users.map((u) => (
+                        <tr key={u.id}>
+                          <td><div className={styles.avatarCell}><span className={styles.avatar}>{u.name.charAt(0).toUpperCase()}</span>{u.name}</div></td>
+                          <td>{u.email}</td>
+                          <td><span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${roleColor[u.role] ?? 'bg-slate-100 text-slate-600'}`}>{u.role}</span></td>
+                          <td>{u.class_name || u.grade_level || '-'}</td>
+                          <td>{new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+          )}
+
+          {/* Transaksi Poin */}
+          {activeSection === 'points' && (
+            data.recent_points.length === 0
+              ? <Empty text="Tidak ada transaksi poin pada periode ini." />
+              : <div className={styles.leaderList}>
+                  {data.recent_points.map((pt) => (
+                    <div key={pt.id} className={styles.leaderItem}>
+                      <div className="min-w-0 flex-1">
+                        <p className={styles.leaderName}>{pt.description}</p>
+                        <p className={styles.leaderEmail}>{pt.user?.name} · {pt.user?.email}</p>
+                        <p className={styles.mutedText}>{new Date(pt.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                      <span className={`shrink-0 text-base font-black ${pt.points > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                        {pt.points > 0 ? '+' : ''}{fmt(pt.points)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+          )}
+
+          {/* Klaim Reward */}
+          {activeSection === 'redemptions' && (
+            data.recent_redemptions.length === 0
+              ? <Empty text="Tidak ada klaim reward pada periode ini." />
+              : <div className={styles.tableWrap}>
+                  <table className={styles.table}>
+                    <thead><tr><th>Siswa</th><th>Reward</th><th>Poin</th><th>Kode Klaim</th><th>Status</th><th>Tanggal</th></tr></thead>
+                    <tbody>
+                      {data.recent_redemptions.map((r) => {
+                        const statusCls = r.status === 'claimed' ? 'bg-emerald-50 text-emerald-700' : r.status === 'expired' ? 'bg-slate-100 text-slate-500' : 'bg-amber-50 text-amber-700';
+                        return (
+                          <tr key={r.id}>
+                            <td>{r.user?.name || '-'}</td>
+                            <td>{r.reward?.name || '-'}</td>
+                            <td className="font-black text-red-600">−{fmt(r.points_used)}</td>
+                            <td><code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">{r.claim_code}</code></td>
+                            <td><span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${statusCls}`}>{r.status}</span></td>
+                            <td>{new Date(r.created_at).toLocaleDateString('id-ID')}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+          )}
+
+          {/* Sesi Baca */}
+          {activeSection === 'reading' && (
+            data.recent_reading.length === 0
+              ? <Empty text="Tidak ada sesi membaca pada periode ini." />
+              : <div className={styles.leaderList}>
+                  {data.recent_reading.map((ra) => {
+                    const statusCls: Record<string, string> = {
+                      ongoing: 'bg-blue-50 text-blue-700',
+                      pending_validation: 'bg-amber-50 text-amber-700',
+                      completed: 'bg-emerald-50 text-emerald-700',
+                      rejected: 'bg-red-50 text-red-600',
+                    };
+                    return (
+                      <div key={ra.id} className={styles.leaderItem}>
+                        <div className="min-w-0 flex-1">
+                          <p className={styles.leaderName}>{ra.ebook?.title || 'E-Book'}</p>
+                          <p className={styles.leaderEmail}>{ra.user?.name} · {ra.user?.email}</p>
+                          <p className={styles.mutedText}>{new Date(ra.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-black ${statusCls[ra.status] ?? 'bg-slate-100 text-slate-600'}`}>{ra.status}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

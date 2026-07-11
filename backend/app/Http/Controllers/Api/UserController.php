@@ -309,7 +309,7 @@ class UserController extends Controller
                     \App\Models\Validation::where('validated_by', $user->id)->update(['validated_by' => null]);
                     
                     // Delete book assignments (if user is guru)
-                    \App\Models\BookAssignment::where('assigned_by', $user->id)->delete();
+                    \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
                     
                     // Delete quiz questions created by user (if guru)
                     \App\Models\QuizQuestion::where('created_by', $user->id)->delete();

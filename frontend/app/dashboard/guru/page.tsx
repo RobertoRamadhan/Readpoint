@@ -5,10 +5,10 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
-import { Activity, BookOpen, CheckCircle2, ClipboardCheck, ClipboardList, Gift, GraduationCap, Library, ListChecks, Loader2, Menu, PenLine, Plus, Search, Settings, Trash2, Trophy, Users, X, type LucideIcon } from 'lucide-react';
+import { Activity, BookOpen, CheckCircle2, ClipboardCheck, ClipboardList, Gift, GraduationCap, History, Library, ListChecks, Loader2, Menu, PenLine, Plus, Search, Settings, Trash2, Trophy, Users, X, type LucideIcon } from 'lucide-react';
 import styles from '../admin/admin-dashboard.module.css';
 
-type GuruTab = 'beranda' | 'validasi' | 'kuis' | 'siswa' | 'pengaturan';
+type GuruTab = 'beranda' | 'validasi' | 'kuis' | 'siswa' | 'histori' | 'pengaturan';
 type AnswerKey = 'a' | 'b' | 'c' | 'd';
 
 type GuruStats = {
@@ -52,7 +52,7 @@ type StudentForm = { name: string; email: string; password: string; grade_level:
 
 type StudentDetail = Student & { reading_progress?: number; quiz_average_score?: number; quizzes_passed?: number };
 
-const tabs = new Set<GuruTab>(['beranda', 'validasi', 'kuis', 'siswa', 'pengaturan']);
+const tabs = new Set<GuruTab>(['beranda', 'validasi', 'kuis', 'siswa', 'histori', 'pengaturan']);
 const emptyQuestion = (): QuestionForm => ({ question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct_answer: 'a' });
 const defaultStudentForm: StudentForm = { name: '', email: '', password: '', grade_level: '10', class_name: '' };
 
@@ -99,7 +99,7 @@ function GuruDashboardContent() {
 
   if (loading || !mounted || (user?.role !== 'guru' && user?.role !== 'admin')) return null;
 
-  return <div className={styles.page}><button type="button" className={styles.mobileMenuButton} onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu size={22} /></button>{sidebarOpen && <button type="button" className={`${styles.backdrop} md:hidden`} onClick={() => setSidebarOpen(false)} aria-label="Tutup menu" />}<AdminSidebar activeTab={activeTab} sidebarOpen={sidebarOpen} onTabChange={() => undefined} onCloseSidebar={() => setSidebarOpen(false)} role="guru" user={user} /><main className={styles.content}>{error && <div className={styles.alert}>{error}</div>}{activeTab === 'beranda' && <Overview stats={stats} loading={dataLoading} />}{activeTab === 'validasi' && <ValidasiTab />}{activeTab === 'kuis' && <QuizTab />}{activeTab === 'siswa' && <StudentListTab />}{activeTab === 'pengaturan' && <SettingsTab refreshUser={refreshUser} />}</main></div>;
+  return <div className={styles.page}><button type="button" className={styles.mobileMenuButton} onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu size={22} /></button>{sidebarOpen && <button type="button" className={`${styles.backdrop} md:hidden`} onClick={() => setSidebarOpen(false)} aria-label="Tutup menu" />}<AdminSidebar activeTab={activeTab} sidebarOpen={sidebarOpen} onTabChange={() => undefined} onCloseSidebar={() => setSidebarOpen(false)} role="guru" user={user} /><main className={styles.content}>{error && <div className={styles.alert}>{error}</div>}{activeTab === 'beranda' && <Overview stats={stats} loading={dataLoading} />}{activeTab === 'validasi' && <ValidasiTab />}{activeTab === 'kuis' && <QuizTab />}{activeTab === 'siswa' && <StudentListTab />}{activeTab === 'histori' && <HistoriTab />}{activeTab === 'pengaturan' && <SettingsTab refreshUser={refreshUser} />}</main></div>;
 }
 
 function Overview({ stats, loading }: { stats: GuruStats; loading: boolean }) {
@@ -221,4 +221,160 @@ function SettingsTab({ refreshUser }: { refreshUser: () => Promise<void> }) {
   async function saveProfile(e: FormEvent) { e.preventDefault(); const fd = new FormData(); fd.append('name', profile.name); fd.append('email', profile.email); if (profile.avatar) fd.append('avatar', profile.avatar); try { setSaving(true); setError(''); setSuccess(''); await api.me.updateProfile(fd); await refreshUser(); setSuccess('Profil berhasil diperbarui'); } catch (error) { setError(errText(error, 'Gagal update profil')); } finally { setSaving(false); } }
   async function savePassword(e: FormEvent) { e.preventDefault(); if (password.password !== password.password_confirmation) return setError('Konfirmasi password tidak cocok'); try { setSaving(true); setError(''); setSuccess(''); await api.me.updateProfile(password); setPassword({ current_password: '', password: '', password_confirmation: '' }); setSuccess('Password berhasil diperbarui'); } catch (error) { setError(errText(error, 'Gagal update password')); } finally { setSaving(false); } }
   return <div><SectionHeader eyebrow="Pengaturan" title="Pengaturan Profil Guru" desc="Perbarui profil dan password akun guru." Icon={Settings} /><ErrorBox message={error} /><SuccessBox message={success} /><div className={styles.profileGrid}><div className={styles.profileCard}><h2 className={styles.profileTitle}>Informasi Profil</h2><p className={styles.profileSubtitle}>Data guru yang sedang login.</p><form onSubmit={saveProfile} className="mt-4 space-y-4"><div className={styles.avatarPreviewRow}><div className={styles.avatarPreview}>{profile.avatar ? <img src={URL.createObjectURL(profile.avatar)} alt="Preview" /> : user?.profile_photo_url ? <img src={user.profile_photo_url} alt={user.name} /> : user?.name?.charAt(0).toUpperCase()}</div><Field label="Foto Profil"><input className={styles.fileInput} type="file" accept="image/*" onChange={(e: ChangeEvent<HTMLInputElement>) => setProfile({ ...profile, avatar: e.target.files?.[0] || null })} /></Field></div><Field label="Nama"><input className={styles.input} value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></Field><Field label="Email"><input className={styles.input} value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} /></Field><div className={styles.formActions}><button className={styles.primaryButton} disabled={saving}>Simpan Profil</button></div></form></div><div className={styles.profileCard}><h2 className={styles.profileTitle}>Ubah Password</h2><p className={styles.profileSubtitle}>Gunakan password yang aman.</p><form onSubmit={savePassword} className="mt-4 space-y-4"><Field label="Password Saat Ini"><input className={styles.input} type="password" value={password.current_password} onChange={(e) => setPassword({ ...password, current_password: e.target.value })} /></Field><Field label="Password Baru"><input className={styles.input} type="password" value={password.password} onChange={(e) => setPassword({ ...password, password: e.target.value })} /></Field><Field label="Konfirmasi Password Baru"><input className={styles.input} type="password" value={password.password_confirmation} onChange={(e) => setPassword({ ...password, password_confirmation: e.target.value })} /></Field><div className={styles.formActions}><button className={styles.primaryButton} disabled={saving}>Ubah Password</button></div></form></div></div></div>;
+}
+
+// ─── HistoriTab Guru ──────────────────────────────────────────────────────────
+
+type GuruValidationItem = {
+  id: number;
+  status: 'approved' | 'rejected';
+  validated_at: string;
+  notes?: string;
+  reading_activity?: {
+    id: number;
+    status: string;
+    current_page?: number;
+    final_page?: number;
+    duration_minutes?: number;
+    user?: { id: number; name: string; email?: string; class_name?: string; grade_level?: string };
+    ebook?: { id: number; title: string; author?: string; pages?: number; poin_per_halaman?: number };
+  };
+};
+
+type GuruHistoryStats = {
+  total_approved: number;
+  total_rejected: number;
+  this_month: number;
+  total_points_awarded: number;
+};
+
+function HistoriTab() {
+  const [items, setItems] = useState<GuruValidationItem[]>([]);
+  const [stats, setStats] = useState<GuruHistoryStats>({ total_approved: 0, total_rejected: 0, this_month: 0, total_points_awarded: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState<'all' | 'approved' | 'rejected'>('all');
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+
+  async function load(p = 1) {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await api.dashboard.guruHistory() as any;
+      setItems(arrayOf<GuruValidationItem>(res));
+      if (res?.stats) setStats(res.stats);
+      if (res?.pagination) {
+        setLastPage(res.pagination.last_page ?? 1);
+        setPage(res.pagination.current_page ?? 1);
+      }
+    } catch (e) {
+      setError(errText(e, 'Gagal memuat histori validasi'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter((item) => {
+      const matchStatus = filter === 'all' || item.status === filter;
+      const matchQuery = !q || [
+        item.reading_activity?.ebook?.title,
+        item.reading_activity?.user?.name,
+        item.reading_activity?.user?.class_name,
+        item.notes,
+      ].some((v) => v?.toLowerCase().includes(q));
+      return matchStatus && matchQuery;
+    });
+  }, [items, filter, query]);
+
+  const statCards = [
+    { label: 'Total Disetujui', value: fmt(stats.total_approved), cls: 'text-emerald-700' },
+    { label: 'Total Ditolak', value: fmt(stats.total_rejected), cls: 'text-red-600' },
+    { label: 'Bulan Ini', value: fmt(stats.this_month), cls: 'text-blue-700' },
+    { label: 'Poin Diberikan', value: fmt(stats.total_points_awarded), cls: 'text-amber-700' },
+  ];
+
+  return (
+    <div>
+      <SectionHeader eyebrow="Histori" title="Histori Validasi" desc="Rekam jejak seluruh aktivitas validasi yang sudah kamu lakukan." Icon={Trophy} />
+
+      {/* Stats */}
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {statCards.map((s) => (
+          <div key={s.label} className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
+            <p className={`text-2xl font-black ${s.cls}`}>{s.value}</p>
+            <p className="mt-1 text-xs font-semibold text-slate-500">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.managementShell}>
+        <ErrorBox message={error} />
+
+        {/* Toolbar */}
+        <div className={styles.toolbar}>
+          <SearchBox value={query} onChange={setQuery} placeholder="Cari siswa atau buku..." />
+          <div className="flex gap-2">
+            {(['all', 'approved', 'rejected'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`rounded-xl px-3 py-2 text-xs font-black transition ${filter === f ? 'bg-emerald-600 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+              >
+                {f === 'all' ? 'Semua' : f === 'approved' ? '✓ Disetujui' : '✗ Ditolak'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loading ? (
+          <div className={styles.loading}>Memuat histori...</div>
+        ) : filtered.length === 0 ? (
+          <Empty text="Belum ada histori validasi." />
+        ) : (
+          <div className={styles.leaderList}>
+            {filtered.map((item) => {
+              const isApproved = item.status === 'approved';
+              const activity = item.reading_activity;
+              return (
+                <div key={item.id} className={styles.leaderItem}>
+                  <div className="min-w-0 flex-1">
+                    <p className={styles.leaderName}>{activity?.ebook?.title || 'E-Book'}</p>
+                    <p className={styles.leaderEmail}>
+                      {activity?.user?.name || '-'} • {activity?.user?.class_name || 'Tanpa kelas'}
+                    </p>
+                    <p className={styles.mutedText}>
+                      Hal {fmt(activity?.final_page || activity?.current_page)} / {fmt(activity?.ebook?.pages)} •{' '}
+                      {fmt(activity?.duration_minutes)} menit •{' '}
+                      {new Date(item.validated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
+                    {item.notes && (
+                      <p className="mt-1 text-xs italic text-slate-400">&ldquo;{item.notes}&rdquo;</p>
+                    )}
+                  </div>
+                  <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${isApproved ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
+                    {isApproved ? '✓ Disetujui' : '✗ Ditolak'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {lastPage > 1 && (
+          <div className="mt-4 flex justify-center gap-2">
+            <button disabled={page <= 1} onClick={() => load(page - 1)} className={`${styles.secondaryButton} disabled:opacity-40`}>← Prev</button>
+            <span className="flex items-center px-3 text-sm font-black text-slate-600">{page} / {lastPage}</span>
+            <button disabled={page >= lastPage} onClick={() => load(page + 1)} className={`${styles.secondaryButton} disabled:opacity-40`}>Next →</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

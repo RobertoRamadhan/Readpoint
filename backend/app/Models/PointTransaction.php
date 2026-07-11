@@ -10,6 +10,7 @@ class PointTransaction extends Model
         'user_id',
         'reading_activity_id',
         'redemption_id',
+        'quiz_attempt_id',
         'points',
         'type',
         'description',

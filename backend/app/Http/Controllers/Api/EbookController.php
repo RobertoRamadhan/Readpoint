@@ -113,7 +113,7 @@ class EbookController extends Controller
             'pages'            => 'required|integer|min:1',
             'poin_per_halaman' => 'required|integer|min:1',
             'category'         => 'required|string',
-            'grade_level'      => 'required|string',
+            'grade_level'      => 'required|in:1,2,3,all',
             'pdf_file'         => 'required|file|mimes:pdf|max:51200', // max 50 MB
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);

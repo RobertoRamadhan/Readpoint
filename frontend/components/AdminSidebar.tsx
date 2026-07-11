@@ -7,6 +7,7 @@ import {
   BookOpen,
   ChevronDown,
   Gift,
+  History,
   Home,
   LayoutGrid,
   Library,
@@ -72,6 +73,7 @@ export default function AdminSidebar({
           ],
         },
         { id: 'laporan', label: 'Laporan', Icon: BarChart3 },
+        { id: 'histori', label: 'Histori', Icon: History },
         { id: 'pengaturan', label: 'Pengaturan', Icon: Settings },
       ]
     : [
@@ -86,6 +88,7 @@ export default function AdminSidebar({
             { id: 'siswa', label: 'Daftar Siswa', Icon: Users },
           ],
         },
+        { id: 'histori', label: 'Histori Validasi', Icon: History },
         { id: 'pengaturan', label: 'Pengaturan', Icon: Settings },
       ];
 

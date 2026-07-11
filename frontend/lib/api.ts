@@ -742,11 +742,13 @@ export const api = {
 
     },
 
-    resetPassword: (id: number): Promise<ApiResponse> =>
+    resetPassword: (id: number, password: string): Promise<ApiResponse> =>
 
       apiCall(`/users/${id}/reset-password`, {
 
         method: 'POST',
+
+        body: JSON.stringify({ password, password_confirmation: password }),
 
       }),
 
@@ -865,6 +867,8 @@ export const api = {
 
     adminUsersStats: (): Promise<ApiResponse> => apiCall('/dashboard/admin/users-stats'),
 
+    adminHistory: (period?: number): Promise<ApiResponse> => apiCall(`/dashboard/admin/history${period ? `?period=${period}` : ''}`),
+
     
 
     guruStats: (): Promise<ApiResponse> => apiCall('/dashboard/guru/stats'),
@@ -872,6 +876,8 @@ export const api = {
     guruStudents: (): Promise<ApiResponse> => apiCall('/dashboard/guru/students'),
 
     guruQuizzes: (): Promise<ApiResponse> => apiCall('/dashboard/guru/quizzes'),
+
+    guruHistory: (): Promise<ApiResponse> => apiCall('/dashboard/guru/history'),
 
     
 
@@ -884,6 +890,8 @@ export const api = {
     siswaQuizAttempts: (): Promise<ApiResponse> => apiCall('/dashboard/siswa/quiz-attempts'),
 
     siswaReadingActivities: (): Promise<ApiResponse> => apiCall('/dashboard/siswa/reading-activities'),
+
+    siswaHistory: (): Promise<ApiResponse> => apiCall('/dashboard/siswa/history'),
 
   },
 
