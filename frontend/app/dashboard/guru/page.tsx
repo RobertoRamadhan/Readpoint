@@ -292,6 +292,12 @@ function HistoriTab() {
     });
   }, [items, filter, query]);
 
+  const filterCounts = useMemo(() => ({
+    all: items.length,
+    approved: items.filter((item) => item.status === 'approved').length,
+    rejected: items.filter((item) => item.status === 'rejected').length,
+  }), [items]);
+
   const statCards = [
     { label: 'Total Disetujui', value: fmt(stats.total_approved), cls: 'text-emerald-700' },
     { label: 'Total Ditolak', value: fmt(stats.total_rejected), cls: 'text-red-600' },
@@ -319,16 +325,20 @@ function HistoriTab() {
         {/* Toolbar */}
         <div className={styles.toolbar}>
           <SearchBox value={query} onChange={setQuery} placeholder="Cari siswa atau buku..." />
-          <div className="flex gap-2">
-            {(['all', 'approved', 'rejected'] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`rounded-xl px-3 py-2 text-xs font-black transition ${filter === f ? 'bg-emerald-600 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-              >
-                {f === 'all' ? 'Semua' : f === 'approved' ? '✓ Disetujui' : '✗ Ditolak'}
-              </button>
-            ))}
+          <div className={styles.sectionTabs}>
+            {(['all', 'approved', 'rejected'] as const).map((f) => {
+              const isActive = filter === f;
+              return (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`${styles.sectionTabButton} ${isActive ? styles.sectionTabButtonActive : ''}`}
+                >
+                  <span>{f === 'all' ? 'Semua' : f === 'approved' ? '✓ Disetujui' : '✗ Ditolak'}</span>
+                  <span className={styles.sectionTabCount}>{filterCounts[f]}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

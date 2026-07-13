@@ -1055,16 +1055,20 @@ function HistoriTab() {
       )}
 
       {/* Section tabs */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        {sections.map((s) => (
-          <button
-            key={s.key}
-            onClick={() => setActiveSection(s.key)}
-            className={`rounded-xl px-4 py-2 text-xs font-black transition ${activeSection === s.key ? 'bg-slate-950 text-white shadow' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-          >
-            {s.label} ({s.count})
-          </button>
-        ))}
+      <div className={styles.sectionTabs}>
+        {sections.map((s) => {
+          const isActive = activeSection === s.key;
+          return (
+            <button
+              key={s.key}
+              onClick={() => setActiveSection(s.key)}
+              className={`${styles.sectionTabButton} ${isActive ? styles.sectionTabButtonActive : ''}`}
+            >
+              <span>{s.label}</span>
+              <span className={styles.sectionTabCount}>{s.count}</span>
+            </button>
+          );
+        })}
       </div>
 
       {loading ? (
