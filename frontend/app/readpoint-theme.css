@@ -222,6 +222,67 @@ footer {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
 }
 
+/* High-contrast text helpers */
+.text-slate-400,
+.text-slate-500,
+.text-slate-600,
+.text-slate-700,
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-zinc-400,
+.text-zinc-500,
+.text-zinc-600,
+.text-zinc-700,
+[class*="text-[#64748B]"],
+[class*="text-[#94A3B8]"],
+[class*="text-[#6B7280]"],
+[class*="text-[#475569]"] {
+  color: #1e293b !important;
+}
+
+.text-slate-300,
+.text-gray-300,
+.text-zinc-300,
+[class*="text-[#CBD5E1]"],
+[class*="text-[#E2E8F0]"] {
+  color: #475569 !important;
+}
+
+.text-slate-800,
+.text-slate-900,
+.text-gray-800,
+.text-gray-900,
+.text-zinc-800,
+.text-zinc-900,
+[class*="text-[#0F172A]"] {
+  color: #0f172a !important;
+}
+
+.placeholder\:text-slate-400::placeholder,
+.placeholder\:text-gray-400::placeholder,
+.placeholder\:text-zinc-400::placeholder,
+.placeholder\:text-slate-500::placeholder,
+.placeholder\:text-gray-500::placeholder,
+.placeholder\:text-zinc-500::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.bg-slate-50,
+.bg-slate-100,
+.bg-gray-50,
+.bg-gray-100,
+.bg-zinc-50,
+.bg-zinc-100 {
+  background-color: #f8fafc !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
 .card::before {
   display: none !important;
 }
