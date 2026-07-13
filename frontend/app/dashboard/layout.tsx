@@ -65,7 +65,7 @@ export default function DashboardLayout({
 
   return (
     <div className="readpoint-dashboard-shell min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-slate-50 text-slate-900">
-      <header className="readpoint-dashboard-header fixed right-0 top-0 z-40 h-16 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+      <header className="readpoint-dashboard-header fixed right-0 top-0 z-40 h-16 w-full border-b border-[#2f6d4e] bg-[linear-gradient(135deg,#123b2d_0%,#19543b_100%)] shadow-[0_10px_30px_rgba(7,39,28,0.25)] backdrop-blur">
         <div className="readpoint-dashboard-header-inner flex h-full w-full items-center">
           <div className="readpoint-dashboard-header-row flex w-full items-center justify-between px-3 sm:px-4 lg:px-6">
             <button
@@ -73,14 +73,14 @@ export default function DashboardLayout({
               onClick={() => router.push('/dashboard')}
               className="readpoint-dashboard-brand flex min-w-0 items-center gap-2 text-left sm:gap-3"
             >
-              <span className="readpoint-dashboard-brand-icon hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-700 text-white shadow-sm sm:flex">
+              <span className="readpoint-dashboard-brand-icon hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#0f3a2b] text-white shadow-sm sm:flex">
                 <Library size={18} strokeWidth={2.5} aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <span className="readpoint-dashboard-brand-title block truncate text-sm font-black leading-none text-slate-900 sm:text-base">
+                <span className="readpoint-dashboard-brand-title block truncate text-sm font-black leading-none text-white sm:text-base">
                   READPOINT
                 </span>
-                <span className="readpoint-dashboard-brand-subtitle mt-0.5 block truncate text-[10px] font-bold uppercase tracking-wider text-emerald-700 sm:text-xs">
+                <span className="readpoint-dashboard-brand-subtitle mt-0.5 block truncate text-[10px] font-bold uppercase tracking-wider text-[#c9f7d8] sm:text-xs">
                   Dashboard {roleLabel}
                 </span>
               </div>
@@ -88,10 +88,10 @@ export default function DashboardLayout({
 
             <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
               <div className="readpoint-dashboard-user hidden text-right sm:block">
-                <span className="readpoint-dashboard-user-name block text-xs font-black leading-4 text-slate-900 sm:text-sm">
+                <span className="readpoint-dashboard-user-name block text-xs font-black leading-4 text-white sm:text-sm">
                   {user?.name || 'User'}
                 </span>
-                <span className="readpoint-dashboard-user-role block text-[10px] font-semibold text-slate-600 sm:text-xs">
+                <span className="readpoint-dashboard-user-role block text-[10px] font-semibold text-[#dff8e8] sm:text-xs">
                   {roleLabel}
                 </span>
               </div>
@@ -103,7 +103,7 @@ export default function DashboardLayout({
                     e.stopPropagation();
                     setDropdownOpen(!dropdownOpen);
                   }}
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 text-xs font-black text-slate-900 transition hover:bg-slate-200 sm:h-9 sm:w-9"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#4b8d6b] bg-[#0f3a2b] text-xs font-black text-[#dff8e8] transition hover:bg-[#144b34] sm:h-9 sm:w-9"
                   aria-label="Menu profil"
                 >
                   {user?.profile_photo_url ? (
@@ -120,7 +120,7 @@ export default function DashboardLayout({
                 {dropdownOpen && (
                   <div
                     onClick={(e) => e.stopPropagation()}
-                    className="absolute right-0 mt-2 flex flex-col gap-1 rounded-lg border border-slate-200 bg-white p-2 shadow-lg sm:mt-2.5"
+                    className="absolute right-0 mt-2 flex flex-col gap-1 rounded-lg border border-[#4b8d6b] bg-[#133d2c] p-2 shadow-lg sm:mt-2.5"
                   >
                     <button
                       type="button"
@@ -128,7 +128,7 @@ export default function DashboardLayout({
                         router.push(profilePath);
                         setDropdownOpen(false);
                       }}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#4b8d6b] bg-[#0f3a2b] text-[#dff8e8] transition hover:bg-[#144b34]"
                       title="Pengaturan Profil"
                     >
                       <Settings size={17} aria-hidden="true" />
@@ -136,7 +136,7 @@ export default function DashboardLayout({
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#4b8d6b] bg-[#0f3a2b] text-[#ffe1e1] transition hover:bg-[#144b34]"
                       title="Keluar"
                     >
                       <LogOut size={17} aria-hidden="true" />
@@ -153,9 +153,9 @@ export default function DashboardLayout({
         {children}
       </main>
 
-      <footer className="readpoint-dashboard-footer w-full border-t border-slate-200 bg-white">
+      <footer className="readpoint-dashboard-footer w-full border-t border-[#2f6d4e] bg-[#123b2d]">
         <div className="w-full px-3 py-4 text-center sm:px-4 sm:py-5 lg:px-6">
-          <p className="text-xs font-semibold text-slate-600 sm:text-sm">
+          <p className="text-xs font-semibold text-[#dff8e8] sm:text-sm">
             &copy; 2026 READPOINT - Platform Literasi Digital Indonesia
           </p>
         </div>
