@@ -121,7 +121,7 @@ export default function RegisterPage() {
             <div className="mb-7 text-center lg:hidden">
               <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
               <h2 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:text-3xl">Daftar akun baru</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
+              <p className="mt-3 text-sm leading-6 text-slate-700 sm:text-base">
                 Lengkapi data berikut untuk membuat akun READPOINT.
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function RegisterPage() {
             <div className="mb-7 hidden text-center lg:block lg:text-left">
               <p className="text-base font-black uppercase tracking-widest text-emerald-600">Akun Siswa</p>
               <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Daftar akun baru</h2>
-              <p className="mt-3 text-base leading-7 text-slate-600">
+              <p className="mt-3 text-base leading-7 text-slate-700">
                 Lengkapi data berikut untuk membuat akun READPOINT.
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function RegisterPage() {
 
             <div className="my-6 h-px w-full bg-slate-200" />
 
-            <p className="text-center text-sm font-semibold text-slate-600 sm:text-base">
+            <p className="text-center text-sm font-semibold text-slate-700 sm:text-base">
               Sudah punya akun?{' '}
               <Link href="/login" className="font-black text-emerald-700 hover:text-emerald-800">
                 Masuk di sini

@@ -176,7 +176,7 @@ export default function SiswaProfilePage() {
           <h1 className="text-2xl font-black text-slate-950 sm:text-3xl">
             Profil Siswa
           </h1>
-          <p className="mt-2 text-sm font-semibold text-slate-500">
+          <p className="mt-2 text-sm font-semibold text-slate-600">
             Kelola data akun, wali kelas, foto profil, dan password.
           </p>
         </div>
@@ -225,7 +225,7 @@ export default function SiswaProfilePage() {
               onChange={handleAvatarChange}
             />
 
-            <p className="mt-3 text-xs font-semibold text-slate-500">
+            <p className="mt-3 text-xs font-semibold text-slate-600">
               Klik tombol di atas untuk mengganti foto profil.
             </p>
 
@@ -325,7 +325,7 @@ export default function SiswaProfilePage() {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:opacity-60';
+  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:opacity-60';
 
 function Alert({
   type,
@@ -349,7 +349,7 @@ function Alert({
 function ProfileInfo({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-xs font-semibold text-slate-500">{label}</span>
+      <span className="text-xs font-semibold text-slate-600">{label}</span>
       <span className="truncate text-sm font-black text-slate-900">{value}</span>
     </div>
   );

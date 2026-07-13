@@ -220,7 +220,7 @@ export default function LoginPage() {
             <div className="mb-7 text-center lg:hidden">
               <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
               <h2 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:text-3xl">Masuk ke akun</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
+              <p className="mt-3 text-sm leading-6 text-slate-700 sm:text-base">
                 Masukkan email dan password untuk membuka dashboard READPOINT.
               </p>
             </div>
@@ -228,7 +228,7 @@ export default function LoginPage() {
             <div className="mb-8 hidden text-center lg:block lg:text-left">
               <p className="text-base font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
               <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Masuk ke akun</h2>
-              <p className="mt-3 text-base leading-7 text-slate-600">
+              <p className="mt-3 text-base leading-7 text-slate-700">
                 Masukkan email dan password untuk membuka dashboard READPOINT.
               </p>
             </div>
@@ -277,13 +277,13 @@ export default function LoginPage() {
 
             <div className="my-6 flex items-center gap-3">
               <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-xs font-black uppercase tracking-[0.25em] text-slate-400">atau</span>
+              <span className="text-xs font-black uppercase tracking-[0.25em] text-slate-600">atau</span>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
 
             <div ref={googleButtonRef} className="flex justify-center" />
 
-            <p className="mt-6 text-center text-sm font-semibold text-slate-600 sm:text-base">
+            <p className="mt-6 text-center text-sm font-semibold text-slate-700 sm:text-base">
               Belum punya akun?{' '}
               <Link href="/register" className="font-black text-emerald-700 hover:text-emerald-800">
                 Daftar di sini

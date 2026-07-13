@@ -91,7 +91,7 @@ export default function DashboardLayout({
                 <span className="readpoint-dashboard-user-name block text-xs font-black leading-4 text-slate-900 sm:text-sm">
                   {user?.name || 'User'}
                 </span>
-                <span className="readpoint-dashboard-user-role block text-[10px] font-semibold text-slate-500 sm:text-xs">
+                <span className="readpoint-dashboard-user-role block text-[10px] font-semibold text-slate-600 sm:text-xs">
                   {roleLabel}
                 </span>
               </div>
@@ -155,7 +155,7 @@ export default function DashboardLayout({
 
       <footer className="readpoint-dashboard-footer w-full border-t border-slate-200 bg-white">
         <div className="w-full px-3 py-4 text-center sm:px-4 sm:py-5 lg:px-6">
-          <p className="text-xs font-semibold text-slate-500 sm:text-sm">
+          <p className="text-xs font-semibold text-slate-600 sm:text-sm">
             &copy; 2026 READPOINT - Platform Literasi Digital Indonesia
           </p>
         </div>
