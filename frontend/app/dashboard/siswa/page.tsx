@@ -178,30 +178,30 @@ export default function SiswaDashboard() {
 
 function DesktopRail({ activeTab, levelProgress, totalPoints, onChangeTab, onLogout }: { activeTab: TabType; levelProgress: number; totalPoints: number; onChangeTab: (tab: TabType) => void; onLogout: () => void }) {
   return (
-    <aside className="sticky top-0 hidden h-screen w-[120px] shrink-0 flex-col items-center border-r border-[#dfe8df] bg-[linear-gradient(180deg,_#123b2d_0%,_#0f2f24_100%)] px-4 py-5 shadow-[8px_0_24px_rgba(7,39,28,0.16)] lg:flex">
-      <button onClick={() => onChangeTab('overview')} className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-white text-sm font-black text-[#10392a] shadow-lg">RP</button>
-      <nav className="mt-9 flex flex-1 flex-col items-center gap-3">
+    <aside className="sticky top-0 hidden h-screen w-[128px] shrink-0 flex-col items-center border-r border-[#3e7c58]/40 bg-[linear-gradient(180deg,_#123b2d_0%,_#0f2f24_100%)] px-3 py-5 shadow-[10px_0_28px_rgba(7,39,28,0.18)] lg:flex">
+      <button onClick={() => onChangeTab('overview')} className="flex h-16 w-16 items-center justify-center rounded-[26px] bg-white text-sm font-black text-[#10392a] shadow-[0_8px_24px_rgba(255,255,255,0.15)]">RP</button>
+      <nav className="mt-8 flex flex-1 flex-col items-center gap-2.5">
         {tabs.map(({ key, label, Icon }) => (
-          <button key={key} onClick={() => onChangeTab(key)} className={`flex w-full flex-col items-center gap-1 rounded-[22px] px-2 py-3 text-[10px] font-black transition ${activeTab === key ? 'bg-[#2b8b58] text-white shadow-lg' : 'text-[#dff8e8]/90 hover:bg-white/10 hover:text-white'}`}>
+          <button key={key} onClick={() => onChangeTab(key)} className={`flex w-full flex-col items-center gap-1 rounded-[22px] border px-2 py-3 text-[10px] font-black transition-all ${activeTab === key ? 'border-[#6dd08f] bg-[#2b8b58] text-white shadow-[0_10px_20px_rgba(43,139,88,0.24)]' : 'border-transparent bg-[#0e3425]/70 text-[#f4fff8] hover:border-[#6dd08f]/60 hover:bg-[#144b33] hover:text-white'}`}>
             <Icon className="h-5 w-5" />
             <span>{label}</span>
           </button>
         ))}
       </nav>
-      <div className="mb-4 w-full rounded-[28px] border border-[#3e7c58] bg-white/10 p-3 text-center backdrop-blur-sm">
+      <div className="mb-3 w-full rounded-[24px] border border-[#4d9667]/60 bg-[#11412d]/90 p-2.5 text-center shadow-[0_6px_16px_rgba(0,0,0,0.18)] backdrop-blur-sm">
         <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[#2b8b58] text-white"><Sparkles className="h-4 w-4" /></div>
         <p className="mt-2 text-[11px] font-black text-white">Level 2</p>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/20"><div className="h-full rounded-full bg-[#7be2a3]" style={{ width: `${levelProgress}%` }} /></div>
-        <p className="mt-2 text-[10px] font-black text-[#c9f7d8]">{formatNumber(totalPoints)} poin</p>
+        <p className="mt-2 text-[10px] font-black text-[#dff8e8]">{formatNumber(totalPoints)} poin</p>
       </div>
-      <button onClick={onLogout} className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#6bc48f]/30 bg-white/10 text-[#ffdede] hover:bg-white/20"><LogOut className="h-5 w-5" /></button>
+      <button onClick={onLogout} className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#6bc48f]/40 bg-[#0e3425]/80 text-[#ffe7e7] transition hover:bg-[#144b33] hover:text-white"><LogOut className="h-5 w-5" /></button>
     </aside>
   );
 }
 
 function Header({ userName, subtitle, searchQuery, onSearch }: { userName: string; subtitle: string; searchQuery: string; onSearch: (value: string) => void }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-[#2f6d4e] bg-[linear-gradient(135deg,#123b2d_0%,#19543b_100%)] px-4 py-3 shadow-[0_10px_30px_rgba(7,39,28,0.25)] backdrop-blur-xl sm:px-6 lg:px-8 lg:py-4">
+    <header className="sticky top-0 z-40 border-b border-[#2f6d4e]/70 bg-[linear-gradient(135deg,#123b2d_0%,#19543b_100%)] px-4 py-3 shadow-[0_10px_30px_rgba(7,39,28,0.24)] backdrop-blur-xl sm:px-6 lg:px-8 lg:py-4">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
@@ -218,14 +218,14 @@ function Header({ userName, subtitle, searchQuery, onSearch }: { userName: strin
 
 function SearchInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
-    <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-[#4b8d6b] bg-white/10 px-4 py-3 shadow-[0_6px_20px_rgba(2,24,17,0.18)] backdrop-blur-sm lg:max-w-2xl">
+    <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-[#4b8d6b] bg-white/12 px-4 py-3 shadow-[0_8px_24px_rgba(2,24,17,0.18)] backdrop-blur-sm lg:max-w-2xl">
       <Search className="mr-3 h-5 w-5 shrink-0 text-[#dff8e8]" />
       <input value={value} onChange={(e) => onChange(e.target.value)} placeholder="Cari buku, penulis, atau kategori..." className="w-full min-w-0 bg-transparent text-sm font-semibold text-white outline-none placeholder:text-[#cfe8db]" />
     </div>
   );
 }
 
-function Avatar({ name }: { name: string }) { const initial = name?.trim()?.charAt(0)?.toUpperCase() || 'S'; return <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#4b8d6b] bg-[#0f3a2b] text-lg font-black text-[#dff8e8] sm:h-11 sm:w-11 sm:text-sm">{initial}</div>; }
+function Avatar({ name }: { name: string }) { const initial = name?.trim()?.charAt(0)?.toUpperCase() || 'S'; return <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#4b8d6b] bg-[#0f3a2b] text-lg font-black text-[#dff8e8] shadow-[0_8px_20px_rgba(2,24,17,0.24)] sm:h-11 sm:w-11 sm:text-sm">{initial}</div>; }
 
 function StatsGrid({ stats, totalPoints }: { stats: SiswaStats | null; totalPoints: number }) {
   const items: Array<{ title: string; value: string; helper: string; Icon: LucideIcon }> = [
