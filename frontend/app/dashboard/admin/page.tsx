@@ -360,15 +360,15 @@ function Overview({ stats, topStudents, loading }: { stats: AdminStats; topStude
               <p className={styles.bigNumber}>{fmt(todayTotal)}</p>
             </div>
             <div className={styles.accountPill}>
-              <p>Total Akun</p>
-              <p>{fmt(totalUsers)}</p>
+              <p className={styles.accountPillLabel}>Total Akun</p>
+              <p className={styles.accountPillValue}>{fmt(totalUsers)}</p>
             </div>
           </div>
           <div className={styles.heroMiniGrid}>
             {today.map((item) => (
               <div key={item.title} className={styles.heroMiniCard}>
-                <p>{item.title}</p>
-                <p>{fmt(item.value)}</p>
+                <p className={styles.heroMiniLabel}>{item.title}</p>
+                <p className={styles.heroMiniValue}>{fmt(item.value)}</p>
               </div>
             ))}
           </div>
@@ -420,7 +420,7 @@ function Overview({ stats, topStudents, loading }: { stats: AdminStats; topStude
 function Metric({ title, value, desc, Icon }: { title: string; value: number; desc: string; Icon: LucideIcon }) {
   return (
     <article className={styles.metricCard}>
-      <span className={`${styles.iconBox} ${styles.metricIcon}`}><Icon size={21} /></span>
+      <span className={`${styles.iconBox} ${styles.metricIcon}`}><Icon size={20} /></span>
       <p className={styles.metricLabel}>{title}</p>
       <p className={styles.metricValue}>{fmt(value)}</p>
       <p className={styles.metricHelp}>{desc}</p>
@@ -428,8 +428,17 @@ function Metric({ title, value, desc, Icon }: { title: string; value: number; de
   );
 }
 
-function TodayCard({ title, value, desc }: { title: string; value: number; desc: string; Icon: LucideIcon }) {
-  return <article className={styles.todayCard}><p>{title}</p><p>{fmt(value)}</p><p>{desc}</p></article>;
+function TodayCard({ title, value, desc, Icon }: { title: string; value: number; desc: string; Icon: LucideIcon }) {
+  return (
+    <article className={styles.todayCard}>
+      <div className={styles.todayCardTop}>
+        <p className={styles.todayCardLabel}>{title}</p>
+        <span className={styles.todayCardIcon}><Icon size={16} /></span>
+      </div>
+      <p className={styles.todayCardValue}>{fmt(value)}</p>
+      <p className={styles.todayCardDesc}>{desc}</p>
+    </article>
+  );
 }
 
 function PanelHeader({ eyebrow, title, Icon }: { eyebrow: string; title: string; Icon: LucideIcon }) {

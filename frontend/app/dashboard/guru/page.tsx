@@ -99,37 +99,245 @@ function GuruDashboardContent() {
 
   if (loading || !mounted || (user?.role !== 'guru' && user?.role !== 'admin')) return null;
 
-  return <div className={styles.page}><button type="button" className={styles.mobileMenuButton} onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu size={22} /></button>{sidebarOpen && <button type="button" className={`${styles.backdrop} md:hidden`} onClick={() => setSidebarOpen(false)} aria-label="Tutup menu" />}<AdminSidebar activeTab={activeTab} sidebarOpen={sidebarOpen} onTabChange={() => undefined} onCloseSidebar={() => setSidebarOpen(false)} role="guru" user={user} /><main className={styles.content}>{error && <div className={styles.alert}>{error}</div>}{activeTab === 'beranda' && <Overview stats={stats} loading={dataLoading} />}{activeTab === 'validasi' && <ValidasiTab />}{activeTab === 'kuis' && <QuizTab />}{activeTab === 'siswa' && <StudentListTab />}{activeTab === 'histori' && <HistoriTab />}{activeTab === 'pengaturan' && <SettingsTab refreshUser={refreshUser} />}</main></div>;
+  return (
+    <div className={styles.page}>
+      <button
+        type="button"
+        className={styles.mobileMenuButton}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Buka menu"
+      >
+        <Menu size={22} />
+      </button>
+
+      {sidebarOpen && (
+        <button
+          type="button"
+          className={styles.backdrop}
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Tutup menu"
+        />
+      )}
+
+      <AdminSidebar
+        activeTab={activeTab}
+        sidebarOpen={sidebarOpen}
+        onTabChange={() => undefined}
+        onCloseSidebar={() => setSidebarOpen(false)}
+        role="guru"
+        user={user}
+      />
+
+      <main className={styles.content}>
+        {error && <div className={styles.alert}>{error}</div>}
+        {activeTab === 'beranda'    && <Overview stats={stats} loading={dataLoading} />}
+        {activeTab === 'validasi'  && <ValidasiTab />}
+        {activeTab === 'kuis'      && <QuizTab />}
+        {activeTab === 'siswa'     && <StudentListTab />}
+        {activeTab === 'histori'   && <HistoriTab />}
+        {activeTab === 'pengaturan'&& <SettingsTab refreshUser={refreshUser} />}
+      </main>
+    </div>
+  );
 }
 
 function Overview({ stats, loading }: { stats: GuruStats; loading: boolean }) {
   if (loading) return <LoadingScreen />;
-  const totalSiswa = n(stats.total_siswa); const totalKuis = n(stats.total_kuis_dibuat); const pending = n(stats.validasi_pending); const aktif = n(stats.siswa_aktif_hari_ini); const rate = totalSiswa ? Math.min(100, Math.round((aktif / totalSiswa) * 100)) : 0;
+
+  const totalSiswa = n(stats.total_siswa);
+  const totalKuis  = n(stats.total_kuis_dibuat);
+  const pending    = n(stats.validasi_pending);
+  const aktif      = n(stats.siswa_aktif_hari_ini);
+  const rate       = totalSiswa ? Math.min(100, Math.round((aktif / totalSiswa) * 100)) : 0;
+
   const metrics = [
-    { title: 'Total Siswa', value: totalSiswa, desc: 'Siswa dalam pemantauan kelas.', Icon: Users },
-    { title: 'Kuis Dibuat', value: totalKuis, desc: 'Materi evaluasi yang sudah dibuat.', Icon: PenLine },
-    { title: 'Validasi Pending', value: pending, desc: pending > 0 ? 'Perlu ditinjau hari ini.' : 'Semua aktivitas aman.', Icon: ClipboardCheck },
-    { title: 'Aktif Hari Ini', value: aktif, desc: `${rate}% dari total siswa.`, Icon: Activity },
+    { title: 'Total Siswa',      value: totalSiswa, desc: 'Siswa dalam pemantauan kelas.',                           Icon: Users },
+    { title: 'Kuis Dibuat',      value: totalKuis,  desc: 'Materi evaluasi yang sudah dibuat.',                      Icon: PenLine },
+    { title: 'Validasi Pending', value: pending,    desc: pending > 0 ? 'Perlu ditinjau hari ini.' : 'Semua aman.', Icon: ClipboardCheck },
+    { title: 'Aktif Hari Ini',   value: aktif,      desc: `${rate}% dari total siswa.`,                             Icon: Activity },
   ];
+
   const flow = [
-    { title: 'Validasi Aktivitas', desc: 'Cek progres baca yang masuk dari siswa.', Icon: CheckCircle2 },
-    { title: 'Buat Kuis', desc: 'Tambahkan pertanyaan untuk e-book yang dipilih.', Icon: ListChecks },
-    { title: 'Pantau Siswa', desc: 'Lihat poin, progres, dan data kelas.', Icon: GraduationCap },
+    { title: 'Validasi Aktivitas', desc: 'Cek progres baca yang masuk dari siswa.',          Icon: CheckCircle2 },
+    { title: 'Buat Kuis',          desc: 'Tambahkan pertanyaan untuk e-book yang dipilih.',  Icon: ListChecks },
+    { title: 'Pantau Siswa',       desc: 'Lihat poin, progres, dan data kelas.',             Icon: GraduationCap },
   ];
-  return <div className={styles.stack}><section className={styles.hero} ><div><div className={styles.badge}>Dashboard Guru</div><h1 className={styles.heroTitle}>Pantau literasi kelas dengan lebih cepat.</h1><p className={styles.heroText}>Validasi aktivitas membaca, kelola kuis, dan lihat keterlibatan siswa dari satu ruang kerja yang rapi dan mudah dibaca.</p></div><div className={styles.heroPanel}><div className={styles.heroPanelTop}><div><p className={styles.kicker}>Tingkat Aktif</p><p className={styles.bigNumber}>{rate}%</p></div><div className={styles.accountPill}><p>Total Siswa</p><p>{fmt(totalSiswa)}</p></div></div><div className={styles.heroMiniGrid}><div className={styles.heroMiniCard}><p>Aktif Hari Ini</p><p>{fmt(aktif)}</p></div><div className={styles.heroMiniCard}><p>Pending</p><p>{fmt(pending)}</p></div></div></div></section><section className={styles.metricGrid}>{metrics.map((m) => <Metric key={m.title} {...m} />)}</section><section className={styles.twoColumn}><div className={styles.panel}><PanelHeader eyebrow="Alur Kerja" title="Fokus hari ini" Icon={ClipboardList} /><div className={styles.todayGrid}>{flow.map((item) => <Priority key={item.title} title={item.title} desc={item.desc} Icon={item.Icon} />)}</div></div><div className={styles.panel}><PanelHeader eyebrow="Prioritas" title="Validasi" Icon={ClipboardCheck} />{pending > 0 ? <div className={styles.leaderItem}><span className={styles.rank}>{pending}</span><div><p className={styles.leaderName}>Aktivitas menunggu validasi</p><p className={styles.leaderEmail}>Buka menu Validasi Pembacaan untuk meninjau.</p></div></div> : <Empty text="Semua aktivitas sudah divalidasi." />}</div></section></div>;
+
+  return (
+    <div className={styles.stack}>
+      {/* ── Hero ───────────────────────────────────────────── */}
+      <section className={styles.hero}>
+        <div>
+          <div className={styles.badge}>Dashboard Guru</div>
+          <h1 className={styles.heroTitle}>Pantau literasi kelas dengan lebih cepat.</h1>
+          <p className={styles.heroText}>
+            Validasi aktivitas membaca, kelola kuis, dan lihat keterlibatan siswa
+            dari satu ruang kerja yang rapi dan mudah dibaca.
+          </p>
+        </div>
+
+        <div className={styles.heroPanel}>
+          <div className={styles.heroPanelTop}>
+            <div>
+              <p className={styles.kicker}>Tingkat Aktif</p>
+              <p className={styles.bigNumber}>{rate}%</p>
+            </div>
+            <div className={styles.accountPill}>
+              <p className={styles.accountPillLabel}>Total Siswa</p>
+              <p className={styles.accountPillValue}>{fmt(totalSiswa)}</p>
+            </div>
+          </div>
+
+          <div className={styles.heroMiniGrid}>
+            <div className={styles.heroMiniCard}>
+              <p className={styles.heroMiniLabel}>Aktif Hari Ini</p>
+              <p className={styles.heroMiniValue}>{fmt(aktif)}</p>
+            </div>
+            <div className={styles.heroMiniCard}>
+              <p className={styles.heroMiniLabel}>Pending</p>
+              <p className={styles.heroMiniValue}>{fmt(pending)}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Metric cards ───────────────────────────────────── */}
+      <section className={styles.metricGrid}>
+        {metrics.map((m) => <Metric key={m.title} {...m} />)}
+      </section>
+
+      {/* ── Two-column panel ───────────────────────────────── */}
+      <section className={styles.twoColumn}>
+        <div className={styles.panel}>
+          <PanelHeader eyebrow="Alur Kerja" title="Fokus hari ini" Icon={ClipboardList} />
+          <div className={styles.todayGrid}>
+            {flow.map((item) => <Priority key={item.title} title={item.title} desc={item.desc} Icon={item.Icon} />)}
+          </div>
+        </div>
+
+        <div className={styles.panel}>
+          <PanelHeader eyebrow="Prioritas" title="Validasi" Icon={ClipboardCheck} />
+          {pending > 0 ? (
+            <div className={styles.leaderItem}>
+              <span className={styles.rank}>{pending}</span>
+              <div className="min-w-0">
+                <p className={styles.leaderName}>Aktivitas menunggu validasi</p>
+                <p className={styles.leaderEmail}>Buka menu Validasi Pembacaan untuk meninjau.</p>
+              </div>
+            </div>
+          ) : (
+            <Empty text="Semua aktivitas sudah divalidasi." />
+          )}
+        </div>
+      </section>
+    </div>
+  );
 }
 
-function Metric({ title, value, desc, Icon }: { title: string; value: number; desc: string; Icon: LucideIcon }) { return <article className={styles.metricCard}><span className={`${styles.iconBox} ${styles.metricIcon}`}><Icon size={21} /></span><p className={styles.metricLabel}>{title}</p><p className={styles.metricValue}>{fmt(value)}</p><p className={styles.metricHelp}>{desc}</p></article>; }
-function PanelHeader({ eyebrow, title, Icon }: { eyebrow: string; title: string; Icon: LucideIcon }) { return <div className={styles.panelHeader}><div><p className={styles.panelEyebrow}>{eyebrow}</p><h2 className={styles.panelTitle}>{title}</h2></div><span className={styles.iconBox}><Icon size={22} /></span></div>; }
-function Priority({ Icon, title, desc }: { Icon: LucideIcon; title: string; desc: string }) { return <article className={styles.priorityCard}><span className={styles.iconBox}><Icon size={21} /></span><h3>{title}</h3><p>{desc}</p></article>; }
-function SectionHeader({ eyebrow, title, desc, Icon }: { eyebrow: string; title: string; desc: string; Icon: LucideIcon }) { return <div className={styles.sectionHeader}><div><p className={styles.sectionEyebrow}>{eyebrow}</p><h1 className={styles.sectionTitle}>{title}</h1><p className={styles.sectionDescription}>{desc}</p></div><span className={styles.iconBox}><Icon size={24} /></span></div>; }
-function Empty({ text }: { text: string }) { return <div className={styles.empty}>{text}</div>; }
-function ErrorBox({ message }: { message: string }) { return message ? <div className={styles.alert}>{message}</div> : null; }
-function SuccessBox({ message }: { message: string }) { return message ? <div className={styles.success}>{message}</div> : null; }
-function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) { return <div className={styles.searchWrap}><Search className={styles.searchIcon} size={18} /><input className={`${styles.input} ${styles.searchInput}`} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} /></div>; }
-function Field({ label, children, full = false }: { label: string; children: ReactNode; full?: boolean }) { return <label className={`${styles.field} ${full ? styles.fieldFull : ''}`}><span className={styles.label}>{label}</span>{children}</label>; }
-function FormBox({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) { return <div className={styles.formBox}><div className={styles.formHeader}><h2 className={styles.formTitle}>{title}</h2><button type="button" className={styles.closeButton} onClick={onClose}><X size={18} /></button></div>{children}</div>; }
-function FormActions({ saving, onCancel, label = 'Simpan' }: { saving: boolean; onCancel: () => void; label?: string }) { return <div className={styles.formActions}><button type="button" className={styles.secondaryButton} onClick={onCancel}>Batal</button><button type="submit" className={styles.primaryButton} disabled={saving}>{saving ? <Loader2 className="animate-spin" size={16} /> : null}{label}</button></div>; }
+function Metric({ title, value, desc, Icon }: { title: string; value: number; desc: string; Icon: LucideIcon }) {
+  return (
+    <article className={styles.metricCard}>
+      <span className={`${styles.iconBox} ${styles.metricIcon}`}><Icon size={20} /></span>
+      <p className={styles.metricLabel}>{title}</p>
+      <p className={styles.metricValue}>{fmt(value)}</p>
+      <p className={styles.metricHelp}>{desc}</p>
+    </article>
+  );
+}
+
+function PanelHeader({ eyebrow, title, Icon }: { eyebrow: string; title: string; Icon: LucideIcon }) {
+  return (
+    <div className={styles.panelHeader}>
+      <div>
+        <p className={styles.panelEyebrow}>{eyebrow}</p>
+        <h2 className={styles.panelTitle}>{title}</h2>
+      </div>
+      <span className={styles.iconBox}><Icon size={20} /></span>
+    </div>
+  );
+}
+
+function Priority({ Icon, title, desc }: { Icon: LucideIcon; title: string; desc: string }) {
+  return (
+    <article className={styles.priorityCard}>
+      <span className={styles.iconBox}><Icon size={20} /></span>
+      <h3>{title}</h3>
+      <p>{desc}</p>
+    </article>
+  );
+}
+
+function SectionHeader({ eyebrow, title, desc, Icon }: { eyebrow: string; title: string; desc: string; Icon: LucideIcon }) {
+  return (
+    <div className={styles.sectionHeader}>
+      <div>
+        <p className={styles.sectionEyebrow}>{eyebrow}</p>
+        <h1 className={styles.sectionTitle}>{title}</h1>
+        <p className={styles.sectionDescription}>{desc}</p>
+      </div>
+      <span className={styles.iconBox}><Icon size={22} /></span>
+    </div>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return <div className={styles.empty}>{text}</div>;
+}
+
+function ErrorBox({ message }: { message: string }) {
+  return message ? <div className={styles.alert}>{message}</div> : null;
+}
+
+function SuccessBox({ message }: { message: string }) {
+  return message ? <div className={styles.success}>{message}</div> : null;
+}
+
+function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) {
+  return (
+    <div className={styles.searchWrap}>
+      <Search className={styles.searchIcon} size={17} />
+      <input
+        className={`${styles.input} ${styles.searchInput}`}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+}
+
+function Field({ label, children, full = false }: { label: string; children: ReactNode; full?: boolean }) {
+  return (
+    <label className={`${styles.field} ${full ? styles.fieldFull : ''}`}>
+      <span className={styles.label}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function FormBox({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  return (
+    <div className={styles.formBox}>
+      <div className={styles.formHeader}>
+        <h2 className={styles.formTitle}>{title}</h2>
+        <button type="button" className={styles.closeButton} onClick={onClose}><X size={18} /></button>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function FormActions({ saving, onCancel, label = 'Simpan' }: { saving: boolean; onCancel: () => void; label?: string }) {
+  return (
+    <div className={styles.formActions}>
+      <button type="button" className={styles.secondaryButton} onClick={onCancel}>Batal</button>
+      <button type="submit" className={styles.primaryButton} disabled={saving}>
+        {saving ? <Loader2 className="animate-spin" size={16} /> : null}
+        {label}
+      </button>
+    </div>
+  );
+}
 
 function ValidasiTab() {
   const { user } = useAuth();
@@ -151,7 +359,14 @@ function ValidasiTab() {
   return <div><SectionHeader eyebrow="Validasi Pembacaan" title="Aktivitas siswa pending" desc="Tinjau progres membaca siswa sebelum poin diberikan." Icon={ClipboardCheck} /><div className={styles.managementShell}><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat validasi...</div> : visibleItems.length === 0 ? <Empty text="Semua aktivitas sudah divalidasi." /> : <div className={styles.leaderList}>{visibleItems.map((a) => <button key={a.id} type="button" className={styles.leaderItem} onClick={() => setSelected(a)}><div className="min-w-0 text-left"><p className={styles.leaderName}>{a.ebook?.title || 'E-Book'}</p><p className={styles.leaderEmail}>{a.user?.name || 'Siswa'} • {a.user?.class_name || 'Tanpa kelas'}</p><p className={styles.mutedText}>Halaman {fmt(a.current_page)} / {fmt(a.ebook?.pages)} • {fmt(a.duration_minutes)} menit</p></div><span className={styles.statusBadge}>Pending</span></button>)}</div>}</div>{selected && <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/70 p-4" onClick={(e) => { if (e.currentTarget === e.target) setSelected(null); }}><div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-2xl"><div className={styles.formHeader}><div><p className={styles.sectionEyebrow}>Detail Validasi</p><h2 className={styles.formTitle}>{selected.ebook?.title || 'Aktivitas Membaca'}</h2></div><button className={styles.closeButton} onClick={() => setSelected(null)}><X size={18} /></button></div><div className={styles.formGrid}><Info label="Siswa" value={`${selected.user?.name || '-'} (${selected.user?.class_name || '-'})`} /><Info label="Halaman" value={`${fmt(selected.final_page || selected.current_page)} / ${fmt(selected.ebook?.pages)}`} /><Info label="Durasi" value={`${fmt(selected.duration_minutes)} menit`} /><Info label="Status" value={selected.status || 'pending'} /><Field label="Catatan Siswa" full><textarea className={styles.textarea} value={selected.notes || '-'} readOnly /></Field><Field label="Alasan penolakan" full><textarea className={styles.textarea} value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} placeholder="Isi jika aktivitas ditolak" /></Field></div><div className={styles.formActions}><button className={styles.dangerButton} disabled={processing} onClick={() => reject(selected.id)}>Tolak</button><button className={styles.primaryButton} disabled={processing} onClick={() => approve(selected.id)}>Approve</button></div></div></div>}</div>;
 }
 
-function Info({ label, value }: { label: string; value: string }) { return <div className={styles.todayCard}><p>{label}</p><p className="!text-lg">{value}</p></div>; }
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.infoCard}>
+      <p className={styles.infoCardLabel}>{label}</p>
+      <p className={styles.infoCardValue}>{value}</p>
+    </div>
+  );
+}
 
 function QuizTab() {
   const [ebooks, setEbooks] = useState<Ebook[]>([]); const [quizzes, setQuizzes] = useState<QuizSummary[]>([]); const [selectedBook, setSelectedBook] = useState<Ebook | null>(null); const [questions, setQuestions] = useState<QuestionForm[]>(Array.from({ length: 5 }, emptyQuestion)); const [loading, setLoading] = useState(true); const [formOpen, setFormOpen] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState(''); const [success, setSuccess] = useState('');
@@ -299,10 +514,10 @@ function HistoriTab() {
   }), [items]);
 
   const statCards = [
-    { label: 'Total Disetujui', value: fmt(stats.total_approved), cls: 'text-emerald-700' },
-    { label: 'Total Ditolak', value: fmt(stats.total_rejected), cls: 'text-red-600' },
-    { label: 'Bulan Ini', value: fmt(stats.this_month), cls: 'text-blue-700' },
-    { label: 'Poin Diberikan', value: fmt(stats.total_points_awarded), cls: 'text-amber-700' },
+    { label: 'Total Disetujui',   value: fmt(stats.total_approved),       cls: styles.colorEmerald },
+    { label: 'Total Ditolak',     value: fmt(stats.total_rejected),       cls: styles.colorRed },
+    { label: 'Bulan Ini',         value: fmt(stats.this_month),           cls: styles.colorBlue },
+    { label: 'Poin Diberikan',    value: fmt(stats.total_points_awarded), cls: styles.colorAmber },
   ];
 
   return (
@@ -310,12 +525,12 @@ function HistoriTab() {
       <SectionHeader eyebrow="Histori" title="Histori Validasi" desc="Rekam jejak seluruh aktivitas validasi yang sudah kamu lakukan." Icon={Trophy} />
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className={styles.metricGrid}>
         {statCards.map((s) => (
-          <div key={s.label} className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
-            <p className={`text-2xl font-black ${s.cls}`}>{s.value}</p>
-            <p className="mt-1 text-xs font-semibold text-slate-500">{s.label}</p>
-          </div>
+          <article key={s.label} className={styles.metricCard}>
+            <p className={styles.metricLabel}>{s.label}</p>
+            <p className={`${styles.metricValue} ${s.cls}`}>{s.value}</p>
+          </article>
         ))}
       </div>
 

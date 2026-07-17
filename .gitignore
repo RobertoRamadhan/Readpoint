@@ -25,3 +25,11 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Locust load testing — jangan push
+locustfile.py
+locust/
+__pycache__/
+*.pyc
+*.pyo
+.locust_results/
