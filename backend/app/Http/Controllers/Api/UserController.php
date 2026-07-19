@@ -274,63 +274,85 @@ class UserController extends Controller
         }
 
         try {
-            // Check if force delete is requested (cascade delete all related data)
-            $forceDelete = $request->input('force', false);
+            $forceDelete = filter_var($request->input('force', false), FILTER_VALIDATE_BOOLEAN);
 
-            if ($forceDelete) {
-                // Delete all related data first with transaction
-                \DB::transaction(function () use ($user) {
-                    // Delete reading activities
-                    \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
-                    
-                    // Delete quiz attempts
-                    \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
-                    
-                    // Delete point transactions
+            \DB::transaction(function () use ($user, $forceDelete) {
+                // Selalu hapus data terkait terlebih dahulu
+                // agar FK constraint tidak menghalangi delete user
+
+                // 1. Validasi yang dibuat oleh user ini (jika guru)
+                \App\Models\Validation::where('validated_by', $user->id)
+                    ->update(['validated_by' => null]);
+
+                // 2. Book assignments (jika guru)
+                \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
+
+                // 3. Quiz questions yang dibuat user ini (jika guru)
+                \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
+
+                // 4. Wali kelas reference dari siswa
+                User::where('wali_kelas_id', $user->id)
+                    ->update(['wali_kelas_id' => null]);
+
+                if ($forceDelete) {
+                    // Hard delete — hapus semua data milik user secara permanen
+
+                    // Point transactions terkait quiz attempts user ini
+                    $quizAttemptIds = \App\Models\QuizAttempt::where('user_id', $user->id)
+                        ->pluck('id');
+                    if ($quizAttemptIds->isNotEmpty()) {
+                        \App\Models\PointTransaction::whereIn('quiz_attempt_id', $quizAttemptIds)
+                            ->delete();
+                    }
+
+                    // Point transactions langsung milik user
                     \App\Models\PointTransaction::where('user_id', $user->id)->delete();
-                    
-                    // Delete redemptions
+
+                    // Redemptions
                     \App\Models\Redemption::where('user_id', $user->id)->delete();
-                    
-                    // Update validations to null (if user is guru)
-                    \App\Models\Validation::where('validated_by', $user->id)->update(['validated_by' => null]);
-                    
-                    // Delete book assignments (if user is guru)
-                    \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
-                    
-                    // Delete quiz questions created by user (if guru)
-                    \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
-                    
-                    // Finally delete the user
-                    $user->delete();
-                });
 
-                return response()->json([
-                    'message' => 'User and all related data deleted successfully',
-                ]);
-            } else {
-                // Soft delete approach: just disable the account without removing data
-                // Change email to prevent conflicts
-                $timestamp = time();
-                $user->email = "deleted_{$timestamp}_{$user->id}@deleted.local";
-                $user->name = $user->name . ' (Deleted)';
-                $user->save();
-                
-                // Try to delete (will fail if foreign keys exist, which is fine)
-                try {
+                    // Quiz attempts (ini juga akan null-kan reading_activity_id via FK set null)
+                    \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
+
+                    // Reading activities (cascade ke validations jika ada)
+                    \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
+
+                    // Reading progress
+                    \App\Models\ReadingProgress::where('user_id', $user->id)->delete();
+
+                    // Hapus user permanen
                     $user->delete();
-                } catch (\Exception $e) {
-                    // Ignore delete error - account is already disabled by email change
+                } else {
+                    // Soft deactivate — nonaktifkan akun tanpa hapus data historis
+                    // Rename email agar tidak konflik, dan hapus record user-nya
+                    $timestamp = time();
+                    $user->email = "deleted_{$timestamp}_{$user->id}@deleted.local";
+                    $user->name  = rtrim($user->name, ' (Deleted)') . ' (Deleted)';
+                    $user->save();
+
+                    // Sekarang delete bisa berhasil karena CASCADE sudah dipasang
+                    // di migration reading_activities, tapi kita tetap hapus manual
+                    // agar konsisten di semua environment
+                    \App\Models\ReadingProgress::where('user_id', $user->id)->delete();
+                    \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
+                    \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
+                    \App\Models\PointTransaction::where('user_id', $user->id)->delete();
+                    \App\Models\Redemption::where('user_id', $user->id)->delete();
+
+                    $user->delete();
                 }
+            });
 
-                return response()->json([
-                    'message' => 'User deactivated successfully',
-                ]);
-            }
+            return response()->json([
+                'message' => $forceDelete
+                    ? 'User dan semua data terkait berhasil dihapus permanen.'
+                    : 'User berhasil dihapus.',
+            ]);
+
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to delete user',
-                'error' => config('app.debug') ? $e->getMessage() : 'An error occurred',
+                'message' => 'Gagal menghapus user.',
+                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan server.',
             ], 500);
         }
     }
