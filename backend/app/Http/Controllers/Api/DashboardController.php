@@ -101,26 +101,58 @@ class DashboardController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             if (!$user) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
             $today = now()->format('Y-m-d');
-            
-            // For now, using all students since BookAssignment table is incomplete
-            $allStudents = User::where('role', 'siswa')->get();
-            
+
+            // Siswa di kelas guru ini
+            $guruHasKelas = $user->grade_level || $user->class_name;
+
+            if ($guruHasKelas) {
+                $siswaDiKelas = User::where('role', 'siswa')
+                    ->where(function ($q) use ($user) {
+                        $q->where('wali_kelas_id', $user->id);
+                        if ($user->grade_level && $user->class_name) {
+                            $q->orWhere(function ($q2) use ($user) {
+                                $q2->where('grade_level', $user->grade_level)
+                                   ->where('class_name', $user->class_name);
+                            });
+                        } elseif ($user->class_name) {
+                            $q->orWhere('class_name', $user->class_name);
+                        } elseif ($user->grade_level) {
+                            $q->orWhere('grade_level', $user->grade_level);
+                        }
+                    })
+                    ->pluck('id');
+
+                $totalSiswa = $siswaDiKelas->count();
+
+                $validasiPending = ReadingActivity::where('status', 'pending_validation')
+                    ->whereIn('user_id', $siswaDiKelas)
+                    ->count();
+
+                $siswaAktif = ReadingActivity::whereDate('created_at', $today)
+                    ->whereIn('user_id', $siswaDiKelas)
+                    ->distinct('user_id')
+                    ->count('user_id');
+            } else {
+                // Guru belum assign ke kelas — tampilkan semua
+                $totalSiswa      = User::where('role', 'siswa')->count();
+                $validasiPending = ReadingActivity::where('status', 'pending_validation')->count();
+                $siswaAktif      = ReadingActivity::whereDate('created_at', $today)
+                    ->distinct('user_id')->count('user_id');
+            }
+
             $stats = [
-                'total_siswa' => $allStudents->count(),
-                'total_kuis_dibuat' => QuizQuestion::where('created_by', $user->id)->count(),
-                'validasi_pending' => Validation::whereNull('validated_by')->count(),
-                'siswa_aktif_hari_ini' => ReadingActivity::whereDate('created_at', $today)
-                    ->pluck('user_id')
-                    ->unique()
-                    ->count(),
+                'total_siswa'         => $totalSiswa,
+                'total_kuis_dibuat'   => \App\Models\QuizQuestion::where('created_by', $user->id)->count(),
+                'validasi_pending'    => $validasiPending,
+                'siswa_aktif_hari_ini' => $siswaAktif,
             ];
-            
+
             return response()->json($stats);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -137,27 +169,45 @@ class DashboardController extends Controller
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
-            // For now, return all students since BookAssignment table is incomplete
-            $students = User::where('role', 'siswa')
-                ->select('id', 'name', 'email', 'class_name', 'grade_level')
-                ->orderBy('class_name')
-                ->get()
-                ->map(function ($student) {
+            // Filter siswa berdasarkan kelas guru
+            $guruHasKelas = $user->grade_level || $user->class_name;
+
+            $query = User::where('role', 'siswa')
+                ->select('id', 'name', 'email', 'class_name', 'grade_level', 'wali_kelas_id')
+                ->orderBy('class_name');
+
+            if ($guruHasKelas) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('wali_kelas_id', $user->id);
+                    if ($user->grade_level && $user->class_name) {
+                        $q->orWhere(function ($q2) use ($user) {
+                            $q2->where('grade_level', $user->grade_level)
+                               ->where('class_name', $user->class_name);
+                        });
+                    } elseif ($user->class_name) {
+                        $q->orWhere('class_name', $user->class_name);
+                    } elseif ($user->grade_level) {
+                        $q->orWhere('grade_level', $user->grade_level);
+                    }
+                });
+            }
+
+            $students = $query->get()->map(function ($student) {
                     $student->total_points = DB::table('point_transactions')
                         ->where('user_id', $student->id)
                         ->sum('points') ?? 0;
-                    
+
                     $student->books_read = ReadingActivity::where('user_id', $student->id)
                         ->where('status', 'completed')
                         ->count();
-                    
+
                     $quizzes = QuizAttempt::where('user_id', $student->id)->get();
-                    $student->quiz_average_score = $quizzes->count() > 0 
-                        ? $quizzes->avg('score') 
+                    $student->quiz_average_score = $quizzes->count() > 0
+                        ? round($quizzes->avg('score'), 1)
                         : 0;
-                    
+
                     $student->quizzes_passed = $quizzes->where('passed', true)->count();
-                    
+
                     return $student;
                 });
 

@@ -11,34 +11,64 @@ use App\Http\Controllers\Controller;
 class ValidationController extends Controller
 {
     /**
-     * Get all pending reading activities untuk validasi guru
-     * Guru hanya bisa lihat reading activities dari siswa yg dia ajar
+     * Get all pending reading activities untuk validasi guru.
+     * Guru hanya melihat aktivitas dari siswa di kelasnya sendiri
+     * (match by wali_kelas_id, atau grade_level + class_name).
+     * Jika guru belum assign ke kelas, tampilkan semua pending.
      */
     public function getPending(Request $request)
     {
         try {
             $guru = $request->user();
-            
-            // Get pending reading activities
-            $pendingActivities = ReadingActivity::where('status', 'pending_validation')
+
+            $query = ReadingActivity::where('status', 'pending_validation')
                 ->with([
-                    'user' => function ($query) {
-                        $query->select('id', 'name', 'email', 'class_name');
+                    'user' => function ($q) {
+                        $q->select('id', 'name', 'email', 'class_name', 'grade_level', 'wali_kelas_id');
                     },
-                    'ebook' => function ($query) {
-                        $query->select('id', 'title', 'author', 'pages', 'poin_per_halaman');
+                    'ebook' => function ($q) {
+                        $q->select('id', 'title', 'author', 'pages', 'poin_per_halaman');
                     },
                 ])
-                ->orderBy('created_at', 'desc')
-                ->paginate(15);
+                ->orderBy('created_at', 'desc');
+
+            // Filter by kelas guru jika guru sudah punya kelas
+            $guruHasKelas = $guru->grade_level || $guru->class_name;
+
+            if ($guruHasKelas) {
+                // Ambil ID siswa yang sekelas dengan guru ini
+                $siswaDiKelas = \App\Models\User::where('role', 'siswa')
+                    ->where(function ($q) use ($guru) {
+                        // Cara 1: via wali_kelas_id
+                        $q->where('wali_kelas_id', $guru->id);
+
+                        // Cara 2: via grade_level + class_name (fallback)
+                        if ($guru->grade_level && $guru->class_name) {
+                            $q->orWhere(function ($q2) use ($guru) {
+                                $q2->where('grade_level', $guru->grade_level)
+                                   ->where('class_name', $guru->class_name);
+                            });
+                        } elseif ($guru->class_name) {
+                            $q->orWhere('class_name', $guru->class_name);
+                        } elseif ($guru->grade_level) {
+                            $q->orWhere('grade_level', $guru->grade_level);
+                        }
+                    })
+                    ->pluck('id');
+
+                $query->whereIn('user_id', $siswaDiKelas);
+            }
+            // Jika guru belum punya kelas → tampilkan semua pending (tidak difilter)
+
+            $pendingActivities = $query->paginate(50);
 
             return response()->json([
                 'data' => $pendingActivities->items(),
                 'pagination' => [
                     'current_page' => $pendingActivities->currentPage(),
-                    'per_page' => $pendingActivities->perPage(),
-                    'total' => $pendingActivities->total(),
-                    'last_page' => $pendingActivities->lastPage(),
+                    'per_page'     => $pendingActivities->perPage(),
+                    'total'        => $pendingActivities->total(),
+                    'last_page'    => $pendingActivities->lastPage(),
                 ],
             ]);
         } catch (\Exception $e) {
