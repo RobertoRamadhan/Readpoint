@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   BookOpen, CheckCircle2, Clock3, Gift, HelpCircle, History,
-  Home, LogOut, Search, Sparkles, User, type LucideIcon,
+  Home, LogOut, Search, User, type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -194,7 +194,6 @@ export default function SiswaDashboard() {
   const continueProgress = ongoing && continueBook
     ? Math.min(100, Math.round((ongoing.current_page / (continueBook.pages || 1)) * 100))
     : 0;
-  const levelProgress   = Math.min(100, Math.round((totalPoints / 500) * 100));
 
   const handleLogout = async () => { await logout(); router.push('/login'); };
   const redeemReward = async (id: number) => {
@@ -207,83 +206,39 @@ export default function SiswaDashboard() {
 
   return (
     <div className={s.shell}>
-      <div className={s.body}>
-        <DesktopRail
-          activeTab={activeTab} levelProgress={levelProgress}
-          totalPoints={totalPoints} onChangeTab={setActiveTab} onLogout={handleLogout}
-        />
-        <main className={s.main}>
-          <PageHeader userName={user.name} subtitle={tabSubtitles[activeTab]} searchQuery={searchQuery} onSearch={setSearchQuery} />
-          <div className={s.content}>
-            {error && <div className={s.errorBanner}>{error}</div>}
+      <main className={s.main}>
+        <PageHeader userName={user.name} subtitle={tabSubtitles[activeTab]} searchQuery={searchQuery} onSearch={setSearchQuery} />
+        <div className={s.content}>
+          {error && <div className={s.errorBanner}>{error}</div>}
 
-            {activeTab === 'overview' && (
-              <StatsGrid stats={stats} totalPoints={totalPoints} />
-            )}
+          {activeTab === 'overview' && (
+            <StatsGrid stats={stats} totalPoints={totalPoints} />
+          )}
 
-            {loadingData ? (
-              <LoadingSpinner />
-            ) : (
-              <>
-                {activeTab === 'overview' && (
-                  <OverviewScreen
-                    continueBook={continueBook} continueProgress={continueProgress}
-                    books={filteredBooks} rewards={rewards.slice(0, 4)}
-                    totalPoints={totalPoints} activities={activities}
-                    onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)}
-                    onRedeem={redeemReward} setActiveTab={setActiveTab}
-                  />
-                )}
-                {activeTab === 'ebooks'  && <BooksScreen  books={filteredBooks} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} />}
-                {activeTab === 'quizzes' && <QuizzesScreen quizzes={quizzes}    onStart={(id) => router.push(`/dashboard/siswa/quiz/${id}`)} />}
-                {activeTab === 'rewards' && <RewardsScreen rewards={rewards} totalPoints={totalPoints} onRedeem={redeemReward} activities={activities} />}
-                {activeTab === 'history' && <HistoryScreen data={historyData} loading={historyLoading} />}
-                {activeTab === 'account' && <AccountScreen userName={user.name} totalPoints={totalPoints} onNavigate={setActiveTab} onLogout={handleLogout} />}
-              </>
-            )}
-          </div>
-        </main>
-      </div>
+          {loadingData ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              {activeTab === 'overview' && (
+                <OverviewScreen
+                  continueBook={continueBook} continueProgress={continueProgress}
+                  books={filteredBooks} rewards={rewards.slice(0, 4)}
+                  totalPoints={totalPoints} activities={activities}
+                  onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)}
+                  onRedeem={redeemReward} setActiveTab={setActiveTab}
+                />
+              )}
+              {activeTab === 'ebooks'  && <BooksScreen  books={filteredBooks} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} />}
+              {activeTab === 'quizzes' && <QuizzesScreen quizzes={quizzes}    onStart={(id) => router.push(`/dashboard/siswa/quiz/${id}`)} />}
+              {activeTab === 'rewards' && <RewardsScreen rewards={rewards} totalPoints={totalPoints} onRedeem={redeemReward} activities={activities} />}
+              {activeTab === 'history' && <HistoryScreen data={historyData} loading={historyLoading} />}
+              {activeTab === 'account' && <AccountScreen userName={user.name} totalPoints={totalPoints} onNavigate={setActiveTab} onLogout={handleLogout} />}
+            </>
+          )}
+        </div>
+      </main>
       <MobileTabBar activeTab={activeTab} onChangeTab={setActiveTab} />
     </div>
-  );
-}
-
-/* ── Desktop Rail ───────────────────────────────────────────── */
-function DesktopRail({ activeTab, levelProgress, totalPoints, onChangeTab, onLogout }: {
-  activeTab: TabType; levelProgress: number; totalPoints: number;
-  onChangeTab: (t: TabType) => void; onLogout: () => void;
-}) {
-  return (
-    <aside className={s.rail}>
-      <button className={s.railLogo} onClick={() => onChangeTab('overview')}>RP</button>
-
-      <nav className={s.railNav}>
-        {tabs.map(({ key, label, Icon }) => (
-          <button
-            key={key}
-            className={`${s.railBtn} ${activeTab === key ? s.railBtnActive : ''}`}
-            onClick={() => onChangeTab(key)}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
-
-      <div className={s.railPoints}>
-        <div className={s.railPointsIcon}><Sparkles size={16} /></div>
-        <p className={s.railPointsLabel}>Level 2</p>
-        <div className={s.railPointsBar}>
-          <div className={s.railPointsBarFill} style={{ width: `${levelProgress}%` }} />
-        </div>
-        <p className={s.railPointsValue}>{fmtNum(totalPoints)} poin</p>
-      </div>
-
-      <button className={s.railLogout} onClick={onLogout} title="Keluar">
-        <LogOut size={18} />
-      </button>
-    </aside>
   );
 }
 
@@ -319,10 +274,10 @@ function PageHeader({ userName, subtitle, searchQuery, onSearch }: {
 /* ── Stats Grid ─────────────────────────────────────────────── */
 function StatsGrid({ stats, totalPoints }: { stats: SiswaStats | null; totalPoints: number }) {
   const items: Array<{ label: string; value: string; helper: string; Icon: LucideIcon }> = [
-    { label: 'Total Poin',   value: fmtNum(totalPoints),          helper: 'Siap ditukar',   Icon: Sparkles },
-    { label: 'Buku Dibaca',  value: String(stats?.books_read ?? 0),  helper: 'Selesai',       Icon: BookOpen },
-    { label: 'Halaman',      value: fmtNum(stats?.pages_read ?? 0),  helper: 'Total halaman', Icon: Clock3 },
-    { label: 'Kuis',         value: String(stats?.quizzes_taken ?? 0), helper: 'Dikerjakan',  Icon: CheckCircle2 },
+    { label: 'Total Poin',   value: fmtNum(totalPoints),             helper: 'Siap ditukar',   Icon: CheckCircle2 },
+    { label: 'Buku Dibaca',  value: String(stats?.books_read ?? 0),  helper: 'Selesai',        Icon: BookOpen },
+    { label: 'Halaman',      value: fmtNum(stats?.pages_read ?? 0),  helper: 'Total halaman',  Icon: Clock3 },
+    { label: 'Kuis',         value: String(stats?.quizzes_taken ?? 0), helper: 'Dikerjakan',   Icon: CheckCircle2 },
   ];
   return (
     <section className={s.statsSection}>
