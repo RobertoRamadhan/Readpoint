@@ -38,7 +38,7 @@ export default function QuizPage() {
 
       // Fetch ebook info for title
       const ebookRes = await api.getEbook(ebookId);
-      const ebook = (ebookRes as unknown as { data?: unknown })?.data || ebookRes;
+      const ebook = ((ebookRes as unknown as { data?: { title?: string } })?.data || ebookRes) as { title?: string };
       setEbookTitle(ebook?.title || `Quiz Buku #${ebookId}`);
 
       // Fetch quiz questions for this ebook.
