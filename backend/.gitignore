@@ -1,12 +1,11 @@
-# Laravel - Files yang TIDAK boleh push ke GitHub
-*.log
+﻿*.log
 .DS_Store
 Thumbs.db
 
-# Environment files - BERISI PASSWORD & SECRET
-.env
-.env.*
-!.env.example
+# Environment — .env di-commit agar Laravel Cloud bisa membacanya
+# Jangan commit .env.local yang berisi credentials lokal
+.env.local
+.env.*.local
 
 # IDE configs
 .phpactor.json
