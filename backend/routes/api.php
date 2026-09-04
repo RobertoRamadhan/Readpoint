@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -12,6 +12,30 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ValidationController;
 
+
+// TEMP DEBUG — hapus setelah selesai
+Route::get('debug-db', function () {
+    try {
+        $pdo = \DB::connection()->getPdo();
+        $dbName = \DB::connection()->getDatabaseName();
+        $tables = \DB::select('SHOW TABLES');
+        return response()->json([
+            'status' => 'connected',
+            'database' => $dbName,
+            'tables' => count($tables),
+            'table_list' => array_map(fn($t) => array_values((array)$t)[0], $tables),
+            'env_db_host' => env('DB_HOST'),
+            'env_db_name' => env('DB_DATABASE'),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'env_db_host' => env('DB_HOST'),
+            'env_db_name' => env('DB_DATABASE'),
+        ], 500);
+    }
+});
 // ─── Public Routes ────────────────────────────────────────────────────────────
 Route::post('auth/login',        [AuthController::class, 'login']);
 Route::post('auth/register',     [AuthController::class, 'register']);
