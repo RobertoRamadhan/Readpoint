@@ -14,15 +14,15 @@ return [
     'allowed_origins' => [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
-        'https://readpointku.com',
-        'https://www.readpointku.com',
+        'https://readpointku.web.id',
+        'https://www.readpointku.web.id',
         'https://readpoint.vercel.app',
         'https://*.vercel.app',
         'https://readpoint-production-gmzqxi.laravel.cloud',
     ],
 
     'allowed_origins_patterns' => [
-        '#^https://(www\.)?readpointku\.com$#',
+        '#^https://(www\.)?readpointku\.web\.id$#',
         '#^https://.*\.vercel\.app$#',
         '#^https://.*\.laravel\.cloud$#',
         '#^http://localhost:\d+$#',

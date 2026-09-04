@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "readpointku.web.id",
+      },
+      {
+        protocol: "https",
+        hostname: "www.readpointku.web.id",
+      },
+      {
+        protocol: "https",
         hostname: "*.supabase.co",
       },
       {
