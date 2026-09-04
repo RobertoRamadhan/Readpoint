@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PageLoading } from '@/components/shared';
 import UserCard from '@/components/admin/UserCard';
-import UserForm from '@/components/admin/UserForm';
+import UserForm, { UserFormData } from '@/components/admin/UserForm';
 import UserFilters from '@/components/admin/UserFilters';
 
 interface User {
@@ -151,7 +151,7 @@ export default function UsersPage() {
     }
   };
 
-  const handleSubmitUser = async (userData: User) => {
+  const handleSubmitUser = async (userData: UserFormData) => {
     try {
       if (editingUser) {
         await handleUpdateUser(userData);
@@ -285,7 +285,7 @@ export default function UsersPage() {
               setEditingUser(null);
             }}
             onSubmit={handleSubmitUser}
-            editingUser={editingUser}
+            editingUser={editingUser as UserFormData | null}
             loading={actionLoading}
           />
         </div>

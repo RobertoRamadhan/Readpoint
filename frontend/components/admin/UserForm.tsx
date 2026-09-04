@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Card } from '@/components/shared';
 
-interface FormData {
+export interface UserFormData {
   name: string;
   email: string;
   role: 'admin' | 'guru' | 'siswa';
@@ -15,8 +15,8 @@ interface FormData {
 interface UserFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (user: unknown) => Promise<void>;
-  editingUser?: unknown;
+  onSubmit: (user: UserFormData) => Promise<void>;
+  editingUser?: UserFormData | null;
   loading?: boolean;
 }
 
@@ -27,7 +27,7 @@ export default function UserForm({
   editingUser,
   loading = false
 }: UserFormProps) {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<UserFormData>({
     name: '',
     email: '',
     role: 'siswa',
@@ -42,7 +42,7 @@ export default function UserForm({
     const t = window.setTimeout(() => {
       if (editingUser) {
         setFormData({
-          ...(editingUser as Partial<FormData>),
+          ...(editingUser as Partial<UserFormData>),
           password: '' // Don't populate password in edit mode
         });
       } else {
