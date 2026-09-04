@@ -67,24 +67,26 @@ const defaultStudentForm: StudentForm = {
   password: '',
 };
 
-function toArray(payload: any): any[] {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.data?.data)) return payload.data.data;
-  if (Array.isArray(payload?.data?.questions)) return payload.data.questions;
-  if (Array.isArray(payload?.questions)) return payload.questions;
+function toArray(payload: unknown): unknown[] {
+  if (Array.isArray(payload as unknown)) return payload as unknown[];
+  const p = payload as { data?: unknown; questions?: unknown } | null;
+  if (Array.isArray(p?.data as unknown)) return p!.data as unknown[];
+  if (Array.isArray((p?.data as { data?: unknown })?.data)) return (p!.data as { data?: unknown }).data as unknown[];
+  if (Array.isArray((p?.data as { questions?: unknown })?.questions)) return (p!.data as { questions?: unknown }).questions as unknown[];
+  if (Array.isArray(p?.questions as unknown)) return p!.questions as unknown[];
   return [];
 }
 
-function normalizeQuestion(item: any): QuizQuestion {
+function normalizeQuestion(item: unknown): QuizQuestion {
+  const it = item as Record<string, unknown> | null;
   return {
-    id: item?.id,
-    question: item?.question || '',
-    option_a: item?.option_a || '',
-    option_b: item?.option_b || '',
-    option_c: item?.option_c || '',
-    option_d: item?.option_d || '',
-    correct_answer: (item?.correct_answer || 'a') as 'a' | 'b' | 'c' | 'd',
+    id: (it?.id as number | undefined) ?? undefined,
+    question: (it?.question as string) ?? '',
+    option_a: (it?.option_a as string) ?? '',
+    option_b: (it?.option_b as string) ?? '',
+    option_c: (it?.option_c as string) ?? '',
+    option_d: (it?.option_d as string) ?? '',
+    correct_answer: ((it?.correct_answer as string) || 'a') as 'a' | 'b' | 'c' | 'd',
   };
 }
 
@@ -123,7 +125,7 @@ function GuruQuizCrud() {
 
   const filledCount = useMemo(() => questions.filter((q) => q.question.trim()).length, [questions]);
 
-  const loadData = async () => {
+  async function loadData() {
     try {
       setLoading(true);
       setError('');
@@ -418,7 +420,7 @@ function GuruStudentCrud() {
     );
   }, [students, searchTerm]);
 
-  const loadStudents = async () => {
+  async function loadStudents() {
     try {
       setLoading(true);
       setError('');
@@ -429,7 +431,7 @@ function GuruStudentCrud() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const openCreate = () => {
     setEditingStudent(null);

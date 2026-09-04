@@ -1,5 +1,4 @@
 'use client';
-'use client';
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -126,16 +125,19 @@ export default function SiswaDashboard() {
   const [activities, setActivities]     = useState<ReadingActivityItem[]>(dashboardCache?.activities ?? []);
   const [historyData, setHistoryData]   = useState<HistoryData | null>(null);
   const [historyLoading, setHLoading]   = useState(false);
-  const [loadingData, setLoadingData]   = useState(!(dashboardCache && Date.now() - dashboardCache.cachedAt < CACHE_TTL));
+  const [loadingData, setLoadingData]   = useState(true);
   const [error, setError]               = useState<string | null>(null);
   const fetchedRef = useRef(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!mounted || loading || !isAuthenticated) return;
     if (!user || user.role !== 'siswa') { router.push('/login'); return; }
-    const fresh = dashboardCache && Date.now() - dashboardCache.cachedAt < CACHE_TTL;
+    const fresh = dashboardCache && (Date.now() - dashboardCache.cachedAt < CACHE_TTL);
     if (fresh) {
       setStats(dashboardCache!.stats);
       setEbooks(dashboardCache!.ebooks);
@@ -149,7 +151,7 @@ export default function SiswaDashboard() {
     void loadData();
   }, [mounted, loading, isAuthenticated, user, router]);
 
-  const loadData = async () => {
+  async function loadData() {
     try {
       setLoadingData(true); setError(null);
       const [sR, eR, rR, qR, aR] = await Promise.allSettled([
@@ -168,19 +170,19 @@ export default function SiswaDashboard() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }
 
-  const loadHistory = async () => {
+  async function loadHistory() {
     if (historyData || historyLoading) return;
     try {
       setHLoading(true);
       const res = await api.dashboard.siswaHistory();
-      const d = (res as any)?.data;
+      const d = (res as unknown as { data?: unknown })?.data;
       if (d) setHistoryData(d as HistoryData);
     } catch { /* not critical */ } finally { setHLoading(false); }
-  };
+  }
 
-  useEffect(() => { if (activeTab === 'history') loadHistory(); }, [activeTab]);
+  useEffect(() => { if (activeTab === 'history') void loadHistory(); }, [activeTab]);
 
   const filteredBooks = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();

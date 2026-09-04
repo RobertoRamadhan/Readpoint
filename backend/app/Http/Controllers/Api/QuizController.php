@@ -11,29 +11,29 @@ use App\Http\Controllers\Controller;
 
 class QuizController extends Controller
 {
-    // Get quiz untuk validasi membaca
+    // Get quiz untuk validasi membaca — correct_answer TIDAK dikirim ke client
     public function getQuizForBook(Request $request, $ebookId)
     {
         $questions = QuizQuestion::where('ebook_id', $ebookId)
-            ->select('id', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer')
+            ->select('id', 'question', 'option_a', 'option_b', 'option_c', 'option_d')
             ->limit(5)
             ->get();
 
         // Map 'question' to 'question_text' for frontend compatibility
-        $formattedQuestions = $questions->map(function($q) {
+        // correct_answer sengaja tidak disertakan agar jawaban tidak terekspos ke client
+        $formattedQuestions = $questions->map(function ($q) {
             return [
-                'id' => $q->id,
+                'id'          => $q->id,
                 'question_text' => $q->question,
-                'option_a' => $q->option_a,
-                'option_b' => $q->option_b,
-                'option_c' => $q->option_c,
-                'option_d' => $q->option_d,
-                'correct_answer' => $q->correct_answer,
+                'option_a'    => $q->option_a,
+                'option_b'    => $q->option_b,
+                'option_c'    => $q->option_c,
+                'option_d'    => $q->option_d,
             ];
         });
 
         return response()->json([
-            'data' => $formattedQuestions,
+            'data'            => $formattedQuestions,
             'total_questions' => count($formattedQuestions),
         ]);
     }
@@ -51,15 +51,13 @@ class QuizController extends Controller
         $ebook = \App\Models\Ebook::findOrFail($validated['ebook_id']);
         $user = $request->user();
 
-        // Cek apakah siswa sudah pernah mendapat poin dari kuis ini
-        // Cukup cek apakah ada attempt sebelumnya yang sudah dapat poin
-        $alreadyAwardedPoints = QuizAttempt::where('user_id', $user->id)
-            ->where('ebook_id', $ebook->id)
-            ->exists()
-            && PointTransaction::where('user_id', $user->id)
-                ->where('type', 'quiz_completed')
-                ->where('description', 'like', "%{$ebook->title}%")
-                ->exists();
+        // Cek apakah siswa sudah pernah mendapat poin dari kuis ini.
+        // Gunakan EXISTS pada PointTransaction langsung (bukan &&) agar tidak ada
+        // celah jika attempt ada tapi transaksi poin belum tercatat, atau sebaliknya.
+        $alreadyAwardedPoints = PointTransaction::where('user_id', $user->id)
+            ->where('type', 'quiz_completed')
+            ->where('description', 'like', "%{$ebook->title}%")
+            ->exists();
         
         // Get all questions for this ebook
         $questions = QuizQuestion::where('ebook_id', $ebook->id)->orderBy('id')->limit(5)->get();

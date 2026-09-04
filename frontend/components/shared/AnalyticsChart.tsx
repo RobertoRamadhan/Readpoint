@@ -6,7 +6,7 @@ import { Card } from '@/components/shared';
 interface AnalyticsChartProps {
   title: string;
   type: 'line' | 'bar' | 'pie' | 'area';
-  data: any[];
+  data: unknown[];
   height?: number;
   loading?: boolean;
 }

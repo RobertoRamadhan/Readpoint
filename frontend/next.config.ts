@@ -15,11 +15,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "*.railway.app",
+        hostname: "*.laravel.cloud",
       },
       {
         protocol: "https",
-        hostname: "readpoint-production.up.railway.app",
+        hostname: "readpoint-production-gmzqxi.laravel.cloud",
       },
       {
         protocol: "https",

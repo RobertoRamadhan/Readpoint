@@ -51,7 +51,8 @@ export default function ValidationPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    setMounted(true);
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -65,7 +66,7 @@ export default function ValidationPage() {
     loadValidationData();
   }, [mounted, loading, isAuthenticated, user, router]);
 
-  const loadValidationData = async () => {
+  async function loadValidationData() {
     try {
       setLoadingData(true);
       setError(null);

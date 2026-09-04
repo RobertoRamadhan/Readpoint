@@ -18,12 +18,13 @@ return [
         'https://www.readpointku.com',
         'https://readpoint.vercel.app',
         'https://*.vercel.app',
-        'https://readpoint-production.up.railway.app',
+        'https://readpoint-production-gmzqxi.laravel.cloud',
     ],
 
     'allowed_origins_patterns' => [
         '#^https://(www\.)?readpointku\.com$#',
         '#^https://.*\.vercel\.app$#',
+        '#^https://.*\.laravel\.cloud$#',
         '#^http://localhost:\d+$#',
         '#^http://127\.0\.0\.1:\d+$#',
     ],

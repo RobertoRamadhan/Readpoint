@@ -392,8 +392,8 @@ export interface AdminWorkflow {
   
   // Step 6: Generate Reports
   getUserStats: () => Promise<AdminStats>;
-  getActivityReport: (startDate: string, endDate: string) => Promise<any>;
-  getRevenueReport: () => Promise<any>;
+  getActivityReport: (startDate: string, endDate: string) => Promise<unknown>;
+  getRevenueReport: () => Promise<unknown>;
   
   // Step 7: Profile
   updateProfile: (data: Partial<User>) => Promise<User>;
@@ -444,7 +444,7 @@ export interface PaginatedResponse<T> {
 export interface WorkflowState {
   currentStep: number;
   completed: boolean;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   errors: Record<string, string>;
 }
 

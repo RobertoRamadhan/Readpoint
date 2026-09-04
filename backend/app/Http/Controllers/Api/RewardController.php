@@ -119,7 +119,8 @@ class RewardController extends Controller
                 'stock'           => $validated['stock'] ?? null,
                 'category'        => $validated['category'] ?? null,
                 'is_active'       => $validated['is_active'] ?? null,
-            ], fn($v) => $v !== null);
+            // Hanya filter null — false/0 tetap diproses sebagai nilai valid
+            ], fn($v) => !is_null($v));
 
             if (!empty($updateData)) {
                 $reward->update($updateData);

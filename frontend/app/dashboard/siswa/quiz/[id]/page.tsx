@@ -20,29 +20,31 @@ export default function QuizPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!mounted || loading || !isAuthenticated) return;
     if (!user || user.role !== 'siswa') { router.push('/login'); return; }
     if (!ebookId || isNaN(ebookId)) { router.push('/dashboard/siswa'); return; }
-    fetchQuiz();
+    void fetchQuiz();
   }, [mounted, loading, isAuthenticated, user, ebookId]);
-
-  const fetchQuiz = async () => {
+  async function fetchQuiz() {
     try {
       setLoadingQuiz(true);
       setError(null);
 
       // Fetch ebook info for title
       const ebookRes = await api.getEbook(ebookId);
-      const ebook = (ebookRes as any)?.data || ebookRes;
+      const ebook = (ebookRes as unknown as { data?: unknown })?.data || ebookRes;
       setEbookTitle(ebook?.title || `Quiz Buku #${ebookId}`);
 
       // Fetch quiz questions for this ebook.
       // Backend intentionally does not send correct_answer for security.
       const quizRes = await api.getQuizzes(ebookId);
-      const data = (quizRes as any)?.data;
+      const data = (quizRes as unknown as { data?: unknown })?.data;
       const rawQuestions = Array.isArray(data) ? data : [];
 
       if (rawQuestions.length === 0) {

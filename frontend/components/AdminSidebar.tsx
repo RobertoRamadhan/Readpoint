@@ -193,7 +193,7 @@ export default function AdminSidebar({
                           onClick={() => goTab(subItem.id)}
                           data-sidebar-tab={subItem.id}
                           aria-label={subItem.label}
-                          className={`readpoint-admin-submenu-item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${isSubActive ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+                          className={`readpoint-admin-submenu-item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${isSubActive ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
                         >
                           <SubIcon size={16} className="shrink-0" aria-hidden="true" />
                           <span className="readpoint-admin-submenu-label block min-w-0 flex-1 truncate">

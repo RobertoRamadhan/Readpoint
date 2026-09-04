@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\StorageHelper;
 
 class Ebook extends Model
 {
@@ -22,23 +23,25 @@ class Ebook extends Model
         'is_active' => 'boolean',
     ];
 
-    // Get full URL for file access
-    public function getFileUrlAttribute()
+    /**
+     * Kembalikan URL publik cover dari Supabase Storage.
+     * Accessor ini menggunakan StorageHelper agar konsisten dengan controller.
+     */
+    public function getCoverUrlAttribute(): ?string
     {
-        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+        return $this->cover_image ? StorageHelper::url($this->cover_image, 'cover') : null;
     }
 
-    public function getCoverUrlAttribute()
+    /**
+     * Kembalikan URL publik file PDF dari Supabase Storage.
+     */
+    public function getPdfUrlAttribute(): ?string
     {
-        return $this->cover_image ? asset('storage/' . $this->cover_image) : null;
+        return $this->file_path ? StorageHelper::url($this->file_path, 'ebook') : null;
     }
 
-    // Note: book() relationship is currently not used as there's no book_id foreign key
-    // This relationship can be added if needed in future with a migration
-    // public function book()
-    // {
-    //     return $this->belongsTo(Book::class);
-    // }
+    // Catatan: relasi book() tidak diaktifkan karena tabel ebooks tidak memiliki
+    // FK book_id. Tambahkan migrasi terlebih dahulu jika diperlukan.
 
     public function readingActivities()
     {
@@ -53,5 +56,10 @@ class Ebook extends Model
     public function quizAttempts()
     {
         return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function readingProgress()
+    {
+        return $this->hasMany(ReadingProgress::class);
     }
 }

@@ -167,10 +167,37 @@ export const api = {
 
   // ── Users ───────────────────────────────────────────────────────────────────
   users: {
-    list: () => apiCall('/users?per_page=500'),
+    /**
+     * List users dengan pagination server-side.
+     * Gunakan params untuk filter role, search, dan per_page.
+     * Default: 20 user per halaman.
+     *
+     * Contoh: api.users.list({ role: 'guru', per_page: 50 })
+     */
+    list: (params?: { role?: string; search?: string; per_page?: number; page?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.role)     query.set('role',     params.role);
+      if (params?.search)   query.set('search',   params.search);
+      if (params?.per_page) query.set('per_page', String(params.per_page));
+      if (params?.page)     query.set('page',     String(params.page));
+      return apiCall(`/users${query.toString() ? '?' + query.toString() : ''}`);
+    },
 
+    /**
+     * Ambil semua guru — menggunakan pagination internal agar tidak menarik
+     * ratusan user sekaligus. Maksimal 200 guru yang diambil (lebih dari cukup).
+     */
+    listAllGuru: async (): Promise<ApiResponse> => {
+      const res = await api.users.list({ role: 'guru', per_page: 200 });
+      return res;
+    },
+
+    /**
+     * Derive daftar kelas dari data siswa + guru dengan pagination.
+     * Mengambil hingga 500 siswa dalam batch untuk membangun peta kelas.
+     */
     classes: async (): Promise<ApiResponse> => {
-      const res = await api.users.list();
+      const res = await api.users.list({ per_page: 500 });
       const users = Array.isArray(res?.data) ? (res.data as any[]) : [];
       const seen = { t: new Set<string>(), s: new Set<string>() };
       const map: Record<string, any> = {};
@@ -181,7 +208,7 @@ export const api = {
         const key = `${gl}|${cn}`;
         if (!map[key]) map[key] = { id: key, grade_level: gl, class_name: cn, teacher_name: '', student_count: 0 };
         const uid = u.id ?? `${u.name}|${u.email}`;
-        if (role === 'guru' && !seen.t.has(uid)) { map[key].teacher_name = u.name; seen.t.add(uid); }
+        if (role === 'guru' && !seen.t.has(uid))  { map[key].teacher_name = u.name; seen.t.add(uid); }
         if (role === 'siswa' && !seen.s.has(uid)) { map[key].student_count++; seen.s.add(uid); }
       });
 
@@ -221,7 +248,7 @@ export const api = {
 
   teachers: {
     list: async (): Promise<ApiResponse> => {
-      const res = await api.users.list();
+      const res = await api.users.listAllGuru();
       const users = Array.isArray(res?.data) ? (res.data as any[]) : [];
       return { data: users.filter((u: any) => u.role === 'guru') } as ApiResponse;
     },

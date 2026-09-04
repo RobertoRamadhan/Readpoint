@@ -15,8 +15,8 @@ interface FormData {
 interface UserFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (user: any) => Promise<void>;
-  editingUser?: any;
+  onSubmit: (user: unknown) => Promise<void>;
+  editingUser?: unknown;
   loading?: boolean;
 }
 
@@ -39,22 +39,26 @@ export default function UserForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (editingUser) {
-      setFormData({
-        ...editingUser,
-        password: '' // Don't populate password in edit mode
-      });
-    } else {
-      setFormData({
-        name: '',
-        email: '',
-        role: 'siswa',
-        class_name: '',
-        password: '',
-        is_active: true
-      });
-    }
-    setErrors({});
+    const t = window.setTimeout(() => {
+      if (editingUser) {
+        setFormData({
+          ...(editingUser as Partial<FormData>),
+          password: '' // Don't populate password in edit mode
+        });
+      } else {
+        setFormData({
+          name: '',
+          email: '',
+          role: 'siswa',
+          class_name: '',
+          password: '',
+          is_active: true
+        });
+      }
+      setErrors({});
+    }, 0);
+
+    return () => window.clearTimeout(t);
   }, [editingUser, isOpen]);
 
   const validateForm = () => {
@@ -92,7 +96,7 @@ export default function UserForm({
     }
   };
 
-  const handleChange = (field: keyof FormData, value: any) => {
+  const handleChange = (field: keyof FormData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));

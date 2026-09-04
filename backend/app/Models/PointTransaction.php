@@ -30,4 +30,9 @@ class PointTransaction extends Model
     {
         return $this->belongsTo(Redemption::class);
     }
+
+    public function quizAttempt()
+    {
+        return $this->belongsTo(QuizAttempt::class);
+    }
 }
