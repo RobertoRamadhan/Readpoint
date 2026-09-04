@@ -70,35 +70,34 @@ export default function UsersPage() {
     }
   };
 
-  const handleCreateUser = async (userData: User) => {
+  const handleCreateUser = async (userData: UserFormData) => {
     try {
       setActionLoading(true);
       await api.users.create(userData as unknown as Record<string, unknown>);
-      
-      // Refresh data
       await loadUsers();
       setShowFormModal(false);
       setEditingUser(null);
     } catch (error) {
       console.error('Failed to create user:', error);
-      throw error; // Re-throw to let form handle it
+      throw error;
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleUpdateUser = async (userData: User) => {
+  const handleUpdateUser = async (userData: UserFormData) => {
     try {
       setActionLoading(true);
-      await api.users.update(userData.id!, userData as unknown as Record<string, unknown>);
-      
-      // Refresh data
+      // id diambil dari editingUser karena UserFormData tidak punya id
+      const userId = editingUser?.id;
+      if (!userId) throw new Error('User ID tidak ditemukan');
+      await api.users.update(userId, userData as unknown as Record<string, unknown>);
       await loadUsers();
       setShowFormModal(false);
       setEditingUser(null);
     } catch (error) {
       console.error('Failed to update user:', error);
-      throw error; // Re-throw to let form handle it
+      throw error;
     } finally {
       setActionLoading(false);
     }
