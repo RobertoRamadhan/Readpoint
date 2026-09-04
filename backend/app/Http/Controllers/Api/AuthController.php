@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -179,9 +179,12 @@ class AuthController extends Controller
             throw new \Exception('JWT header tidak valid');
         }
 
-        // Ambil Google public keys (JWKS) — di-cache supaya tidak hit Google tiap request
+        // Ambil Google public keys (JWKS).
+        // Gunakan file cache store secara eksplisit agar tidak bergantung
+        // pada CACHE_DRIVER=database yang memerlukan koneksi DB.
         $cacheKey = 'google_jwks';
-        $jwks = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
+        $fileCache = \Illuminate\Support\Facades\Cache::store('file');
+        $jwks = $fileCache->remember($cacheKey, 3600, function () {
             // Gunakan Http client dengan timeout 5 detik agar worker PHP
             // tidak hang jika Google lambat atau tidak reachable.
             $response = \Illuminate\Support\Facades\Http::timeout(5)
@@ -207,7 +210,7 @@ class AuthController extends Controller
 
         if (!$matchingKey) {
             // kid tidak ditemukan — mungkin keys sudah dirotasi, flush cache dan coba ulang
-            \Illuminate\Support\Facades\Cache::forget($cacheKey);
+            \Illuminate\Support\Facades\Cache::store('file')->forget($cacheKey);
             throw new \Exception('Google public key tidak ditemukan untuk kid: ' . $header['kid']);
         }
 
