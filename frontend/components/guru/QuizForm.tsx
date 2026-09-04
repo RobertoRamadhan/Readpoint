@@ -62,21 +62,25 @@ export default function QuizForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (editingQuiz) {
-      setFormData(editingQuiz);
-    } else {
-      setFormData({
-        ebook_id: 0,
-        title: '',
-        description: '',
-        difficulty: 'medium',
-        points_reward: 50,
-        time_limit_minutes: 30,
-        passing_score: 70,
-        questions: []
-      });
-    }
-    setErrors({});
+    const t = window.setTimeout(() => {
+      if (editingQuiz) {
+        setFormData(editingQuiz);
+      } else {
+        setFormData({
+          ebook_id: 0,
+          title: '',
+          description: '',
+          difficulty: 'medium',
+          points_reward: 50,
+          time_limit_minutes: 30,
+          passing_score: 70,
+          questions: []
+        });
+      }
+      setErrors({});
+    }, 0);
+
+    return () => window.clearTimeout(t);
   }, [editingQuiz, isOpen]);
 
   const addQuestion = () => {
@@ -94,7 +98,7 @@ export default function QuizForm({
     }));
   };
 
-  const updateQuestion = (index: number, field: keyof QuizQuestion, value: any) => {
+  const updateQuestion = (index: number, field: keyof QuizQuestion, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       questions: prev.questions.map((q, i) => 
@@ -150,7 +154,7 @@ export default function QuizForm({
     }
   };
 
-  const handleChange = (field: keyof QuizFormData, value: any) => {
+  const handleChange = (field: keyof QuizFormData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));

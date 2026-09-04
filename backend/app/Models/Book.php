@@ -25,19 +25,13 @@ class Book extends Model
     ];
 
     // Relationships
-    public function ebook()
-    {
-        return $this->hasOne(Ebook::class);
-    }
-
     public function bookAssignments()
     {
         return $this->hasMany(BookAssignment::class);
     }
 
-    public function quizQuestions()
-    {
-        return $this->hasMany(QuizQuestion::class);
-    }
+    // Catatan: relasi ebook() dan quizQuestions() dihapus karena tabel ebooks
+    // dan quiz_questions tidak memiliki FK book_id. Tambahkan migrasi FK terlebih
+    // dahulu jika relasi ini diperlukan di masa depan.
 }
 

@@ -78,7 +78,10 @@ function GuruDashboardContent() {
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
   useEffect(() => { if (!loading && (!isAuthenticated || (user?.role !== 'guru' && user?.role !== 'admin'))) router.replace('/login'); }, [loading, isAuthenticated, user?.role, router]);
   useEffect(() => {
     if (!isAuthenticated || (user?.role !== 'guru' && user?.role !== 'admin')) return;

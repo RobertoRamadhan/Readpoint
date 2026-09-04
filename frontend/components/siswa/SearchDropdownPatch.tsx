@@ -43,7 +43,10 @@ export default function SearchDropdownPatch() {
   const [rect, setRect] = useState<Rect | null>(null);
   const [focused, setFocused] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     let ignore = false;

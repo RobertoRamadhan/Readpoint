@@ -39,6 +39,43 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const fetchedRef = useRef(false);
   const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  async function loadEbook() {
+    try {
+      setLoadingEbook(true);
+      setError(null);
+      const ebookRes = await api.ebooks.get(ebookId);
+
+      if (ebookRes?.data) {
+        const data = ebookRes.data as Ebook;
+        setEbook({
+          ...data,
+          cover_image: normalizeFileUrl(data.cover_image_url || data.cover_image),
+          cover_image_url: normalizeFileUrl(data.cover_image_url || data.cover_image),
+          pdf_file: normalizeFileUrl(data.pdf_file_url || data.pdf_file),
+          pdf_file_url: normalizeFileUrl(data.pdf_file_url || data.pdf_file),
+        });
+      } else {
+        throw new Error('Gagal memuat data e-book');
+      }
+
+      void startReadingActivity();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat e-book');
+    } finally {
+      setLoadingEbook(false);
+    }
+  };
+
+  async function startReadingActivity() {
+    try {
+      const response = await api.startReading(ebookId);
+      const data = response as unknown as { data?: { id?: number } };
+      setReadingActivityId(data?.data?.id || null);
+    } catch {
+      // Aktivitas baca tidak boleh memblokir pembaca.
+    }
+  }
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
     checkMobile();
@@ -58,45 +95,8 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     }
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    loadEbook();
+    void loadEbook();
   }, [loading, isAuthenticated, user, ebookId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadEbook = async () => {
-    try {
-      setLoadingEbook(true);
-      setError(null);
-      const ebookRes = await api.ebooks.get(ebookId);
-
-      if (ebookRes?.data) {
-        const data = ebookRes.data as Ebook;
-        setEbook({
-          ...data,
-          cover_image: normalizeFileUrl(data.cover_image_url || data.cover_image),
-          cover_image_url: normalizeFileUrl(data.cover_image_url || data.cover_image),
-          pdf_file: normalizeFileUrl(data.pdf_file_url || data.pdf_file),
-          pdf_file_url: normalizeFileUrl(data.pdf_file_url || data.pdf_file),
-        });
-      } else {
-        throw new Error('Gagal memuat data e-book');
-      }
-
-      startReadingActivity();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal memuat e-book');
-    } finally {
-      setLoadingEbook(false);
-    }
-  };
-
-  const startReadingActivity = async () => {
-    try {
-      const response = await api.startReading(ebookId);
-      const data = response as any;
-      setReadingActivityId(data?.data?.id || null);
-    } catch {
-      // Aktivitas baca tidak boleh memblokir pembaca.
-    }
-  };
 
   const updateActivity = useCallback(() => {
     if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -41,24 +43,23 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|min:3|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'password_confirmation' => 'required|string|same:password',
-            'role' => 'required|in:siswa',
-            'grade_level' => 'required_if:role,siswa|in:1,2,3',
+            'name'         => 'required|string|min:3|max:255',
+            'email'        => 'required|email|max:255|unique:users,email',
+            'password'     => 'required|string|min:8|confirmed',
+            'role'         => 'required|in:siswa',
+            'grade_level'  => 'required_if:role,siswa|in:1,2,3',
         ], [
-            'name.required' => 'Nama harus diisi',
-            'name.min' => 'Nama minimal 3 karakter',
-            'email.required' => 'Email harus diisi',
-            'email.email' => 'Email tidak valid',
-            'email.unique' => 'Email sudah terdaftar',
-            'password.required' => 'Password harus diisi',
-            'password.min' => 'Password minimal 8 karakter',
-            'password.confirmed' => 'Password tidak sesuai',
-            'role.in' => 'Role tidak valid',
+            'name.required'           => 'Nama harus diisi',
+            'name.min'                => 'Nama minimal 3 karakter',
+            'email.required'          => 'Email harus diisi',
+            'email.email'             => 'Email tidak valid',
+            'email.unique'            => 'Email sudah terdaftar',
+            'password.required'       => 'Password harus diisi',
+            'password.min'            => 'Password minimal 8 karakter',
+            'password.confirmed'      => 'Konfirmasi password tidak sesuai',
+            'role.in'                 => 'Role tidak valid',
             'grade_level.required_if' => 'Kelas harus dipilih untuk siswa',
-            'grade_level.in' => 'Kelas tidak valid (1, 2, atau 3)',
+            'grade_level.in'          => 'Kelas tidak valid (1, 2, atau 3)',
         ]);
 
         try {
@@ -105,46 +106,39 @@ class AuthController extends Controller
         ]);
 
         try {
-            // Decode Google JWT token
-            $credential = $validated['credential'];
-            
-            // Split the JWT token
-            $parts = explode('.', $credential);
-            if (count($parts) !== 3) {
-                return response()->json([
-                    'message' => 'Invalid Google token format'
-                ], 400);
-            }
-
-            // Decode the payload (second part)
-            $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1])), true);
+            $payload = $this->verifyGoogleJwt($validated['credential']);
 
             if (!$payload || !isset($payload['email'])) {
                 return response()->json([
-                    'message' => 'Invalid Google token payload'
+                    'message' => 'Token Google tidak valid',
                 ], 400);
             }
 
-            $email = $payload['email'];
-            $name = $payload['name'] ?? $payload['email'];
+            // Pastikan token belum expired
+            if (isset($payload['exp']) && $payload['exp'] < time()) {
+                return response()->json([
+                    'message' => 'Token Google sudah kedaluwarsa',
+                ], 401);
+            }
+
+            $email    = $payload['email'];
+            $name     = $payload['name'] ?? $email;
             $googleId = $payload['sub'] ?? null;
 
             // Find or create user
             $user = User::where('email', $email)->first();
 
             if (!$user) {
-                // Create new user with role siswa by default
                 $user = User::create([
-                    'name' => $name,
-                    'email' => $email,
-                    'password' => Hash::make(uniqid()), // Random password for OAuth users
-                    'role' => 'siswa',
-                    'grade_level' => '1', // Default to grade 1
-                    'google_id' => $googleId,
+                    'name'              => $name,
+                    'email'             => $email,
+                    'password'          => Hash::make(\Illuminate\Support\Str::random(32)),
+                    'role'              => 'siswa',
+                    'grade_level'       => null, // Siswa baru harus melengkapi profil
+                    'google_id'         => $googleId,
                     'email_verified_at' => now(),
                 ]);
             } else {
-                // Update google_id if not set
                 if (!$user->google_id && $googleId) {
                     $user->update(['google_id' => $googleId]);
                 }
@@ -154,14 +148,160 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Login berhasil',
-                'user' => $user,
-                'token' => $token,
+                'user'    => $user,
+                'token'   => $token,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Google login failed: ' . $e->getMessage()
+                'message' => 'Google login gagal: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Verifikasi Google ID Token (JWT) menggunakan Google public keys (JWKS).
+     * Mengembalikan payload jika valid, melempar Exception jika tidak valid.
+     *
+     * @throws \Exception
+     */
+    private function verifyGoogleJwt(string $credential): array
+    {
+        $parts = explode('.', $credential);
+        if (count($parts) !== 3) {
+            throw new \Exception('Format JWT tidak valid');
+        }
+
+        [$encodedHeader, $encodedPayload, $encodedSignature] = $parts;
+
+        $header = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $encodedHeader)), true);
+        if (!$header || !isset($header['kid'])) {
+            throw new \Exception('JWT header tidak valid');
+        }
+
+        // Ambil Google public keys (JWKS) — di-cache supaya tidak hit Google tiap request
+        $cacheKey = 'google_jwks';
+        $jwks = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
+            // Gunakan Http client dengan timeout 5 detik agar worker PHP
+            // tidak hang jika Google lambat atau tidak reachable.
+            $response = \Illuminate\Support\Facades\Http::timeout(5)
+                ->get('https://www.googleapis.com/oauth2/v3/certs');
+
+            if (!$response->successful()) {
+                throw new \Exception(
+                    'Tidak bisa mengambil Google public keys (HTTP ' . $response->status() . ')'
+                );
+            }
+
+            return $response->json();
+        });
+
+        // Cari key yang sesuai dengan kid di header
+        $matchingKey = null;
+        foreach ($jwks['keys'] ?? [] as $key) {
+            if (($key['kid'] ?? '') === $header['kid']) {
+                $matchingKey = $key;
+                break;
+            }
+        }
+
+        if (!$matchingKey) {
+            // kid tidak ditemukan — mungkin keys sudah dirotasi, flush cache dan coba ulang
+            \Illuminate\Support\Facades\Cache::forget($cacheKey);
+            throw new \Exception('Google public key tidak ditemukan untuk kid: ' . $header['kid']);
+        }
+
+        // Verifikasi signature menggunakan OpenSSL
+        $signatureInput  = $encodedHeader . '.' . $encodedPayload;
+        $signatureBytes  = base64_decode(str_replace(['-', '_'], ['+', '/'], $encodedSignature));
+        $publicKeyPem    = $this->jwkToPem($matchingKey);
+        $publicKey       = openssl_pkey_get_public($publicKeyPem);
+
+        if (!$publicKey) {
+            throw new \Exception('Gagal memuat Google public key');
+        }
+
+        $algorithm = strtoupper($header['alg'] ?? 'RS256');
+        $opensslAlgo = match ($algorithm) {
+            'RS256' => OPENSSL_ALGO_SHA256,
+            'RS384' => OPENSSL_ALGO_SHA384,
+            'RS512' => OPENSSL_ALGO_SHA512,
+            default => throw new \Exception("Algoritma JWT tidak didukung: {$algorithm}"),
+        };
+
+        $verified = openssl_verify($signatureInput, $signatureBytes, $publicKey, $opensslAlgo);
+        if ($verified !== 1) {
+            throw new \Exception('Signature JWT tidak valid');
+        }
+
+        $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $encodedPayload)), true);
+        if (!$payload) {
+            throw new \Exception('Payload JWT tidak valid');
+        }
+
+        // Verifikasi issuer dan audience
+        $validIssuers = ['accounts.google.com', 'https://accounts.google.com'];
+        if (!in_array($payload['iss'] ?? '', $validIssuers)) {
+            throw new \Exception('Issuer JWT tidak valid');
+        }
+
+        // Audience WAJIB divalidasi — hard-fail jika client_id tidak dikonfigurasi.
+        // Tanpa ini, token dari aplikasi Google manapun akan diterima.
+        $clientId = config('services.google.client_id');
+        if (!$clientId) {
+            throw new \Exception(
+                'Konfigurasi GOOGLE_CLIENT_ID tidak ditemukan. ' .
+                'Tambahkan GOOGLE_CLIENT_ID ke file .env.'
+            );
+        }
+        if (($payload['aud'] ?? '') !== $clientId) {
+            throw new \Exception('Audience JWT tidak sesuai dengan aplikasi ini');
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Konversi JWK (RSA public key dalam format JSON) ke PEM.
+     */
+    private function jwkToPem(array $jwk): string
+    {
+        if (!isset($jwk['n'], $jwk['e'])) {
+            throw new \Exception('JWK tidak memiliki field n atau e');
+        }
+
+        $modulus  = base64_decode(str_replace(['-', '_'], ['+', '/'], $jwk['n']));
+        $exponent = base64_decode(str_replace(['-', '_'], ['+', '/'], $jwk['e']));
+
+        // Encode ke DER format
+        $modulus  = ltrim($modulus, "\x00");
+        if (ord($modulus[0]) > 0x7f) {
+            $modulus = "\x00" . $modulus;
+        }
+
+        $exponent = ltrim($exponent, "\x00");
+
+        $encodeLength = function (int $len): string {
+            if ($len <= 0x7f) return chr($len);
+            $bytes = '';
+            while ($len > 0) { $bytes = chr($len & 0xff) . $bytes; $len >>= 8; }
+            return chr(0x80 | strlen($bytes)) . $bytes;
+        };
+
+        $der = "\x30" . $encodeLength(
+            2 + strlen($encodeLength(strlen($modulus))) + strlen($modulus) +
+            2 + strlen($encodeLength(strlen($exponent))) + strlen($exponent)
+        );
+        $der .= "\x02" . $encodeLength(strlen($modulus)) . $modulus;
+        $der .= "\x02" . $encodeLength(strlen($exponent)) . $exponent;
+
+        // Wrap dalam SubjectPublicKeyInfo
+        $rsaOid   = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00";
+        $bitString = "\x03" . $encodeLength(strlen($der) + 1) . "\x00" . $der;
+        $spki      = "\x30" . $encodeLength(strlen($rsaOid) + strlen($bitString)) . $rsaOid . $bitString;
+
+        return "-----BEGIN PUBLIC KEY-----\n" .
+               chunk_split(base64_encode($spki), 64, "\n") .
+               "-----END PUBLIC KEY-----\n";
     }
 }

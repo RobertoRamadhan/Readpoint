@@ -32,30 +32,11 @@ class ValidationController extends Controller
                 ])
                 ->orderBy('created_at', 'desc');
 
-            // Filter by kelas guru jika guru sudah punya kelas
+            // Filter by kelas guru menggunakan Query Scope User::siswaSeKelas()
             $guruHasKelas = $guru->grade_level || $guru->class_name;
 
             if ($guruHasKelas) {
-                // Ambil ID siswa yang sekelas dengan guru ini
-                $siswaDiKelas = \App\Models\User::where('role', 'siswa')
-                    ->where(function ($q) use ($guru) {
-                        // Cara 1: via wali_kelas_id
-                        $q->where('wali_kelas_id', $guru->id);
-
-                        // Cara 2: via grade_level + class_name (fallback)
-                        if ($guru->grade_level && $guru->class_name) {
-                            $q->orWhere(function ($q2) use ($guru) {
-                                $q2->where('grade_level', $guru->grade_level)
-                                   ->where('class_name', $guru->class_name);
-                            });
-                        } elseif ($guru->class_name) {
-                            $q->orWhere('class_name', $guru->class_name);
-                        } elseif ($guru->grade_level) {
-                            $q->orWhere('grade_level', $guru->grade_level);
-                        }
-                    })
-                    ->pluck('id');
-
+                $siswaDiKelas = \App\Models\User::siswaSeKelas($guru)->pluck('id');
                 $query->whereIn('user_id', $siswaDiKelas);
             }
             // Jika guru belum punya kelas → tampilkan semua pending (tidak difilter)
@@ -72,7 +53,7 @@ class ValidationController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -113,7 +94,7 @@ class ValidationController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
+            return response()->json(['message' => $e->getMessage()], 404);
         }
     }
 
@@ -172,7 +153,7 @@ class ValidationController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -205,9 +186,9 @@ class ValidationController extends Controller
                 ['reading_activity_id' => $activityId],
                 [
                     'validated_by' => $request->user()->id,
-                    'status' => 'rejected',
+                    'status'       => 'rejected',
                     'validated_at' => now(),
-                    'notes' => $validated['notes'],
+                    'notes'        => $validated['notes'],
                 ]
             );
 
@@ -215,11 +196,11 @@ class ValidationController extends Controller
                 'message' => 'Reading activity rejected',
                 'data' => [
                     'activity' => $activity,
-                    'reason' => $validated['notes'],
+                    'reason'   => $validated['notes'],
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -241,41 +222,56 @@ class ValidationController extends Controller
                 'data' => $validations->items(),
                 'pagination' => [
                     'current_page' => $validations->currentPage(),
-                    'per_page' => $validations->perPage(),
-                    'total' => $validations->total(),
-                    'last_page' => $validations->lastPage(),
+                    'per_page'     => $validations->perPage(),
+                    'total'        => $validations->total(),
+                    'last_page'    => $validations->lastPage(),
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * Get statistics untuk guru validation
+     * Get statistics untuk guru validation.
+     * pending_count dan today_pending di-scope ke kelas guru,
+     * bukan global — agar statistik akurat per-guru.
      */
     public function getStatistics(Request $request)
     {
         try {
             $guru = $request->user();
 
+            // Ambil ID siswa yang sekelas dengan guru menggunakan Query Scope.
+            // Query hanya dieksekusi jika guru memang sudah punya kelas
+            // agar tidak SELECT ribuan baris yang langsung dibuang.
+            $guruHasKelas = $guru->grade_level || $guru->class_name;
+
+            $pendingQuery      = ReadingActivity::where('status', 'pending_validation');
+            $todayPendingQuery = ReadingActivity::whereDate('created_at', today())
+                ->where('status', 'pending_validation');
+
+            if ($guruHasKelas) {
+                $siswaDiKelas = \App\Models\User::siswaSeKelas($guru)->pluck('id');
+                $pendingQuery->whereIn('user_id', $siswaDiKelas);
+                $todayPendingQuery->whereIn('user_id', $siswaDiKelas);
+            }
+
             $stats = [
-                'pending_count' => ReadingActivity::where('status', 'pending_validation')->count(),
-                'approved_count' => Validation::where('validated_by', $guru->id)
+                'pending_count'   => $pendingQuery->count(),
+                'approved_count'  => Validation::where('validated_by', $guru->id)
                     ->where('status', 'approved')
                     ->count(),
-                'rejected_count' => Validation::where('validated_by', $guru->id)
+                'rejected_count'  => Validation::where('validated_by', $guru->id)
                     ->where('status', 'rejected')
                     ->count(),
                 'total_validated' => Validation::where('validated_by', $guru->id)->count(),
-                'today_pending' => ReadingActivity::whereDate('created_at', today())
-                    ->where('status', 'pending_validation')
-                    ->count(),
+                'today_pending'   => $todayPendingQuery->count(),
             ];
 
             return response()->json(['data' => $stats]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

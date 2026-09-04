@@ -26,7 +26,7 @@ export default function PdfViewer({ pdfUrl, onPageChange, className = '' }: PdfV
     onPageChange?.(1, numPages);
   }, [onPageChange]);
 
-  const onDocumentLoadError = useCallback((err: any) => {
+  const onDocumentLoadError = useCallback((err: unknown) => {
     console.error('PDF load error:', err);
     setError('Gagal memuat PDF');
     setLoading(false);

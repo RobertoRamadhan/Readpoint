@@ -151,7 +151,8 @@ class EbookController extends Controller
                 'category'         => $request->category,
                 'grade_level'      => $request->grade_level,
                 'is_active'        => $request->is_active,
-            ], fn($v) => $v !== null));
+            // Hanya filter null — false/0 tetap diproses sebagai nilai valid
+            ], fn($v) => !is_null($v)));
 
             $ebook->save();
             $ebook->refresh();

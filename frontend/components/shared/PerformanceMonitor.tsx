@@ -46,15 +46,20 @@ export default function PerformanceMonitor() {
       console.warn('Performance observer not supported');
     }
 
-    setMetrics({
-      loadTime,
-      renderTime: 0, // Would need to be measured differently
-      memoryUsage,
-      networkRequests: 0,
-      errorCount: 0
-    });
+    const t = window.setTimeout(() => {
+      setMetrics({
+        loadTime,
+        renderTime: 0, // Would need to be measured differently
+        memoryUsage,
+        networkRequests: 0,
+        errorCount: 0
+      });
+    }, 0);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(t);
+    };
   }, []);
 
   // Error tracking

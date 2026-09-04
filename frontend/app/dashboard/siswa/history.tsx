@@ -61,7 +61,8 @@ export default function HistoryPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function HistoryPage() {
     loadHistoryData();
   }, [mounted, loading, isAuthenticated, user, router]);
 
-  const loadHistoryData = async () => {
+  async function loadHistoryData() {
     try {
       setLoadingData(true);
       setError(null);

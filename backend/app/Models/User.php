@@ -102,4 +102,48 @@ class User extends Authenticatable
     {
         return $this->pointTransactions()->sum('points');
     }
+
+    /**
+     * Scope: kembalikan query siswa yang sekelas dengan $guru.
+     *
+     * Cara pencocokan (OR):
+     *  1. wali_kelas_id === $guru->id  (assignment eksplisit)
+     *  2. grade_level + class_name cocok dengan milik guru (fallback)
+     *
+     * Jika guru belum punya kelas sama sekali, scope tidak menambahkan
+     * filter apapun sehingga semua siswa dikembalikan — caller bertanggung
+     * jawab untuk menangani kasus ini sesuai kebutuhan bisnis.
+     *
+     * Contoh pemakaian:
+     *   User::siswaSeKelas($guru)->pluck('id')
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \App\Models\User  $guru
+     */
+    public function scopeSiswaSeKelas($query, self $guru)
+    {
+        $query->where('role', 'siswa');
+
+        $hasKelas = $guru->grade_level || $guru->class_name;
+        if (!$hasKelas) {
+            return; // Tidak ada filter — kembalikan semua siswa
+        }
+
+        $query->where(function ($q) use ($guru) {
+            // Cara 1: eksplisit via wali_kelas_id
+            $q->where('wali_kelas_id', $guru->id);
+
+            // Cara 2: fallback via grade_level + class_name
+            if ($guru->grade_level && $guru->class_name) {
+                $q->orWhere(function ($q2) use ($guru) {
+                    $q2->where('grade_level', $guru->grade_level)
+                       ->where('class_name', $guru->class_name);
+                });
+            } elseif ($guru->class_name) {
+                $q->orWhere('class_name', $guru->class_name);
+            } elseif ($guru->grade_level) {
+                $q->orWhere('grade_level', $guru->grade_level);
+            }
+        });
+    }
 }

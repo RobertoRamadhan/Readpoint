@@ -256,7 +256,10 @@ function AdminDashboardContent() {
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!loading && (!isAuthenticated || user?.role !== 'admin')) router.replace('/login');
