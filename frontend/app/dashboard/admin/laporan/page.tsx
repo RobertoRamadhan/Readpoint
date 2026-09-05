@@ -204,7 +204,7 @@ export default function AdminLaporanPage() {
         user={user}
       />
 
-      <main className="admin-report-main min-h-screen min-w-0 bg-slate-50 md:ml-72 md:w-[calc(100vw-18rem)]">
+      <main className="admin-report-main min-h-screen min-w-0 overflow-x-hidden bg-slate-50 md:ml-[272px] md:w-[calc(100vw-272px)]">
         <div className="w-full space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Guru</p>
