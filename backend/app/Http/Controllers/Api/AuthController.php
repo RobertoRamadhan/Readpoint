@@ -332,8 +332,8 @@ class AuthController extends Controller
         };
 
         $der = "\x30" . $encodeLength(
-            2 + strlen($encodeLength(strlen($modulus))) + strlen($modulus) +
-            2 + strlen($encodeLength(strlen($exponent))) + strlen($exponent)
+            1 + strlen($encodeLength(strlen($modulus))) + strlen($modulus) +
+            1 + strlen($encodeLength(strlen($exponent))) + strlen($exponent)
         );
         $der .= "\x02" . $encodeLength(strlen($modulus)) . $modulus;
         $der .= "\x02" . $encodeLength(strlen($exponent)) . $exponent;
