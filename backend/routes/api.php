@@ -14,6 +14,21 @@ use App\Http\Controllers\Api\ValidationController;
 
 
 // TEMP DEBUG — hapus setelah selesai
+Route::post('debug-auth', function (\Illuminate\Http\Request $request) {
+    try {
+        $email = $request->input('email', 'admin@gmail.com');
+        $password = $request->input('password', 'password');
+        $user = \App\Models\User::where('email', $email)->first();
+        if (!$user) return response()->json(['error' => 'User not found']);
+        $check = \Illuminate\Support\Facades\Hash::check($password, $user->password);
+        if (!$check) return response()->json(['error' => 'Wrong password', 'hash_prefix' => substr($user->password, 0, 10)]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json(['success' => true, 'token' => substr($token, 0, 20) . '...', 'user' => $user->email, 'role' => $user->role]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'line' => $e->getLine(), 'file' => basename($e->getFile())], 500);
+    }
+});
+
 Route::post('debug-login', function (\Illuminate\Http\Request $request) {
     try {
         $email = $request->input('email', 'admin@readpoint.com');
