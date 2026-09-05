@@ -22,7 +22,7 @@ interface ApiCallOptions extends RequestInit { suppressErrorLogging?: boolean; }
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 const API_URL = (configuredApiUrl || (
   process.env.NODE_ENV === 'production'
-    ? 'https://readpoint-production-ujjwtt.laravel.cloud/api'
+    ? 'https://readpoint-production-aml3x0.laravel.cloud/api'
     : 'http://localhost:8000/api'
 )).replace(/\/+$/, '');
 const isDev = process.env.NODE_ENV !== 'production';
