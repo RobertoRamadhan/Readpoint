@@ -1,0 +1,112 @@
+﻿╔══════════════════════════════════════════════════════════════════════════════╗
+║                          🔴 CORS ERROR - SOLUSI                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+ERROR YANG TERJADI:
+❌ Access to fetch at 'https://readpoint-production-gmzqxi.laravel.cloud/api/auth/google-login' 
+   from origin 'https://readpointku.web.id' has been blocked by CORS policy: 
+   No 'Access-Control-Allow-Origin' header is present
+
+PENYEBAB:
+Backend Laravel Cloud BELUM APPLY environment variables yang baru.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SOLUSI: UPDATE LARAVEL CLOUD ENVIRONMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 URL: https://cloud.laravel.com/
+
+LANGKAH PENTING:
+
+1. Login ke Laravel Cloud
+2. Pilih project: readpoint-production
+3. Klik "Environment" di sidebar
+4. Pastikan ada environment variables berikut (COPY-PASTE SATU PER SATU):
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ GOOGLE_CLIENT_ID                                                           │
+│ 688719292172-n16echr1dclbo9nrhar85ucg4e5n4ub8.apps.googleusercontent.com  │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ APP_DEBUG                                                                  │
+│ false                                                                      │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ LOG_LEVEL                                                                  │
+│ error                                                                      │
+└────────────────────────────────────────────────────────────────────────────┘
+
+5. Klik "Save" / "Update"
+6. TUNGGU BACKEND REDEPLOY (ada notifikasi/progress bar, biasanya 2-3 menit)
+7. Setelah redeploy selesai, test lagi
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ VERIFIKASI CORS SUDAH FIX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Setelah backend redeploy, buka browser console (F12) dan jalankan:
+
+fetch('https://readpoint-production-gmzqxi.laravel.cloud/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Origin': 'https://readpointku.web.id'
+  },
+  body: JSON.stringify({
+    email: 'test@test.com',
+    password: 'test123456'
+  })
+})
+.then(r => console.log('CORS OK! Status:', r.status))
+.catch(e => console.error('CORS ERROR:', e))
+
+✅ EXPECTED: "CORS OK! Status: 401" (401 = credentials salah, tapi CORS working)
+❌ ERROR: Jika masih "CORS ERROR" berarti env belum apply
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ KONFIGURASI YANG SUDAH BENAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ backend/config/cors.php - Sudah include readpointku.web.id
+✅ backend/bootstrap/app.php - HandleCors middleware sudah registered
+✅ backend/.env (local) - Sudah update dengan Google Client ID baru
+✅ frontend/.env (local) - Sudah update dengan API URL dan Client ID
+
+Yang BELUM:
+❌ Laravel Cloud Environment Variables - BELUM UPDATE!
+❌ Vercel Environment Variables - Mungkin belum update
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ JANGAN LUPA JUGA UPDATE VERCEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 URL: https://vercel.com/dashboard
+
+1. Pilih project: Readpoint
+2. Settings → Environment Variables
+3. Tambahkan/update:
+
+Variable 1:
+Name: NEXT_PUBLIC_API_URL
+Value: https://readpoint-production-gmzqxi.laravel.cloud/api
+Environment: Production
+
+Variable 2:
+Name: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+Value: 688719292172-n16echr1dclbo9nrhar85ucg4e5n4ub8.apps.googleusercontent.com
+Environment: Production
+
+4. Redeploy frontend (Deployments tab → ⋯ → Redeploy)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ PENTING: LARAVEL CLOUD ENVIRONMENT HARUS DIUPDATE DULU! ⚠️
+
+Tanpa update environment di Laravel Cloud, CORS akan tetap error karena
+backend tidak tahu origin 'https://readpointku.web.id' diperbolehkan.
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  Setelah update Laravel Cloud env → tunggu redeploy → test lagi!            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
