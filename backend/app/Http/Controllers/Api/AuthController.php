@@ -1,5 +1,4 @@
 ﻿<?php
-
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -34,8 +33,8 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login berhasil',
-            'user' => $user,
-            'token' => $token,
+            'user'    => $this->formatUser($user),
+            'token'   => $token,
         ]);
     }
 
@@ -81,8 +80,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Pendaftaran berhasil',
-                'user' => $user,
-                'token' => $token,
+                'user'    => $this->formatUser($user),
+                'token'   => $token,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -147,7 +146,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Login berhasil',
-                'user'    => $user,
+                'user'    => $this->formatUser($user),
                 'token'   => $token,
             ]);
 
@@ -158,7 +157,28 @@ class AuthController extends Controller
         }
     }
 
+    
     /**
+     * Format user data untuk response — hindari serialize seluruh model
+     * yang bisa trigger lazy-load relasi atau crash di production.
+     */
+    private function formatUser(User $user): array
+    {
+        return [
+            'id'                => $user->id,
+            'name'              => $user->name,
+            'email'             => $user->email,
+            'role'              => $user->role,
+            'grade_level'       => $user->grade_level,
+            'class_name'        => $user->class_name,
+            'wali_kelas_id'     => $user->wali_kelas_id,
+            'profile_photo_url' => $user->profile_photo_url,
+            'google_id'         => $user->google_id,
+            'email_verified_at' => $user->email_verified_at,
+            'created_at'        => $user->created_at,
+        ];
+    }
+/**
      * Verifikasi Google ID Token (JWT) menggunakan Google public keys (JWKS).
      * Mengembalikan payload jika valid, melempar Exception jika tidak valid.
      *

@@ -12,141 +12,10 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ValidationController;
 
-
-// TEMP DEBUG — hapus setelah selesai
-Route::post('debug-login-full', function (\Illuminate\Http\Request $request) {
-    $steps = [];
-    try {
-        $steps[] = '1. validate';
-        $email = $request->input('email');
-        $password = $request->input('password');
-        if (!$email || !$password) return response()->json(['error' => 'email/password required']);
-
-        $steps[] = '2. find user';
-        $user = \App\Models\User::where('email', $email)->first();
-        if (!$user) return response()->json(['error' => 'user not found']);
-
-        $steps[] = '3. check password';
-        if (!\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
-            return response()->json(['error' => 'wrong password']);
-        }
-
-        $steps[] = '4. create token';
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        $steps[] = '5. serialize user';
-        $userData = $user->toArray();
-
-        $steps[] = '6. return response';
-        return response()->json(['message' => 'Login berhasil', 'user' => $userData, 'token' => $token]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'failed_at' => end($steps),
-            'error' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => basename($e->getFile()),
-        ], 500);
-    }
-});
-
-Route::post('debug-auth', function (\Illuminate\Http\Request $request) {
-    try {
-        $email = $request->input('email', 'admin@gmail.com');
-        $password = $request->input('password', 'password');
-        $user = \App\Models\User::where('email', $email)->first();
-        if (!$user) return response()->json(['error' => 'User not found']);
-        $check = \Illuminate\Support\Facades\Hash::check($password, $user->password);
-        if (!$check) return response()->json(['error' => 'Wrong password', 'hash_prefix' => substr($user->password, 0, 10)]);
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['success' => true, 'token' => substr($token, 0, 20) . '...', 'user' => $user->email, 'role' => $user->role]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage(), 'line' => $e->getLine(), 'file' => basename($e->getFile())], 500);
-    }
-});
-
-Route::post('debug-login', function (\Illuminate\Http\Request $request) {
-    try {
-        $email = $request->input('email', 'admin@readpoint.com');
-        $user = \App\Models\User::where('email', $email)->first();
-        if (!$user) {
-            $allUsers = \App\Models\User::select('id','email','role')->limit(5)->get();
-            return response()->json([
-                'found' => false,
-                'email_searched' => $email,
-                'sample_users' => $allUsers,
-                'total_users' => \App\Models\User::count(),
-            ]);
-        }
-        return response()->json([
-            'found' => true,
-            'user' => ['id' => $user->id, 'email' => $user->email, 'role' => $user->role],
-            'has_password' => !empty($user->password),
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ], 500);
-    }
-});
-
-Route::get('debug-db', function () {
-    try {
-        $pdo = \DB::connection()->getPdo();
-        $dbName = \DB::connection()->getDatabaseName();
-        $tables = \DB::select('SHOW TABLES');
-        return response()->json([
-            'status' => 'connected',
-            'database' => $dbName,
-            'tables' => count($tables),
-            'table_list' => array_map(fn($t) => array_values((array)$t)[0], $tables),
-            'env_db_host' => env('DB_HOST'),
-            'env_db_name' => env('DB_DATABASE'),
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'env_db_host' => env('DB_HOST'),
-            'env_db_name' => env('DB_DATABASE'),
-        ], 500);
-    }
-});
 // ─── Public Routes ────────────────────────────────────────────────────────────
 Route::post('auth/login',        [AuthController::class, 'login']);
 Route::post('auth/register',     [AuthController::class, 'register']);
 Route::post('auth/google-login', [AuthController::class, 'googleLogin']);
-
-// Public file serving with CORS support
-Route::get('files/{path}', function ($path) {
-    $disk = config('filesystems.default');
-    
-    // Decode path and normalize
-    $filePath = urldecode($path);
-    
-    // Check if file exists
-    if (!Storage::disk($disk)->exists($filePath)) {
-        return response()->json(['message' => 'File not found'], 404);
-    }
-    
-    // For cloud storage, redirect to signed URL
-    if ($disk !== 'local' && $disk !== 'public') {
-        $url = Storage::disk($disk)->temporaryUrl($filePath, now()->addHours(1));
-        return redirect($url);
-    }
-    
-    // For local storage, serve file directly
-    $fullPath = Storage::disk($disk)->path($filePath);
-    $mimeType = Storage::disk($disk)->mimeType($filePath);
-    
-    return response()->file($fullPath, [
-        'Content-Type' => $mimeType,
-        'Access-Control-Allow-Origin' => '*',
-        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
-    ]);
-})->where('path', '.*');
 
 // ─── Protected Routes ─────────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
@@ -155,7 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user/profile',    [UserController::class, 'getProfile']);
     Route::put('user/profile',    [UserController::class, 'updateProfile']);
 
-    // Guru set kelas mereka (otomatis assign wali kelas ke siswa sekelas)
     Route::middleware('guru')->group(function () {
         Route::post('user/set-class', [UserController::class, 'setGuruClass']);
     });
@@ -174,55 +42,55 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reading Activities
     Route::middleware('siswa')->group(function () {
-        Route::post('reading-activities/start',             [ReadingActivityController::class, 'startReading']);
-        Route::put('reading-activities/{id}/progress',      [ReadingActivityController::class, 'updateProgress']);
-        Route::put('reading-activities/{id}/complete',      [ReadingActivityController::class, 'completeReading']);
+        Route::post('reading-activities/start',        [ReadingActivityController::class, 'startReading']);
+        Route::put('reading-activities/{id}/progress', [ReadingActivityController::class, 'updateProgress']);
+        Route::put('reading-activities/{id}/complete', [ReadingActivityController::class, 'completeReading']);
     });
-    Route::get('reading-activities',                    [ReadingActivityController::class, 'getMyActivities']);
-    Route::get('reading-activities/frequently-read',    [ReadingActivityController::class, 'getFrequentlyReadBooks']);
-    Route::get('reading-activities/{id}',               [ReadingActivityController::class, 'getActivity']);
+    Route::get('reading-activities',                [ReadingActivityController::class, 'getMyActivities']);
+    Route::get('reading-activities/frequently-read',[ReadingActivityController::class, 'getFrequentlyReadBooks']);
+    Route::get('reading-activities/{id}',           [ReadingActivityController::class, 'getActivity']);
 
-    // Reading Progress (upsert bookmark per ebook)
-    Route::get('reading-progress',             [ReadingProgressController::class, 'index']);
-    Route::post('reading-progress',            [ReadingProgressController::class, 'store']);
-    Route::get('reading-progress/{id}',        [ReadingProgressController::class, 'show']);
-    Route::put('reading-progress/{id}',        [ReadingProgressController::class, 'update']);
-    Route::delete('reading-progress/{id}',     [ReadingProgressController::class, 'destroy']);
+    // Reading Progress
+    Route::get('reading-progress',         [ReadingProgressController::class, 'index']);
+    Route::post('reading-progress',        [ReadingProgressController::class, 'store']);
+    Route::get('reading-progress/{id}',    [ReadingProgressController::class, 'show']);
+    Route::put('reading-progress/{id}',    [ReadingProgressController::class, 'update']);
+    Route::delete('reading-progress/{id}', [ReadingProgressController::class, 'destroy']);
 
     // Quizzes
-    Route::get('ebooks/{id}/quiz',  [QuizController::class, 'getQuizForBook']);
-    Route::get('ebooks-with-quiz',  [QuizController::class, 'getEbooksWithQuiz']);
-    Route::post('quiz/submit',      [QuizController::class, 'submitQuiz']);
-    Route::get('quiz/my-attempts',  [QuizController::class, 'getMyAttempts']);
+    Route::get('ebooks/{id}/quiz', [QuizController::class, 'getQuizForBook']);
+    Route::get('ebooks-with-quiz', [QuizController::class, 'getEbooksWithQuiz']);
+    Route::post('quiz/submit',     [QuizController::class, 'submitQuiz']);
+    Route::get('quiz/my-attempts', [QuizController::class, 'getMyAttempts']);
 
     Route::middleware('guru')->group(function () {
-        Route::post('quiz/create',   [QuizController::class, 'createQuiz']);
-        Route::put('quiz/{id}',      [QuizController::class, 'updateQuiz']);
-        Route::delete('quiz/{id}',   [QuizController::class, 'deleteQuiz']);
+        Route::post('quiz/create',  [QuizController::class, 'createQuiz']);
+        Route::put('quiz/{id}',     [QuizController::class, 'updateQuiz']);
+        Route::delete('quiz/{id}',  [QuizController::class, 'deleteQuiz']);
     });
 
     // Validations
     Route::middleware('guru')->group(function () {
-        Route::get('validations/pending',        [ValidationController::class, 'getPending']);
-        Route::get('validations/history',        [ValidationController::class, 'getHistory']);
-        Route::get('validations/stats',          [ValidationController::class, 'getStatistics']);
-        Route::get('validations/{id}',           [ValidationController::class, 'getDetail']);
-        Route::put('validations/{id}/approve',   [ValidationController::class, 'approve']);
-        Route::put('validations/{id}/reject',    [ValidationController::class, 'reject']);
+        Route::get('validations/pending',      [ValidationController::class, 'getPending']);
+        Route::get('validations/history',      [ValidationController::class, 'getHistory']);
+        Route::get('validations/stats',        [ValidationController::class, 'getStatistics']);
+        Route::get('validations/{id}',         [ValidationController::class, 'getDetail']);
+        Route::put('validations/{id}/approve', [ValidationController::class, 'approve']);
+        Route::put('validations/{id}/reject',  [ValidationController::class, 'reject']);
     });
 
     // Rewards
-    Route::get('rewards',             [RewardController::class, 'index']);
-    Route::get('rewards/{id}',        [RewardController::class, 'show']);
-    Route::post('rewards/{id}/redeem',[RewardController::class, 'redeem']);
-    Route::get('my-redemptions',      [RewardController::class, 'getMyRedemptions']);
-    Route::get('user-points',         [RewardController::class, 'getUserPoints']);
+    Route::get('rewards',              [RewardController::class, 'index']);
+    Route::get('rewards/{id}',         [RewardController::class, 'show']);
+    Route::post('rewards/{id}/redeem', [RewardController::class, 'redeem']);
+    Route::get('my-redemptions',       [RewardController::class, 'getMyRedemptions']);
+    Route::get('user-points',          [RewardController::class, 'getUserPoints']);
 
     Route::middleware('admin')->group(function () {
-        Route::post('rewards',               [RewardController::class, 'store']);
-        Route::put('rewards/{id}',           [RewardController::class, 'update']);
-        Route::delete('rewards/{id}',        [RewardController::class, 'destroy']);
-        Route::post('rewards/verify-claim',  [RewardController::class, 'verifyClaim']);
+        Route::post('rewards',              [RewardController::class, 'store']);
+        Route::put('rewards/{id}',          [RewardController::class, 'update']);
+        Route::delete('rewards/{id}',       [RewardController::class, 'destroy']);
+        Route::post('rewards/verify-claim', [RewardController::class, 'verifyClaim']);
     });
 
     // Books
@@ -230,20 +98,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard — Admin
     Route::middleware('admin')->group(function () {
-        Route::get('dashboard/admin/stats',       [DashboardController::class, 'adminStats']);
-        Route::get('dashboard/admin/top-students',[DashboardController::class, 'topStudents']);
-        Route::get('dashboard/admin/books',       [DashboardController::class, 'adminBooks']);
-        Route::get('dashboard/admin/users-stats', [UserController::class,      'getStatistics']);
-        Route::get('dashboard/admin/history',     [DashboardController::class, 'adminHistory']);
+        Route::get('dashboard/admin/stats',        [DashboardController::class, 'adminStats']);
+        Route::get('dashboard/admin/top-students', [DashboardController::class, 'topStudents']);
+        Route::get('dashboard/admin/books',        [DashboardController::class, 'adminBooks']);
+        Route::get('dashboard/admin/users-stats',  [UserController::class,      'getStatistics']);
+        Route::get('dashboard/admin/history',      [DashboardController::class, 'adminHistory']);
     });
 
     // Dashboard — Guru
     Route::middleware('guru')->group(function () {
-        Route::get('dashboard/guru/stats',       [DashboardController::class, 'guruStats']);
-        Route::get('dashboard/guru/students',    [DashboardController::class, 'guruStudents']);
-        Route::get('dashboard/guru/class-stats', [DashboardController::class, 'guruClassStats']);
-        Route::get('dashboard/guru/quizzes',     [DashboardController::class, 'guruQuizzes']);
-        Route::get('dashboard/guru/history',     [DashboardController::class, 'guruHistory']);
+        Route::get('dashboard/guru/stats',      [DashboardController::class, 'guruStats']);
+        Route::get('dashboard/guru/students',   [DashboardController::class, 'guruStudents']);
+        Route::get('dashboard/guru/class-stats',[DashboardController::class, 'guruClassStats']);
+        Route::get('dashboard/guru/quizzes',    [DashboardController::class, 'guruQuizzes']);
+        Route::get('dashboard/guru/history',    [DashboardController::class, 'guruHistory']);
     });
 
     // Dashboard — Siswa
@@ -261,11 +129,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User Management — Admin
     Route::middleware('admin')->group(function () {
-        Route::get('users',                   [UserController::class, 'index']);
-        Route::get('users/{id}',              [UserController::class, 'show']);
-        Route::put('users/{id}',              [UserController::class, 'update']);
-        Route::delete('users/{id}',           [UserController::class, 'destroy']);
+        Route::get('users',                      [UserController::class, 'index']);
+        Route::get('users/{id}',                 [UserController::class, 'show']);
+        Route::put('users/{id}',                 [UserController::class, 'update']);
+        Route::delete('users/{id}',              [UserController::class, 'destroy']);
         Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword']);
-        Route::post('users/create',           [UserController::class, 'createUser']);
+        Route::post('users/create',              [UserController::class, 'createUser']);
     });
 });
