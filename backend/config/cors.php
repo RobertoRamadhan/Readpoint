@@ -18,7 +18,7 @@ return [
         'https://www.readpointku.web.id',
         'https://readpoint.vercel.app',
         'https://*.vercel.app',
-        'https://readpoint-production-gmzqxi.laravel.cloud',
+        'https://readpoint-production-ujjwtt.laravel.cloud',
     ],
 
     'allowed_origins_patterns' => [

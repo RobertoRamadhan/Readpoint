@@ -5,13 +5,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:8',
         ], [
@@ -21,21 +22,38 @@ class AuthController extends Controller
             'password.min' => 'Password minimal 8 karakter',
         ]);
 
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'Email atau password salah'
-            ], 401);
+                'message' => 'Data login tidak valid',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $validated = $validator->validated();
 
-        return response()->json([
-            'message' => 'Login berhasil',
-            'user'    => $this->formatUser($user),
-            'token'   => $token,
-        ]);
+        try {
+            $user = User::where('email', $validated['email'])->first();
+
+            if (!$user || !Hash::check($validated['password'], $user->password)) {
+                return response()->json([
+                    'message' => 'Email atau password salah'
+                ], 401);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login berhasil',
+                'user'    => $this->formatUser($user),
+                'token'   => $token,
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'message' => 'Layanan login sedang mengalami gangguan. Periksa konfigurasi database server.',
+            ], 503);
+        }
     }
 
     public function register(Request $request)
@@ -46,6 +64,7 @@ class AuthController extends Controller
             'password'     => 'required|string|min:8|confirmed',
             'role'         => 'required|in:siswa',
             'grade_level'  => 'required_if:role,siswa|in:1,2,3',
+            'class_name'   => 'nullable|string|max:255',
         ], [
             'name.required'           => 'Nama harus diisi',
             'name.min'                => 'Nama minimal 3 karakter',
@@ -74,6 +93,7 @@ class AuthController extends Controller
                 'password' => Hash::make($validated['password']),
                 'role' => $validated['role'],
                 'grade_level' => $validated['grade_level'],
+                'class_name' => $validated['class_name'] ?? null,
             ]);
 
             $token = $user->createToken('auth_token')->plainTextToken;

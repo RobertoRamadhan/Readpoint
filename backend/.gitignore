@@ -2,8 +2,10 @@
 .DS_Store
 Thumbs.db
 
-# Environment — .env di-commit agar Laravel Cloud bisa membacanya
-# Jangan commit .env.local yang berisi credentials lokal
+# Environment files contain deployment secrets and must be configured by the host.
+.env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 

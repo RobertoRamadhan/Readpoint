@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "readpoint-production-gmzqxi.laravel.cloud",
+        hostname: "readpoint-production-ujjwtt.laravel.cloud",
       },
       {
         protocol: "https",

@@ -19,7 +19,12 @@ interface ApiCallOptions extends RequestInit { suppressErrorLogging?: boolean; }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+const API_URL = (configuredApiUrl || (
+  process.env.NODE_ENV === 'production'
+    ? 'https://readpoint-production-ujjwtt.laravel.cloud/api'
+    : 'http://localhost:8000/api'
+)).replace(/\/+$/, '');
 const isDev = process.env.NODE_ENV !== 'production';
 
 // ─── Core fetch helpers ───────────────────────────────────────────────────────
@@ -48,7 +53,6 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
   try {
     const response = await fetch(url, {
       ...requestOptions,
-      credentials: 'include',
       headers,
     });
 
