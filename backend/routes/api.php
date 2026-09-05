@@ -14,6 +14,42 @@ use App\Http\Controllers\Api\ValidationController;
 
 
 // TEMP DEBUG — hapus setelah selesai
+Route::post('debug-login-full', function (\Illuminate\Http\Request $request) {
+    $steps = [];
+    try {
+        $steps[] = '1. validate';
+        $email = $request->input('email');
+        $password = $request->input('password');
+        if (!$email || !$password) return response()->json(['error' => 'email/password required']);
+
+        $steps[] = '2. find user';
+        $user = \App\Models\User::where('email', $email)->first();
+        if (!$user) return response()->json(['error' => 'user not found']);
+
+        $steps[] = '3. check password';
+        if (!\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            return response()->json(['error' => 'wrong password']);
+        }
+
+        $steps[] = '4. create token';
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $steps[] = '5. serialize user';
+        $userData = $user->toArray();
+
+        $steps[] = '6. return response';
+        return response()->json(['message' => 'Login berhasil', 'user' => $userData, 'token' => $token]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'failed_at' => end($steps),
+            'error' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => basename($e->getFile()),
+        ], 500);
+    }
+});
+
 Route::post('debug-auth', function (\Illuminate\Http\Request $request) {
     try {
         $email = $request->input('email', 'admin@gmail.com');
