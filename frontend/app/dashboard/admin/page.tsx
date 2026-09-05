@@ -1035,17 +1035,22 @@ function HistoriTab() {
       />
 
       {/* Period Selector */}
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-black text-slate-500">Periode:</span>
-        {[7, 14, 30, 90].map((p) => (
-          <button
-            key={p}
-            onClick={() => setPeriod(p)}
-            className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${period === p ? 'bg-emerald-600 text-white shadow' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-          >
-            {p} hari
-          </button>
-        ))}
+      <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
+        <div>
+          <p className="text-sm font-black text-slate-900">Rentang waktu</p>
+          <p className="mt-0.5 text-xs font-medium text-slate-500">Pilih periode aktivitas yang ingin ditampilkan.</p>
+        </div>
+        <div className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1 sm:w-auto">
+          {[7, 14, 30, 90].map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`rounded-lg px-3 py-2 text-xs font-black transition sm:px-4 ${period === p ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-white hover:text-emerald-700'}`}
+            >
+              {p} hari
+            </button>
+          ))}
+        </div>
       </div>
 
       <ErrorBox message={error} />

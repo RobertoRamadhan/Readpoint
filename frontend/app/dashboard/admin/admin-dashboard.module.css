@@ -967,17 +967,26 @@
 .sectionTabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
 }
 
 .sectionTabButton {
   display: inline-flex;
+  flex: 1 1 180px;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 7px 13px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 999px;
-  background: #fff;
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
   color: #475569;
   font-size: 12px;
   font-weight: 700;
@@ -986,7 +995,7 @@
 }
 
 .sectionTabButton:hover {
-  border-color: #a7f3d0;
+  border-color: #d1fae5;
   background: #f0fdf4;
   color: #047857;
 }
@@ -995,6 +1004,7 @@
   border-color: #047857 !important;
   background: #047857 !important;
   color: #fff !important;
+  box-shadow: 0 4px 10px rgba(4, 120, 87, .18);
 }
 
 .sectionTabCount {
