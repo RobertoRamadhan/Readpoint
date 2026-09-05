@@ -14,6 +14,32 @@ use App\Http\Controllers\Api\ValidationController;
 
 
 // TEMP DEBUG — hapus setelah selesai
+Route::post('debug-login', function (\Illuminate\Http\Request $request) {
+    try {
+        $email = $request->input('email', 'admin@readpoint.com');
+        $user = \App\Models\User::where('email', $email)->first();
+        if (!$user) {
+            $allUsers = \App\Models\User::select('id','email','role')->limit(5)->get();
+            return response()->json([
+                'found' => false,
+                'email_searched' => $email,
+                'sample_users' => $allUsers,
+                'total_users' => \App\Models\User::count(),
+            ]);
+        }
+        return response()->json([
+            'found' => true,
+            'user' => ['id' => $user->id, 'email' => $user->email, 'role' => $user->role],
+            'has_password' => !empty($user->password),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 Route::get('debug-db', function () {
     try {
         $pdo = \DB::connection()->getPdo();
