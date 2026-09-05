@@ -7,7 +7,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // MySQL: ALTER TABLE untuk expand enum — tambah 'quiz_completed'
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE point_transactions MODIFY COLUMN type ENUM(
             'reading_validation',
             'reward_redemption',
@@ -19,6 +22,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE point_transactions MODIFY COLUMN type ENUM(
             'reading_validation',
             'reward_redemption',
