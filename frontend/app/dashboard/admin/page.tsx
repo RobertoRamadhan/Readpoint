@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { normalizeFileUrl } from '@/lib/file-url';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import AdminLaporanTab from './laporan/page';
 import {
   Activity,
   BookOpen,
@@ -30,7 +31,7 @@ import {
 } from 'lucide-react';
 import styles from './admin-dashboard.module.css';
 
-type AdminTab = 'beranda' | 'ebooks' | 'rewards' | 'users' | 'kelas' | 'siswa' | 'admin' | 'histori' | 'pengaturan';
+type AdminTab = 'beranda' | 'ebooks' | 'rewards' | 'users' | 'kelas' | 'siswa' | 'admin' | 'laporan' | 'histori' | 'pengaturan';
 type Role = 'admin' | 'guru' | 'siswa';
 
 type AdminStats = {
@@ -106,7 +107,7 @@ type TopStudent = {
 
 const CLASS_STORAGE_KEY = 'readpoint_admin_classes_v1';
 
-const adminTabs = new Set<AdminTab>(['beranda', 'ebooks', 'rewards', 'users', 'kelas', 'siswa', 'admin', 'histori', 'pengaturan']);
+const adminTabs = new Set<AdminTab>(['beranda', 'ebooks', 'rewards', 'users', 'kelas', 'siswa', 'admin', 'laporan', 'histori', 'pengaturan']);
 
 function getClassStorageKey(item: Pick<SchoolClass, 'grade_level' | 'class_name'>): string {
   return `${item.grade_level ?? ''}|${item.class_name ?? ''}`.trim();
@@ -313,6 +314,7 @@ function AdminDashboardContent() {
         {activeTab === 'kelas' && <ClassesTab />}
         {activeTab === 'siswa' && <StudentsTab />}
         {activeTab === 'admin' && <AdminsTab />}
+        {activeTab === 'laporan' && <AdminLaporanTab />}
         {activeTab === 'histori' && <HistoriTab />}
         {activeTab === 'pengaturan' && <SettingsTab refreshUser={refreshUser} />}
       </main>

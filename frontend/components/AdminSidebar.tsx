@@ -110,7 +110,7 @@ export default function AdminSidebar({
     onTabChange(tabId);
 
     if (tabId === 'beranda') router.push(basePath);
-    else if (tabId === 'laporan') router.push(`${basePath}/laporan`);
+    else if (tabId === 'laporan') router.push(`${basePath}?tab=laporan`);
     else router.push(`${basePath}?tab=${tabId}`);
 
     onCloseSidebar();

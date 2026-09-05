@@ -2,8 +2,6 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
-import AdminSidebar from '@/components/AdminSidebar';
-import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 interface UserRecord {
@@ -78,24 +76,11 @@ function getProductivityStatus(averagePoints: number, totalStudents: number) {
   };
 }
 
-export default function AdminLaporanPage() {
+export default function AdminLaporanTab() {
   const { user, loading, isAuthenticated } = useAuth();
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!loading && (!isAuthenticated || user?.role !== 'admin')) {
-      router.push('/login');
-    }
-  }, [loading, isAuthenticated, user?.role, router]);
 
   useEffect(() => {
     if (isAuthenticated && user?.role === 'admin') {
@@ -169,43 +154,12 @@ export default function AdminLaporanPage() {
     return Math.max(1, ...reportData.map((item) => item.totalPoints));
   }, [reportData]);
 
-  if (loading || !mounted || user?.role !== 'admin') {
+  if (loading || !isAuthenticated || user?.role !== 'admin') {
     return null;
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50">
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed left-4 top-16 z-40 rounded-lg bg-emerald-900 p-2 text-white transition hover:bg-emerald-800 md:hidden"
-        aria-label="Buka menu admin"
-      >
-        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 top-14 z-30 bg-black/50 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <AdminSidebar
-        activeTab="laporan"
-        sidebarOpen={sidebarOpen}
-        onTabChange={(tabId) => {
-          if (tabId === 'beranda') router.push('/dashboard/admin');
-          if (['ebooks', 'rewards', 'users', 'pengaturan'].includes(tabId)) router.push(`/dashboard/admin?tab=${tabId}`);
-        }}
-        onCloseSidebar={() => setSidebarOpen(false)}
-        role="admin"
-        user={user}
-      />
-
-      <main className="admin-report-main min-h-screen min-w-0 overflow-x-hidden bg-slate-50 md:ml-[272px] md:w-[calc(100vw-272px)]">
-        <div className="w-full space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+    <div className="w-full space-y-6">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Guru</p>
             <h1 className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl lg:text-4xl">Evaluasi wali kelas berdasarkan poin siswa</h1>
@@ -337,8 +291,6 @@ export default function AdminLaporanPage() {
               </section>
             </>
           )}
-        </div>
-      </main>
     </div>
   );
 }
