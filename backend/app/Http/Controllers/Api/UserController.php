@@ -256,18 +256,28 @@ class UserController extends Controller
             return response()->json(['message' => 'Cannot delete your own account'], 403);
         }
 
+        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
+            return response()->json(['message' => 'Admin terakhir tidak boleh dihapus'], 422);
+        }
+
         try {
             $forceDelete = filter_var($request->input('force', false), FILTER_VALIDATE_BOOLEAN);
 
-            \DB::transaction(function () use ($user, $forceDelete) {
-                // Bersihkan relasi agar FK constraint tidak menghalangi delete
-                \App\Models\Validation::where('validated_by', $user->id)
-                    ->update(['validated_by' => null]);
-                \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
-                \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
-                User::where('wali_kelas_id', $user->id)->update(['wali_kelas_id' => null]);
+            if ($forceDelete && !$request->boolean('confirm_force_delete')) {
+                return response()->json([
+                    'message' => 'Penghapusan permanen harus dikonfirmasi secara eksplisit.',
+                ], 422);
+            }
 
+            \DB::transaction(function () use ($user, $forceDelete) {
                 if ($forceDelete) {
+                    // Bersihkan relasi hanya untuk penghapusan permanen.
+                    \App\Models\Validation::where('validated_by', $user->id)
+                        ->update(['validated_by' => null]);
+                    \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
+                    \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
+                    User::where('wali_kelas_id', $user->id)->update(['wali_kelas_id' => null]);
+
                     $quizAttemptIds = \App\Models\QuizAttempt::where('user_id', $user->id)->pluck('id');
                     if ($quizAttemptIds->isNotEmpty()) {
                         \App\Models\PointTransaction::whereIn('quiz_attempt_id', $quizAttemptIds)->delete();
@@ -277,21 +287,12 @@ class UserController extends Controller
                     \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
                     \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
                     \App\Models\ReadingProgress::where('user_id', $user->id)->delete();
-                    $user->delete();
                 } else {
-                    // Soft-deactivate: rename email agar tidak konflik
-                    $timestamp   = time();
-                    $user->email = "deleted_{$timestamp}_{$user->id}@deleted.local";
-                    $user->name  = rtrim($user->name, ' (Deleted)') . ' (Deleted)';
-                    $user->save();
-
-                    \App\Models\ReadingProgress::where('user_id', $user->id)->delete();
-                    \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
-                    \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
-                    \App\Models\PointTransaction::where('user_id', $user->id)->delete();
-                    \App\Models\Redemption::where('user_id', $user->id)->delete();
-                    $user->delete();
+                    // Soft-delete mempertahankan histori dan relasi data.
+                    User::where('wali_kelas_id', $user->id)->update(['wali_kelas_id' => null]);
                 }
+
+                $forceDelete ? $user->forceDelete() : $user->delete();
             });
 
             return response()->json([
@@ -367,6 +368,19 @@ class UserController extends Controller
         ]);
 
         $guru = $request->user();
+        $conflictingStudents = User::where('role', 'siswa')
+            ->where('grade_level', $validated['grade_level'])
+            ->where('class_name', $validated['class_name'])
+            ->whereNotNull('wali_kelas_id')
+            ->where('wali_kelas_id', '!=', $guru->id)
+            ->count();
+
+        if ($conflictingStudents > 0) {
+            return response()->json([
+                'message' => 'Kelas sudah memiliki wali kelas lain dan tidak dapat diambil alih otomatis.',
+            ], 409);
+        }
+
         $guru->update([
             'grade_level' => $validated['grade_level'],
             'class_name'  => $validated['class_name'],
@@ -375,6 +389,9 @@ class UserController extends Controller
         $updated = User::where('role', 'siswa')
             ->where('grade_level', $validated['grade_level'])
             ->where('class_name', $validated['class_name'])
+            ->where(function ($query) use ($guru) {
+                $query->whereNull('wali_kelas_id')->orWhere('wali_kelas_id', $guru->id);
+            })
             ->update(['wali_kelas_id' => $guru->id]);
 
         return response()->json([

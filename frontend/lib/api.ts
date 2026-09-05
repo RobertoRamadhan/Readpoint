@@ -231,8 +231,13 @@ export const api = {
       return apiCall(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) });
     },
 
-    delete: (id: number, options?: { force?: boolean }) =>
-      apiCall(`/users/${id}${options?.force ? '?force=true' : ''}`, { method: 'DELETE' }),
+    delete: (id: number, options?: { force?: boolean; confirm_force_delete?: boolean }) => {
+      const params = new URLSearchParams();
+      if (options?.force) params.set('force', 'true');
+      if (options?.confirm_force_delete) params.set('confirm_force_delete', 'true');
+      const query = params.toString();
+      return apiCall(`/users/${id}${query ? `?${query}` : ''}`, { method: 'DELETE' });
+    },
 
     resetPassword: (id: number, password: string) =>
       apiCall(`/users/${id}/reset-password`, {

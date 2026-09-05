@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -106,9 +107,7 @@ class User extends Authenticatable
     /**
      * Scope: kembalikan query siswa yang sekelas dengan $guru.
      *
-     * Cara pencocokan (OR):
-     *  1. wali_kelas_id === $guru->id  (assignment eksplisit)
-     *  2. grade_level + class_name cocok dengan milik guru (fallback)
+    * Akses guru hanya berdasarkan assignment eksplisit wali_kelas_id.
      *
      * Jika guru belum punya kelas sama sekali, scope tidak menambahkan
      * filter apapun sehingga semua siswa dikembalikan — caller bertanggung
@@ -124,26 +123,16 @@ class User extends Authenticatable
     {
         $query->where('role', 'siswa');
 
-        $hasKelas = $guru->grade_level || $guru->class_name;
-        if (!$hasKelas) {
-            return; // Tidak ada filter — kembalikan semua siswa
+        if ($guru->role === 'admin') {
+            return;
         }
 
-        $query->where(function ($q) use ($guru) {
-            // Cara 1: eksplisit via wali_kelas_id
-            $q->where('wali_kelas_id', $guru->id);
+        $hasKelas = $guru->grade_level || $guru->class_name;
+        if (!$hasKelas) {
+            $query->whereRaw('1 = 0');
+            return;
+        }
 
-            // Cara 2: fallback via grade_level + class_name
-            if ($guru->grade_level && $guru->class_name) {
-                $q->orWhere(function ($q2) use ($guru) {
-                    $q2->where('grade_level', $guru->grade_level)
-                       ->where('class_name', $guru->class_name);
-                });
-            } elseif ($guru->class_name) {
-                $q->orWhere('class_name', $guru->class_name);
-            } elseif ($guru->grade_level) {
-                $q->orWhere('grade_level', $guru->grade_level);
-            }
-        });
+        $query->where('wali_kelas_id', $guru->id);
     }
 }

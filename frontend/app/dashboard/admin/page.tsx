@@ -582,7 +582,7 @@ function UsersTab() {
         // Ask for force delete confirmation
         if (confirm('Guru ini memiliki data aktivitas. Hapus permanen termasuk semua data terkait?')) {
           try {
-            await api.users.delete(id, { force: true });
+            await api.users.delete(id, { force: true, confirm_force_delete: true });
             await load();
             return;
           } catch (forceError) {
@@ -634,7 +634,7 @@ function StudentsTab() {
         // Ask for force delete confirmation
         if (confirm('Siswa ini memiliki data aktivitas. Hapus permanen termasuk semua data terkait (reading progress, quiz, points)?')) {
           try {
-            await api.users.delete(id, { force: true });
+            await api.users.delete(id, { force: true, confirm_force_delete: true });
             await load();
             return;
           } catch (forceError) {
@@ -686,7 +686,7 @@ function AdminsTab() {
         // Ask for force delete confirmation
         if (confirm('Admin ini memiliki data terkait. Hapus permanen termasuk semua data?')) {
           try {
-            await api.users.delete(id, { force: true });
+            await api.users.delete(id, { force: true, confirm_force_delete: true });
             await load();
             return;
           } catch (forceError) {

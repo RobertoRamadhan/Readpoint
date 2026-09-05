@@ -32,14 +32,10 @@ class ValidationController extends Controller
                 ])
                 ->orderBy('created_at', 'desc');
 
-            // Filter by kelas guru menggunakan Query Scope User::siswaSeKelas()
-            $guruHasKelas = $guru->grade_level || $guru->class_name;
-
-            if ($guruHasKelas) {
+            if ($guru->role !== 'admin') {
                 $siswaDiKelas = \App\Models\User::siswaSeKelas($guru)->pluck('id');
                 $query->whereIn('user_id', $siswaDiKelas);
             }
-            // Jika guru belum punya kelas → tampilkan semua pending (tidak difilter)
 
             $pendingActivities = $query->paginate(50);
 
@@ -60,10 +56,13 @@ class ValidationController extends Controller
     /**
      * Get detail single reading activity untuk validasi
      */
-    public function getDetail($activityId)
+    public function getDetail(Request $request, $activityId)
     {
         try {
             $activity = ReadingActivity::findOrFail($activityId);
+            if (!$this->canAccessActivity($request, $activity)) {
+                return response()->json(['message' => 'Aktivitas bukan bagian dari kelas Anda'], 403);
+            }
             
             // Get related data
             $activity->load([
@@ -109,6 +108,9 @@ class ValidationController extends Controller
             ]);
 
             $activity = ReadingActivity::findOrFail($activityId);
+            if (!$this->canAccessActivity($request, $activity)) {
+                return response()->json(['message' => 'Aktivitas bukan bagian dari kelas Anda'], 403);
+            }
             
             // Ensure status is pending_validation
             if ($activity->status !== 'pending_validation') {
@@ -168,6 +170,9 @@ class ValidationController extends Controller
             ]);
 
             $activity = ReadingActivity::findOrFail($activityId);
+            if (!$this->canAccessActivity($request, $activity)) {
+                return response()->json(['message' => 'Aktivitas bukan bagian dari kelas Anda'], 403);
+            }
 
             // Ensure status is pending_validation
             if ($activity->status !== 'pending_validation') {
@@ -242,16 +247,11 @@ class ValidationController extends Controller
         try {
             $guru = $request->user();
 
-            // Ambil ID siswa yang sekelas dengan guru menggunakan Query Scope.
-            // Query hanya dieksekusi jika guru memang sudah punya kelas
-            // agar tidak SELECT ribuan baris yang langsung dibuang.
-            $guruHasKelas = $guru->grade_level || $guru->class_name;
-
             $pendingQuery      = ReadingActivity::where('status', 'pending_validation');
             $todayPendingQuery = ReadingActivity::whereDate('created_at', today())
                 ->where('status', 'pending_validation');
 
-            if ($guruHasKelas) {
+            if ($guru->role !== 'admin') {
                 $siswaDiKelas = \App\Models\User::siswaSeKelas($guru)->pluck('id');
                 $pendingQuery->whereIn('user_id', $siswaDiKelas);
                 $todayPendingQuery->whereIn('user_id', $siswaDiKelas);
@@ -273,5 +273,14 @@ class ValidationController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    private function canAccessActivity(Request $request, ReadingActivity $activity): bool
+    {
+        $user = $request->user();
+
+        return $user?->role === 'admin'
+            || ($user?->role === 'guru'
+                && \App\Models\User::siswaSeKelas($user)->whereKey($activity->user_id)->exists());
     }
 }

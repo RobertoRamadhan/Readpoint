@@ -93,8 +93,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('rewards/verify-claim', [RewardController::class, 'verifyClaim']);
     });
 
-    // Books
-    Route::apiResource('books', BookController::class);
+    // Books: everyone may read active books; only admins may manage them.
+    Route::get('books',        [BookController::class, 'index']);
+    Route::get('books/{book}', [BookController::class, 'show']);
+    Route::middleware('admin')->group(function () {
+        Route::post('books',        [BookController::class, 'store']);
+        Route::put('books/{book}',  [BookController::class, 'update']);
+        Route::delete('books/{book}', [BookController::class, 'destroy']);
+    });
 
     // Dashboard — Admin
     Route::middleware('admin')->group(function () {
