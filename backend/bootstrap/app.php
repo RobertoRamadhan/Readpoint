@@ -14,8 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Trust all proxies for Railway deployment
         $middleware->trustProxies(at: '*');
-        
+
         $middleware->api(prepend: [
+            \App\Http\Middleware\CorsMiddleware::class,
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
