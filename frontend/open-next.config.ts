@@ -1,11 +1,12 @@
-﻿import type { OpenNextConfig } from "@opennextjs/cloudflare";
+import type { OpenNextConfig } from "@opennextjs/cloudflare";
 
 const config: OpenNextConfig = {
   default: {
     override: {
       wrapper: "cloudflare-node",
       converter: "edge",
-      incrementalCache: async () => (await import("@opennextjs/cloudflare")).KVCache,
+      proxyExternalRequest: "fetch",
+      incrementalCache: "dummy",
       tagCache: "dummy",
       queue: "dummy",
     },
@@ -16,6 +17,9 @@ const config: OpenNextConfig = {
       wrapper: "cloudflare-edge",
       converter: "edge",
       proxyExternalRequest: "fetch",
+      incrementalCache: "dummy",
+      tagCache: "dummy",
+      queue: "dummy",
     },
   },
 };
