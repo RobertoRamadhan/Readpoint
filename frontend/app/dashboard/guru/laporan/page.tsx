@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
-import AdminSidebar from '@/components/AdminSidebar';
+import AdminSidebar from '@/components/shared/AdminSidebar';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import {

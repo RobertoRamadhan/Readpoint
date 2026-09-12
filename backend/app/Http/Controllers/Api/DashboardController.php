@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -92,8 +92,8 @@ class DashboardController extends Controller
                 ->select('id', 'title', 'author', 'pages', 'category', 'is_active', 'poin_per_halaman', 'file_path', 'cover_image')
                 ->get()
                 ->map(function ($book) {
-                    $book->cover_image_url = \App\Http\Controllers\Api\StorageHelper::url($book->cover_image, 'cover');
-                    $book->pdf_file_url    = \App\Http\Controllers\Api\StorageHelper::url($book->file_path, 'ebook');
+                    $book->cover_image_url = \App\Services\StorageHelper::url($book->cover_image, 'cover');
+                    $book->pdf_file_url    = \App\Services\StorageHelper::url($book->file_path, 'ebook');
                     return $book;
                 });
 

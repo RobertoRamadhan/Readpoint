@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import AdminSidebar from '@/components/AdminSidebar';
+import AdminSidebar from '@/components/shared/AdminSidebar';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';

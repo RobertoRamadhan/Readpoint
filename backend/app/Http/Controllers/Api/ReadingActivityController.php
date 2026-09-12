@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -138,8 +138,8 @@ class ReadingActivityController extends Controller
             ->map(function ($activity) {
                 $ebook = $activity->ebook;
                 if ($ebook) {
-                    $ebook->cover_image_url = \App\Http\Controllers\Api\StorageHelper::url($ebook->cover_image, 'cover');
-                    $ebook->pdf_file_url    = \App\Http\Controllers\Api\StorageHelper::url($ebook->file_path, 'ebook');
+                    $ebook->cover_image_url = \App\Services\StorageHelper::url($ebook->cover_image, 'cover');
+                    $ebook->pdf_file_url    = \App\Services\StorageHelper::url($ebook->file_path, 'ebook');
                     $ebook->read_count = $activity->read_count;
                 }
                 return $ebook;

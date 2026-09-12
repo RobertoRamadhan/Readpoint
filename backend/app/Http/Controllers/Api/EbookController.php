@@ -6,7 +6,7 @@ use App\Models\Ebook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Api\StorageHelper;
+use App\Services\StorageHelper;
 
 class EbookController extends Controller
 {

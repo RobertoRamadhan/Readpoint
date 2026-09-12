@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import AdminSidebar from '@/components/AdminSidebar';
+import AdminSidebar from '@/components/shared/AdminSidebar';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { normalizeFileUrl } from '@/lib/file-url';
