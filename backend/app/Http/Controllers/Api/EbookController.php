@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -50,13 +50,13 @@ class EbookController extends Controller
     {
         $ebook = Ebook::where('is_active', true)->findOrFail($id);
 
-        // Kembalikan URL Supabase langsung — frontend fetch PDF dari Supabase tanpa credentials
+        // Kembalikan URL Supabase langsung â€” frontend fetch PDF dari Supabase tanpa credentials
         $url = StorageHelper::url($ebook->file_path, 'ebook');
         if (!$url) {
             return response()->json(['message' => 'File not found'], 404);
         }
 
-        // Return URL supaya frontend bisa fetch langsung ke Supabase (tanpa CORS issue)
+        // Return PDF URL with title for frontend viewer
         return response()->json(['url' => $url, 'title' => $ebook->title]);
     }
 
@@ -151,7 +151,7 @@ class EbookController extends Controller
                 'category'         => $request->category,
                 'grade_level'      => $request->grade_level,
                 'is_active'        => $request->is_active,
-            // Hanya filter null — false/0 tetap diproses sebagai nilai valid
+            // Hanya filter null â€” false/0 tetap diproses sebagai nilai valid
             ], fn($v) => !is_null($v)));
 
             $ebook->save();

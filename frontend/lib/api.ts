@@ -1,4 +1,4 @@
-// ─── Types ────────────────────────────────────────────────────────────────────
+﻿// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface LoginRequest { email: string; password: string; }
 interface RegisterRequest { name: string; email: string; password: string; password_confirmation: string; role: 'siswa' | 'guru' | 'admin'; grade_level?: string; class_name?: string; }
@@ -17,7 +17,7 @@ export interface ApiResponse<T = unknown> {
 
 interface ApiCallOptions extends RequestInit { suppressErrorLogging?: boolean; }
 
-// ─── Config ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 const API_URL = (configuredApiUrl || (
@@ -27,7 +27,7 @@ const API_URL = (configuredApiUrl || (
 )).replace(/\/+$/, '');
 const isDev = process.env.NODE_ENV !== 'production';
 
-// ─── Core fetch helpers ───────────────────────────────────────────────────────
+// â”€â”€â”€ Core fetch helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function getToken(): string | null {
   return typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -38,7 +38,7 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-/** JSON API call — always uses Bearer token, never credentials:include for uploads */
+/** JSON API call â€” always uses Bearer token, never credentials:include for uploads */
 export async function apiCall(endpoint: string, options: ApiCallOptions = {}): Promise<ApiResponse> {
   const { suppressErrorLogging = false, ...requestOptions } = options;
   const url = `${API_URL}${endpoint}`;
@@ -75,8 +75,8 @@ export async function apiCall(endpoint: string, options: ApiCallOptions = {}): P
 }
 
 /**
- * FormData upload — uses Bearer token but NO credentials:include
- * so Supabase/CDN responses with wildcard CORS don't block the request.
+ * FormData upload â€” uses Bearer token but NO credentials:include
+ * so cloud storage CDN responses with wildcard CORS don't block the request.
  */
 async function uploadFormData(
   method: 'POST',
@@ -91,7 +91,7 @@ async function uploadFormData(
     const response = await fetch(`${API_URL}${endpoint}`, {
       method,
       headers: { ...authHeaders(), Accept: 'application/json' },
-      // NO credentials:'include' — avoids CORS wildcard conflict
+      // NO credentials:'include' â€” avoids CORS wildcard conflict
       body: data,
       signal: controller.signal,
     });
@@ -109,31 +109,31 @@ async function uploadFormData(
     return result;
   } catch (e: any) {
     clearTimeout(timer);
-    if (e.name === 'AbortError') throw new Error('Upload timeout — file terlalu besar atau koneksi lambat');
+    if (e.name === 'AbortError') throw new Error('Upload timeout â€” file terlalu besar atau koneksi lambat');
     throw e;
   }
 }
 
-// ─── API object ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ API object â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const api = {
 
-  // ── Auth ────────────────────────────────────────────────────────────────────
+  // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   login: (data: LoginRequest) => apiCall('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   logout: () => apiCall('/auth/logout', { method: 'POST' }),
   register: (data: RegisterRequest) => apiCall('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   googleLogin: (data: GoogleLoginRequest) => apiCall('/auth/google-login', { method: 'POST', body: JSON.stringify(data) }),
 
-  // ── E-Books (siswa) ─────────────────────────────────────────────────────────
+  // â”€â”€ E-Books (siswa) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   getEbooks: () => apiCall('/ebooks'),
   getEbook: (id: number) => apiCall(`/ebooks/${id}`),
 
-  // ── Reading Progress ────────────────────────────────────────────────────────
+  // â”€â”€ Reading Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   getReadingProgress: () => apiCall('/reading-progress'),
   updateReadingProgress: (id: number, data: Record<string, unknown>) =>
     apiCall(`/reading-progress/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
-  // ── Reading Activities ──────────────────────────────────────────────────────
+  // â”€â”€ Reading Activities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   startReading: (ebookId: number) =>
     apiCall('/reading-activities/start', { method: 'POST', body: JSON.stringify({ ebook_id: ebookId }) }),
   updateActivityProgress: (id: number, data: Record<string, unknown>) =>
@@ -143,7 +143,7 @@ export const api = {
   getMyActivities: () => apiCall('/reading-activities'),
   getFrequentlyReadBooks: () => apiCall('/reading-activities/frequently-read'),
 
-  // ── Quizzes ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Quizzes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   getQuizzes: (ebookId: number) => apiCall(`/ebooks/${ebookId}/quiz`),
   getAllQuizzes: () => apiCall('/ebooks-with-quiz'),
   submitQuiz: (data: Record<string, unknown>) =>
@@ -157,7 +157,7 @@ export const api = {
     getMyQuizzes: () => apiCall('/dashboard/guru/quizzes'),
   },
 
-  // ── Validations ─────────────────────────────────────────────────────────────
+  // â”€â”€ Validations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   validations: {
     getPending: () => apiCall('/validations/pending'),
     getDetail: (id: number) => apiCall(`/validations/${id}`),
@@ -169,7 +169,7 @@ export const api = {
     getStatistics: () => apiCall('/validations/stats'),
   },
 
-  // ── Users ───────────────────────────────────────────────────────────────────
+  // â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   users: {
     /**
      * List users dengan pagination server-side.
@@ -188,7 +188,7 @@ export const api = {
     },
 
     /**
-     * Ambil semua guru — menggunakan pagination internal agar tidak menarik
+     * Ambil semua guru â€” menggunakan pagination internal agar tidak menarik
      * ratusan user sekaligus. Maksimal 200 guru yang diambil (lebih dari cukup).
      */
     listAllGuru: async (): Promise<ApiResponse> => {
@@ -246,7 +246,7 @@ export const api = {
       }),
   },
 
-  // classes — derived from users (no real /api/classes endpoint)
+  // classes â€” derived from users (no real /api/classes endpoint)
   classes: {
     list: () => api.users.classes(),
     get: (_id: number | string): Promise<ApiResponse> => Promise.resolve({ data: null } as ApiResponse),
@@ -263,7 +263,7 @@ export const api = {
     },
   },
 
-  // ── Current user profile ────────────────────────────────────────────────────
+  // â”€â”€ Current user profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   me: {
     getProfile: () => apiCall('/user/profile'),
     updateProfile: async (data: FormData | Record<string, unknown>): Promise<ApiResponse> => {
@@ -275,7 +275,7 @@ export const api = {
     },
   },
 
-  // ── Dashboard ───────────────────────────────────────────────────────────────
+  // â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   dashboard: {
     adminStats: () => apiCall('/dashboard/admin/stats'),
     adminTopStudents: () => apiCall('/dashboard/admin/top-students'),
@@ -296,7 +296,7 @@ export const api = {
     siswaHistory: () => apiCall('/dashboard/siswa/history'),
   },
 
-  // ── E-Books Admin CRUD ──────────────────────────────────────────────────────
+  // â”€â”€ E-Books Admin CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   ebooks: {
     list: () => apiCall('/ebooks'),
     get: (id: number) => apiCall(`/ebooks/${id}`),
@@ -317,7 +317,7 @@ export const api = {
     delete: (id: number) => apiCall(`/ebooks/${id}`, { method: 'DELETE' }),
   },
 
-  // ── Rewards Admin CRUD ──────────────────────────────────────────────────────
+  // â”€â”€ Rewards Admin CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   rewards: {
     list: () => apiCall('/rewards'),
     get: (id: number) => apiCall(`/rewards/${id}`),

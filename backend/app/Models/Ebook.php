@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Models;
 
@@ -24,7 +24,7 @@ class Ebook extends Model
     ];
 
     /**
-     * Kembalikan URL publik cover dari Supabase Storage.
+     * Kembalikan URL publik cover dari Laravel Storage.
      * Accessor ini menggunakan StorageHelper agar konsisten dengan controller.
      */
     public function getCoverUrlAttribute(): ?string
@@ -33,7 +33,7 @@ class Ebook extends Model
     }
 
     /**
-     * Kembalikan URL publik file PDF dari Supabase Storage.
+     * Kembalikan URL publik file PDF dari Laravel Storage.
      */
     public function getPdfUrlAttribute(): ?string
     {

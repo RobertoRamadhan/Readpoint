@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Services;
 
@@ -28,7 +28,6 @@ class StorageHelper
         $filename = $filename ?? uniqid($type . '_', true) . '.' . $file->getClientOriginalExtension();
         $path     = $folder . '/' . $filename;
 
-        // Upload dengan visibility public agar bisa diakses langsung
         Storage::disk($disk)->put($path, file_get_contents($file->getRealPath()), 'public');
 
         return $path;

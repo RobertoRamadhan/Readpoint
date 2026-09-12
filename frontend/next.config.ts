@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+﻿import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Cloudflare Pages + next-on-pages requires edge runtime
@@ -28,10 +28,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "www.readpointku.web.id",
-      },
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
       },
       {
         protocol: "https",

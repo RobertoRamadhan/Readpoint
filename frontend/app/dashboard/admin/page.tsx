@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import AdminSidebar from '@/components/AdminSidebar';
 import { useAuth } from '@/context/AuthContext';
@@ -59,10 +59,10 @@ type Ebook = {
   poin_per_halaman?: number;
   cover_image?: string;
   cover_url?: string;
-  cover_image_url?: string;  // Supabase URL
+  cover_image_url?: string;  
   pdf_file?: string;
   pdf_url?: string;
-  pdf_file_url?: string;     // Supabase URL
+  pdf_file_url?: string;     
 };
 
 type Reward = {
@@ -73,7 +73,7 @@ type Reward = {
   stock?: number;
   is_active?: boolean | number;
   image?: string;
-  image_url?: string;  // Supabase URL
+  image_url?: string;  
   icon?: string;
 };
 
@@ -500,10 +500,10 @@ function EbooksTab() {
 }
 
 function BookCard({ book, onEdit, onDelete }: { book: Ebook; onEdit: () => void; onDelete: () => void }) {
-  // Prioritaskan URL Supabase (cover_image_url), fallback ke path lama
+  // Prioritaskan URL storage dari backend (cover_image_url), fallback ke path lama
   const cover = book.cover_image_url || book.cover_url || book.cover_image;
   const pdf   = book.pdf_file_url   || book.pdf_url   || book.pdf_file;
-  return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={cover} alt={book.title} /> : <div className={styles.coverFallback}>📚</div>}</div>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>🏷️ {book.category || '-'}</p><p className={styles.itemMeta}>⭐ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={cover} alt={book.title} /> : <div className={styles.coverFallback}>ðŸ“š</div>}</div>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>ðŸ·ï¸ {book.category || '-'}</p><p className={styles.itemMeta}>â­ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
 function EbookForm({ editing, onClose, onSaved }: { editing: Ebook | null; onClose: () => void; onSaved: () => Promise<void> }) {
@@ -536,7 +536,7 @@ function RewardsTab() {
 
 function RewardCard({ reward, onEdit, onDelete }: { reward: Reward; onEdit: () => void; onDelete: () => void }) {
   const image = reward.image_url || reward.image;
-  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || '🎁'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || 'ðŸŽ'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
 function RewardForm({ editing, onClose, onSaved }: { editing: Reward | null; onClose: () => void; onSaved: () => Promise<void> }) {
@@ -966,7 +966,7 @@ function FormActions({ saving, onCancel }: { saving: boolean; onCancel: () => vo
   return <div className={styles.formActions}><button type="button" className={styles.secondaryButton} onClick={onCancel}>Batal</button><button className={styles.primaryButton} disabled={saving}>{saving ? <Loader2 className="animate-spin" size={16} /> : null}Simpan</button></div>;
 }
 
-// ─── HistoriTab Admin ─────────────────────────────────────────────────────────
+// â”€â”€â”€ HistoriTab Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type AdminHistoryData = {
   new_users: Array<{ id: number; name: string; email: string; role: string; grade_level?: string; class_name?: string; created_at: string }>;
@@ -1059,8 +1059,8 @@ function HistoriTab() {
       {summary && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
           {[
-            { label: 'Pengguna Baru', value: fmt(summary.new_users), sub: `${fmt(summary.new_siswa)} siswa · ${fmt(summary.new_guru)} guru` },
-            { label: 'Poin Diberikan', value: fmt(summary.total_points_awarded), sub: `−${fmt(summary.total_points_used)} dipakai` },
+            { label: 'Pengguna Baru', value: fmt(summary.new_users), sub: `${fmt(summary.new_siswa)} siswa Â· ${fmt(summary.new_guru)} guru` },
+            { label: 'Poin Diberikan', value: fmt(summary.total_points_awarded), sub: `âˆ’${fmt(summary.total_points_used)} dipakai` },
             { label: 'Reward Ditukar', value: fmt(summary.total_redemptions), sub: 'klaim reward' },
             { label: 'Sesi Membaca', value: fmt(summary.reading_sessions), sub: `${fmt(summary.completed_readings)} selesai` },
           ].map((s) => (
@@ -1126,7 +1126,7 @@ function HistoriTab() {
                     <div key={pt.id} className={styles.leaderItem}>
                       <div className="min-w-0 flex-1">
                         <p className={styles.leaderName}>{pt.description}</p>
-                        <p className={styles.leaderEmail}>{pt.user?.name} · {pt.user?.email}</p>
+                        <p className={styles.leaderEmail}>{pt.user?.name} Â· {pt.user?.email}</p>
                         <p className={styles.mutedText}>{new Date(pt.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                       <span className={`shrink-0 text-base font-black ${pt.points > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
@@ -1151,7 +1151,7 @@ function HistoriTab() {
                           <tr key={r.id}>
                             <td>{r.user?.name || '-'}</td>
                             <td>{r.reward?.name || '-'}</td>
-                            <td className="font-black text-red-600">−{fmt(r.points_used)}</td>
+                            <td className="font-black text-red-600">âˆ’{fmt(r.points_used)}</td>
                             <td><code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">{r.claim_code}</code></td>
                             <td><span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${statusCls}`}>{r.status}</span></td>
                             <td>{new Date(r.created_at).toLocaleDateString('id-ID')}</td>
@@ -1179,7 +1179,7 @@ function HistoriTab() {
                       <div key={ra.id} className={styles.leaderItem}>
                         <div className="min-w-0 flex-1">
                           <p className={styles.leaderName}>{ra.ebook?.title || 'E-Book'}</p>
-                          <p className={styles.leaderEmail}>{ra.user?.name} · {ra.user?.email}</p>
+                          <p className={styles.leaderEmail}>{ra.user?.name} Â· {ra.user?.email}</p>
                           <p className={styles.mutedText}>{new Date(ra.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                         </div>
                         <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-black ${statusCls[ra.status] ?? 'bg-slate-100 text-slate-600'}`}>{ra.status}</span>
