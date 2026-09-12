@@ -21,7 +21,7 @@ return [
             'throw'      => false,
         ],
 
-        // Laravel Cloud S3 Storage (untuk production)
+        // S3-Compatible Storage (AWS S3, Cloudflare R2, etc)
         's3' => [
             'driver'   => 's3',
             'key'      => env('AWS_ACCESS_KEY_ID'),

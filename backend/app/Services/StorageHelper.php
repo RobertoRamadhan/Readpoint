@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
  * Menggunakan Laravel Storage (public disk untuk local, s3/cloud untuk production).
  * 
  * Environment-aware: otomatis pakai local storage saat development,
- * Laravel Cloud Storage saat production.
+ * Cloud storage saat production (Cloudflare R2, AWS S3, etc).
  */
 class StorageHelper
 {
@@ -59,7 +59,7 @@ class StorageHelper
         
         // Laravel Storage otomatis generate URL yang benar
         // Local: http://localhost:8000/storage/path
-        // Cloud: https://your-app.laravel.cloud/storage/path
+        // Cloud: https://your-backend-api.com/storage/path
         return Storage::disk($disk)->url($path);
     }
 
