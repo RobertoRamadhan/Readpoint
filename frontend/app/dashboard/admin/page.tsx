@@ -501,8 +501,8 @@ function EbooksTab() {
 
 function BookCard({ book, onEdit, onDelete }: { book: Ebook; onEdit: () => void; onDelete: () => void }) {
   // Prioritaskan URL storage dari backend (cover_image_url), fallback ke path lama
-  const cover = book.cover_image_url || book.cover_url || book.cover_image;
-  const pdf   = book.pdf_file_url   || book.pdf_url   || book.pdf_file;
+  const cover = normalizeFileUrl(book.cover_image_url || book.cover_url || book.cover_image);
+  const pdf   = normalizeFileUrl(book.pdf_file_url   || book.pdf_url   || book.pdf_file);
   return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={cover} alt={book.title} /> : <div className={styles.coverFallback}>ðŸ“š</div>}</div>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>ðŸ·ï¸ {book.category || '-'}</p><p className={styles.itemMeta}>â­ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
@@ -535,7 +535,7 @@ function RewardsTab() {
 }
 
 function RewardCard({ reward, onEdit, onDelete }: { reward: Reward; onEdit: () => void; onDelete: () => void }) {
-  const image = reward.image_url || reward.image;
+  const image = normalizeFileUrl(reward.image_url || reward.image);
   return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || 'ðŸŽ'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
