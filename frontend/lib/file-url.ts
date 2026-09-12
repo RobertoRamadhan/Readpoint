@@ -16,47 +16,36 @@ export function getBackendBaseUrl(): string {
     }
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn('[file-url] NEXT_PUBLIC_API_URL is not set. Falling back to http://localhost:8000.');
-  }
-
   return 'http://localhost:8000';
 }
 
-function getBackendOrigin(): string {
-  const base = getBackendBaseUrl();
-  if (!base) return '';
-  try {
-    return new URL(base).origin;
-  } catch {
-    return base;
-  }
-}
-
-function normalizeStoragePath(pathname: string): string {
-  return pathname
-    .replace(/^\/storage\//, '')
-    .replace(/^\/api\/files\//, '')
-    .replace(/^storage\//, '')
-    .replace(/^api\/files\//, '')
-    .replace(/^\/+/, '');
-}
-
+/**
+ * Normalize file URL - return langsung jika sudah full URL.
+ * Backend Laravel sudah generate URL yang benar via Storage::url()
+ */
 export function normalizeFileUrl(value?: string | null): string {
   if (!value) return '';
   const rawValue = value.trim();
   if (!rawValue) return '';
 
-  // Sudah full URL — return langsung (termasuk Supabase URL)
+  // Jika sudah full URL (http/https), return langsung
   if (rawValue.startsWith('http://') || rawValue.startsWith('https://')) {
     return rawValue;
   }
 
-  const backendOrigin = getBackendOrigin();
-  if (!backendOrigin) return '';
-
-  // Relative path — build via backend /api/files/
-  return `${backendOrigin}/api/files/${normalizeStoragePath(rawValue)}`;
+  // Jika relative path, build URL via backend
+  const backendBaseUrl = getBackendBaseUrl();
+  
+  // Remove leading slashes
+  const cleanPath = rawValue.replace(/^\/+/, '');
+  
+  // Jika path mulai dengan 'storage/', langsung append ke base URL
+  if (cleanPath.startsWith('storage/')) {
+    return `${backendBaseUrl}/${cleanPath}`;
+  }
+  
+  // Fallback: tambahkan prefix storage/
+  return `${backendBaseUrl}/storage/${cleanPath}`;
 }
 
 export function normalizeEbookFiles<
