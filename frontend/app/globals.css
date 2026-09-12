@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "./responsive.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -136,7 +135,7 @@ body {
   position: relative;
 }
 
-/* ─── Custom Scrollbar ─── */
+/* â”€â”€â”€ Custom Scrollbar â”€â”€â”€ */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -155,14 +154,14 @@ body {
   background: var(--primary-700);
 }
 
-/* ─── Selection ─── */
+/* â”€â”€â”€ Selection â”€â”€â”€ */
 ::selection {
   background: var(--primary-300);
   color: var(--primary-900);
   text-shadow: none;
 }
 
-/* ─── Keyframe Animations ─── */
+/* â”€â”€â”€ Keyframe Animations â”€â”€â”€ */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -309,7 +308,7 @@ body {
   100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
 }
 
-/* ─── Animation Utility Classes ─── */
+/* â”€â”€â”€ Animation Utility Classes â”€â”€â”€ */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out both;
 }
@@ -371,7 +370,7 @@ body {
   animation: blink 2s ease-in-out infinite;
 }
 
-/* ─── Animation Delay Utilities ─── */
+/* â”€â”€â”€ Animation Delay Utilities â”€â”€â”€ */
 .animation-delay-100  { animation-delay: 0.1s; }
 .animation-delay-200  { animation-delay: 0.2s; }
 .animation-delay-300  { animation-delay: 0.3s; }
@@ -385,7 +384,7 @@ body {
 .animation-delay-2000 { animation-delay: 2s; }
 .animation-delay-4000 { animation-delay: 4s; }
 
-/* ─── Hover Effects ─── */
+/* â”€â”€â”€ Hover Effects â”€â”€â”€ */
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -395,7 +394,7 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* ─── Glass Effect ─── */
+/* â”€â”€â”€ Glass Effect â”€â”€â”€ */
 .glass-effect {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
@@ -410,7 +409,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* ─── Typography ─── */
+/* â”€â”€â”€ Typography â”€â”€â”€ */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
@@ -437,7 +436,7 @@ a:not([class*="text-"]):hover {
   color: var(--primary-900);
 }
 
-/* ─── Form Inputs ─── */
+/* â”€â”€â”€ Form Inputs â”€â”€â”€ */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -478,7 +477,7 @@ select:disabled {
   cursor: not-allowed;
 }
 
-/* ─── Buttons ─── */
+/* â”€â”€â”€ Buttons â”€â”€â”€ */
 button {
   font-family: inherit;
   cursor: pointer;
@@ -681,7 +680,7 @@ button:disabled {
   color: white;
 }
 
-/* ─── Card Component ─── */
+/* â”€â”€â”€ Card Component â”€â”€â”€ */
 .card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -722,7 +721,7 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
-/* ─── Section Styling ─── */
+/* â”€â”€â”€ Section Styling â”€â”€â”€ */
 .section {
   padding: 3rem 0;
 }
@@ -744,7 +743,7 @@ button:disabled {
   text-align: center;
 }
 
-/* ─── Container ─── */
+/* â”€â”€â”€ Container â”€â”€â”€ */
 .container-main {
   max-width: 80rem;
   width: 100%;
@@ -765,7 +764,7 @@ button:disabled {
   }
 }
 
-/* ─── Dashboard Layout Fixes ─── */
+/* â”€â”€â”€ Dashboard Layout Fixes â”€â”€â”€ */
 .dashboard-container {
   width: 100%;
   max-width: 100vw;
@@ -799,7 +798,7 @@ button:disabled {
   }
 }
 
-/* ─── Badge & Label ──
+/* â”€â”€â”€ Badge & Label â”€â”€
 .badge {
   display: inline-flex;
   align-items: center;
@@ -822,7 +821,7 @@ button:disabled {
   background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
 }
 
-/* ─── Stat Counter ─── */
+/* â”€â”€â”€ Stat Counter â”€â”€â”€ */
 .stat-number {
   font-size: 2.5rem;
   font-weight: 800;
@@ -832,7 +831,7 @@ button:disabled {
   background-clip: text;
 }
 
-/* ─── Progress Bar Modern ─── */
+/* â”€â”€â”€ Progress Bar Modern â”€â”€â”€ */
 .progress-bar {
   width: 100%;
   height: 8px;
@@ -859,7 +858,7 @@ button:disabled {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5));
 }
 
-/* ─── Icon Circle ─── */
+/* â”€â”€â”€ Icon Circle â”€â”€â”€ */
 .icon-circle {
   display: flex;
   align-items: center;
@@ -879,7 +878,7 @@ button:disabled {
   transform: scale(1.1) rotate(5deg);
 }
 
-/* ─── Feature List ─── */
+/* â”€â”€â”€ Feature List â”€â”€â”€ */
 .feature-list {
   list-style: none;
   display: flex;
@@ -894,14 +893,14 @@ button:disabled {
 }
 
 .feature-list li::before {
-  content: '✓';
+  content: 'âœ“';
   font-weight: 700;
   color: var(--primary-600);
   font-size: 1.25rem;
   flex-shrink: 0;
 }
 
-/* ─── Responsive Typography ─── */
+/* â”€â”€â”€ Responsive Typography â”€â”€â”€ */
 @media (max-width: 640px) {
   h1 { font-size: 1.5rem; }
   h2 { font-size: 1.25rem; }
@@ -926,7 +925,7 @@ button:disabled {
   .stat-number { font-size: 2.5rem; }
 }
 
-/* ─── Gradient Text Utilities ─── */
+/* â”€â”€â”€ Gradient Text Utilities â”€â”€â”€ */
 .gradient-text {
   background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
   -webkit-background-clip: text;
@@ -941,7 +940,7 @@ button:disabled {
   background-clip: text;
 }
 
-/* ─── Focus Accessibility ─── */
+/* â”€â”€â”€ Focus Accessibility â”€â”€â”€ */
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
@@ -952,7 +951,7 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-/* ─── Loading Spinner ─── */
+/* â”€â”€â”€ Loading Spinner â”€â”€â”€ */
 .spinner {
   display: inline-block;
   width: 1.5rem;
@@ -963,7 +962,7 @@ button:focus-visible {
   animation: spin 0.8s linear infinite;
 }
 
-/* ─── Responsive Typography ─── */
+/* â”€â”€â”€ Responsive Typography â”€â”€â”€ */
 @media (max-width: 640px) {
   h1 { font-size: 1.875rem; }
   h2 { font-size: 1.5rem; }
@@ -971,13 +970,13 @@ button:focus-visible {
   p  { font-size: 0.875rem; }
 }
 
-/* ─── Sidebar Text Override ─── */
+/* â”€â”€â”€ Sidebar Text Override â”€â”€â”€ */
 .sidebar-user-name,
 .sidebar-user-email {
   color: white !important;
 }
 
-/* ─── Responsive Layout Fixes ─── */
+/* â”€â”€â”€ Responsive Layout Fixes â”€â”€â”€ */
 /* Prevent any element from causing horizontal scroll */
 img,
 video,
