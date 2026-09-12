@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
@@ -10,6 +10,7 @@ return [
             'http://localhost:3000',
             'http://127.0.0.1:3000',
             'https://readpointku.web.id',
+        'https://readpoint-production-g6uam2.laravel.cloud',
             'https://www.readpointku.web.id',
         ],
         explode(',', env('CORS_ALLOWED_ORIGINS', ''))

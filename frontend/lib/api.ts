@@ -1,4 +1,4 @@
-﻿// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface LoginRequest { email: string; password: string; }
 interface RegisterRequest { name: string; email: string; password: string; password_confirmation: string; role: 'siswa' | 'guru' | 'admin'; grade_level?: string; class_name?: string; }
@@ -22,7 +22,7 @@ interface ApiCallOptions extends RequestInit { suppressErrorLogging?: boolean; }
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 const API_URL = (configuredApiUrl || (
   process.env.NODE_ENV === 'production'
-    ? 'https://readpointku.web.id/api'
+    ? 'https://readpoint-production-g6uam2.laravel.cloud/api'
     : 'http://localhost:8000/api'
 )).replace(/\/+$/, '');
 const isDev = process.env.NODE_ENV !== 'production';

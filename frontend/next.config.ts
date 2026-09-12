@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "*.pages.dev",
+        hostname: "*.laravel.cloud",
       },
     ],
     unoptimized: true,
