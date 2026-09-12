@@ -35,7 +35,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border-2 border-red-200 p-8 max-w-md w-full text-center">
-            <div className="text-6xl mb-4">😅</div>
+            <div className="text-6xl mb-4">ðŸ˜…</div>
             <h2 className="text-2xl font-black text-gray-900 mb-2">Oops! Something went wrong</h2>
             <p className="text-gray-600 font-semibold mb-6">
               We encountered an unexpected error. Please refresh the page and try again.
@@ -54,3 +54,5 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export { ErrorBoundary };
