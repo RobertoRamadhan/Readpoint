@@ -4,9 +4,9 @@
   width: 100%;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at top left, rgba(4, 120, 87, 0.06), transparent 24%),
-    radial-gradient(circle at 92% 0%, rgba(37, 99, 235, 0.05), transparent 20%),
-    linear-gradient(180deg, #f8fafc 0%, #f8fafc 100%);
+    radial-gradient(circle at 8% 8%, rgba(16, 185, 129, 0.1), transparent 22%),
+    radial-gradient(circle at 92% 24%, rgba(245, 158, 11, 0.08), transparent 18%),
+    #f6f8f7;
   color: #0f172a;
 }
 
@@ -43,9 +43,9 @@
   top: 0;
   z-index: 50;
   border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  background: rgba(250, 252, 251, 0.9);
+  backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 }
 
 .landing-nav-inner {
@@ -77,10 +77,10 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border-radius: 0.9rem;
-  background: #047857;
+  border-radius: 0.8rem;
+  background: #0f766e;
   color: #ffffff;
-  box-shadow: 0 14px 28px rgba(4, 120, 87, 0.22);
+  box-shadow: 0 12px 24px rgba(15, 118, 110, 0.24);
 }
 
 .landing-nav-links {
@@ -112,7 +112,7 @@
 }
 
 .landing-nav-links a:hover {
-  background: #ecfdf5;
+  background: #e7f5ef;
 }
 
 .landing-nav-actions,
@@ -143,15 +143,15 @@
 }
 
 .landing-button-primary {
-  border: 1px solid #047857;
-  background: #047857;
+  border: 1px solid #0f766e;
+  background: #0f766e;
   color: #ffffff !important;
   box-shadow: 0 16px 34px rgba(4, 120, 87, 0.2);
 }
 
 .landing-button-primary:hover {
-  border-color: #065f46;
-  background: #065f46;
+  border-color: #115e59;
+  background: #115e59;
   color: #ffffff !important;
 }
 
@@ -215,8 +215,8 @@
 .landing-hero-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(2, 6, 23, 0.94) 0%, rgba(6, 78, 59, 0.76) 48%, rgba(2, 6, 23, 0.42) 100%),
-    linear-gradient(180deg, rgba(2, 6, 23, 0.12) 0%, rgba(2, 6, 23, 0.86) 100%);
+  background: linear-gradient(90deg, rgba(3, 24, 22, 0.94) 0%, rgba(15, 118, 110, 0.74) 48%, rgba(2, 6, 23, 0.38) 100%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.08) 0%, rgba(2, 6, 23, 0.88) 100%);
 }
 
 .landing-hero-content {
@@ -321,9 +321,9 @@
 .landing-feature-card {
   position: relative;
   border: 1px solid rgba(226, 232, 240, 0.95);
-  border-radius: 1.25rem;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.07);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
@@ -364,14 +364,14 @@
   width: 3rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.95rem;
-  background: #ecfdf5;
-  color: #047857;
+  border-radius: 0.8rem;
+  background: #dff5eb;
+  color: #0f766e;
 }
 
 .landing-icon-soft {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #fff2d9;
+  color: #b45309;
 }
 
 .landing-section {
@@ -461,9 +461,9 @@
   position: relative;
   overflow: hidden;
   border: 1px solid #dbe4ee;
-  border-radius: 1.45rem;
+  border-radius: 1rem;
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.1);
   padding: 1.4rem;
 }
 
@@ -580,7 +580,7 @@
   gap: 1rem;
   align-items: center;
   border: 1px solid #e2e8f0;
-  border-radius: 1.05rem;
+  border-radius: 0.9rem;
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   padding: 1.05rem;
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
@@ -593,7 +593,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 0.8rem;
-  background: #047857;
+  background: #0f766e;
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: 950;
@@ -607,7 +607,7 @@
 
 .landing-cta {
   padding: 4.6rem 0;
-  background: linear-gradient(135deg, #020617, #064e3b);
+  background: linear-gradient(135deg, #092f2b, #115e59 62%, #365314);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 

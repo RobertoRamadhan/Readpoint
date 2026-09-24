@@ -142,7 +142,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   return (
     <div className="quiz-page flex min-h-screen w-full flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="quiz-header-inner">
+        <div className="quiz-header-inner mx-auto w-[calc(100%-1.25rem)] max-w-[980px] px-0 pb-4 pt-2 sm:w-[calc(100%-2rem)] sm:pt-3">
           <div className="flex min-h-[58px] items-center justify-between gap-4">
             <button onClick={onCancel} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
             <div className="min-w-0 flex-1">
@@ -162,19 +162,19 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
         </div>
       </header>
 
-      <main className="quiz-main flex-1">
-        <section className="quiz-shell min-w-0">
-          <div className="quiz-number-nav">
+      <main className="quiz-main flex-1 px-2.5 pb-10 pt-5 sm:px-4 sm:pb-16 sm:pt-10">
+        <section className="quiz-shell mx-auto min-w-0 w-full max-w-[860px]">
+          <div className="quiz-number-nav mb-4 flex max-w-full gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white/80 p-3 shadow-sm">
             {questions.map((q, index) => (
               <button key={q.id} onClick={() => setCurrentIndex(index)} disabled={submitting} className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-4 text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white shadow-sm' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
             ))}
           </div>
 
-          <div className="quiz-card border border-slate-200 shadow-sm">
+          <div className="quiz-card rounded-2xl border border-slate-200 bg-white p-5 shadow-lg sm:p-8">
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Soal {currentIndex + 1}</p>
-            <h2 className="quiz-question-title mt-4 font-black text-slate-900">{currentQuestion?.question_text}</h2>
+            <h2 className="quiz-question-title mt-4 max-w-3xl text-2xl font-black leading-tight text-slate-900 sm:text-3xl">{currentQuestion?.question_text}</h2>
             <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>
-            <div className="quiz-answer-grid mt-7">
+            <div className="quiz-answer-grid mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {options.map((option) => {
                 const isSelected = selectedAnswers[currentQuestion?.id] === option.key;
                 return (
@@ -190,7 +190,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
 
           {submitError && <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-700">{submitError}</p>}
 
-          <div className="quiz-actions mt-5">
+          <div className="quiz-actions mt-5 flex items-center justify-between gap-3">
             <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0 || submitting} className="h-12 min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Sebelumnya</button>
             {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered || submitting} className="h-12 min-w-0 rounded-2xl bg-emerald-700 px-4 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">{submitting ? 'Mengirim...' : 'Selesai & Kirim'}</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered || submitting} className="h-12 min-w-0 rounded-2xl bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selanjutnya</button>}
           </div>

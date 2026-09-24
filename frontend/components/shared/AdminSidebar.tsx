@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import {
   BarChart3,
   BookOpen,
@@ -12,6 +13,7 @@ import {
   LayoutGrid,
   Library,
   ListChecks,
+  LogOut,
   PenLine,
   Settings,
   Users,
@@ -53,6 +55,7 @@ export default function AdminSidebar({
   user,
 }: AdminSidebarProps) {
   const router = useRouter();
+  const { logout } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const sidebarRoleClass = role === 'guru' ? 'readpoint-guru-sidebar' : 'readpoint-admin-sidebar';
 
@@ -123,6 +126,11 @@ export default function AdminSidebar({
     }
 
     goTab(item.id);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
   };
 
   return (
@@ -212,23 +220,33 @@ export default function AdminSidebar({
 
       <div className="readpoint-admin-user absolute bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/95 p-4">
         {user ? (
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-sm font-black text-white ring-1 ring-white/10">
-              {user.profile_photo_url ? (
-                <img
-                  src={user.profile_photo_url}
-                  alt={user.name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span>{user.name?.charAt(0).toUpperCase() || 'U'}</span>
-              )}
+          <>
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-sm font-black text-white ring-1 ring-white/10">
+                {user.profile_photo_url ? (
+                  <img
+                    src={user.profile_photo_url}
+                    alt={user.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>{user.name?.charAt(0).toUpperCase() || 'U'}</span>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-black text-white">{user.name}</p>
+                <p className="truncate text-xs font-semibold text-slate-400">{user.email}</p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-black text-white">{user.name}</p>
-              <p className="truncate text-xs font-semibold text-slate-400">{user.email}</p>
-            </div>
-          </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-300/20 bg-red-500/10 px-3 py-2.5 text-sm font-black text-red-200 transition hover:border-red-300/40 hover:bg-red-500/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300/60"
+            >
+              <LogOut size={17} aria-hidden="true" />
+              Keluar
+            </button>
+          </>
         ) : (
           <p className="text-center text-xs font-bold text-slate-400">{roleLabel}</p>
         )}
