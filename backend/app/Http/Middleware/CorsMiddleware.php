@@ -13,37 +13,71 @@ class CorsMiddleware
         'https://readpoint-production-g6uam2.laravel.cloud',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3001',
     ];
 
     public function handle(Request $request, Closure $next)
     {
         $origin = $request->headers->get('Origin');
 
-        $isAllowed = in_array($origin, $this->allowedOrigins)
-            || preg_match('#^https://.*\.vercel\.app$#', $origin ?? '')
-            || preg_match('#^https://.*\.laravel\.cloud$#', $origin ?? '');
+        $isAllowed = $this->matchesAllowedOrigin($origin);
 
         if ($request->isMethod('OPTIONS')) {
             $response = response('', 204);
             if ($isAllowed && $origin) {
-                $response->headers->set('Access-Control-Allow-Origin', $origin);
-                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-                $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, X-XSRF-TOKEN');
-                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+                $this->applyCorsHeaders($response, $origin);
                 $response->headers->set('Access-Control-Max-Age', '86400');
             }
+
             return $response;
         }
 
         $response = $next($request);
 
         if ($isAllowed && $origin) {
-            $response->headers->set('Access-Control-Allow-Origin', $origin);
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, X-XSRF-TOKEN');
-            $response->headers->set('Access-Control-Allow-Credentials', 'true');
+            $this->applyCorsHeaders($response, $origin);
         }
 
         return $response;
+    }
+
+    private function matchesAllowedOrigin(?string $origin): bool
+    {
+        if (!$origin) {
+            return false;
+        }
+
+        if (in_array($origin, $this->allowedOrigins, true)) {
+            return true;
+        }
+
+        $patterns = [
+            '#^https://.*\.readpointku\.web\.id$#',
+            '#^https://.*\.vercel\.app$#',
+            '#^https://.*\.laravel\.cloud$#',
+            '#^https://.*\.ngrok-free\.app$#',
+            '#^https://.*\.app\.github\.dev$#',
+            '#^https?://localhost:\d+$#',
+            '#^https?://127\.0\.0\.1:\d+$#',
+            '#^https?://.*\.web\.id$#',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $origin)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function applyCorsHeaders($response, string $origin): void
+    {
+        $response->headers->set('Access-Control-Allow-Origin', $origin);
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        $response->headers->set('Vary', 'Origin');
     }
 }

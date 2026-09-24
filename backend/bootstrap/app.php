@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(prepend: [
             \App\Http\Middleware\CorsMiddleware::class,
-            \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
         // Register custom middleware

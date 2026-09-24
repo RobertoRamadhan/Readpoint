@@ -29,8 +29,9 @@ return [
         '#^https://.*\.laravel\.cloud$#',
         '#^https://.*\.ngrok-free\.app$#',
         '#^https://.*\.app\.github\.dev$#',
-        '#^http://localhost:\d+$#',
-        '#^http://127\.0\.0\.1:\d+$#',
+        '#^https?://localhost:\d+$#',
+        '#^https?://127\.0\.0\.1:\d+$#',
+        '#^https?://.*\.web\.id$#',
     ],
 
     'allowed_headers' => [
@@ -40,11 +41,12 @@ return [
         'Accept',
         'Authorization',
         'X-CSRF-TOKEN',
+        'X-XSRF-TOKEN',
     ],
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    'max_age' => 86400,
 
     'supports_credentials' => true,
 ];
