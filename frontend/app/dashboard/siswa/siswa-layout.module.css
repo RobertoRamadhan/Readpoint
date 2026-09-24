@@ -151,6 +151,57 @@
   max-width: none !important;
 }
 
+/* Keep the student navigation and shared header visually aligned with the dashboard. */
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\]) {
+  border-right-color: rgba(148, 163, 184, 0.18) !important;
+  background: #102a2a !important;
+  box-shadow: 10px 0 32px rgba(15, 23, 42, 0.1) !important;
+}
+
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] nav button) {
+  border: 1px solid transparent !important;
+  color: #c9ded8 !important;
+  transition: background .16s ease, color .16s ease, transform .16s ease !important;
+}
+
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] nav button:hover) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] nav button.bg-emerald-600),
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] nav button.bg-emerald-700) {
+  border-color: rgba(167, 243, 208, 0.25) !important;
+  background: #0f766e !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22) !important;
+}
+
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] > button:first-child) {
+  background: #f4fbf7 !important;
+  color: #0f766e !important;
+  box-shadow: 0 10px 22px rgba(15, 118, 110, 0.18) !important;
+}
+
+.siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] > div:last-of-type) {
+  border-color: rgba(167, 243, 208, 0.16) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.siswaArea :global(header.sticky.top-0.z-40) {
+  border-bottom-color: #d8e6e1 !important;
+  background: rgba(250, 253, 251, 0.9) !important;
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05) !important;
+}
+
+@media (max-width: 767px) {
+  .siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\]) {
+    width: min(280px, 88vw) !important;
+    max-width: 88vw !important;
+  }
+}
+
 @media (max-width: 1023px) {
   .siswaArea :global(header.sticky.top-0.z-40) {
     padding-top: 14px !important;

@@ -1245,6 +1245,155 @@
   word-break: break-word;
 }
 
+/* Visual refresh shared by the admin and teacher workspaces. */
+.page {
+  background: #edf4f1;
+}
+
+.content {
+  background:
+    radial-gradient(circle at 95% 0%, rgba(245, 158, 11, 0.08), transparent 20%),
+    #edf4f1;
+}
+
+.stack {
+  max-width: 1280px;
+  gap: 24px;
+}
+
+.page :global(.readpoint-admin-sidebar),
+.page :global(.readpoint-guru-sidebar) {
+  border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
+  background: #102a2a !important;
+  box-shadow: 10px 0 36px rgba(15, 23, 42, 0.12) !important;
+}
+
+.page :global(.readpoint-admin-brand) {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.page :global(.readpoint-admin-brand > div) {
+  border-color: rgba(167, 243, 208, 0.18) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-radius: 18px !important;
+}
+
+.page :global(.readpoint-admin-menu-item),
+.page :global(.readpoint-admin-submenu-item) {
+  border-radius: 13px !important;
+}
+
+.page :global(.readpoint-admin-menu-item:hover),
+.page :global(.readpoint-admin-submenu-item:hover) {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.page :global(.readpoint-admin-menu-item.bg-white) {
+  background: #f4fbf7 !important;
+  color: #123c3a !important;
+  box-shadow: 0 8px 18px rgba(2, 44, 34, 0.16) !important;
+}
+
+.page :global(.readpoint-admin-submenu-item.bg-emerald-600) {
+  background: #18a987 !important;
+  box-shadow: 0 8px 18px rgba(24, 169, 135, 0.2) !important;
+}
+
+.page :global(.readpoint-admin-user) {
+  border-top-color: rgba(255, 255, 255, 0.09) !important;
+  background: #0d2424 !important;
+}
+
+.hero {
+  min-height: 250px;
+  padding: 34px 36px;
+  border: 1px solid rgba(167, 243, 208, 0.2);
+  border-radius: 26px;
+  background: linear-gradient(135deg, #102a2a 0%, #126e68 62%, #365314 100%);
+  box-shadow: 0 18px 42px rgba(15, 118, 110, 0.16);
+}
+
+.heroTitle { font-size: 32px !important; letter-spacing: -0.03em !important; }
+.heroText { max-width: 620px; color: #d8eee7 !important; }
+
+.badge {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.12);
+  color: #d1fae5;
+}
+
+.heroPanel {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: rgba(4, 47, 46, 0.38);
+}
+
+.metricCard,
+.panel,
+.priorityCard,
+.sectionHeader,
+.managementShell,
+.profileCard {
+  border-color: #d8e6e1;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.055);
+}
+
+.metricCard:hover,
+.priorityCard:hover,
+.itemCard:hover {
+  border-color: #9ad7c2;
+  box-shadow: 0 14px 30px rgba(15, 118, 110, 0.12);
+}
+
+.iconBox {
+  background: #dff5eb;
+  color: #0f766e;
+}
+
+.metricValue,
+.todayCardValue,
+.pointsText { color: #123c3a !important; }
+.panelEyebrow,
+.sectionEyebrow { color: #0f766e !important; }
+
+.primaryButton {
+  background: #0f766e;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.16);
+}
+
+.primaryButton:hover { background: #115e59; }
+
+.secondaryButton { background: #f8fbfa; }
+
+.itemCard,
+.todayCard,
+.infoCard,
+.tableWrap,
+.sectionTabs {
+  border-color: #d8e6e1;
+}
+
+.itemCard { border-radius: 16px; background: #fbfdfc; }
+.table th { background: #f1f7f4; color: #53706a; }
+.table tr:hover td { background: #f5fbf8; }
+
+.page :global(button:focus-visible),
+.page :global(a:focus-visible),
+.page input:focus,
+.page select:focus,
+.page textarea:focus {
+  outline: 3px solid rgba(245, 158, 11, 0.34) !important;
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .content { padding: 78px 12px 26px !important; }
+  .hero { padding: 24px 20px !important; border-radius: 20px !important; }
+  .heroTitle { font-size: 26px !important; }
+  .panel, .managementShell, .profileCard { padding: 16px; }
+}
+
 /* accountPill explicit labels */
 .accountPillLabel {
   color: #d1fae5 !important;

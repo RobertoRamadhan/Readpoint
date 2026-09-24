@@ -1004,6 +1004,100 @@
   font-weight: 600;
 }
 
+/* Student workspace visual refresh. Data and interaction styles remain unchanged. */
+.shell {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(16, 185, 129, 0.1), transparent 24%),
+    radial-gradient(circle at 95% 20%, rgba(245, 158, 11, 0.08), transparent 18%),
+    #f3f8f5;
+}
+
+.content { max-width: 1320px; padding: 28px 22px 42px; gap: 24px; }
+
+.header {
+  border-bottom-color: #d8e6e1;
+  background: rgba(250, 253, 251, 0.88);
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05);
+}
+
+.headerTitle { color: #123c3a; font-size: 24px; }
+.headerSubtitle { color: #0f766e; letter-spacing: .04em; }
+.headerAvatar { background: #123c3a; box-shadow: 0 8px 16px rgba(18, 60, 58, 0.16); }
+
+.searchBar,
+.statCard,
+.panel,
+.continueCard,
+.quizCard,
+.pointsBanner,
+.rewardCard,
+.accountProfile,
+.historySummaryCard,
+.historyItem {
+  border-color: #d8e6e1;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.055);
+}
+
+.searchBar:focus-within {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
+}
+
+.statsSectionTitle,
+.panelTitle,
+.continueTitle,
+.quizCardTitle,
+.rewardCardName,
+.accountName,
+.historyItemTitle { color: #123c3a; }
+
+.statCard:hover,
+.continueCard:hover,
+.quizCard:hover,
+.rewardCard:hover,
+.accountMenuItem:hover {
+  border-color: #9ad7c2;
+  box-shadow: 0 14px 30px rgba(15, 118, 110, 0.11);
+  transform: translateY(-2px);
+}
+
+.statCardIcon,
+.continueBadge,
+.quizCardCtaNew,
+.accountPoinBadge,
+.bookTagGreen,
+.badgeGreen { background: #dff5eb; color: #0f766e; }
+
+.continueProgressFill,
+.continueBtn,
+.rewardCardBtn,
+.rewardRowBtn { background: #0f766e; }
+.continueBtn:hover,
+.rewardCardBtn:hover,
+.rewardRowBtn:hover { background: #115e59; }
+
+.bookCover,
+.rewardCardImg { background: #eaf4ef; }
+.continueCard { border-radius: 22px; }
+.panel, .statCard, .quizCard, .rewardCard, .accountProfile { border-radius: 18px; }
+
+.panelAction:hover,
+.historyTab:hover { background: #dff5eb; color: #0f766e; }
+.historyTabActive { border-color: #0f766e !important; background: #0f766e !important; }
+
+@media (min-width: 768px) {
+  .statsGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .overviewGrid { grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); }
+  .booksGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .rewardsGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+  .content { padding: 20px 14px 34px; }
+  .header { padding: 11px 14px; }
+  .headerTitle { font-size: 21px; }
+}
+
 .historyValidationOk  { background: #f0fdf4; color: #059669; }
 .historyValidationBad { background: #fef2f2; color: #dc2626; }
 
