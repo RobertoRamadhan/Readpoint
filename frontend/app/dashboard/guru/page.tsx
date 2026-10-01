@@ -51,7 +51,6 @@ type QuestionForm = { question: string; option_a: string; option_b: string; opti
 type StudentDetail = Student & { reading_progress?: number; quiz_average_score?: number; quizzes_passed?: number };
 
 const tabs = new Set<GuruTab>(['beranda', 'validasi', 'kuis', 'siswa', 'histori', 'pengaturan']);
-const emptyQuestion = (): QuestionForm => ({ question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct_answer: 'a', question_type: 'multiple_choice' });
 
 function normalizeTab(tab: string | null): GuruTab { return tab && tabs.has(tab as GuruTab) ? (tab as GuruTab) : 'beranda'; }
 function record(value: unknown): Record<string, unknown> | null { return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null; }
@@ -476,7 +475,7 @@ function QuizTab() {
   const [ebooks, setEbooks] = useState<Ebook[]>([]);
   const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [selectedBook, setSelectedBook] = useState<Ebook | null>(null);
-  const [questions, setQuestions] = useState<QuestionForm[]>(Array.from({ length: 5 }, emptyQuestion));
+  const [questions, setQuestions] = useState<QuestionForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -566,7 +565,7 @@ function QuizTab() {
       setSaving(true);
       await api.quiz.create({ ebook_id: selectedBook.id, questions });
       setSuccess('Kuis berhasil disetujui dan diterbitkan');
-      setQuestions(Array.from({ length: 5 }, emptyQuestion));
+      setQuestions([]);
       setSelectedBook(null);
       setPrompt('');
       setFormOpen(false);
@@ -579,8 +578,6 @@ function QuizTab() {
   }
 
   const filled = questions.filter((question) => question.question.trim()).length;
-  const hasAiDrafts = questions.some((question) => question.source_pages?.length);
-
   return (
     <div>
       <SectionHeader eyebrow="Manajemen Kuis" title="Kelola Kuis" desc="Buat soal dari isi e-book dengan bantuan AI, lalu tinjau sebelum diterbitkan." Icon={PenLine} />
@@ -622,26 +619,32 @@ function QuizTab() {
                 </div>
               </div>
 
-              <p className={styles.metricHelp}>Progres pertanyaan: {filled}/{questions.length}</p>
-              <div className="space-y-4">
-                {questions.map((question, index) => (
-                  <div key={index} className={styles.profileCard}>
-                    <h3 className={styles.itemTitle}>Pertanyaan {index + 1} · {question.question_type === 'essay' ? 'Esai' : 'Pilihan ganda'}</h3>
-                    <div className={styles.formGrid}>
-                      <Field label="Pertanyaan" full><textarea className={styles.textarea} value={question.question} onChange={(event) => changeQuestion(index, 'question', event.target.value)} /></Field>
-                      {question.question_type === 'essay' ? (
-                        <Field label="Panduan jawaban guru" full><textarea className={styles.textarea} value={question.model_answer ?? ''} onChange={(event) => changeQuestion(index, 'model_answer', event.target.value)} /></Field>
-                      ) : <>
-                        {(['option_a', 'option_b', 'option_c', 'option_d'] as const).map((key, optionIndex) => <Field key={key} label={`Opsi ${String.fromCharCode(65 + optionIndex)}`}><input className={styles.input} value={question[key]} onChange={(event) => changeQuestion(index, key, event.target.value)} /></Field>)}
-                        <Field label="Jawaban Benar"><select className={styles.select} value={question.correct_answer} onChange={(event) => changeQuestion(index, 'correct_answer', event.target.value)}><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option></select></Field>
-                      </>}
-                      <Field label="Penjelasan untuk guru" full><textarea className={styles.textarea} value={question.explanation ?? ''} onChange={(event) => changeQuestion(index, 'explanation', event.target.value)} /></Field>
-                      {!!question.source_pages?.length && <p className={styles.metricHelp}>Sumber buku: halaman {question.source_pages.join(', ')}</p>}
-                    </div>
+              {questions.length === 0 ? (
+                <p className={styles.metricHelp}>Belum ada draf soal. Setelah AI membuat soal, hasilnya akan muncul di sini untuk diperiksa.</p>
+              ) : (
+                <>
+                  <p className={styles.metricHelp}>Soal untuk ditinjau: {filled}</p>
+                  <div className="space-y-4">
+                    {questions.map((question, index) => (
+                      <div key={index} className={styles.profileCard}>
+                        <h3 className={styles.itemTitle}>Pertanyaan {index + 1} · {question.question_type === 'essay' ? 'Esai' : 'Pilihan ganda'}</h3>
+                        <div className={styles.formGrid}>
+                          <Field label="Pertanyaan" full><textarea className={styles.textarea} value={question.question} onChange={(event) => changeQuestion(index, 'question', event.target.value)} /></Field>
+                          {question.question_type === 'essay' ? (
+                            <Field label="Panduan jawaban guru" full><textarea className={styles.textarea} value={question.model_answer ?? ''} onChange={(event) => changeQuestion(index, 'model_answer', event.target.value)} /></Field>
+                          ) : <>
+                            {(['option_a', 'option_b', 'option_c', 'option_d'] as const).map((key, optionIndex) => <Field key={key} label={`Opsi ${String.fromCharCode(65 + optionIndex)}`}><input className={styles.input} value={question[key]} onChange={(event) => changeQuestion(index, key, event.target.value)} /></Field>)}
+                            <Field label="Jawaban Benar"><select className={styles.select} value={question.correct_answer} onChange={(event) => changeQuestion(index, 'correct_answer', event.target.value)}><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option></select></Field>
+                          </>}
+                          <Field label="Penjelasan untuk guru" full><textarea className={styles.textarea} value={question.explanation ?? ''} onChange={(event) => changeQuestion(index, 'explanation', event.target.value)} /></Field>
+                          {!!question.source_pages?.length && <p className={styles.metricHelp}>Sumber buku: halaman {question.source_pages.join(', ')}</p>}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <FormActions saving={saving} onCancel={() => setFormOpen(false)} label={hasAiDrafts ? 'Setujui & Terbitkan Soal' : 'Simpan Kuis'} />
+                  <FormActions saving={saving} onCancel={() => setFormOpen(false)} label="Setujui & Terbitkan Soal" />
+                </>
+              )}
             </form>
           </FormBox>
         ) : loading ? <div className={styles.loading}>Memuat daftar kuis...</div> : quizzes.length === 0 ? <Empty text="Belum ada kuis yang dibuat." /> : (
