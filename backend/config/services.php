@@ -39,4 +39,10 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
     ],
 
+    'question_ai' => [
+        'base_url' => env('QUESTION_AI_BASE_URL'),
+        'api_key' => env('QUESTION_AI_API_KEY'),
+        'model' => env('QUESTION_AI_MODEL'),
+    ],
+
 ];

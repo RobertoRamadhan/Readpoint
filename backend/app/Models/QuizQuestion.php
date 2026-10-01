@@ -15,6 +15,14 @@ class QuizQuestion extends Model
         'option_c',
         'option_d',
         'correct_answer',
+        'question_type',
+        'model_answer',
+        'explanation',
+        'source_pages',
+    ];
+
+    protected $casts = [
+        'source_pages' => 'array',
     ];
 
     public function ebook()

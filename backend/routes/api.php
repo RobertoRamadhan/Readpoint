@@ -64,6 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('quiz/my-attempts', [QuizController::class, 'getMyAttempts']);
 
     Route::middleware('guru')->group(function () {
+        Route::post('quiz/ai-draft', [QuizController::class, 'generateAiDraft']);
+        Route::get('quiz/essay-reviews', [QuizController::class, 'getEssayReviews']);
+        Route::put('quiz/attempts/{id}/grade', [QuizController::class, 'gradeEssayAttempt']);
         Route::post('quiz/create',  [QuizController::class, 'createQuiz']);
         Route::put('quiz/{id}',     [QuizController::class, 'updateQuiz']);
         Route::delete('quiz/{id}',  [QuizController::class, 'deleteQuiz']);

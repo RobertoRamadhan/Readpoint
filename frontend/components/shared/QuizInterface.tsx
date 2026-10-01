@@ -9,12 +9,15 @@ export interface QuizQuestion {
   option_b: string;
   option_c: string;
   option_d: string;
+  question_type?: 'multiple_choice' | 'essay';
+  source_pages?: number[];
 }
 
 export interface QuizSubmitResult {
   score?: number;
   passed?: boolean;
   points_earned?: number;
+  pending_review?: boolean;
   quiz_attempt?: {
     correct_answers?: number;
     total_questions?: number;
@@ -38,6 +41,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   const [score, setScore] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
+  const [pendingReview, setPendingReview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -76,6 +80,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
       setScore(Math.max(0, Math.min(100, Math.round(backendScore))));
       setCorrectAnswers(Math.max(0, Math.min(questions.length, backendCorrect)));
       setPointsEarned(Math.max(0, backendPoints));
+      setPendingReview(Boolean(result?.pending_review));
       setShowResults(true);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Gagal mengirim kuis');
@@ -91,6 +96,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
     setScore(0);
     setCorrectAnswers(0);
     setPointsEarned(0);
+    setPendingReview(false);
     setSubmitError('');
   };
 
@@ -115,15 +121,17 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
         <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="text-center">
-            <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Hasil Kuis</p>
-            <h2 className="mt-4 text-2xl font-black text-slate-900">Hasil Kuismu</h2>
-            <p className={`my-6 text-6xl font-black ${scoreColor}`}>{score}%</p>
-            <p className="leading-7 text-slate-600">{resultMessage}</p>
+            <p className="text-sm font-black uppercase tracking-widest text-emerald-700">{pendingReview ? 'Jawaban terkirim' : 'Hasil Kuis'}</p>
+            <h2 className="mt-4 text-2xl font-black text-slate-900">{pendingReview ? 'Menunggu penilaian guru' : 'Hasil Kuismu'}</h2>
+            {pendingReview ? <p className="my-6 leading-7 text-slate-600">Jawaban esaimu sudah dikirim. Nilai akhir akan muncul setelah guru memeriksanya.</p> : <>
+              <p className={`my-6 text-6xl font-black ${scoreColor}`}>{score}%</p>
+              <p className="leading-7 text-slate-600">{resultMessage}</p>
+            </>}
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-            <ResultRow label="Jawaban Benar" value={`${correctAnswers}/${questions.length}`} success={score >= 60} />
-            <ResultRow label="Akurasi" value={`${score}%`} success={score >= 60} />
+            {!pendingReview && <ResultRow label="Jawaban Benar" value={`${correctAnswers}/${questions.length}`} success={score >= 60} />}
+            {!pendingReview && <ResultRow label="Akurasi" value={`${score}%`} success={score >= 60} />}
             <ResultRow label="Poin Didapat" value={`${pointsEarned} poin`} success={pointsEarned > 0} />
             <div className="h-3 overflow-hidden rounded-full bg-slate-200">
               <div className={`h-full rounded-full ${score >= 60 ? 'bg-emerald-700' : 'bg-red-500'}`} style={{ width: `${score}%` }} />
@@ -131,7 +139,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
           </div>
 
           <div className="mt-8 flex flex-col gap-3">
-            <button onClick={resetQuiz} className="h-12 rounded-2xl bg-emerald-700 px-5 text-sm font-black text-white hover:bg-emerald-800">Coba Lagi</button>
+            {!pendingReview && <button onClick={resetQuiz} className="h-12 rounded-2xl bg-emerald-700 px-5 text-sm font-black text-white hover:bg-emerald-800">Coba Lagi</button>}
             <button onClick={onCancel} className="h-12 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-900 hover:bg-slate-100">Kembali ke Dashboard</button>
           </div>
         </div>
@@ -142,8 +150,8 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   return (
     <div className="quiz-page flex min-h-screen w-full flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="quiz-header-inner mx-auto w-[calc(100%-1.25rem)] max-w-[980px] px-0 pb-4 pt-2 sm:w-[calc(100%-2rem)] sm:pt-3">
-          <div className="flex min-h-[58px] items-center justify-between gap-4">
+        <div className="quiz-header-inner mx-auto w-[calc(100%-1.25rem)] max-w-245 px-0 pb-4 pt-2 sm:w-[calc(100%-2rem)] sm:pt-3">
+          <div className="flex min-h-14.5 items-center justify-between gap-4">
             <button onClick={onCancel} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Kuis E-Book</p>
@@ -163,7 +171,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
       </header>
 
       <main className="quiz-main flex-1 px-2.5 pb-10 pt-5 sm:px-4 sm:pb-16 sm:pt-10">
-        <section className="quiz-shell mx-auto min-w-0 w-full max-w-[860px]">
+        <section className="quiz-shell mx-auto min-w-0 w-full max-w-215">
           <div className="quiz-number-nav mb-4 flex max-w-full gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white/80 p-3 shadow-sm">
             {questions.map((q, index) => (
               <button key={q.id} onClick={() => setCurrentIndex(index)} disabled={submitting} className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-4 text-sm font-black ${index === currentIndex ? 'bg-emerald-600 text-white shadow-sm' : selectedAnswers[q.id] ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'border border-slate-200 bg-white text-slate-500'}`}>{index + 1}</button>
@@ -173,8 +181,17 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
           <div className="quiz-card rounded-2xl border border-slate-200 bg-white p-5 shadow-lg sm:p-8">
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Soal {currentIndex + 1}</p>
             <h2 className="quiz-question-title mt-4 max-w-3xl text-2xl font-black leading-tight text-slate-900 sm:text-3xl">{currentQuestion?.question_text}</h2>
-            <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>
-            <div className="quiz-answer-grid mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {currentQuestion?.question_type === 'essay' ? <p className="mt-3 text-sm font-semibold text-slate-500">Tulis jawabanmu dengan jelas. Guru akan memeriksa jawaban ini.</p> : <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>}
+            {currentQuestion?.question_type === 'essay' ? (
+              <textarea
+                value={selectedAnswers[currentQuestion.id] ?? ''}
+                onChange={(event) => selectAnswer(event.target.value)}
+                rows={7}
+                maxLength={5000}
+                placeholder="Tulis jawaban esaimu..."
+                className="mt-7 w-full rounded-xl border border-slate-300 p-4 leading-7 text-slate-900 focus:border-emerald-700 focus:outline-none"
+              />
+            ) : <div className="quiz-answer-grid mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {options.map((option) => {
                 const isSelected = selectedAnswers[currentQuestion?.id] === option.key;
                 return (
@@ -185,7 +202,8 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
                   </button>
                 );
               })}
-            </div>
+            </div>}
+            {!!currentQuestion?.source_pages?.length && <p className="mt-4 text-xs text-slate-500">Materi terkait: halaman {currentQuestion.source_pages.join(', ')}</p>}
           </div>
 
           {submitError && <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-700">{submitError}</p>}

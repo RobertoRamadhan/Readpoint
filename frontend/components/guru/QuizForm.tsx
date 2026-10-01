@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Card } from '@/components/shared';
+import { api } from '@/lib/api';
 
 interface QuizQuestion {
   id?: number;
@@ -11,6 +12,10 @@ interface QuizQuestion {
   option_c: string;
   option_d: string;
   correct_answer: 'a' | 'b' | 'c' | 'd';
+  question_type?: 'multiple_choice' | 'essay';
+  model_answer?: string;
+  explanation?: string;
+  source_pages?: number[];
 }
 
 interface Ebook {
@@ -60,6 +65,10 @@ export default function QuizForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [multipleChoiceCount, setMultipleChoiceCount] = useState(5);
+  const [essayCount, setEssayCount] = useState(0);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -78,6 +87,7 @@ export default function QuizForm({
         });
       }
       setErrors({});
+      setAiPrompt('');
     }, 0);
 
     return () => window.clearTimeout(t);
@@ -136,7 +146,9 @@ export default function QuizForm({
         if (!q.question_text.trim()) {
           newErrors[`question_${index}`] = 'Pertanyaan harus diisi';
         }
-        if (!q.option_a.trim() || !q.option_b.trim() || !q.option_c.trim() || !q.option_d.trim()) {
+        if (q.question_type === 'essay' && !q.model_answer?.trim()) {
+          newErrors[`question_${index}`] = 'Panduan jawaban esai harus diisi';
+        } else if (q.question_type !== 'essay' && (!q.option_a.trim() || !q.option_b.trim() || !q.option_c.trim() || !q.option_d.trim())) {
           newErrors[`options_${index}`] = 'Semua opsi jawaban harus diisi';
         }
       });
@@ -151,6 +163,38 @@ export default function QuizForm({
     
     if (validateForm()) {
       onSubmit(formData);
+    }
+  };
+
+  const generateQuestions = async () => {
+    if (!formData.ebook_id) {
+      setErrors(prev => ({ ...prev, ebook_id: 'Pilih e-book terlebih dahulu' }));
+      return;
+    }
+    if (aiPrompt.trim().length < 10 || multipleChoiceCount + essayCount < 1) {
+      setErrors(prev => ({ ...prev, ai: 'Isi instruksi minimal 10 karakter dan pilih jumlah soal.' }));
+      return;
+    }
+
+    try {
+      setGenerating(true);
+      setErrors(prev => ({ ...prev, ai: '' }));
+      const response = await api.quiz.generateDraft({
+        ebook_id: formData.ebook_id,
+        prompt: aiPrompt,
+        multiple_choice_count: multipleChoiceCount,
+        essay_count: essayCount,
+      });
+      const result = response.data as { questions?: QuizQuestion[] } | undefined;
+      if (!Array.isArray(result?.questions) || result.questions.length === 0) {
+        throw new Error('AI belum menghasilkan soal. Coba ubah instruksi.');
+      }
+      setFormData(prev => ({ ...prev, questions: [...prev.questions, ...result.questions!] }));
+      setAiPrompt('');
+    } catch (error) {
+      setErrors(prev => ({ ...prev, ai: error instanceof Error ? error.message : 'Gagal membuat draf soal.' }));
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -301,6 +345,33 @@ export default function QuizForm({
           {/* Questions */}
           <Card>
             <div className="p-6">
+              <div className="mb-6 space-y-3 border-b border-gray-200 pb-6">
+                <h4 className="font-black text-gray-900">Buat draf dari isi e-book</h4>
+                <p className="text-sm text-gray-600">AI mengambil kutipan dari PDF yang dipilih. Periksa dan sunting semua soal sebelum menyimpan.</p>
+                <textarea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  rows={3}
+                  maxLength={5000}
+                  placeholder="Contoh: Buat soal tentang tokoh, konflik, dan nilai persahabatan dalam cerita. Gunakan bahasa yang sesuai untuk kelas 6."
+                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 font-medium text-gray-900 focus:border-blue-500 focus:outline-none"
+                />
+                <div className="flex flex-wrap items-end gap-3">
+                  <label className="text-sm font-bold text-gray-700">
+                    Pilihan ganda
+                    <input type="number" min={0} max={10} value={multipleChoiceCount} onChange={(e) => setMultipleChoiceCount(Number(e.target.value))} className="mt-1 block w-24 rounded-lg border-2 border-gray-300 px-3 py-2" />
+                  </label>
+                  <label className="text-sm font-bold text-gray-700">
+                    Esai
+                    <input type="number" min={0} max={10} value={essayCount} onChange={(e) => setEssayCount(Number(e.target.value))} className="mt-1 block w-24 rounded-lg border-2 border-gray-300 px-3 py-2" />
+                  </label>
+                  <Button type="button" onClick={generateQuestions} disabled={generating || loading || multipleChoiceCount + essayCount > 12}>
+                    {generating ? 'Membaca buku dan membuat soal...' : 'Buat draf dengan AI'}
+                  </Button>
+                </div>
+                {errors.ai && <p className="text-sm font-semibold text-red-600">{errors.ai}</p>}
+              </div>
+
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-black text-gray-900">❓ Pertanyaan</h4>
                 <Button
@@ -354,7 +425,7 @@ export default function QuizForm({
               className="flex-1"
               disabled={loading}
             >
-              {loading ? 'Menyimpan...' : (editingQuiz ? 'Update Quiz' : 'Buat Quiz')}
+              {loading ? 'Menyimpan...' : (editingQuiz ? 'Update Quiz' : formData.questions.some(question => question.source_pages?.length) ? 'Setujui & Terbitkan Soal' : 'Buat Quiz')}
             </Button>
           </div>
         </form>
@@ -379,7 +450,10 @@ function QuestionCard({
   return (
     <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
       <div className="flex items-center justify-between mb-4">
-        <h5 className="font-black text-gray-900">Pertanyaan {index + 1}</h5>
+        <div>
+          <h5 className="font-black text-gray-900">Pertanyaan {index + 1}</h5>
+          <span className="text-xs font-semibold text-gray-500">{question.question_type === 'essay' ? 'Esai' : 'Pilihan ganda'}</span>
+        </div>
         <Button
           type="button"
           onClick={() => onRemove(index)}
@@ -410,8 +484,14 @@ function QuestionCard({
           )}
         </div>
 
-        {/* Options */}
-        <div>
+        {question.question_type === 'essay' ? (
+          <div className="space-y-3">
+            <label className="block text-sm font-bold text-gray-700">
+              Panduan jawaban untuk guru
+              <textarea value={question.model_answer ?? ''} onChange={(e) => onUpdate(index, 'model_answer', e.target.value)} rows={3} className="mt-2 w-full rounded-lg border-2 border-gray-300 px-3 py-2 font-medium text-gray-900" />
+            </label>
+          </div>
+        ) : <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Opsi Jawaban
           </label>
@@ -439,7 +519,12 @@ function QuestionCard({
           {errors[`options_${index}`] && (
             <p className="mt-1 text-sm text-red-600 font-semibold">{errors[`options_${index}`]}</p>
           )}
-        </div>
+        </div>}
+        <label className="block text-sm font-bold text-gray-700">
+          Penjelasan untuk guru
+          <textarea value={question.explanation ?? ''} onChange={(e) => onUpdate(index, 'explanation', e.target.value)} rows={2} className="mt-2 w-full rounded-lg border-2 border-gray-300 px-3 py-2 font-medium text-gray-900" />
+        </label>
+        {!!question.source_pages?.length && <p className="text-xs font-semibold text-gray-500">Sumber buku: halaman {question.source_pages.join(', ')}</p>}
       </div>
     </div>
   );

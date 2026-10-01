@@ -14,6 +14,15 @@ class QuizAttempt extends Model
         'correct_answers',
         'score',
         'passed',
+        'answers',
+        'essay_grades',
+        'pending_review',
+    ];
+
+    protected $casts = [
+        'answers' => 'array',
+        'essay_grades' => 'array',
+        'pending_review' => 'boolean',
     ];
 
     public function user()
