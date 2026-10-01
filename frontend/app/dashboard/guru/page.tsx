@@ -47,11 +47,11 @@ type Student = {
 
 type Ebook = { id: number; title: string; author?: string };
 type QuizSummary = { ebook_id?: number; ebook_title?: string; question_count?: number; attempt_count?: number };
-type QuestionForm = { question: string; option_a: string; option_b: string; option_c: string; option_d: string; correct_answer: AnswerKey };
+type QuestionForm = { question: string; option_a: string; option_b: string; option_c: string; option_d: string; correct_answer: AnswerKey; question_type?: 'multiple_choice' | 'essay'; model_answer?: string; explanation?: string; source_pages?: number[] };
 type StudentDetail = Student & { reading_progress?: number; quiz_average_score?: number; quizzes_passed?: number };
 
 const tabs = new Set<GuruTab>(['beranda', 'validasi', 'kuis', 'siswa', 'histori', 'pengaturan']);
-const emptyQuestion = (): QuestionForm => ({ question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct_answer: 'a' });
+const emptyQuestion = (): QuestionForm => ({ question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct_answer: 'a', question_type: 'multiple_choice' });
 
 function normalizeTab(tab: string | null): GuruTab { return tab && tabs.has(tab as GuruTab) ? (tab as GuruTab) : 'beranda'; }
 function record(value: unknown): Record<string, unknown> | null { return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null; }
@@ -473,13 +473,185 @@ function Info({ label, value }: { label: string; value: string }) {
 }
 
 function QuizTab() {
-  const [ebooks, setEbooks] = useState<Ebook[]>([]); const [quizzes, setQuizzes] = useState<QuizSummary[]>([]); const [selectedBook, setSelectedBook] = useState<Ebook | null>(null); const [questions, setQuestions] = useState<QuestionForm[]>(Array.from({ length: 5 }, emptyQuestion)); const [loading, setLoading] = useState(true); const [formOpen, setFormOpen] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState(''); const [success, setSuccess] = useState('');
-  async function load() { try { setLoading(true); setError(''); const [booksRes, quizRes] = await Promise.all([api.ebooks.list(), api.dashboard.guruQuizzes()]); setEbooks(arrayOf<Ebook>(booksRes)); setQuizzes(arrayOf<QuizSummary>(quizRes)); } catch (error) { setError(errText(error, 'Gagal memuat kuis')); } finally { setLoading(false); } }
+  const [ebooks, setEbooks] = useState<Ebook[]>([]);
+  const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
+  const [selectedBook, setSelectedBook] = useState<Ebook | null>(null);
+  const [questions, setQuestions] = useState<QuestionForm[]>(Array.from({ length: 5 }, emptyQuestion));
+  const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [multipleChoiceCount, setMultipleChoiceCount] = useState(5);
+  const [essayCount, setEssayCount] = useState(0);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  async function load() {
+    try {
+      setLoading(true);
+      setError('');
+      const [booksRes, quizRes] = await Promise.all([api.ebooks.list(), api.dashboard.guruQuizzes()]);
+      setEbooks(arrayOf<Ebook>(booksRes));
+      setQuizzes(arrayOf<QuizSummary>(quizRes));
+    } catch (error) {
+      setError(errText(error, 'Gagal memuat kuis'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => { load(); }, []);
-  function changeQuestion(index: number, key: keyof QuestionForm, value: string) { setQuestions((current) => current.map((q, i) => i === index ? { ...q, [key]: key === 'correct_answer' ? value as AnswerKey : value } : q)); }
-  async function submit(e: FormEvent) { e.preventDefault(); setError(''); setSuccess(''); if (!selectedBook) return setError('Pilih e-book terlebih dahulu'); if (!questions.every((q) => q.question && q.option_a && q.option_b && q.option_c && q.option_d)) return setError('Semua pertanyaan dan opsi wajib diisi'); try { setSaving(true); await api.quiz.create({ ebook_id: selectedBook.id, questions }); setSuccess('Kuis berhasil disimpan'); setQuestions(Array.from({ length: 5 }, emptyQuestion)); setSelectedBook(null); setFormOpen(false); await load(); } catch (error) { setError(errText(error, 'Gagal menyimpan kuis')); } finally { setSaving(false); } }
-  const filled = questions.filter((q) => q.question.trim()).length;
-  return <div><SectionHeader eyebrow="Manajemen Kuis" title="Kelola Kuis" desc="Buat 5 pertanyaan pilihan ganda untuk setiap e-book." Icon={PenLine} /><div className={styles.managementShell}><ErrorBox message={error} /><SuccessBox message={success} /><div className={styles.toolbar}><div /><button className={styles.primaryButton} onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Lihat Daftar Kuis' : <><Plus size={18} />Buat Kuis Baru</>}</button></div>{formOpen ? <FormBox title="Buat Kuis" onClose={() => setFormOpen(false)}><form onSubmit={submit}><div className={styles.formGrid}><Field label="Pilih E-Book" full><select className={styles.select} value={selectedBook?.id || ''} onChange={(e) => setSelectedBook(ebooks.find((b) => b.id === Number(e.target.value)) || null)}><option value="">Pilih e-book...</option>{ebooks.map((b) => <option key={b.id} value={b.id}>{b.title} • {b.author || '-'}</option>)}</select></Field></div><p className={styles.metricHelp}>Progres pertanyaan: {filled}/5</p><div className="space-y-4">{questions.map((q, index) => <div key={index} className={styles.profileCard}><h3 className={styles.itemTitle}>Pertanyaan {index + 1}</h3><div className={styles.formGrid}><Field label="Pertanyaan" full><textarea className={styles.textarea} value={q.question} onChange={(e) => changeQuestion(index, 'question', e.target.value)} /></Field>{(['option_a', 'option_b', 'option_c', 'option_d'] as const).map((key, optionIndex) => <Field key={key} label={`Opsi ${String.fromCharCode(65 + optionIndex)}`}><input className={styles.input} value={q[key]} onChange={(e) => changeQuestion(index, key, e.target.value)} /></Field>)}<Field label="Jawaban Benar"><select className={styles.select} value={q.correct_answer} onChange={(e) => changeQuestion(index, 'correct_answer', e.target.value)}><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option></select></Field></div></div>)}</div><FormActions saving={saving} onCancel={() => setFormOpen(false)} label="Simpan Kuis" /></form></FormBox> : loading ? <div className={styles.loading}>Memuat daftar kuis...</div> : quizzes.length === 0 ? <Empty text="Belum ada kuis yang dibuat." /> : <div className={styles.leaderList}>{quizzes.map((quiz, index) => <div key={`quiz-${index}-${quiz.ebook_id ?? 'none'}`} className={styles.leaderItem}><div><p className={styles.leaderName}>{quiz.ebook_title || 'E-Book'}</p><p className={styles.leaderEmail}>{fmt(quiz.question_count)} pertanyaan</p></div><div><p className={styles.pointsText}>{fmt(quiz.attempt_count)}</p><p className={styles.mutedText}>attempt</p></div></div>)}</div>}</div></div>;
+
+  function changeQuestion(index: number, key: keyof QuestionForm, value: string) {
+    setQuestions((current) => current.map((question, questionIndex) => questionIndex === index
+      ? { ...question, [key]: key === 'correct_answer' ? value as AnswerKey : value }
+      : question));
+  }
+
+  async function generateDraft() {
+    if (!selectedBook) return setError('Pilih e-book terlebih dahulu');
+    if (prompt.trim().length < 10) return setError('Tulis prompt minimal 10 karakter.');
+    if (multipleChoiceCount + essayCount < 1 || multipleChoiceCount + essayCount > 12) return setError('Jumlah soal harus antara 1 dan 12.');
+
+    try {
+      setGenerating(true);
+      setError('');
+      setSuccess('');
+      const response = await api.quiz.generateDraft({
+        ebook_id: selectedBook.id,
+        prompt: prompt.trim(),
+        multiple_choice_count: multipleChoiceCount,
+        essay_count: essayCount,
+      });
+      const payload = record(response.data);
+      const generated = Array.isArray(payload?.questions) ? payload.questions as Record<string, unknown>[] : [];
+      if (!generated.length) throw new Error('AI belum menghasilkan soal. Coba ubah prompt.');
+
+      const drafts: QuestionForm[] = generated.map((question) => ({
+        question: String(question.question_text ?? ''),
+        option_a: String(question.option_a ?? ''),
+        option_b: String(question.option_b ?? ''),
+        option_c: String(question.option_c ?? ''),
+        option_d: String(question.option_d ?? ''),
+        correct_answer: (['a', 'b', 'c', 'd'].includes(String(question.correct_answer)) ? question.correct_answer : 'a') as AnswerKey,
+        question_type: question.question_type === 'essay' ? 'essay' : 'multiple_choice',
+        model_answer: String(question.model_answer ?? ''),
+        explanation: String(question.explanation ?? ''),
+        source_pages: Array.isArray(question.source_pages) ? question.source_pages.map(Number) : [],
+      }));
+      setQuestions((current) => current.every((question) => !question.question.trim()) ? drafts : [...current, ...drafts]);
+      setPrompt('');
+      setSuccess('Draf AI siap. Periksa soal dan sumber halaman sebelum menyetujui dan menyimpan.');
+    } catch (error) {
+      setError(errText(error, 'Gagal membuat draf soal dengan AI'));
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    if (!selectedBook) return setError('Pilih e-book terlebih dahulu');
+    if (!questions.length || !questions.every((question) => question.question.trim())) return setError('Semua pertanyaan wajib diisi.');
+    if (!questions.every((question) => question.question_type === 'essay'
+      ? Boolean(question.model_answer?.trim())
+      : Boolean(question.option_a.trim() && question.option_b.trim() && question.option_c.trim() && question.option_d.trim()))) {
+      return setError('Lengkapi opsi pilihan ganda atau panduan jawaban esai.');
+    }
+
+    try {
+      setSaving(true);
+      await api.quiz.create({ ebook_id: selectedBook.id, questions });
+      setSuccess('Kuis berhasil disetujui dan diterbitkan');
+      setQuestions(Array.from({ length: 5 }, emptyQuestion));
+      setSelectedBook(null);
+      setPrompt('');
+      setFormOpen(false);
+      await load();
+    } catch (error) {
+      setError(errText(error, 'Gagal menyimpan kuis'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const filled = questions.filter((question) => question.question.trim()).length;
+  const hasAiDrafts = questions.some((question) => question.source_pages?.length);
+
+  return (
+    <div>
+      <SectionHeader eyebrow="Manajemen Kuis" title="Kelola Kuis" desc="Buat soal dari isi e-book dengan bantuan AI, lalu tinjau sebelum diterbitkan." Icon={PenLine} />
+      <div className={styles.managementShell}>
+        <ErrorBox message={error} />
+        <SuccessBox message={success} />
+        <div className={styles.toolbar}>
+          <div />
+          <button className={styles.primaryButton} onClick={() => setFormOpen((value) => !value)}>
+            {formOpen ? 'Lihat Daftar Kuis' : <><Plus size={18} />Buat Kuis Baru</>}
+          </button>
+        </div>
+        {formOpen ? (
+          <FormBox title="Buat Kuis" onClose={() => setFormOpen(false)}>
+            <form onSubmit={submit}>
+              <div className={styles.formGrid}>
+                <Field label="Pilih E-Book" full>
+                  <select className={styles.select} value={selectedBook?.id || ''} onChange={(event) => setSelectedBook(ebooks.find((book) => book.id === Number(event.target.value)) || null)}>
+                    <option value="">Pilih e-book...</option>
+                    {ebooks.map((book) => <option key={book.id} value={book.id}>{book.title} • {book.author || '-'}</option>)}
+                  </select>
+                </Field>
+              </div>
+
+              <div className={styles.formGrid}>
+                <Field label="Prompt untuk AI" full>
+                  <textarea className={styles.textarea} value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={5000} rows={3} placeholder="Contoh: Buat soal tentang tokoh, konflik, dan nilai persahabatan dalam Laskar Pelangi untuk siswa kelas 6." />
+                </Field>
+                <Field label="Jumlah pilihan ganda">
+                  <input className={styles.input} type="number" min={0} max={10} value={multipleChoiceCount} onChange={(event) => setMultipleChoiceCount(Number(event.target.value))} />
+                </Field>
+                <Field label="Jumlah esai">
+                  <input className={styles.input} type="number" min={0} max={10} value={essayCount} onChange={(event) => setEssayCount(Number(event.target.value))} />
+                </Field>
+                <div className="flex items-end">
+                  <button className={styles.primaryButton} type="button" onClick={generateDraft} disabled={generating || saving || multipleChoiceCount + essayCount > 12}>
+                    {generating ? 'AI sedang membaca buku...' : 'Buat Draf dengan AI'}
+                  </button>
+                </div>
+              </div>
+
+              <p className={styles.metricHelp}>Progres pertanyaan: {filled}/{questions.length}</p>
+              <div className="space-y-4">
+                {questions.map((question, index) => (
+                  <div key={index} className={styles.profileCard}>
+                    <h3 className={styles.itemTitle}>Pertanyaan {index + 1} · {question.question_type === 'essay' ? 'Esai' : 'Pilihan ganda'}</h3>
+                    <div className={styles.formGrid}>
+                      <Field label="Pertanyaan" full><textarea className={styles.textarea} value={question.question} onChange={(event) => changeQuestion(index, 'question', event.target.value)} /></Field>
+                      {question.question_type === 'essay' ? (
+                        <Field label="Panduan jawaban guru" full><textarea className={styles.textarea} value={question.model_answer ?? ''} onChange={(event) => changeQuestion(index, 'model_answer', event.target.value)} /></Field>
+                      ) : <>
+                        {(['option_a', 'option_b', 'option_c', 'option_d'] as const).map((key, optionIndex) => <Field key={key} label={`Opsi ${String.fromCharCode(65 + optionIndex)}`}><input className={styles.input} value={question[key]} onChange={(event) => changeQuestion(index, key, event.target.value)} /></Field>)}
+                        <Field label="Jawaban Benar"><select className={styles.select} value={question.correct_answer} onChange={(event) => changeQuestion(index, 'correct_answer', event.target.value)}><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option></select></Field>
+                      </>}
+                      <Field label="Penjelasan untuk guru" full><textarea className={styles.textarea} value={question.explanation ?? ''} onChange={(event) => changeQuestion(index, 'explanation', event.target.value)} /></Field>
+                      {!!question.source_pages?.length && <p className={styles.metricHelp}>Sumber buku: halaman {question.source_pages.join(', ')}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <FormActions saving={saving} onCancel={() => setFormOpen(false)} label={hasAiDrafts ? 'Setujui & Terbitkan Soal' : 'Simpan Kuis'} />
+            </form>
+          </FormBox>
+        ) : loading ? <div className={styles.loading}>Memuat daftar kuis...</div> : quizzes.length === 0 ? <Empty text="Belum ada kuis yang dibuat." /> : (
+          <div className={styles.leaderList}>
+            {quizzes.map((quiz, index) => <div key={`quiz-${index}-${quiz.ebook_id ?? 'none'}`} className={styles.leaderItem}><div><p className={styles.leaderName}>{quiz.ebook_title || 'E-Book'}</p><p className={styles.leaderEmail}>{fmt(quiz.question_count)} pertanyaan</p></div><div><p className={styles.pointsText}>{fmt(quiz.attempt_count)}</p><p className={styles.mutedText}>attempt</p></div></div>)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function StudentListTab() {
