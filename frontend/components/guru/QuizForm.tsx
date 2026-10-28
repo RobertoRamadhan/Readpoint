@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Card } from '@/components/shared';
-import { api } from '@/lib/api';
 
 interface QuizQuestion {
   id?: number;
@@ -65,10 +64,6 @@ export default function QuizForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [multipleChoiceCount, setMultipleChoiceCount] = useState(5);
-  const [essayCount, setEssayCount] = useState(0);
-  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -87,20 +82,25 @@ export default function QuizForm({
         });
       }
       setErrors({});
-      setAiPrompt('');
     }, 0);
 
     return () => window.clearTimeout(t);
   }, [editingQuiz, isOpen]);
 
   const addQuestion = () => {
+    if (formData.questions.length >= 12) {
+      setErrors(prev => ({ ...prev, questions: 'Maksimal 12 pertanyaan dalam satu quiz' }));
+      return;
+    }
+
     const newQuestion: QuizQuestion = {
       question_text: '',
       option_a: '',
       option_b: '',
       option_c: '',
       option_d: '',
-      correct_answer: 'a'
+      correct_answer: 'a',
+      question_type: 'multiple_choice',
     };
     setFormData(prev => ({
       ...prev,
@@ -163,38 +163,6 @@ export default function QuizForm({
     
     if (validateForm()) {
       onSubmit(formData);
-    }
-  };
-
-  const generateQuestions = async () => {
-    if (!formData.ebook_id) {
-      setErrors(prev => ({ ...prev, ebook_id: 'Pilih e-book terlebih dahulu' }));
-      return;
-    }
-    if (aiPrompt.trim().length < 10 || multipleChoiceCount + essayCount < 1) {
-      setErrors(prev => ({ ...prev, ai: 'Isi instruksi minimal 10 karakter dan pilih jumlah soal.' }));
-      return;
-    }
-
-    try {
-      setGenerating(true);
-      setErrors(prev => ({ ...prev, ai: '' }));
-      const response = await api.quiz.generateDraft({
-        ebook_id: formData.ebook_id,
-        prompt: aiPrompt,
-        multiple_choice_count: multipleChoiceCount,
-        essay_count: essayCount,
-      });
-      const result = response.data as { questions?: QuizQuestion[] } | undefined;
-      if (!Array.isArray(result?.questions) || result.questions.length === 0) {
-        throw new Error('AI belum menghasilkan soal. Coba ubah instruksi.');
-      }
-      setFormData(prev => ({ ...prev, questions: [...prev.questions, ...result.questions!] }));
-      setAiPrompt('');
-    } catch (error) {
-      setErrors(prev => ({ ...prev, ai: error instanceof Error ? error.message : 'Gagal membuat draf soal.' }));
-    } finally {
-      setGenerating(false);
     }
   };
 
@@ -345,33 +313,6 @@ export default function QuizForm({
           {/* Questions */}
           <Card>
             <div className="p-6">
-              <div className="mb-6 space-y-3 border-b border-gray-200 pb-6">
-                <h4 className="font-black text-gray-900">Buat draf dari isi e-book</h4>
-                <p className="text-sm text-gray-600">AI mengambil kutipan dari PDF yang dipilih. Periksa dan sunting semua soal sebelum menyimpan.</p>
-                <textarea
-                  value={aiPrompt}
-                  onChange={(e) => setAiPrompt(e.target.value)}
-                  rows={3}
-                  maxLength={5000}
-                  placeholder="Contoh: Buat soal tentang tokoh, konflik, dan nilai persahabatan dalam cerita. Gunakan bahasa yang sesuai untuk kelas 6."
-                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 font-medium text-gray-900 focus:border-blue-500 focus:outline-none"
-                />
-                <div className="flex flex-wrap items-end gap-3">
-                  <label className="text-sm font-bold text-gray-700">
-                    Pilihan ganda
-                    <input type="number" min={0} max={10} value={multipleChoiceCount} onChange={(e) => setMultipleChoiceCount(Number(e.target.value))} className="mt-1 block w-24 rounded-lg border-2 border-gray-300 px-3 py-2" />
-                  </label>
-                  <label className="text-sm font-bold text-gray-700">
-                    Esai
-                    <input type="number" min={0} max={10} value={essayCount} onChange={(e) => setEssayCount(Number(e.target.value))} className="mt-1 block w-24 rounded-lg border-2 border-gray-300 px-3 py-2" />
-                  </label>
-                  <Button type="button" onClick={generateQuestions} disabled={generating || loading || multipleChoiceCount + essayCount > 12}>
-                    {generating ? 'Membaca buku dan membuat soal...' : 'Buat draf dengan AI'}
-                  </Button>
-                </div>
-                {errors.ai && <p className="text-sm font-semibold text-red-600">{errors.ai}</p>}
-              </div>
-
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-black text-gray-900">❓ Pertanyaan</h4>
                 <Button
@@ -379,6 +320,7 @@ export default function QuizForm({
                   onClick={addQuestion}
                   variant="success"
                   size="sm"
+                  disabled={formData.questions.length >= 12}
                 >
                   ➕ Tambah Pertanyaan
                 </Button>
@@ -482,6 +424,20 @@ function QuestionCard({
           {errors[`question_${index}`] && (
             <p className="mt-1 text-sm text-red-600 font-semibold">{errors[`question_${index}`]}</p>
           )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            Jenis Pertanyaan
+          </label>
+          <select
+            value={question.question_type ?? 'multiple_choice'}
+            onChange={(e) => onUpdate(index, 'question_type', e.target.value)}
+            className="w-full rounded-lg border-2 border-gray-300 px-3 py-2 font-semibold text-gray-900 focus:border-blue-500 focus:outline-none"
+          >
+            <option value="multiple_choice">Pilihan ganda</option>
+            <option value="essay">Esai</option>
+          </select>
         </div>
 
         {question.question_type === 'essay' ? (

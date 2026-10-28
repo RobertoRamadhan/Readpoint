@@ -47,7 +47,7 @@ type Student = {
 
 type Ebook = { id: number; title: string; author?: string };
 type QuizSummary = { ebook_id?: number; ebook_title?: string; question_count?: number; attempt_count?: number };
-type QuestionForm = { question: string; option_a: string; option_b: string; option_c: string; option_d: string; correct_answer: AnswerKey; question_type?: 'multiple_choice' | 'essay'; model_answer?: string; explanation?: string; source_pages?: number[] };
+type QuestionForm = { question: string; option_a: string; option_b: string; option_c: string; option_d: string; correct_answer: AnswerKey; question_type: 'multiple_choice' | 'essay'; model_answer?: string; explanation?: string; source_pages?: number[] };
 type StudentDetail = Student & { reading_progress?: number; quiz_average_score?: number; quizzes_passed?: number };
 
 const tabs = new Set<GuruTab>(['beranda', 'validasi', 'kuis', 'siswa', 'histori', 'pengaturan']);
@@ -479,10 +479,6 @@ function QuizTab() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [prompt, setPrompt] = useState('');
-  const [multipleChoiceCount, setMultipleChoiceCount] = useState(5);
-  const [essayCount, setEssayCount] = useState(0);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -504,49 +500,30 @@ function QuizTab() {
 
   function changeQuestion(index: number, key: keyof QuestionForm, value: string) {
     setQuestions((current) => current.map((question, questionIndex) => questionIndex === index
-      ? { ...question, [key]: key === 'correct_answer' ? value as AnswerKey : value }
+      ? { ...question, [key]: key === 'correct_answer' ? value as AnswerKey : key === 'question_type' ? value as QuestionForm['question_type'] : value }
       : question));
   }
 
-  async function generateDraft() {
-    if (!selectedBook) return setError('Pilih e-book terlebih dahulu');
-    if (prompt.trim().length < 10) return setError('Tulis prompt minimal 10 karakter.');
-    if (multipleChoiceCount + essayCount < 1 || multipleChoiceCount + essayCount > 12) return setError('Jumlah soal harus antara 1 dan 12.');
-
-    try {
-      setGenerating(true);
-      setError('');
-      setSuccess('');
-      const response = await api.quiz.generateDraft({
-        ebook_id: selectedBook.id,
-        prompt: prompt.trim(),
-        multiple_choice_count: multipleChoiceCount,
-        essay_count: essayCount,
-      });
-      const payload = record(response.data);
-      const generated = Array.isArray(payload?.questions) ? payload.questions as Record<string, unknown>[] : [];
-      if (!generated.length) throw new Error('AI belum menghasilkan soal. Coba ubah prompt.');
-
-      const drafts: QuestionForm[] = generated.map((question) => ({
-        question: String(question.question_text ?? ''),
-        option_a: String(question.option_a ?? ''),
-        option_b: String(question.option_b ?? ''),
-        option_c: String(question.option_c ?? ''),
-        option_d: String(question.option_d ?? ''),
-        correct_answer: (['a', 'b', 'c', 'd'].includes(String(question.correct_answer)) ? question.correct_answer : 'a') as AnswerKey,
-        question_type: question.question_type === 'essay' ? 'essay' : 'multiple_choice',
-        model_answer: String(question.model_answer ?? ''),
-        explanation: String(question.explanation ?? ''),
-        source_pages: Array.isArray(question.source_pages) ? question.source_pages.map(Number) : [],
-      }));
-      setQuestions((current) => current.every((question) => !question.question.trim()) ? drafts : [...current, ...drafts]);
-      setPrompt('');
-      setSuccess('Draf AI siap. Periksa soal dan sumber halaman sebelum menyetujui dan menyimpan.');
-    } catch (error) {
-      setError(errText(error, 'Gagal membuat draf soal dengan AI'));
-    } finally {
-      setGenerating(false);
+  function addQuestion() {
+    if (questions.length >= 12) {
+      setError('Maksimal 12 pertanyaan dalam satu kuis.');
+      return;
     }
+
+    setError('');
+    setQuestions((current) => [...current, {
+      question: '',
+      option_a: '',
+      option_b: '',
+      option_c: '',
+      option_d: '',
+      correct_answer: 'a',
+      question_type: 'multiple_choice',
+    }]);
+  }
+
+  function removeQuestion(index: number) {
+    setQuestions((current) => current.filter((_, questionIndex) => questionIndex !== index));
   }
 
   async function submit(e: FormEvent) {
@@ -555,6 +532,7 @@ function QuizTab() {
     setSuccess('');
     if (!selectedBook) return setError('Pilih e-book terlebih dahulu');
     if (!questions.length || !questions.every((question) => question.question.trim())) return setError('Semua pertanyaan wajib diisi.');
+    if (questions.length > 12) return setError('Maksimal 12 pertanyaan dalam satu kuis.');
     if (!questions.every((question) => question.question_type === 'essay'
       ? Boolean(question.model_answer?.trim())
       : Boolean(question.option_a.trim() && question.option_b.trim() && question.option_c.trim() && question.option_d.trim()))) {
@@ -567,7 +545,6 @@ function QuizTab() {
       setSuccess('Kuis berhasil disetujui dan diterbitkan');
       setQuestions([]);
       setSelectedBook(null);
-      setPrompt('');
       setFormOpen(false);
       await load();
     } catch (error) {
@@ -580,7 +557,7 @@ function QuizTab() {
   const filled = questions.filter((question) => question.question.trim()).length;
   return (
     <div>
-      <SectionHeader eyebrow="Manajemen Kuis" title="Kelola Kuis" desc="Buat soal dari isi e-book dengan bantuan AI, lalu tinjau sebelum diterbitkan." Icon={PenLine} />
+      <SectionHeader eyebrow="Manajemen Kuis" title="Kelola Kuis" desc="Pilih e-book, tulis pertanyaan secara manual, lalu terbitkan kuis." Icon={PenLine} />
       <div className={styles.managementShell}>
         <ErrorBox message={error} />
         <SuccessBox message={success} />
@@ -602,34 +579,33 @@ function QuizTab() {
                 </Field>
               </div>
 
-              <div className={styles.formGrid}>
-                <Field label="Prompt untuk AI" full>
-                  <textarea className={styles.textarea} value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={5000} rows={3} placeholder="Contoh: Buat soal tentang tokoh, konflik, dan nilai persahabatan dalam Laskar Pelangi untuk siswa kelas 6." />
-                </Field>
-                <Field label="Jumlah pilihan ganda">
-                  <input className={styles.input} type="number" min={0} max={10} value={multipleChoiceCount} onChange={(event) => setMultipleChoiceCount(Number(event.target.value))} />
-                </Field>
-                <Field label="Jumlah esai">
-                  <input className={styles.input} type="number" min={0} max={10} value={essayCount} onChange={(event) => setEssayCount(Number(event.target.value))} />
-                </Field>
-                <div className="flex items-end">
-                  <button className={styles.primaryButton} type="button" onClick={generateDraft} disabled={generating || saving || multipleChoiceCount + essayCount > 12}>
-                    {generating ? 'AI sedang membaca buku...' : 'Buat Draf dengan AI'}
-                  </button>
-                </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <p className={styles.metricHelp}>Tulis soal dan jawaban secara manual. Maksimal 12 pertanyaan.</p>
+                <button className={styles.primaryButton} type="button" onClick={addQuestion} disabled={saving || questions.length >= 12}>
+                  <Plus size={18} />Tambah Pertanyaan
+                </button>
               </div>
 
               {questions.length === 0 ? (
-                <p className={styles.metricHelp}>Belum ada draf soal. Setelah AI membuat soal, hasilnya akan muncul di sini untuk diperiksa.</p>
+                <p className={styles.metricHelp}>Belum ada pertanyaan. Tekan “Tambah Pertanyaan” untuk mulai membuat kuis.</p>
               ) : (
                 <>
-                  <p className={styles.metricHelp}>Soal untuk ditinjau: {filled}</p>
+                  <p className={styles.metricHelp}>Pertanyaan terisi: {filled} dari {questions.length}</p>
                   <div className="space-y-4">
                     {questions.map((question, index) => (
                       <div key={index} className={styles.profileCard}>
-                        <h3 className={styles.itemTitle}>Pertanyaan {index + 1} · {question.question_type === 'essay' ? 'Esai' : 'Pilihan ganda'}</h3>
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                          <h3 className={styles.itemTitle}>Pertanyaan {index + 1}</h3>
+                          <button className={styles.secondaryButton} type="button" onClick={() => removeQuestion(index)} disabled={saving}>Hapus</button>
+                        </div>
                         <div className={styles.formGrid}>
                           <Field label="Pertanyaan" full><textarea className={styles.textarea} value={question.question} onChange={(event) => changeQuestion(index, 'question', event.target.value)} /></Field>
+                          <Field label="Jenis Pertanyaan">
+                            <select className={styles.select} value={question.question_type} onChange={(event) => changeQuestion(index, 'question_type', event.target.value)}>
+                              <option value="multiple_choice">Pilihan ganda</option>
+                              <option value="essay">Esai</option>
+                            </select>
+                          </Field>
                           {question.question_type === 'essay' ? (
                             <Field label="Panduan jawaban guru" full><textarea className={styles.textarea} value={question.model_answer ?? ''} onChange={(event) => changeQuestion(index, 'model_answer', event.target.value)} /></Field>
                           ) : <>

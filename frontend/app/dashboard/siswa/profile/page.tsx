@@ -4,9 +4,10 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import styles from './profile.module.css';
 
 export default function SiswaProfilePage() {
-  const { user, loading, isAuthenticated, refreshUser, logout } = useAuth();
+  const { user, loading, isAuthenticated, refreshUser } = useAuth();
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
@@ -18,8 +19,6 @@ export default function SiswaProfilePage() {
     password_confirmation: '',
     avatar: null as File | null,
   });
-  const [guruList] = useState<Array<{ id: string; name: string }>>([]);
-  const [loadingGuru] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -47,13 +46,6 @@ export default function SiswaProfilePage() {
       avatar: null,
     });
   }, [mounted, loading, isAuthenticated, user, router]);
-
-  // guruList tidak digunakan — wali_kelas tidak ada di skema DB
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
@@ -146,76 +138,65 @@ export default function SiswaProfilePage() {
   const avatar = avatarPreview || (user as any).profile_photo_url || undefined;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur lg:px-8">
-        <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-4">
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
           <button
             onClick={() => router.push('/dashboard/siswa')}
-            className="flex items-center gap-3 text-left"
+            className={styles.brand}
           >
             <div>
-              <h1 className="text-lg font-black leading-none text-slate-950">
-                READPOINT
-              </h1>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
-                Profil Siswa
-              </p>
+              <p className={styles.brandName}>READPOINT</p>
+              <p className={styles.brandLabel}>Profil Siswa</p>
             </div>
           </button>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={() => router.push('/dashboard/siswa')}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 sm:px-4 sm:text-sm"
-            >
-              Kembali
-            </button>
-          </div>
+          <button
+            onClick={() => router.push('/dashboard/siswa')}
+            className={styles.backButton}
+          >
+            Kembali
+          </button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-black text-slate-950 sm:text-3xl">
-            Profil Siswa
-          </h1>
-          <p className="mt-2 text-sm font-semibold text-slate-600">
-            Kelola data akun, wali kelas, foto profil, dan password.
+      <main className={styles.main}>
+        <div className={styles.pageHeading}>
+          <h1 className={styles.pageTitle}>Profil Siswa</h1>
+          <p className={styles.pageDescription}>
+            Kelola data akun, foto profil, dan password.
           </p>
         </div>
 
         {error && <Alert type="error" message={error} />}
         {success && <Alert type="success" message={success} />}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-          <aside className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <div className="-mx-6 -mt-6 h-32 rounded-t-3xl border-b border-emerald-100 bg-emerald-50" />
+        <div className={styles.contentGrid}>
+          <aside className={styles.profileCard}>
+            <div className={styles.profileCover} aria-hidden="true" />
 
-            <div className="relative -mt-16 flex justify-center">
-              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-emerald-600 text-4xl font-black text-white shadow-md">
-                {avatar ? (
-                  <img
-                    src={avatar}
-                    alt={user.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  user.name?.charAt(0).toUpperCase()
-                )}
-              </div>
+            <div className={styles.avatar}>
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt={user.name}
+                  className={styles.avatarImage}
+                />
+              ) : (
+                user.name?.charAt(0).toUpperCase()
+              )}
             </div>
 
-            <h2 className="mt-5 text-2xl font-black text-slate-950">
-              {user.name}
-            </h2>
+            <h2 className={styles.userName}>{user.name}</h2>
 
-            <p className="mt-2 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1 text-xs font-black text-emerald-700">
+            <p className={styles.roleBadge}>
               Siswa
             </p>
 
             <button
+              type="button"
               onClick={() => document.getElementById('avatar-input')?.click()}
-              className="mt-6 w-full rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black text-white hover:bg-emerald-700"
+              className={styles.avatarButton}
             >
               Edit Foto
             </button>
@@ -228,11 +209,11 @@ export default function SiswaProfilePage() {
               onChange={handleAvatarChange}
             />
 
-            <p className="mt-3 text-xs font-semibold text-slate-600">
+            <p className={styles.avatarHelp}>
               Klik tombol di atas untuk mengganti foto profil.
             </p>
 
-            <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+            <div className={styles.profileInfo}>
               <ProfileInfo label="Email" value={user.email} />
               <ProfileInfo label="Role" value="Siswa" />
               <ProfileInfo label="Kelas" value={(user as any).grade_level ? `Kelas ${(user as any).grade_level}` : '-'} />
@@ -240,15 +221,15 @@ export default function SiswaProfilePage() {
             </div>
           </aside>
 
-          <section className="space-y-6">
+          <section className={styles.forms}>
             <CardShell title="Informasi Profil">
-              <form onSubmit={handleProfileUpdate} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <form onSubmit={handleProfileUpdate} className={styles.fieldGrid}>
                 <Field label="Nama Lengkap">
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(event) => setFormData({ ...formData, name: event.target.value })}
-                    className={inputClass}
+                    className={styles.input}
                     required
                   />
                 </Field>
@@ -258,16 +239,16 @@ export default function SiswaProfilePage() {
                     type="email"
                     value={formData.email}
                     onChange={(event) => setFormData({ ...formData, email: event.target.value })}
-                    className={inputClass}
+                    className={styles.input}
                     required
                   />
                 </Field>
 
-                <div className="md:col-span-2 flex justify-end">
+                <div className={styles.formActions}>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black text-white hover:bg-emerald-700 disabled:opacity-60 sm:w-auto"
+                    className={styles.actionButton}
                   >
                     {submitting ? 'Menyimpan...' : 'Simpan Profil'}
                   </button>
@@ -276,13 +257,13 @@ export default function SiswaProfilePage() {
             </CardShell>
 
             <CardShell title="Ubah Password">
-              <form onSubmit={handlePasswordUpdate} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <form onSubmit={handlePasswordUpdate} className={styles.fieldGrid}>
                 <Field label="Password Saat Ini">
                   <input
                     type="password"
                     value={formData.current_password}
                     onChange={(event) => setFormData({ ...formData, current_password: event.target.value })}
-                    className={inputClass}
+                    className={styles.input}
                     required
                   />
                 </Field>
@@ -292,7 +273,7 @@ export default function SiswaProfilePage() {
                     type="password"
                     value={formData.new_password}
                     onChange={(event) => setFormData({ ...formData, new_password: event.target.value })}
-                    className={inputClass}
+                    className={styles.input}
                     required
                     minLength={6}
                   />
@@ -303,17 +284,17 @@ export default function SiswaProfilePage() {
                     type="password"
                     value={formData.password_confirmation}
                     onChange={(event) => setFormData({ ...formData, password_confirmation: event.target.value })}
-                    className={inputClass}
+                    className={styles.input}
                     required
                     minLength={6}
                   />
                 </Field>
 
-                <div className="md:col-span-2 flex justify-end">
+                <div className={styles.formActions}>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white hover:bg-red-700 disabled:opacity-60 sm:w-auto"
+                    className={`${styles.actionButton} ${styles.dangerButton}`}
                   >
                     {submitting ? 'Menyimpan...' : 'Ubah Password'}
                   </button>
@@ -327,9 +308,6 @@ export default function SiswaProfilePage() {
   );
 }
 
-const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:opacity-60';
-
 function Alert({
   type,
   message,
@@ -337,13 +315,8 @@ function Alert({
   type: 'error' | 'success';
   message: string;
 }) {
-  const style =
-    type === 'error'
-      ? 'border-red-200 bg-red-50 text-red-700'
-      : 'border-emerald-200 bg-emerald-50 text-emerald-700';
-
   return (
-    <div className={`mb-5 rounded-2xl border p-4 text-sm font-semibold ${style}`}>
+    <div className={`${styles.alert} ${type === 'error' ? styles.alertError : styles.alertSuccess}`}>
       {message}
     </div>
   );
@@ -351,9 +324,9 @@ function Alert({
 
 function ProfileInfo({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-xs font-semibold text-slate-600">{label}</span>
-      <span className="truncate text-sm font-black text-slate-900">{value}</span>
+    <div className={styles.infoRow}>
+      <span className={styles.infoLabel}>{label}</span>
+      <span className={styles.infoValue}>{value}</span>
     </div>
   );
 }
@@ -366,8 +339,8 @@ function CardShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="mb-5 text-xl font-black text-slate-950">{title}</h2>
+    <div className={styles.formCard}>
+      <h2 className={styles.cardTitle}>{title}</h2>
       {children}
     </div>
   );
@@ -383,10 +356,8 @@ function Field({
   full?: boolean;
 }) {
   return (
-    <label className={`block ${full ? 'md:col-span-2' : ''}`}>
-      <span className="mb-1.5 block text-sm font-black text-slate-700">
-        {label}
-      </span>
+    <label className={`${styles.field} ${full ? styles.fieldFull : ''}`}>
+      <span className={styles.fieldLabel}>{label}</span>
       {children}
     </label>
   );

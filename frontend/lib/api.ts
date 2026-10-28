@@ -151,7 +151,6 @@ export const api = {
   getMyQuizAttempts: () => apiCall('/quiz/my-attempts'),
 
   quiz: {
-    generateDraft: (data: Record<string, unknown>) => apiCall('/quiz/ai-draft', { method: 'POST', body: JSON.stringify(data) }),
     getEssayReviews: () => apiCall('/quiz/essay-reviews'),
     gradeEssayAttempt: (id: number, data: Record<string, unknown>) => apiCall(`/quiz/attempts/${id}/grade`, { method: 'PUT', body: JSON.stringify(data) }),
     create: (data: Record<string, unknown>) => apiCall('/quiz/create', { method: 'POST', body: JSON.stringify(data) }),
