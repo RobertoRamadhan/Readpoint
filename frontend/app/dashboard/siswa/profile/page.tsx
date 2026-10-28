@@ -30,10 +30,10 @@ export default function SiswaProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (!mounted || loading || !isAuthenticated) return;
+    if (!mounted || loading) return;
 
-    if (!user || user.role !== 'siswa') {
-      router.push('/login');
+    if (!isAuthenticated || !user || user.role !== 'siswa') {
+      router.replace('/login');
       return;
     }
 

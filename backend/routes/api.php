@@ -144,5 +144,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('users/{id}',              [UserController::class, 'destroy']);
         Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword']);
         Route::post('users/create',              [UserController::class, 'createUser']);
+        Route::post('admin/classes/assign',      [UserController::class, 'assignClass']);
+        Route::post('admin/classes/delete',      [UserController::class, 'deleteClass']);
     });
 });

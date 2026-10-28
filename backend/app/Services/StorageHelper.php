@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 /**
  * Helper untuk upload dan URL generation.
@@ -28,9 +29,12 @@ class StorageHelper
         $filename = $filename ?? uniqid($type . '_', true) . '.' . $file->getClientOriginalExtension();
         $path     = $folder . '/' . $filename;
 
-        Storage::disk($disk)->put($path, file_get_contents($file->getRealPath()), 'public');
+        $storedPath = Storage::disk($disk)->putFileAs($folder, $file, $filename, 'public');
+        if ($storedPath === false) {
+            throw new RuntimeException("Gagal menyimpan file ke storage ({$disk}).");
+        }
 
-        return $path;
+        return $storedPath;
     }
 
     /**

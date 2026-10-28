@@ -46,7 +46,6 @@
   max-width: 272px !important;
   height: 100vh !important;
   overflow-y: auto !important;
-  transform: translateX(0) !important;
   z-index: 50 !important;
   border-radius: 0 !important;
   box-shadow: 2px 0 16px rgba(15,23,42,.08) !important;
@@ -970,10 +969,10 @@
   gap: 6px;
   margin-bottom: 12px;
   padding: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #a7f3d0;
   border-radius: 18px;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+  box-shadow: 0 4px 14px rgba(4, 120, 87, .05);
 }
 
 .sectionTabButton {
@@ -995,7 +994,7 @@
 }
 
 .sectionTabButton:hover {
-  border-color: #d1fae5;
+  border-color: #a7f3d0;
   background: #f0fdf4;
   color: #047857;
 }
@@ -1014,8 +1013,8 @@
   justify-content: center;
   padding: 2px 6px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #475569;
+  background: #ecfdf5;
+  color: #047857;
   font-size: 11px;
   font-weight: 700;
 }
@@ -1023,6 +1022,44 @@
 .sectionTabButtonActive .sectionTabCount {
   background: rgba(255,255,255,.2);
   color: #fff;
+}
+
+.historyLoading {
+  border-color: #a7f3d0;
+  background: #fff;
+}
+
+.historyShell {
+  padding: 12px;
+  border-color: #a7f3d0;
+  border-radius: 16px;
+}
+
+.historyShell .tableWrap {
+  border-color: #a7f3d0;
+  border-radius: 12px;
+}
+
+.historyShell .table th {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.historyShell .table tr:hover td {
+  background: #f0fdf4;
+}
+
+.historyShell .leaderItem {
+  border-color: #d1fae5;
+}
+
+.historyShell .leaderItem:hover {
+  background: #f0fdf4;
+}
+
+.historyShell .empty {
+  border-color: #a7f3d0;
+  background: #f0fdf4;
 }
 
 /* ── Welcome banner (legacy) ────────────────────────────────── */
@@ -1064,6 +1101,11 @@
 @media (min-width: 768px) {
   .mobileMenuButton { display: none !important; }
   .backdrop         { display: none !important; }
+
+  .page :global(.readpoint-admin-sidebar),
+  .page :global(.readpoint-guru-sidebar) {
+    transform: translateX(0) !important;
+  }
 }
 
 /* ── 768–1279px: narrow sidebar, smaller padding ────────────── */
@@ -1417,3 +1459,304 @@
 .colorRed     { color: #dc2626 !important; }
 .colorBlue    { color: #1d4ed8 !important; }
 .colorAmber   { color: #b45309 !important; }
+
+/* Shared finishing styles for the admin and teacher workspaces. */
+.page {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(15, 118, 110, 0.08), transparent 26%),
+    #f3f8f5;
+}
+
+.content {
+  padding-top: 30px;
+  padding-bottom: 48px;
+}
+
+.stack {
+  gap: 26px;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(209, 250, 229, 0.32);
+}
+
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  top: -110px;
+  right: 22%;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(236, 253, 245, 0.12);
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 0 34px rgba(236, 253, 245, 0.035), 0 0 0 68px rgba(236, 253, 245, 0.025);
+}
+
+.metricCard,
+.panel,
+.priorityCard,
+.sectionHeader,
+.managementShell,
+.profileCard {
+  border-color: #d5e5df;
+  box-shadow: 0 10px 28px rgba(18, 60, 58, 0.055);
+}
+
+.metricCard {
+  min-height: 148px;
+  border-radius: 20px;
+}
+
+.metricCard::before {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0f766e, #86cbb0);
+  content: "";
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.metricCard:hover::before {
+  opacity: 1;
+}
+
+.panel,
+.priorityCard,
+.managementShell,
+.profileCard {
+  border-radius: 20px;
+}
+
+.sectionHeader {
+  padding: 22px 24px;
+  border-radius: 20px;
+}
+
+.sectionTitle {
+  font-size: 24px !important;
+  letter-spacing: -0.025em !important;
+}
+
+.managementShell {
+  padding: 22px;
+}
+
+.todayCard,
+.leaderItem,
+.itemCard,
+.infoCard {
+  border-color: #dce9e4;
+  border-radius: 16px;
+}
+
+.leaderItem {
+  padding: 14px 16px;
+}
+
+.rank {
+  border-radius: 12px;
+  background: linear-gradient(145deg, #123c3a, #0f766e);
+}
+
+.tableWrap {
+  border-color: #d5e5df;
+  border-radius: 16px;
+}
+
+.table th {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  background: #f1f7f4;
+  color: #42645c;
+}
+
+.table td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.table tbody tr:nth-child(even) td {
+  background: #fcfefd;
+}
+
+.table tbody tr:hover td {
+  background: #eef8f3;
+}
+
+.input,
+.select,
+.textarea,
+.page input,
+.page select,
+.page textarea {
+  border-color: #cbded6 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 2px rgba(18, 60, 58, 0.025);
+}
+
+.page input:focus,
+.page select:focus,
+.page textarea:focus {
+  border-color: #0f766e !important;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12) !important;
+}
+
+.primaryButton {
+  min-height: 44px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #0f766e, #0b625c);
+}
+
+.primaryButton:hover {
+  background: linear-gradient(135deg, #115e59, #0b514c);
+}
+
+.secondaryButton,
+.dangerButton,
+.editButton,
+.smallButton {
+  border-radius: 11px;
+}
+
+.formBox {
+  border-color: #c4e7d7;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #f1fbf6, #f8fcfa);
+}
+
+.iconBox {
+  border: 1px solid rgba(15, 118, 110, 0.08);
+}
+
+.empty,
+.loading {
+  border-color: #cbded6;
+  border-radius: 18px;
+  background: #f7fbf9;
+}
+
+.page :global(.readpoint-admin-sidebar),
+.page :global(.readpoint-guru-sidebar) {
+  background:
+    radial-gradient(circle at 0 0, rgba(45, 212, 191, 0.11), transparent 34%),
+    #102a2a !important;
+}
+
+.page :global(.readpoint-admin-brand) {
+  padding: 22px 18px !important;
+}
+
+.page :global(.readpoint-admin-nav) {
+  padding: 12px 14px 132px !important;
+}
+
+.page :global(.readpoint-admin-menu-item) {
+  min-height: 48px;
+  letter-spacing: 0.005em;
+}
+
+.page :global(.readpoint-admin-submenu-item) {
+  min-height: 42px;
+}
+
+.page :global(.readpoint-admin-user) {
+  padding: 14px !important;
+  backdrop-filter: blur(14px);
+}
+
+.mobileMenuButton {
+  border: 1px solid rgba(209, 250, 229, 0.18);
+  background: linear-gradient(145deg, #123c3a, #0f766e);
+}
+
+@media (max-width: 767px) {
+  .content {
+    padding-top: 76px !important;
+    padding-right: 14px !important;
+    padding-bottom: 32px !important;
+    padding-left: 14px !important;
+  }
+
+  .stack {
+    gap: 18px;
+  }
+
+  .sectionHeader {
+    padding: 18px;
+  }
+
+  .sectionTitle {
+    font-size: 21px !important;
+  }
+
+  .managementShell {
+    padding: 14px;
+  }
+
+  .metricCard {
+    min-height: 126px;
+  }
+
+  .page :global(.readpoint-admin-sidebar),
+  .page :global(.readpoint-guru-sidebar) {
+    width: min(292px, 88vw) !important;
+    max-width: 88vw !important;
+  }
+
+  .page :global(.readpoint-admin-nav) {
+    overscroll-behavior: contain;
+  }
+
+  .tableWrap {
+    overscroll-behavior-x: contain;
+  }
+
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .searchWrap {
+    flex-basis: 100%;
+  }
+
+  .itemCard {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 380px) {
+  .content {
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+  }
+
+  .hero {
+    padding: 18px 16px !important;
+  }
+
+  .heroPanel {
+    padding: 12px;
+  }
+
+  .managementShell {
+    padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -264,17 +264,23 @@ export default function GuruLaporanPage() {
                   <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Grafik Produktivitas</p>
                   <h2 className="mt-1 text-base font-black text-slate-900">Total poin per siswa</h2>
                 </div>
-                <div className="h-64 w-full min-w-0 overflow-x-hidden">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={reportData.slice(0, 10)}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#dcfce7" />
-                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                      <Tooltip />
-                      <Bar dataKey="totalPoints" fill="#059669" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                {reportData.length === 0 ? (
+                  <div className="flex h-64 items-center justify-center rounded-xl bg-slate-50 px-4 text-center text-sm font-semibold text-slate-500">
+                    Grafik akan tampil setelah data siswa tersedia.
+                  </div>
+                ) : (
+                  <div className="h-64 w-full min-w-0 overflow-x-hidden">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={reportData.slice(0, 10)}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#dcfce7" />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                        <Tooltip />
+                        <Bar dataKey="totalPoints" fill="#059669" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </section>
 
               <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4">
@@ -285,7 +291,7 @@ export default function GuruLaporanPage() {
                     Penilaian dihitung dari poin, jumlah buku dibaca, dan rata-rata nilai kuis jika tersedia dari API.
                   </p>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
                   <table className="w-full min-w-[760px] text-left text-sm">
                     <thead>
                       <tr className="border-b border-emerald-200 bg-emerald-50 text-xs uppercase tracking-wider text-emerald-800">

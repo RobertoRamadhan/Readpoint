@@ -1272,3 +1272,263 @@
   .continueTitle { font-size: 22px; }
   .bookCardShelf { width: 150px; }
 }
+
+/* Shared finishing styles for the student reading workspace. */
+.shell {
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(15, 118, 110, 0.1), transparent 30%),
+    radial-gradient(ellipse at 100% 18%, rgba(245, 158, 11, 0.075), transparent 24%),
+    #f4f8f6;
+}
+
+.content {
+  gap: 26px;
+}
+
+.header {
+  border-bottom-color: rgba(203, 222, 214, 0.9);
+  background: rgba(250, 253, 251, 0.92);
+  box-shadow: 0 8px 28px rgba(18, 60, 58, 0.06);
+}
+
+.headerTitle {
+  letter-spacing: -0.035em;
+}
+
+.headerSubtitle {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.headerAvatar {
+  border: 2px solid #d2eee2;
+  background: linear-gradient(145deg, #123c3a, #0f766e);
+}
+
+.statCard,
+.panel,
+.continueCard,
+.quizCard,
+.pointsBanner,
+.rewardCard,
+.accountProfile,
+.historySummaryCard,
+.historyItem {
+  border-color: #d5e5df;
+  box-shadow: 0 10px 28px rgba(18, 60, 58, 0.055);
+}
+
+.statCard,
+.panel,
+.quizCard,
+.rewardCard,
+.accountProfile,
+.historySummaryCard {
+  border-radius: 20px;
+}
+
+.statCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard::after {
+  position: absolute;
+  right: -18px;
+  bottom: -30px;
+  width: 88px;
+  height: 88px;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 0 12px rgba(15, 118, 110, 0.035);
+  pointer-events: none;
+}
+
+.statCardValue {
+  color: #123c3a;
+  letter-spacing: -0.04em;
+}
+
+.statCardHelper {
+  color: #0f766e;
+}
+
+.panelHead {
+  align-items: center;
+}
+
+.panelTitle,
+.statsSectionTitle,
+.continueTitle,
+.quizCardTitle,
+.rewardCardName,
+.accountName,
+.historyItemTitle {
+  letter-spacing: -0.02em;
+}
+
+.continueCard {
+  border-radius: 24px;
+}
+
+.bookCardShelf,
+.rewardCard {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.bookCardShelf:hover,
+.rewardCard:hover {
+  transform: translateY(-3px);
+}
+
+.historyTab,
+.panelAction,
+.continueBtn,
+.rewardCardBtn,
+.rewardRowBtn,
+.accountMenuItem,
+.mobileBarBtn {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.historyTabActive,
+.mobileBarBtnActive {
+  background: linear-gradient(135deg, #0f766e, #0b625c) !important;
+  box-shadow: 0 7px 16px rgba(15, 118, 110, 0.18);
+}
+
+.mobileBar {
+  border-top-color: #d5e5df;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 -10px 30px rgba(18, 60, 58, 0.09);
+  backdrop-filter: blur(16px);
+}
+
+.mobileBarBtn {
+  min-height: 54px;
+}
+
+.empty {
+  border-color: #cbded6;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.searchBar:focus-within {
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+}
+
+.shell :global(button:focus-visible),
+.shell :global(a:focus-visible),
+.shell input:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.55);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .content {
+    padding-top: 18px;
+    padding-right: 14px;
+    padding-bottom: 28px;
+    padding-left: 14px;
+    gap: 18px;
+  }
+
+  .statsGrid {
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 13px;
+    border-radius: 16px;
+  }
+
+  .statCardValue {
+    font-size: 24px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding-bottom: 112px;
+  }
+
+  .mobileBar {
+    right: auto;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    left: 50%;
+    width: min(760px, calc(100% - 40px));
+    padding: 8px;
+    border: 1px solid rgba(213, 229, 223, 0.92);
+    border-radius: 999px;
+    transform: translateX(-50%);
+  }
+
+  .mobileBarGrid {
+    max-width: none;
+    gap: 6px;
+  }
+
+  .mobileBarBtn {
+    min-height: 48px;
+    flex-direction: row;
+    gap: 8px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .content {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .overviewGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 380px) {
+  .content {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .statsGrid {
+    gap: 8px;
+  }
+
+  .statCard {
+    padding: 11px;
+  }
+
+  .mobileBar {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  .mobileBarGrid {
+    gap: 2px;
+  }
+
+  .mobileBarBtn {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell *,
+  .shell *::before,
+  .shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

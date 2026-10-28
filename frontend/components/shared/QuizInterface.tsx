@@ -53,10 +53,10 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
     { key: 'd', label: currentQuestion?.option_d },
   ];
 
-  const answeredCount = Object.keys(selectedAnswers).length;
+  const answeredCount = questions.filter((question) => selectedAnswers[question.id]?.trim()).length;
   const isAnswered = currentQuestion && selectedAnswers[currentQuestion.id];
   const allAnswered = questions.length > 0 && answeredCount === questions.length;
-  const progress = questions.length ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
+  const progress = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0;
 
   const selectAnswer = (key: string) => {
     if (!currentQuestion || submitting) return;
@@ -103,7 +103,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
   if (questions.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-5 text-center shadow-sm sm:p-8">
           <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Kuis</p>
           <h2 className="mt-4 text-2xl font-black text-slate-900">Tidak Ada Kuis</h2>
           <p className="mt-4 leading-7 text-slate-600">Tidak ada pertanyaan kuis yang tersedia untuk e-book ini.</p>
@@ -119,7 +119,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
           <div className="text-center">
             <p className="text-sm font-black uppercase tracking-widest text-emerald-700">{pendingReview ? 'Jawaban terkirim' : 'Hasil Kuis'}</p>
             <h2 className="mt-4 text-2xl font-black text-slate-900">{pendingReview ? 'Menunggu penilaian guru' : 'Hasil Kuismu'}</h2>
@@ -151,13 +151,13 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
     <div className="quiz-page flex min-h-screen w-full flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
         <div className="quiz-header-inner mx-auto w-[calc(100%-1.25rem)] max-w-245 px-0 pb-4 pt-2 sm:w-[calc(100%-2rem)] sm:pt-3">
-          <div className="flex min-h-14.5 items-center justify-between gap-4">
+          <div className="flex min-h-14.5 items-center justify-between gap-2 sm:gap-4">
             <button onClick={onCancel} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100">←</button>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Kuis E-Book</p>
-              <h1 className="quiz-title mt-1 truncate font-black text-slate-900">{ebookTitle}</h1>
+              <p className="text-[10px] font-black uppercase tracking-wider text-emerald-700 sm:text-xs sm:tracking-widest">Kuis E-Book</p>
+              <h1 className="quiz-title mt-1 truncate text-base font-black text-slate-900 sm:text-xl">{ebookTitle}</h1>
             </div>
-            <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700">{answeredCount}/{questions.length}</div>
+            <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 sm:px-4 sm:text-sm">{answeredCount}/{questions.length}</div>
           </div>
 
           <div className="mt-4 flex items-center gap-3">
@@ -170,7 +170,7 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
         </div>
       </header>
 
-      <main className="quiz-main flex-1 px-2.5 pb-10 pt-5 sm:px-4 sm:pb-16 sm:pt-10">
+      <main className="quiz-main flex-1 px-3 pb-8 pt-4 sm:px-4 sm:pb-16 sm:pt-10">
         <section className="quiz-shell mx-auto min-w-0 w-full max-w-215">
           <div className="quiz-number-nav mb-4 flex max-w-full gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white/80 p-3 shadow-sm">
             {questions.map((q, index) => (
@@ -178,9 +178,9 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
             ))}
           </div>
 
-          <div className="quiz-card rounded-2xl border border-slate-200 bg-white p-5 shadow-lg sm:p-8">
+          <div className="quiz-card rounded-2xl border border-slate-200 bg-white p-4 shadow-lg sm:rounded-3xl sm:p-8">
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700 sm:text-sm">Soal {currentIndex + 1}</p>
-            <h2 className="quiz-question-title mt-4 max-w-3xl text-2xl font-black leading-tight text-slate-900 sm:text-3xl">{currentQuestion?.question_text}</h2>
+            <h2 className="quiz-question-title mt-4 max-w-3xl text-xl font-black leading-tight text-slate-900 sm:text-3xl">{currentQuestion?.question_text}</h2>
             {currentQuestion?.question_type === 'essay' ? <p className="mt-3 text-sm font-semibold text-slate-500">Tulis jawabanmu dengan jelas. Guru akan memeriksa jawaban ini.</p> : <p className="mt-3 text-sm font-semibold text-slate-500">Pilih salah satu jawaban yang paling tepat.</p>}
             {currentQuestion?.question_type === 'essay' ? (
               <textarea
@@ -208,9 +208,9 @@ export default function QuizInterface({ ebookTitle, questions, onSubmit, onCance
 
           {submitError && <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-700">{submitError}</p>}
 
-          <div className="quiz-actions mt-5 flex items-center justify-between gap-3">
-            <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0 || submitting} className="h-12 min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Sebelumnya</button>
-            {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered || submitting} className="h-12 min-w-0 rounded-2xl bg-emerald-700 px-4 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">{submitting ? 'Mengirim...' : 'Selesai & Kirim'}</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered || submitting} className="h-12 min-w-0 rounded-2xl bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5">Selanjutnya</button>}
+          <div className="quiz-actions mt-5 flex items-center justify-between gap-2 sm:gap-3">
+            <button onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0 || submitting} className="h-12 min-w-0 flex-1 rounded-2xl border border-slate-300 bg-white px-2 text-xs font-black text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-5 sm:text-sm">Sebelumnya</button>
+            {currentIndex === questions.length - 1 ? <button onClick={submitQuiz} disabled={!allAnswered || submitting} className="h-12 min-w-0 flex-1 rounded-2xl bg-emerald-700 px-2 text-xs font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-5 sm:text-sm">{submitting ? 'Mengirim...' : 'Selesai & Kirim'}</button> : <button onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))} disabled={!isAnswered || submitting} className="h-12 min-w-0 flex-1 rounded-2xl bg-slate-900 px-2 text-xs font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-5 sm:text-sm">Selanjutnya</button>}
           </div>
 
           {!allAnswered && currentIndex === questions.length - 1 && <p className="mt-4 text-center text-sm font-semibold text-red-600">Jawab semua soal sebelum mengirim. {questions.length - answeredCount} soal belum dijawab.</p>}

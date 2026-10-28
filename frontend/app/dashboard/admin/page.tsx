@@ -105,82 +105,7 @@ type TopStudent = {
   total_points?: number;
 };
 
-const CLASS_STORAGE_KEY = 'readpoint_admin_classes_v1';
-
 const adminTabs = new Set<AdminTab>(['beranda', 'ebooks', 'rewards', 'users', 'kelas', 'siswa', 'admin', 'laporan', 'histori', 'pengaturan']);
-
-function getClassStorageKey(item: Pick<SchoolClass, 'grade_level' | 'class_name'>): string {
-  return `${item.grade_level ?? ''}|${item.class_name ?? ''}`.trim();
-}
-
-function getClassIdentity(item: Pick<SchoolClass, 'grade_level' | 'class_name'>): string {
-  return getClassStorageKey(item);
-}
-
-function readStoredClasses(): SchoolClass[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(CLASS_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((item): item is SchoolClass => !!item && typeof item === 'object') : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeStoredClasses(classes: SchoolClass[]) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(CLASS_STORAGE_KEY, JSON.stringify(classes));
-}
-
-function mergeClasses(...sources: Array<SchoolClass[]>) {
-  const map = new Map<string, SchoolClass>();
-
-  sources.flat().forEach((item) => {
-    const key = getClassIdentity(item) || String(item.id ?? '');
-    if (!key) return;
-
-    const existing = map.get(key);
-    const mergedStudents = [...(existing?.students ?? []), ...(item.students ?? [])].filter((student, index, arr) => {
-      const identity = `${student.name ?? ''}|${student.email ?? ''}`;
-      return arr.findIndex((candidate) => `${candidate.name ?? ''}|${candidate.email ?? ''}` === identity) === index;
-    });
-
-    map.set(key, {
-      ...(existing ?? {}),
-      ...item,
-      id: existing?.id ?? item.id ?? key,
-      grade_level: item.grade_level || existing?.grade_level || '',
-      class_name: item.class_name || existing?.class_name || '',
-      teacher_id: item.teacher_id ?? existing?.teacher_id,
-      teacher_name: item.teacher_name || existing?.teacher_name || '',
-      teacher_email: item.teacher_email || existing?.teacher_email || '',
-      student_count: Math.max(Number(existing?.student_count ?? 0), Number(item.student_count ?? 0), mergedStudents.length),
-      students: mergedStudents,
-    });
-  });
-
-  return Array.from(map.values()).filter((item) => item.grade_level || item.class_name);
-}
-
-function upsertStoredClass(nextClass: SchoolClass): SchoolClass {
-  const normalized = {
-    ...nextClass,
-    id: String(nextClass.id ?? getClassStorageKey(nextClass)),
-  };
-  const existing = readStoredClasses();
-  const index = existing.findIndex((item) => String(item.id) === String(normalized.id) || getClassStorageKey(item) === getClassStorageKey(normalized));
-
-  if (index >= 0) {
-    existing[index] = { ...existing[index], ...normalized };
-  } else {
-    existing.push(normalized);
-  }
-
-  writeStoredClasses(existing);
-  return normalized;
-}
 
 function normalizeAdminTab(tab: string | null): AdminTab {
   return tab && adminTabs.has(tab as AdminTab) ? (tab as AdminTab) : 'beranda';
@@ -719,7 +644,7 @@ function UserForm({ editing, onClose, onSaved, role }: { editing: UserAccount | 
   useEffect(() => {
     async function loadClasses() {
       try {
-        const response = await api.users.list();
+        const response = await api.users.list({ per_page: 500 });
         const users = Array.isArray(response?.data) ? response.data : [];
         const seenStudentKeys = new Set<string>();
         const seenTeacherKeys = new Set<string>();
@@ -729,7 +654,7 @@ function UserForm({ editing, onClose, onSaved, role }: { editing: UserAccount | 
           const className = user?.class_name;
           if (!gradeLevel || !className) return acc;
 
-          const key = getClassIdentity({ grade_level: gradeLevel, class_name: className });
+          const key = `${gradeLevel}|${className}`;
           if (!acc[key]) {
             acc[key] = {
               id: key,
@@ -756,15 +681,13 @@ function UserForm({ editing, onClose, onSaved, role }: { editing: UserAccount | 
           return acc;
         }, {});
 
-        const nextClasses = mergeClasses(Object.values(grouped), readStoredClasses());
-        setClasses(nextClasses);
+        setClasses(Object.values(grouped));
         if (editing?.class_name || editing?.grade_level) {
           const currentLabel = `${editing.grade_level ?? ''} ${editing.class_name ?? ''}`.trim();
           setClassQuery(currentLabel);
         }
-      } catch {
-        const fallback = readStoredClasses();
-        setClasses(fallback);
+      } catch (error) {
+        setError(errText(error, 'Gagal memuat daftar kelas'));
         if (editing?.class_name || editing?.grade_level) {
           const currentLabel = `${editing.grade_level ?? ''} ${editing.class_name ?? ''}`.trim();
           setClassQuery(currentLabel);
@@ -795,9 +718,10 @@ function UserForm({ editing, onClose, onSaved, role }: { editing: UserAccount | 
       name: data.name,
       email: data.email,
       role: editing?.role || role,
-      grade_level: selectedClass?.grade_level || data.grade_level || undefined,
-      class_name: selectedClass?.class_name || data.class_name || undefined,
-      ...(data.class_id ? { class_id: Number(data.class_id) } : {}),
+      ...(role === 'siswa' ? {
+        grade_level: selectedClass?.grade_level || data.grade_level || undefined,
+        class_name: selectedClass?.class_name || data.class_name || undefined,
+      } : {}),
       ...(data.password && { password: data.password, password_confirmation: data.password_confirmation }),
     };
 
@@ -815,7 +739,7 @@ function UserForm({ editing, onClose, onSaved, role }: { editing: UserAccount | 
 
   const roleLabel = role === 'guru' ? 'Guru' : role === 'siswa' ? 'Siswa' : 'Admin';
 
-  return <FormBox title={editing ? `Edit ${roleLabel}` : `Tambah ${roleLabel}`} onClose={onClose}><form onSubmit={submit}><ErrorBox message={error} /><div className={styles.formGrid}><Field label="Nama"><input className={styles.input} value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} /></Field><Field label="Email"><input className={styles.input} type="email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} /></Field><Field label="Role"><select className={styles.select} value={data.role} disabled><option value={data.role}>{roleLabel}</option></select></Field>{role !== 'admin' ? <Field label={role === 'siswa' ? 'Pilih Kelas' : 'Tetapkan Wali Kelas'}><div className="relative w-full"><input className={styles.input} value={classQuery} onChange={(e) => { setClassQuery(e.target.value); setData({ ...data, class_id: '', class_name: '', grade_level: '' }); setShowClassSuggestions(true); }} onFocus={() => setShowClassSuggestions(true)} onBlur={() => setTimeout(() => setShowClassSuggestions(false), 120)} placeholder="Ketik kelas, mis. 1 A" />{showClassSuggestions && filteredClasses.length > 0 ? <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-slate-200 bg-white p-1 shadow-lg">{filteredClasses.map((item) => <li key={String(item.id)}><button type="button" className="flex w-full items-start rounded px-2 py-2 text-left text-sm hover:bg-slate-100" onMouseDown={(event) => event.preventDefault()} onClick={() => { setData({ ...data, class_id: String(item.id), class_name: item.class_name || '', grade_level: item.grade_level || '' }); setClassQuery(`${item.grade_level || ''} ${item.class_name || ''}`.trim()); setShowClassSuggestions(false); }}><span className="font-medium text-slate-800">{`${item.grade_level || '-'} ${item.class_name || ''}`.trim()}</span>{item.teacher_name ? <span className="ml-2 text-slate-500">{item.teacher_name}</span> : null}</button></li>)}</ul> : null}</div></Field> : null}<Field label="Password"><input className={styles.input} type="password" value={data.password} onChange={(e) => setData({ ...data, password: e.target.value })} /></Field><Field label="Konfirmasi Password"><input className={styles.input} type="password" value={data.password_confirmation} onChange={(e) => setData({ ...data, password_confirmation: e.target.value })} /></Field></div><FormActions saving={saving} onCancel={onClose} /></form></FormBox>;
+  return <FormBox title={editing ? `Edit ${roleLabel}` : `Tambah ${roleLabel}`} onClose={onClose}><form onSubmit={submit}><ErrorBox message={error} /><div className={styles.formGrid}><Field label="Nama"><input className={styles.input} value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} /></Field><Field label="Email"><input className={styles.input} type="email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} /></Field><Field label="Role"><select className={styles.select} value={data.role} disabled><option value={data.role}>{roleLabel}</option></select></Field>{role === 'siswa' ? <Field label="Pilih Kelas"><div className="relative w-full"><input className={styles.input} value={classQuery} onChange={(e) => { setClassQuery(e.target.value); setData({ ...data, class_id: '', class_name: '', grade_level: '' }); setShowClassSuggestions(true); }} onFocus={() => setShowClassSuggestions(true)} onBlur={() => setTimeout(() => setShowClassSuggestions(false), 120)} placeholder="Ketik kelas, mis. 1 A" />{showClassSuggestions && filteredClasses.length > 0 ? <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-slate-200 bg-white p-1 shadow-lg">{filteredClasses.map((item) => <li key={String(item.id)}><button type="button" className="flex w-full items-start rounded px-2 py-2 text-left text-sm hover:bg-slate-100" onMouseDown={(event) => event.preventDefault()} onClick={() => { setData({ ...data, class_id: String(item.id), class_name: item.class_name || '', grade_level: item.grade_level || '' }); setClassQuery(`${item.grade_level || ''} ${item.class_name || ''}`.trim()); setShowClassSuggestions(false); }}><span className="font-medium text-slate-800">{`${item.grade_level || '-'} ${item.class_name || ''}`.trim()}</span>{item.teacher_name ? <span className="ml-2 text-slate-500">{item.teacher_name}</span> : null}</button></li>)}</ul> : null}</div></Field> : role === 'guru' ? <p className={styles.profileSubtitle}>Atur kelas dan wali kelas melalui tab Daftar Kelas setelah akun guru dibuat.</p> : null}<Field label="Password"><input className={styles.input} type="password" value={data.password} onChange={(e) => setData({ ...data, password: e.target.value })} /></Field><Field label="Konfirmasi Password"><input className={styles.input} type="password" value={data.password_confirmation} onChange={(e) => setData({ ...data, password_confirmation: e.target.value })} /></Field></div><FormActions saving={saving} onCancel={onClose} /></form></FormBox>;
 }
 
 function ClassesTab() {
@@ -832,7 +756,7 @@ function ClassesTab() {
       setError('');
       const response = await api.users.classes();
       const classes = Array.isArray(response?.data) ? response.data : [];
-      setItems(mergeClasses(classes as SchoolClass[], readStoredClasses()));
+      setItems(classes as SchoolClass[]);
     } catch (error) {
       setError(errText(error, 'Gagal memuat daftar kelas'));
       setItems([]);
@@ -848,15 +772,21 @@ function ClassesTab() {
   async function remove(id: number | string) {
     if (!confirm('Hapus kelas ini?')) return;
     try {
-      const nextClasses = readStoredClasses().filter((item) => String(item.id) !== String(id));
-      writeStoredClasses(nextClasses);
+      const selectedClass = items.find((item) => String(item.id) === String(id));
+      if (!selectedClass?.grade_level || !selectedClass.class_name) {
+        throw new Error('Data kelas tidak lengkap. Muat ulang halaman lalu coba lagi.');
+      }
+      await api.classes.delete({
+        grade_level: selectedClass.grade_level,
+        class_name: selectedClass.class_name,
+      });
       await load();
     } catch (error) {
       setError(errText(error, 'Gagal menghapus kelas'));
     }
   }
 
-  return <div><SectionHeader eyebrow="Manajemen Kelas" title="Daftar Kelas" desc="Tambah, edit, cari, dan hapus kelas." Icon={GraduationCap} /><div className={styles.managementShell}>{formOpen && <ClassForm editing={editing} onClose={() => { setFormOpen(false); setEditing(null); }} onSaved={load} />}<div className={styles.toolbar}><SearchBox value={query} onChange={setQuery} placeholder="Cari kelas..." />{!formOpen && <button className={styles.primaryButton} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus size={18} />Tambah Kelas</button>}</div><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat daftar kelas...</div> : filtered.length === 0 ? <Empty text="Belum ada kelas yang terdaftar." /> : <div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>Kelas</th><th>Wali Kelas</th><th>Jumlah Siswa</th><th>Aksi</th></tr></thead><tbody>{filtered.map((item) => <tr key={String(item.id)}><td>{`${item.grade_level || '-'} ${item.class_name || ''}`.trim()}</td><td>{item.teacher_name || '-'}</td><td>{item.student_count ?? 0}</td><td><div className={styles.cardActions}><button className={styles.editButton} onClick={() => { setEditing(item); setFormOpen(true); }}>Edit</button><button className={styles.dangerButton} onClick={() => remove(item.id)}>Hapus</button></div></td></tr>)}</tbody></table></div>}</div></div>;
+  return <div><SectionHeader eyebrow="Manajemen Kelas" title="Daftar Kelas" desc="Atur wali kelas dan penugasan siswa. Kelas yang masih digunakan tidak dapat dihapus." Icon={GraduationCap} /><div className={styles.managementShell}>{formOpen && <ClassForm editing={editing} onClose={() => { setFormOpen(false); setEditing(null); }} onSaved={load} />}<div className={styles.toolbar}><SearchBox value={query} onChange={setQuery} placeholder="Cari kelas..." />{!formOpen && <button className={styles.primaryButton} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus size={18} />Tambah Kelas</button>}</div><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat daftar kelas...</div> : filtered.length === 0 ? <Empty text="Belum ada kelas yang terdaftar." /> : <div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>Kelas</th><th>Wali Kelas</th><th>Jumlah Siswa</th><th>Aksi</th></tr></thead><tbody>{filtered.map((item) => <tr key={String(item.id)}><td>{`${item.grade_level || '-'} ${item.class_name || ''}`.trim()}</td><td>{item.teacher_name || '-'}</td><td>{item.student_count ?? 0}</td><td><div className={styles.cardActions}><button className={styles.editButton} onClick={() => { setEditing(item); setFormOpen(true); }}>Edit</button><button className={styles.dangerButton} onClick={() => remove(item.id)}>Hapus</button></div></td></tr>)}</tbody></table></div>}</div></div>;
 }
 
 function ClassForm({ editing, onClose, onSaved }: { editing: SchoolClass | null; onClose: () => void; onSaved: () => Promise<void> }) {
@@ -876,9 +806,9 @@ function ClassForm({ editing, onClose, onSaved }: { editing: SchoolClass | null;
   useEffect(() => {
     async function loadTeachers() {
       try {
-        const response = await api.users.list();
+        const response = await api.users.list({ role: 'guru', per_page: 200 });
         const items = Array.isArray(response?.data) ? response.data : [];
-        const guruList = (items as UserAccount[]).filter((user) => user.role === 'guru');
+        const guruList = items as UserAccount[];
         setTeachers(guruList);
 
         if (editing?.teacher_id) {
@@ -889,8 +819,8 @@ function ClassForm({ editing, onClose, onSaved }: { editing: SchoolClass | null;
         } else if (editing?.teacher_name) {
           setTeacherQuery(editing.teacher_name);
         }
-      } catch {
-        setTeachers([]);
+      } catch (error) {
+        setError(errText(error, 'Gagal memuat daftar guru'));
       }
     }
 
@@ -900,38 +830,29 @@ function ClassForm({ editing, onClose, onSaved }: { editing: SchoolClass | null;
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError('');
-    if (!data.grade_level || !data.class_name) return setError('Tingkat kelas dan nama kelas wajib diisi');
+    if (!data.grade_level || !data.class_name.trim()) return setError('Tingkat kelas dan nama kelas wajib diisi');
+    if (!data.teacher_id) return setError('Pilih guru sebagai wali kelas agar kelas tersimpan di sistem');
+    if (editing && (data.grade_level !== editing.grade_level || data.class_name.trim() !== editing.class_name)) {
+      const current = `${editing.grade_level} ${editing.class_name}`;
+      const next = `${data.grade_level} ${data.class_name.trim()}`;
+      if (!confirm(`Kelas ${current} akan dipindahkan menjadi ${next}, termasuk guru dan siswa yang terdaftar. Lanjutkan?`)) return;
+    }
+    if (editing?.teacher_id && String(editing.teacher_id) !== data.teacher_id
+      && !confirm('Wali kelas akan diganti dan siswa di kelas ini akan ditautkan ke guru yang dipilih. Lanjutkan?')) return;
 
     const payload = {
       grade_level: data.grade_level,
-      class_name: data.class_name,
-      teacher_id: data.teacher_id ? Number(data.teacher_id) : null,
+      class_name: data.class_name.trim(),
+      teacher_id: Number(data.teacher_id),
+      ...(editing?.grade_level && editing?.class_name ? {
+        previous_grade_level: editing.grade_level,
+        previous_class_name: editing.class_name,
+      } : {}),
     };
 
     try {
       setSaving(true);
-      const selectedTeacher = teachers.find((teacher) => String(teacher.id) === data.teacher_id);
-      const nextClass: SchoolClass = {
-        id: editing?.id ? String(editing.id) : `${data.grade_level}|${data.class_name}`,
-        grade_level: data.grade_level,
-        class_name: data.class_name,
-        teacher_id: data.teacher_id ? Number(data.teacher_id) : undefined,
-        teacher_name: selectedTeacher?.name || teacherQuery || editing?.teacher_name,
-        teacher_email: selectedTeacher?.email,
-        student_count: editing?.student_count ?? 0,
-      };
-
-      try {
-        if (editing && typeof editing.id === 'number') {
-          await api.classes.update(editing.id, payload);
-        } else {
-          await api.classes.create(payload);
-        }
-      } catch {
-        // Fallback to local storage when the hosted backend does not expose /api/classes yet.
-      }
-
-      upsertStoredClass(nextClass);
+      await api.classes.assign(payload);
       await onSaved();
       onClose();
     } catch (error) {
@@ -1021,12 +942,12 @@ function HistoriTab() {
 
   const roleColor: Record<string, string> = {
     siswa: 'bg-blue-50 text-blue-700',
-    guru: 'bg-purple-50 text-purple-700',
+    guru: 'bg-emerald-50 text-emerald-700',
     admin: 'bg-amber-50 text-amber-700',
   };
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-full space-y-4">
       <SectionHeader
         eyebrow="Histori Platform"
         title="Histori Aktivitas"
@@ -1035,12 +956,12 @@ function HistoriTab() {
       />
 
       {/* Period Selector */}
-      <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
+      <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div>
           <p className="text-sm font-black text-slate-900">Rentang waktu</p>
           <p className="mt-0.5 text-xs font-medium text-slate-500">Pilih periode aktivitas yang ingin ditampilkan.</p>
         </div>
-        <div className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1 sm:w-auto">
+        <div className="grid grid-cols-4 gap-1 rounded-xl bg-emerald-50 p-1 sm:w-auto">
           {[7, 14, 30, 90].map((p) => (
             <button
               key={p}
@@ -1057,16 +978,16 @@ function HistoriTab() {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
           {[
             { label: 'Pengguna Baru', value: fmt(summary.new_users), sub: `${fmt(summary.new_siswa)} siswa Â· ${fmt(summary.new_guru)} guru` },
             { label: 'Poin Diberikan', value: fmt(summary.total_points_awarded), sub: `âˆ’${fmt(summary.total_points_used)} dipakai` },
             { label: 'Reward Ditukar', value: fmt(summary.total_redemptions), sub: 'klaim reward' },
             { label: 'Sesi Membaca', value: fmt(summary.reading_sessions), sub: `${fmt(summary.completed_readings)} selesai` },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-2xl font-black text-slate-950">{s.value}</p>
-              <p className="mt-0.5 text-xs font-black text-slate-500">{s.label}</p>
+            <div key={s.label} className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+              <p className="text-2xl font-black text-emerald-900">{s.value}</p>
+              <p className="mt-0.5 text-xs font-black text-emerald-700">{s.label}</p>
               <p className="mt-0.5 text-[11px] font-semibold text-emerald-700">{s.sub}</p>
             </div>
           ))}
@@ -1091,9 +1012,9 @@ function HistoriTab() {
       </div>
 
       {loading ? (
-        <div className={styles.loading}>Memuat histori...</div>
+        <div className={`${styles.loading} ${styles.historyLoading}`}>Memuat histori...</div>
       ) : !data ? null : (
-        <div className={styles.managementShell}>
+        <div className={`${styles.managementShell} ${styles.historyShell}`}>
 
           {/* Pengguna Baru */}
           {activeSection === 'users' && (

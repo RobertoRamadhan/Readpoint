@@ -214,7 +214,7 @@ export const api = {
         const key = `${gl}|${cn}`;
         if (!map[key]) map[key] = { id: key, grade_level: gl, class_name: cn, teacher_name: '', student_count: 0 };
         const uid = u.id ?? `${u.name}|${u.email}`;
-        if (role === 'guru' && !seen.t.has(uid))  { map[key].teacher_name = u.name; seen.t.add(uid); }
+        if (role === 'guru' && !seen.t.has(uid))  { map[key].teacher_id = u.id; map[key].teacher_name = u.name; map[key].teacher_email = u.email; seen.t.add(uid); }
         if (role === 'siswa' && !seen.s.has(uid)) { map[key].student_count++; seen.s.add(uid); }
       });
 
@@ -248,13 +248,13 @@ export const api = {
       }),
   },
 
-  // classes â€” derived from users (no real /api/classes endpoint)
+  // Classes are listed from user assignments; updates are persisted by the admin class routes.
   classes: {
     list: () => api.users.classes(),
-    get: (_id: number | string): Promise<ApiResponse> => Promise.resolve({ data: null } as ApiResponse),
-    create: (data: Record<string, unknown>): Promise<ApiResponse> => Promise.resolve({ data } as ApiResponse),
-    update: (_id: number, data: Record<string, unknown>): Promise<ApiResponse> => Promise.resolve({ data } as ApiResponse),
-    delete: (_id: number | string): Promise<ApiResponse> => Promise.resolve({ data: null } as ApiResponse),
+    assign: (data: Record<string, unknown>) =>
+      apiCall('/admin/classes/assign', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (data: Record<string, unknown>) =>
+      apiCall('/admin/classes/delete', { method: 'POST', body: JSON.stringify(data) }),
   },
 
   teachers: {

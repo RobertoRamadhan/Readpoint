@@ -181,7 +181,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   }
 
   return (
-    <div className="flex h-screen min-h-screen flex-col overflow-hidden bg-slate-100 text-slate-900">
+    <div className="siswa-reader-page flex h-screen min-h-screen flex-col overflow-hidden bg-slate-100 text-slate-900">
       <style>{`.pdf-viewer-container::-webkit-scrollbar{display:none}.pdf-viewer-container{-ms-overflow-style:none;scrollbar-width:none}`}</style>
 
       <header className="shrink-0 border-b border-slate-200 bg-white shadow-sm">

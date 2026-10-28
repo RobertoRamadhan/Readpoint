@@ -135,8 +135,11 @@ export default function SiswaDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!mounted || loading || !isAuthenticated) return;
-    if (!user || user.role !== 'siswa') { router.push('/login'); return; }
+    if (!mounted || loading) return;
+    if (!isAuthenticated || user?.role !== 'siswa') {
+      router.replace('/login');
+      return;
+    }
     const fresh = dashboardCache && (Date.now() - dashboardCache.cachedAt < CACHE_TTL);
     if (fresh) {
       setStats(dashboardCache!.stats);

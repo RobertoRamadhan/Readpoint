@@ -212,21 +212,27 @@ class DashboardController extends Controller
     public function guruQuizzes(Request $request)
     {
         try {
-            $user   = $request->user();
+            $user = $request->user();
             $quizzes = QuizQuestion::where('created_by', $user->id)
-                ->select('id', 'ebook_id', 'question', 'created_at')
+                ->selectRaw('ebook_id, COUNT(*) as question_count, MAX(created_at) as created_at')
+                ->groupBy('ebook_id')
                 ->with('ebook:id,title')
-                ->orderBy('created_at', 'desc')
-                ->paginate(15);
+                ->orderByDesc('created_at')
+                ->get();
+
+            $attemptCounts = QuizAttempt::whereIn('ebook_id', $quizzes->pluck('ebook_id'))
+                ->selectRaw('ebook_id, COUNT(*) as attempt_count')
+                ->groupBy('ebook_id')
+                ->pluck('attempt_count', 'ebook_id');
 
             return response()->json([
-                'data'       => $quizzes->items(),
-                'pagination' => [
-                    'current_page' => $quizzes->currentPage(),
-                    'per_page'     => $quizzes->perPage(),
-                    'total'        => $quizzes->total(),
-                    'last_page'    => $quizzes->lastPage(),
-                ],
+                'data' => $quizzes->map(fn (QuizQuestion $quiz) => [
+                    'ebook_id' => $quiz->ebook_id,
+                    'ebook_title' => $quiz->ebook?->title,
+                    'question_count' => (int) $quiz->question_count,
+                    'attempt_count' => (int) ($attemptCounts[$quiz->ebook_id] ?? 0),
+                    'created_at' => $quiz->created_at,
+                ])->values(),
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);

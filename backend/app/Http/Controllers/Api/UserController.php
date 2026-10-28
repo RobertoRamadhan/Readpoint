@@ -188,13 +188,32 @@ class UserController extends Controller
         $validated = $request->validate([
             'name'             => 'sometimes|string|max:255',
             'email'            => 'sometimes|email|unique:users,email,' . $id,
-            'grade_level'      => 'sometimes|in:1,2,3',
-            'class_name'       => 'sometimes|string|max:100',
+            'grade_level'      => 'sometimes|nullable|in:1,2,3',
+            'class_name'       => 'sometimes|nullable|string|max:100',
             'role'             => 'sometimes|in:siswa,guru,admin',
             'current_password' => 'sometimes|required_with:password',
             'password'         => 'sometimes|string|min:8|confirmed',
             'avatar'           => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
         ]);
+
+        $classTeacher = null;
+        $syncStudentClass = $user->role === 'siswa'
+            && (array_key_exists('grade_level', $validated) || array_key_exists('class_name', $validated));
+        if ($syncStudentClass) {
+            $gradeLevel = $validated['grade_level'] ?? $user->grade_level;
+            $className = array_key_exists('class_name', $validated) ? $validated['class_name'] : $user->class_name;
+            if ($gradeLevel && $className) {
+                $teachers = User::where('role', 'guru')
+                    ->where('grade_level', $gradeLevel)
+                    ->where('class_name', $className)
+                    ->limit(2)
+                    ->get();
+                if ($teachers->count() > 1) {
+                    return response()->json(['message' => 'Kelas memiliki lebih dari satu wali kelas. Periksa data guru terlebih dahulu.'], 409);
+                }
+                $classTeacher = $teachers->first();
+            }
+        }
 
         // Admin mereset password user lain tidak butuh current_password
         $requireCurrent = $isSelfUpdate;
@@ -210,6 +229,10 @@ class UserController extends Controller
         // Hanya admin yang bisa ganti role
         if (isset($validated['role']) && !$isAdmin) {
             unset($validated['role']);
+        }
+
+        if ($syncStudentClass) {
+            $validated['wali_kelas_id'] = $classTeacher?->id;
         }
 
         $user->update($validated);
@@ -322,6 +345,19 @@ class UserController extends Controller
             'class_name' => 'nullable|string|max:100',
         ]);
 
+        $classTeacher = null;
+        if ($validated['role'] === 'siswa' && !empty($validated['class_name'])) {
+            $teachers = User::where('role', 'guru')
+                ->where('grade_level', $validated['grade_level'])
+                ->where('class_name', $validated['class_name'])
+                ->limit(2)
+                ->get();
+            if ($teachers->count() > 1) {
+                return response()->json(['message' => 'Kelas memiliki lebih dari satu wali kelas. Periksa data guru terlebih dahulu.'], 409);
+            }
+            $classTeacher = $teachers->first();
+        }
+
         $user = User::create([
             'name'        => $validated['name'],
             'email'       => $validated['email'],
@@ -329,6 +365,7 @@ class UserController extends Controller
             'role'        => $validated['role'],
             'grade_level' => $validated['grade_level'] ?? null,
             'class_name'  => $validated['class_name'] ?? null,
+            'wali_kelas_id' => $classTeacher?->id,
         ]);
 
         return response()->json([
@@ -354,6 +391,144 @@ class UserController extends Controller
                 'total_users'  => $totalSiswa + $totalGuru + $totalAdmin,
             ],
         ]);
+    }
+
+    public function assignClass(Request $request)
+    {
+        $validated = $request->validate([
+            'grade_level'     => 'required|in:1,2,3',
+            'class_name'      => 'required|string|max:100',
+            'teacher_id'      => 'required|integer|exists:users,id',
+            'previous_grade_level' => 'nullable|in:1,2,3',
+            'previous_class_name'  => 'nullable|string|max:100',
+        ]);
+
+        $previousGrade = $validated['previous_grade_level'] ?? $validated['grade_level'];
+        $previousClass = $validated['previous_class_name'] ?? $validated['class_name'];
+        $isEditing = $request->filled('previous_grade_level') && $request->filled('previous_class_name');
+        $teacher = User::whereKey($validated['teacher_id'])->where('role', 'guru')->first();
+
+        if (!$teacher) {
+            return response()->json(['message' => 'Wali kelas yang dipilih tidak valid.'], 422);
+        }
+
+        $result = \DB::transaction(function () use ($validated, $previousGrade, $previousClass, $isEditing, $teacher) {
+            $sourceTeachers = User::where('role', 'guru')
+                ->where('grade_level', $previousGrade)
+                ->where('class_name', $previousClass)
+                ->lockForUpdate()
+                ->get();
+
+            if ($sourceTeachers->count() > 1) {
+                return response()->json(['message' => 'Kelas memiliki lebih dari satu wali kelas. Periksa data guru terlebih dahulu.'], 409);
+            }
+
+            $previousTeacher = $sourceTeachers->first();
+            if ($isEditing && $previousTeacher && User::where('role', 'siswa')
+                ->where('wali_kelas_id', $previousTeacher->id)
+                ->where(function ($query) use ($previousGrade, $previousClass) {
+                    $query->where('grade_level', '!=', $previousGrade)
+                        ->orWhere('class_name', '!=', $previousClass)
+                        ->orWhereNull('grade_level')
+                        ->orWhereNull('class_name');
+                })
+                ->exists()) {
+                return response()->json(['message' => 'Wali kelas memiliki siswa yang terdaftar di luar kelas ini. Periksa penugasan siswa terlebih dahulu.'], 409);
+            }
+
+            if (!$isEditing && $previousTeacher && $previousTeacher->id !== $teacher->id) {
+                return response()->json(['message' => 'Kelas sudah memiliki wali kelas. Edit kelas tersebut untuk mengganti wali kelas.'], 409);
+            }
+
+            $teacherHasOtherClass = $teacher->grade_level && $teacher->class_name
+                && ($teacher->grade_level !== $previousGrade || $teacher->class_name !== $previousClass)
+                && ($teacher->grade_level !== $validated['grade_level'] || $teacher->class_name !== $validated['class_name']);
+
+            if ($teacherHasOtherClass) {
+                return response()->json(['message' => 'Guru yang dipilih sudah menjadi wali kelas di kelas lain.'], 409);
+            }
+
+            $conflictingTeacher = User::where('role', 'guru')
+                ->where('grade_level', $validated['grade_level'])
+                ->where('class_name', $validated['class_name'])
+                ->where('id', '!=', $teacher->id)
+                ->where('id', '!=', $previousTeacher?->id)
+                ->exists();
+
+            if ($conflictingTeacher) {
+                return response()->json(['message' => 'Kelas tujuan sudah memiliki wali kelas lain.'], 409);
+            }
+
+            $students = User::where('role', 'siswa')
+                ->where(function ($query) use ($previousGrade, $previousClass, $validated) {
+                    $query->where(function ($source) use ($previousGrade, $previousClass) {
+                        $source->where('grade_level', $previousGrade)->where('class_name', $previousClass);
+                    });
+                    if ($previousGrade !== $validated['grade_level'] || $previousClass !== $validated['class_name']) {
+                        $query->orWhere(function ($target) use ($validated) {
+                            $target->where('grade_level', $validated['grade_level'])->where('class_name', $validated['class_name']);
+                        });
+                    }
+                })
+                ->lockForUpdate()
+                ->get();
+
+            $allowedTeacherIds = array_filter([$previousTeacher?->id, $teacher->id]);
+            if ($students->contains(fn (User $student) => $student->wali_kelas_id !== null
+                && !in_array((int) $student->wali_kelas_id, $allowedTeacherIds, true))) {
+                return response()->json(['message' => 'Sebagian siswa sudah ditautkan ke wali kelas lain. Kelas tidak diubah.'], 409);
+            }
+
+            if ($previousTeacher && $previousTeacher->id !== $teacher->id) {
+                $previousTeacher->update(['grade_level' => null, 'class_name' => null]);
+            }
+
+            $teacher->update([
+                'grade_level' => $validated['grade_level'],
+                'class_name'  => $validated['class_name'],
+            ]);
+
+            User::whereIn('id', $students->pluck('id'))
+                ->update([
+                    'grade_level' => $validated['grade_level'],
+                    'class_name' => $validated['class_name'],
+                    'wali_kelas_id' => $teacher->id,
+                ]);
+
+            return response()->json([
+                'message' => 'Kelas dan penugasan wali kelas berhasil disimpan.',
+                'data' => [
+                    'grade_level' => $validated['grade_level'],
+                    'class_name' => $validated['class_name'],
+                    'teacher_id' => $teacher->id,
+                    'teacher_name' => $teacher->name,
+                    'student_count' => $students->count(),
+                ],
+            ]);
+        });
+
+        return $result;
+    }
+
+    public function deleteClass(Request $request)
+    {
+        $validated = $request->validate([
+            'grade_level' => 'required|in:1,2,3',
+            'class_name' => 'required|string|max:100',
+        ]);
+
+        $hasAssignments = User::whereIn('role', ['guru', 'siswa'])
+            ->where('grade_level', $validated['grade_level'])
+            ->where('class_name', $validated['class_name'])
+            ->exists();
+
+        if ($hasAssignments) {
+            return response()->json([
+                'message' => 'Kelas belum bisa dihapus karena masih memiliki guru atau siswa. Pindahkan penugasan akun terlebih dahulu.',
+            ], 409);
+        }
+
+        return response()->json(['message' => 'Kelas kosong berhasil dihapus.']);
     }
 
     /**
@@ -401,4 +576,3 @@ class UserController extends Controller
         ]);
     }
 }
-

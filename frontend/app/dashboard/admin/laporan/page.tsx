@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 interface UserRecord {
@@ -78,12 +79,19 @@ function getProductivityStatus(averagePoints: number, totalStudents: number) {
 
 export default function AdminLaporanTab() {
   const { user, loading, isAuthenticated } = useAuth();
+  const router = useRouter();
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isAuthenticated && user?.role === 'admin') {
+    if (loading) return;
+    if (!isAuthenticated || user?.role !== 'admin') {
+      router.replace('/login');
+      return;
+    }
+
+    if (user.role === 'admin') {
       const fetchReportData = async () => {
         try {
           setDataLoading(true);
@@ -109,7 +117,7 @@ export default function AdminLaporanTab() {
 
       fetchReportData();
     }
-  }, [isAuthenticated, user?.role]);
+  }, [loading, isAuthenticated, user?.role, router]);
 
   const reportData = useMemo(() => {
     const teachers = users.filter((item) => item.role === 'guru');
@@ -159,11 +167,11 @@ export default function AdminLaporanTab() {
   }
 
   return (
-    <div className="w-full space-y-6">
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Guru</p>
-            <h1 className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl lg:text-4xl">Evaluasi wali kelas berdasarkan poin siswa</h1>
-            <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600 sm:text-base">
+    <div className="mx-auto w-full max-w-full space-y-4">
+          <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4 lg:p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-700">Laporan Produktivitas Guru</p>
+            <h1 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">Evaluasi wali kelas berdasarkan poin siswa</h1>
+            <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-600">
               Laporan ini menilai produktivitas guru dari kelas yang diampu. Contohnya: wali kelas A memiliki siswa dengan total poin tertentu, lalu sistem memberi status Baik, Cukup, atau Perlu Pendampingan.
             </p>
           </section>
@@ -175,39 +183,39 @@ export default function AdminLaporanTab() {
           )}
 
           {dataLoading ? (
-            <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center shadow-sm">
+            <div className="rounded-2xl border border-emerald-200 bg-white py-20 text-center shadow-sm">
               <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-700" />
               <p className="mt-4 text-sm font-bold text-slate-600">Memuat laporan produktivitas guru...</p>
             </div>
           ) : (
             <>
-              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Total Guru</p>
-                  <p className="mt-3 text-4xl font-black text-slate-900">{summary.totalTeachers}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Guru yang terdaftar</p>
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Total Guru</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-900">{summary.totalTeachers}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Guru yang terdaftar</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Kelas Terpantau</p>
-                  <p className="mt-3 text-4xl font-black text-slate-900">{summary.totalClasses}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Berdasarkan kelas wali</p>
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Kelas Terpantau</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-900">{summary.totalClasses}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Berdasarkan kelas wali</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Total Poin Kelas</p>
-                  <p className="mt-3 text-4xl font-black text-slate-900">{summary.totalClassPoints}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Akumulasi poin siswa</p>
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Total Poin Kelas</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-900">{summary.totalClassPoints}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Akumulasi poin siswa</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Guru Produktif</p>
-                  <p className="mt-3 text-4xl font-black text-emerald-700">{summary.goodTeachers}</p>
-                  <p className="mt-2 text-xs font-semibold text-slate-500">Status Baik/Sangat Baik</p>
+                <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Guru Produktif</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-700">{summary.goodTeachers}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Status Baik/Sangat Baik</p>
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="mb-6">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Grafik Produktivitas</p>
-                  <h2 className="mt-2 text-xl font-black text-slate-900">Total poin siswa per wali kelas</h2>
+              <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4">
+                <div className="mb-3">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Grafik Produktivitas</p>
+                  <h2 className="mt-1 text-base font-black text-slate-900">Total poin siswa per wali kelas</h2>
                 </div>
                 <div className="space-y-4">
                   {reportData.length > 0 ? (
@@ -230,25 +238,25 @@ export default function AdminLaporanTab() {
                       );
                     })
                   ) : (
-                    <div className="rounded-2xl bg-slate-50 p-10 text-center text-sm font-bold text-slate-500">
+                    <div className="rounded-2xl bg-emerald-50 p-10 text-center text-sm font-bold text-slate-500">
                       Belum ada data untuk grafik.
                     </div>
                   )}
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="mb-5">
-                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Tabel Evaluasi</p>
-                  <h2 className="mt-2 text-xl font-black text-slate-900">Produktivitas guru per kelas</h2>
+              <section className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4">
+                <div className="mb-3">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-700">Tabel Evaluasi</p>
+                  <h2 className="mt-1 text-base font-black text-slate-900">Produktivitas guru per kelas</h2>
                   <p className="mt-2 text-sm font-medium text-slate-600">
                     Penilaian sementara dihitung dari rata-rata poin siswa pada kelas yang sama dengan wali kelas.
                   </p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[980px] text-left text-sm">
+                <div className="overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
+                  <table className="w-full min-w-225 text-left text-sm">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                      <tr className="border-b border-emerald-200 bg-emerald-50 text-xs uppercase tracking-wider text-emerald-800">
                         <th className="px-4 py-3 font-black">Guru / Wali Kelas</th>
                         <th className="px-4 py-3 font-black">Kelas</th>
                         <th className="px-4 py-3 font-black">Jumlah Siswa</th>
@@ -258,24 +266,24 @@ export default function AdminLaporanTab() {
                         <th className="px-4 py-3 font-black">Kesimpulan</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-emerald-100">
                       {reportData.length > 0 ? (
                         reportData.map((item) => (
                           <tr key={item.id} className="align-top">
-                            <td className="px-4 py-4">
+                            <td className="px-3 py-3">
                               <p className="font-black text-slate-900">{item.teacherName}</p>
                               <p className="text-xs font-medium text-slate-500">{item.teacherEmail}</p>
                             </td>
-                            <td className="px-4 py-4 font-bold text-slate-700">{item.className}</td>
-                            <td className="px-4 py-4 font-bold text-slate-700">{item.totalStudents}</td>
-                            <td className="px-4 py-4 font-black text-emerald-700">{item.totalPoints}</td>
-                            <td className="px-4 py-4 font-black text-slate-900">{item.averagePoints}</td>
-                            <td className="px-4 py-4">
-                              <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${item.statusClass}`}>
+                            <td className="px-3 py-3 font-bold text-slate-700">{item.className}</td>
+                            <td className="px-3 py-3 font-bold text-slate-700">{item.totalStudents}</td>
+                            <td className="px-3 py-3 font-black text-emerald-700">{item.totalPoints}</td>
+                            <td className="px-3 py-3 font-black text-slate-900">{item.averagePoints}</td>
+                            <td className="px-3 py-3">
+                              <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-black ${item.statusClass}`}>
                                 {item.status}
                               </span>
                             </td>
-                            <td className="px-4 py-4 text-slate-600">{item.note}</td>
+                            <td className="px-3 py-3 text-slate-600">{item.note}</td>
                           </tr>
                         ))
                       ) : (

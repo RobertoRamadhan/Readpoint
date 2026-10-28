@@ -100,8 +100,6 @@
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
@@ -1176,10 +1174,6 @@ h1, h2, h3, h4, h5, h6, p, span {
     padding-right: 1rem;
   }
 
-  /* Ensure grids don't overflow on mobile */
-  .grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Tablet specific fixes */
