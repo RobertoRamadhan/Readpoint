@@ -136,7 +136,6 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   };
 
   const pdfUrl = useMemo(() => normalizeFileUrl(ebook?.pdf_file_url || ebook?.pdf_file), [ebook]);
-  const coverUrl = useMemo(() => normalizeFileUrl(ebook?.cover_image_url || ebook?.cover_image), [ebook]);
   const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook?.pages || 10)));
 
   const completeReading = async () => {
@@ -185,7 +184,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       <style>{`.pdf-viewer-container::-webkit-scrollbar{display:none}.pdf-viewer-container{-ms-overflow-style:none;scrollbar-width:none}`}</style>
 
       <header className="shrink-0 border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between gap-2 px-3 sm:px-4 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:px-4 lg:px-8">
           <button onClick={() => router.push('/dashboard/siswa')} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 font-black text-slate-700 hover:bg-slate-100 lg:w-auto lg:px-4">←<span className="ml-2 hidden lg:inline">Kembali</span></button>
           <div className="min-w-0 flex-1 text-center">
             <h1 className="truncate text-xl font-black text-slate-950 sm:text-2xl lg:text-3xl">{ebook.title}</h1>
@@ -199,7 +198,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
         </div>
       </header>
 
-      <section className="shrink-0 border-b border-slate-200 bg-white px-3 py-2 sm:px-4">
+      <section className="shrink-0 border-b border-slate-200 bg-white px-3 py-1.5 sm:px-4">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
             <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-emerald-600 transition-all duration-500" style={{ width: `${Math.max(readingProgress, 2)}%` }} /></div>
@@ -210,7 +209,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
       </section>
 
       {!isMobile && (
-        <section className="shrink-0 border-b border-slate-200 bg-white px-4 py-2 lg:py-3">
+        <section className="shrink-0 border-b border-slate-200 bg-white px-4 py-1.5">
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 overflow-x-auto">
             <button onClick={() => { setFitWidth(false); setZoom(Math.max(50, zoom - 10)); }} className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200 lg:px-4">− Perkecil</button>
             <span className="shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700">{fitWidth ? 'Fit' : `${zoom}%`}</span>
@@ -221,15 +220,8 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
         </section>
       )}
 
-      <main className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[280px_1fr]">
-        <aside className="hidden border-r border-slate-200 bg-white p-6 lg:block">
-          <div className="overflow-hidden rounded-2xl bg-slate-100">{coverUrl ? <img src={coverUrl} alt={ebook.title} className="h-64 w-full object-cover" /> : <div className="flex h-64 items-center justify-center text-5xl">📚</div>}</div>
-          <h2 className="mt-5 line-clamp-2 text-lg font-black text-slate-950">{ebook.title}</h2>
-          <p className="mt-1 text-sm font-semibold text-slate-500">{ebook.author}</p>
-          <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4"><InfoRow label="Halaman sekarang" value={String(pagesRead)} /><InfoRow label="Total halaman" value={String(ebook.pages || 10)} /><InfoRow label="Progress" value={`${readingProgress}%`} /><InfoRow label="Estimasi poin" value={String(pagesRead * (ebook.poin_per_halaman || 10))} /></div>
-        </aside>
-
-        <div className="pdf-viewer-container relative min-h-0 overflow-auto bg-slate-900">
+      <main className="min-h-0 flex-1">
+        <div className="pdf-viewer-container relative h-full min-h-0 overflow-auto bg-slate-200">
           {showPointsModal && <PointsModal earnedPoints={earnedPoints} readingProgress={readingProgress} pagesRead={pagesRead} totalPages={ebook.pages || 10} />}
           {pdfUrl ? (
             <PdfCanvasViewer src={pdfUrl} title={ebook.title} isMobile={isMobile} zoom={zoom} fitWidth={fitWidth} onProgressChange={setReadingProgress} />
@@ -304,7 +296,8 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
         if (cancelled) return;
         const baseViewport = page.getViewport({ scale: 1 });
         const availableWidth = Math.max(280, wrapper.clientWidth - (isMobile ? 24 : 48));
-        const fitScale = availableWidth / baseViewport.width;
+        const readingWidth = isMobile ? availableWidth : Math.min(availableWidth, 900);
+        const fitScale = readingWidth / baseViewport.width;
         const requestedScale = fitWidth ? fitScale : fitScale * (zoom / 100);
         const scale = Math.min(isMobile ? 2.2 : 3.2, Math.max(isMobile ? 0.75 : 0.85, requestedScale));
         const viewport = page.getViewport({ scale });
@@ -343,19 +336,19 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
   }, [pageNumber, totalPages, isMobile, zoom, fitWidth, onProgressChange]);
 
   return (
-    <div ref={wrapperRef} className="flex min-h-full flex-col bg-slate-900 text-white">
-      <div className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-white/10 bg-slate-950/95 px-3 py-2 backdrop-blur">
-        <button onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))} disabled={pageNumber <= 1 || loading || rendering} className="rounded-xl bg-white/10 px-3 py-2 text-xs font-black text-white disabled:opacity-40">Sebelumnya</button>
+    <div ref={wrapperRef} className="flex min-h-full flex-col bg-slate-200 text-slate-900">
+    <div className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur">
+      <button onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))} disabled={pageNumber <= 1 || loading || rendering} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 disabled:opacity-40">Sebelumnya</button>
         <div className="min-w-0 text-center">
           <p className="truncate text-xs font-black">{title}</p>
-          <p className="text-[11px] font-semibold text-slate-300">Halaman {pageNumber}/{totalPages || '-'}</p>
+        <p className="text-[11px] font-semibold text-slate-500">Halaman {pageNumber}/{totalPages || '-'}</p>
         </div>
         <button onClick={() => setPageNumber((prev) => Math.min(totalPages || prev, prev + 1))} disabled={!totalPages || pageNumber >= totalPages || loading || rendering} className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-black text-white disabled:opacity-40">Lanjut</button>
       </div>
 
-      <div className="flex flex-1 items-start justify-center overflow-auto p-3 lg:p-6">
+    <div className={`flex flex-1 items-start justify-center overflow-auto ${isMobile ? 'p-3' : 'px-6 py-5'}`}>
         {loading ? (
-          <div className="mt-20 text-center"><div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-emerald-500" /><p className="text-sm font-bold">Menyiapkan PDF...</p></div>
+          <div className="mt-20 text-center"><div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-emerald-600" /><p className="text-sm font-bold text-slate-700">Menyiapkan PDF...</p></div>
         ) : error ? (
           <div className="flex min-h-[65vh] w-full flex-col gap-3 p-2 sm:p-4">
             <p className="rounded-xl bg-white px-4 py-3 text-center text-sm font-bold text-slate-700">{error} Menampilkan PDF dengan pembaca bawaan browser.</p>
@@ -367,15 +360,11 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
             <a href={src} target="_blank" rel="noreferrer" className="block rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-black text-white">Buka PDF di tab baru</a>
           </div>
         ) : (
-          <div className="relative rounded-xl bg-white p-1 shadow-2xl">
+          <div className="relative rounded-xl bg-white p-1 shadow-xl">
             {rendering && <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/70 text-sm font-black text-slate-700">Memuat halaman...</div>}
             <canvas ref={canvasRef} className="block max-w-full rounded-lg bg-white" />
           </div>
         )}
-      </div>
-
-      <div className="border-t border-white/10 bg-slate-950 px-3 py-2">
-        <a href={src} target="_blank" rel="noreferrer" className="block rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-black text-white">Buka PDF langsung</a>
       </div>
     </div>
   );
@@ -404,5 +393,4 @@ function loadPdfJs(): Promise<any> {
 }
 
 function LoadingScreen({ text }: { text: string }) { return <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50"><div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-300 border-t-emerald-600" /><p className="text-sm font-semibold text-emerald-700">{text}</p></div>; }
-function InfoRow({ label, value }: { label: string; value: string }) { return <div className="flex items-center justify-between gap-4"><span className="text-xs font-semibold text-slate-500">{label}</span><span className="text-sm font-black text-slate-900">{value}</span></div>; }
 function PointsModal({ earnedPoints, readingProgress, pagesRead, totalPages }: { earnedPoints: number; readingProgress: number; pagesRead: number; totalPages: number }) { return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl"><div className="mb-4 text-6xl">🎉</div><h2 className="text-3xl font-black text-emerald-600">Selamat!</h2><p className="mt-2 text-sm font-semibold text-slate-600">Kamu telah menyelesaikan membaca</p><div className="my-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6"><p className="text-sm text-slate-600">Poin didapatkan</p><p className="text-5xl font-black text-emerald-600">{earnedPoints}</p><p className="mt-2 text-xs text-slate-500">Progress: {readingProgress}% | {pagesRead}/{totalPages} halaman</p></div><p className="text-sm text-slate-600">Tunggu sebentar...</p></div></div>; }

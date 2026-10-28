@@ -75,8 +75,6 @@ type Reward = {
   image?: string;
   image_url?: string;  
   icon?: string;
-  pdf_file?: string;
-  pdf_file_url?: string;
 };
 
 type UserAccount = {
@@ -490,12 +488,11 @@ function RewardsTab() {
 
 function RewardCard({ reward, onEdit, onDelete }: { reward: Reward; onEdit: () => void; onDelete: () => void }) {
   const image = normalizeFileUrl(reward.image_url || reward.image);
-  const pdf = normalizeFileUrl(reward.pdf_file_url || reward.pdf_file);
-  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || 'ðŸŽ'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">Buka lampiran PDF</a>}<div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || 'ðŸŽ'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
 function RewardForm({ editing, onClose, onSaved }: { editing: Reward | null; onClose: () => void; onSaved: () => Promise<void> }) {
-  const [data, setData] = useState({ name: editing?.name || '', description: editing?.description || '', points_required: n(editing?.points_required) || 100, stock: n(editing?.stock) || 0, category: (editing as any)?.category || 'umum', image: null as File | null, pdf_file: null as File | null });
+  const [data, setData] = useState({ name: editing?.name || '', description: editing?.description || '', points_required: n(editing?.points_required) || 100, stock: n(editing?.stock) || 0, category: (editing as any)?.category || 'umum', image: null as File | null });
   const [error, setError] = useState(''); const [saving, setSaving] = useState(false);
   async function submit(e: FormEvent) { e.preventDefault(); setError(''); if (!data.name || !data.description) return setError('Nama dan deskripsi wajib diisi'); const fd = new FormData(); Object.entries(data).forEach(([key, value]) => { if (value !== null && value !== undefined) fd.append(key, value instanceof File ? value : String(value)); }); try { setSaving(true); editing ? await api.rewards.update(editing.id, fd) : await api.rewards.create(fd); await onSaved(); onClose(); } catch (error) { setError(errText(error, 'Gagal menyimpan reward')); } finally { setSaving(false); } }
   return (
@@ -514,10 +511,6 @@ function RewardForm({ editing, onClose, onSaved }: { editing: Reward | null; onC
           <Field label="Gambar Reward">
             <input className={styles.fileInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setData({ ...data, image: e.target.files?.[0] || null })} />
             <small>{data.image?.name || (editing?.image ? 'Gambar saat ini tetap digunakan jika tidak diganti.' : 'Pilih gambar JPG, PNG, atau WebP.')}</small>
-          </Field>
-          <Field label="Lampiran PDF (Opsional)">
-            <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(e) => setData({ ...data, pdf_file: e.target.files?.[0] || null })} />
-            <small>{data.pdf_file?.name || (editing?.pdf_file ? 'PDF saat ini tetap digunakan jika tidak diganti.' : 'Pilih PDF maksimal 20 MB.')}</small>
           </Field>
           <Field label="Deskripsi" full><textarea className={styles.textarea} value={data.description} onChange={(e) => setData({ ...data, description: e.target.value })} /></Field>
         </div>
