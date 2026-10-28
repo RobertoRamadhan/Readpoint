@@ -7,10 +7,7 @@ use RuntimeException;
 
 /**
  * Helper untuk upload dan URL generation.
- * Menggunakan Laravel Storage (public disk untuk local, s3/cloud untuk production).
- * 
- * Environment-aware: otomatis pakai local storage saat development,
- * Cloud storage saat production (Cloudflare R2, AWS S3, etc).
+ * Menggunakan disk filesystem yang dipilih melalui FILESYSTEM_DISK.
  */
 class StorageHelper
 {
@@ -29,7 +26,7 @@ class StorageHelper
         $filename = $filename ?? uniqid($type . '_', true) . '.' . $file->getClientOriginalExtension();
         $path     = $folder . '/' . $filename;
 
-        $storedPath = Storage::disk($disk)->putFileAs($folder, $file, $filename, 'public');
+        $storedPath = Storage::disk($disk)->putFileAs($folder, $file, $filename);
         if ($storedPath === false) {
             throw new RuntimeException("Gagal menyimpan file ke storage ({$disk}).");
         }
@@ -77,7 +74,7 @@ class StorageHelper
     {
         $configuredDisk = config('filesystems.default');
         
-        // Jika disk adalah 'local', redirect ke 'public' agar bisa diakses via web
+        // Keep local development uploads publicly accessible through the storage symlink.
         if ($configuredDisk === 'local') {
             return 'public';
         }

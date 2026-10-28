@@ -139,18 +139,26 @@ class EbookController extends Controller
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
+        $newFiles = [];
+        $oldFiles = [];
+        $databaseUpdated = false;
+
         try {
             if ($request->hasFile('pdf_file')) {
-                StorageHelper::delete($ebook->file_path, 'ebook');
-                $ebook->file_path = StorageHelper::upload($request->file('pdf_file'), 'ebook');
+                $newPath = StorageHelper::upload($request->file('pdf_file'), 'ebook');
+                $newFiles[] = [$newPath, 'ebook'];
+                $oldFiles[] = [$ebook->file_path, 'ebook'];
+                $ebook->file_path = $newPath;
             }
 
             if ($request->hasFile('cover_image')) {
-                StorageHelper::delete($ebook->cover_image, 'cover');
-                $ebook->cover_image = StorageHelper::upload($request->file('cover_image'), 'cover');
+                $newPath = StorageHelper::upload($request->file('cover_image'), 'cover');
+                $newFiles[] = [$newPath, 'cover'];
+                $oldFiles[] = [$ebook->cover_image, 'cover'];
+                $ebook->cover_image = $newPath;
             }
 
-            $ebook->update(array_filter([
+            $ebook->fill(array_filter([
                 'title'            => $request->title,
                 'author'           => $request->author,
                 'pages'            => $request->pages,
@@ -162,7 +170,12 @@ class EbookController extends Controller
             ], fn($v) => !is_null($v)));
 
             $ebook->save();
+            $databaseUpdated = true;
             $ebook->refresh();
+
+            foreach ($oldFiles as [$path, $type]) {
+                StorageHelper::delete($path, $type);
+            }
 
             return response()->json([
                 'message' => 'E-book updated',
@@ -182,6 +195,12 @@ class EbookController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
+            if (!$databaseUpdated) {
+                foreach ($newFiles as [$path, $type]) {
+                    StorageHelper::delete($path, $type);
+                }
+            }
+
             return response()->json(['message' => 'Failed to update e-book', 'error' => $e->getMessage()], 500);
         }
     }
