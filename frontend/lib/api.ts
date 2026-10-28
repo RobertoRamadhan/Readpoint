@@ -20,7 +20,7 @@ interface ApiCallOptions extends RequestInit { suppressErrorLogging?: boolean; }
 // â”€â”€â”€ Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-const API_URL = (configuredApiUrl || (
+export const API_URL = (configuredApiUrl || (
   process.env.NODE_ENV === 'production'
     ? 'https://readpoint-production-g6uam2.laravel.cloud/api'
     : 'http://localhost:8000/api'
@@ -233,13 +233,7 @@ export const api = {
       return apiCall(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) });
     },
 
-    delete: (id: number, options?: { force?: boolean; confirm_force_delete?: boolean }) => {
-      const params = new URLSearchParams();
-      if (options?.force) params.set('force', 'true');
-      if (options?.confirm_force_delete) params.set('confirm_force_delete', 'true');
-      const query = params.toString();
-      return apiCall(`/users/${id}${query ? `?${query}` : ''}`, { method: 'DELETE' });
-    },
+    delete: (id: number) => apiCall(`/users/${id}`, { method: 'DELETE' }),
 
     resetPassword: (id: number, password: string) =>
       apiCall(`/users/${id}/reset-password`, {

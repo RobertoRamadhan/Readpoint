@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BookAssignment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
@@ -120,11 +122,14 @@ class BookController extends Controller
     public function destroy(string $id)
     {
         $book = Book::findOrFail($id);
-        $book->update(['is_active' => false]);
+
+        DB::transaction(function () use ($book) {
+            BookAssignment::where('book_id', $book->id)->delete();
+            $book->delete();
+        });
 
         return response()->json([
-            'message' => 'Book deactivated successfully',
+            'message' => 'Book and its assignments permanently deleted',
         ]);
     }
 }
-

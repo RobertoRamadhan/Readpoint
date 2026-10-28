@@ -28,10 +28,11 @@ class RewardController extends Controller
     public function index()
     {
         $rewards = Reward::where('is_active', true)
-            ->select('id', 'name', 'description', 'points_required', 'stock', 'icon', 'category', 'image')
+            ->select('id', 'name', 'description', 'points_required', 'stock', 'icon', 'category', 'image', 'pdf_file')
             ->get()
             ->map(function ($reward) {
                 $reward->image_url = $this->fileUrl($reward->image);
+                $reward->pdf_file_url = $reward->pdf_file ? StorageHelper::url($reward->pdf_file, 'reward_pdf') : null;
                 return $reward;
             });
 
@@ -50,12 +51,17 @@ class RewardController extends Controller
             'stock'            => 'required|integer|min:0',
             'category'         => 'required|string',
             'image'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5000',
+            'pdf_file'         => 'nullable|file|mimes:pdf|max:20480',
         ]);
 
         try {
             $imagePath = null;
+            $pdfPath = null;
             if ($request->hasFile('image')) {
                 $imagePath = StorageHelper::upload($request->file('image'), 'reward');
+            }
+            if ($request->hasFile('pdf_file')) {
+                $pdfPath = StorageHelper::upload($request->file('pdf_file'), 'reward_pdf');
             }
 
             $reward = Reward::create([
@@ -65,10 +71,12 @@ class RewardController extends Controller
                 'stock'           => $validated['stock'],
                 'category'        => $validated['category'],
                 'image'           => $imagePath,
+                'pdf_file'        => $pdfPath,
                 'is_active'       => true,
             ]);
 
             $reward->image_url = $this->fileUrl($reward->image);
+            $reward->pdf_file_url = $reward->pdf_file ? StorageHelper::url($reward->pdf_file, 'reward_pdf') : null;
 
             return response()->json(['message' => 'Reward created', 'data' => $reward], 201);
         } catch (\Exception $e) {
@@ -103,13 +111,21 @@ class RewardController extends Controller
             if ($request->hasFile('image')) {
                 $rules['image'] = 'nullable|image|mimes:jpg,jpeg,png,webp|max:5000';
             }
+            if ($request->hasFile('pdf_file')) {
+                $rules['pdf_file'] = 'nullable|file|mimes:pdf|max:20480';
+            }
 
             $validated = $request->validate($rules);
+            $oldImagePath = null;
+            $oldPdfPath = null;
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                StorageHelper::delete($reward->image, 'reward');
+                $oldImagePath = $reward->image;
                 $reward->image = StorageHelper::upload($request->file('image'), 'reward');
-                $reward->save();
+            }
+            if ($request->hasFile('pdf_file') && $request->file('pdf_file')->isValid()) {
+                $oldPdfPath = $reward->pdf_file;
+                $reward->pdf_file = StorageHelper::upload($request->file('pdf_file'), 'reward_pdf');
             }
 
             $updateData = array_filter([
@@ -125,9 +141,15 @@ class RewardController extends Controller
             if (!empty($updateData)) {
                 $reward->update($updateData);
             }
+            if ($request->hasFile('image') || $request->hasFile('pdf_file')) {
+                $reward->save();
+            }
 
             $reward->refresh();
+            StorageHelper::delete($oldImagePath, 'reward');
+            StorageHelper::delete($oldPdfPath, 'reward_pdf');
             $reward->image_url = $this->fileUrl($reward->image);
+            $reward->pdf_file_url = $reward->pdf_file ? StorageHelper::url($reward->pdf_file, 'reward_pdf') : null;
 
             return response()->json(['message' => 'Reward updated', 'data' => $reward]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -137,14 +159,19 @@ class RewardController extends Controller
         }
     }
 
-    // Hapus reward (soft delete)
+    // Hapus reward dan riwayat penukaran terkait secara permanen.
     public function destroy(string $id)
     {
         $reward = Reward::findOrFail($id);
-        $reward->update(['is_active' => false]);
+        $imagePath = $reward->image;
+        $pdfPath = $reward->pdf_file;
+
+        DB::transaction(fn () => $reward->delete());
+        StorageHelper::delete($imagePath, 'reward');
+        StorageHelper::delete($pdfPath, 'reward_pdf');
 
         return response()->json([
-            'message' => 'Reward deactivated',
+            'message' => 'Reward and its redemptions permanently deleted',
         ]);
     }
 

@@ -25,6 +25,7 @@ interface Reward {
   id: number; name: string; description: string;
   points_required: number; stock: number;
   image?: string; image_url?: string;
+  pdf_file?: string; pdf_file_url?: string;
 }
 interface Quiz {
   id: number; ebook_id?: number; ebook_title?: string; title?: string;
@@ -538,6 +539,7 @@ function RewardRow({ reward, disabled, onRedeem }: { reward: Reward; disabled: b
 /* ── Reward Card (full grid) ────────────────────────────────── */
 function RewardCard({ reward, totalPoints, onRedeem }: { reward: Reward; totalPoints: number; onRedeem: () => void }) {
   const img = normalizeReward(reward);
+  const pdf = normalizeFileUrl(reward.pdf_file_url || reward.pdf_file);
   const disabled = totalPoints < reward.points_required || reward.stock <= 0;
   return (
     <div className={s.rewardCard}>
@@ -555,6 +557,7 @@ function RewardCard({ reward, totalPoints, onRedeem }: { reward: Reward; totalPo
           <span>{fmtNum(reward.points_required)} poin</span>
           <span>{reward.stock} stok</span>
         </div>
+        {pdf && <a href={pdf} target="_blank" rel="noreferrer" className={s.rewardCardBtn}>Lihat lampiran PDF</a>}
         <button
           className={`${s.rewardCardBtn} ${disabled ? s.rewardCardBtnLocked : ''}`}
           disabled={disabled} onClick={onRedeem}

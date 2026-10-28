@@ -589,8 +589,24 @@
 }
 
 .fileInput {
-  padding: 8px 12px !important;
+  display: block !important;
+  min-height: 48px !important;
+  padding: 7px !important;
   font-size: 13px !important;
+  cursor: pointer;
+}
+
+.fileInput::file-selector-button {
+  min-height: 32px;
+  margin-right: 10px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #065f46;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .page input:focus,
@@ -804,6 +820,15 @@
 
 .field { display: block; min-width: 0; }
 .fieldFull { grid-column: 1 / -1; }
+
+.field small {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
 
 .label {
   display: block;

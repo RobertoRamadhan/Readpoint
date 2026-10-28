@@ -96,6 +96,7 @@ class StorageHelper
             'cover'  => 'ebooks/covers',
             'avatar' => 'avatars',
             'reward' => 'rewards',
+            'reward_pdf' => 'rewards/files',
             default  => 'misc',
         };
     }

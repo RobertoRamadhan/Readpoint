@@ -1,22 +1,11 @@
+import { API_URL } from './api';
+
 /**
  * Derives a local-friendly backend base URL.
- * Falls back to the local Laravel dev server when the env var is absent.
+ * Uses the same environment-aware API URL as regular API requests.
  */
 export function getBackendBaseUrl(): string {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (apiUrl) {
-    return apiUrl.replace(/\/api\/?$/, '');
-  }
-
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:8000';
-    }
-  }
-
-  return 'http://localhost:8000';
+  return API_URL.replace(/\/api\/?$/, '');
 }
 
 /**

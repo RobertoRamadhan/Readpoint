@@ -3,9 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Ebook;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Models\BookAssignment;
+use App\Models\PointTransaction;
+use App\Models\QuizAttempt;
+use App\Models\QuizQuestion;
+use App\Models\ReadingActivity;
+use App\Models\ReadingProgress;
+use App\Models\Validation;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Services\StorageHelper;
 
 class EbookController extends Controller
@@ -179,12 +186,35 @@ class EbookController extends Controller
         }
     }
 
-    // Admin: Deactivate e-book
+    // Admin: Permanently delete e-book and dependent reading/quiz records.
     public function destroy($id)
     {
         $ebook = Ebook::findOrFail($id);
-        $ebook->update(['is_active' => false]);
-        return response()->json(['message' => 'E-book deactivated']);
+
+        [$filePath, $coverImage] = DB::transaction(function () use ($ebook) {
+            $readingActivityIds = ReadingActivity::where('ebook_id', $ebook->id)->pluck('id');
+            $quizAttemptIds = QuizAttempt::where('ebook_id', $ebook->id)->pluck('id');
+
+            Validation::whereIn('reading_activity_id', $readingActivityIds)->delete();
+            PointTransaction::whereIn('reading_activity_id', $readingActivityIds)
+                ->update(['reading_activity_id' => null]);
+            PointTransaction::whereIn('quiz_attempt_id', $quizAttemptIds)
+                ->update(['quiz_attempt_id' => null]);
+
+            ReadingActivity::whereIn('id', $readingActivityIds)->delete();
+            ReadingProgress::where('ebook_id', $ebook->id)->delete();
+            QuizAttempt::whereIn('id', $quizAttemptIds)->delete();
+            QuizQuestion::where('ebook_id', $ebook->id)->delete();
+            BookAssignment::where('ebook_id', $ebook->id)->delete();
+            $ebook->delete();
+
+            return [$ebook->file_path, $ebook->cover_image];
+        });
+
+        StorageHelper::delete($filePath, 'ebook');
+        StorageHelper::delete($coverImage, 'cover');
+
+        return response()->json(['message' => 'E-book and its related records permanently deleted']);
     }
 
     // Get user's reading progress for specific e-book

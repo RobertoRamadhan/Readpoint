@@ -284,49 +284,42 @@ class UserController extends Controller
         }
 
         try {
-            $forceDelete = filter_var($request->input('force', false), FILTER_VALIDATE_BOOLEAN);
+            $profilePhotoPath = $user->profile_photo_url;
 
-            if ($forceDelete && !$request->boolean('confirm_force_delete')) {
-                return response()->json([
-                    'message' => 'Penghapusan permanen harus dikonfirmasi secara eksplisit.',
-                ], 422);
-            }
+            \DB::transaction(function () use ($user) {
+                \App\Models\Validation::where('validated_by', $user->id)
+                    ->update(['validated_by' => null]);
+                \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
+                \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
+                User::where('wali_kelas_id', $user->id)->update(['wali_kelas_id' => null]);
 
-            \DB::transaction(function () use ($user, $forceDelete) {
-                if ($forceDelete) {
-                    // Bersihkan relasi hanya untuk penghapusan permanen.
-                    \App\Models\Validation::where('validated_by', $user->id)
-                        ->update(['validated_by' => null]);
-                    \App\Models\BookAssignment::where('teacher_id', $user->id)->delete();
-                    \App\Models\QuizQuestion::where('created_by', $user->id)->delete();
-                    User::where('wali_kelas_id', $user->id)->update(['wali_kelas_id' => null]);
+                $readingActivityIds = \App\Models\ReadingActivity::where('user_id', $user->id)->pluck('id');
+                \App\Models\Validation::whereIn('reading_activity_id', $readingActivityIds)->delete();
 
-                    $quizAttemptIds = \App\Models\QuizAttempt::where('user_id', $user->id)->pluck('id');
-                    if ($quizAttemptIds->isNotEmpty()) {
-                        \App\Models\PointTransaction::whereIn('quiz_attempt_id', $quizAttemptIds)->delete();
-                    }
-                    \App\Models\PointTransaction::where('user_id', $user->id)->delete();
-                    \App\Models\Redemption::where('user_id', $user->id)->delete();
-                    \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
-                    \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
-                    \App\Models\ReadingProgress::where('user_id', $user->id)->delete();
-                } else {
-                    // Soft-delete mempertahankan histori dan relasi data.
-                    User::where('wali_kelas_id', $user->id)->update(['wali_kelas_id' => null]);
+                $quizAttemptIds = \App\Models\QuizAttempt::where('user_id', $user->id)->pluck('id');
+                if ($quizAttemptIds->isNotEmpty()) {
+                    \App\Models\PointTransaction::whereIn('quiz_attempt_id', $quizAttemptIds)->delete();
                 }
 
-                $forceDelete ? $user->forceDelete() : $user->delete();
+                \App\Models\PointTransaction::where('user_id', $user->id)->delete();
+                \App\Models\Redemption::where('user_id', $user->id)->delete();
+                \App\Models\QuizAttempt::where('user_id', $user->id)->delete();
+                \App\Models\ReadingActivity::where('user_id', $user->id)->delete();
+                \App\Models\ReadingProgress::where('user_id', $user->id)->delete();
+                $user->tokens()->delete();
+                $user->forceDelete();
             });
 
+            StorageHelper::delete($profilePhotoPath, 'avatar');
+
             return response()->json([
-                'message' => $forceDelete
-                    ? 'User dan semua data terkait berhasil dihapus permanen.'
-                    : 'User berhasil dihapus.',
+                'message' => 'User dan semua data terkait berhasil dihapus permanen.',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
                 'message' => 'Gagal menghapus user.',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan server.',
             ], 500);
         }
     }

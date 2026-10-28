@@ -14,6 +14,7 @@ class Reward extends Model
         'category',
         'icon',
         'image',
+        'pdf_file',
         'is_active',
     ];
 

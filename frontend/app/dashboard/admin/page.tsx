@@ -75,6 +75,8 @@ type Reward = {
   image?: string;
   image_url?: string;  
   icon?: string;
+  pdf_file?: string;
+  pdf_file_url?: string;
 };
 
 type UserAccount = {
@@ -417,7 +419,7 @@ function EbooksTab() {
   const filtered = useMemo(() => items.filter((x) => `${x.title} ${x.author ?? ''} ${x.category ?? ''}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
 
   async function remove(id: number) {
-    if (!confirm('Hapus e-book ini?')) return;
+    if (!confirm('Hapus permanen e-book ini? Riwayat membaca, progres, kuis, penugasan, serta file e-book dan cover terkait juga akan dihapus.')) return;
     try { await api.ebooks.delete(id); await load(); } catch (error) { setError(errText(error, 'Gagal menghapus e-book')); }
   }
 
@@ -447,7 +449,34 @@ function EbookForm({ editing, onClose, onSaved }: { editing: Ebook | null; onClo
     finally { setSaving(false); }
   }
 
-  return <FormBox title={editing ? 'Edit E-Book' : 'Tambah E-Book'} onClose={onClose}><form onSubmit={submit}><ErrorBox message={error} /><div className={styles.formGrid}><Field label="Judul Buku"><input className={styles.input} value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} /></Field><Field label="Pengarang"><input className={styles.input} value={data.author} onChange={(e) => setData({ ...data, author: e.target.value })} /></Field><Field label="Halaman"><input className={styles.input} type="number" value={data.pages} onChange={(e) => setData({ ...data, pages: Number(e.target.value) })} /></Field><Field label="Kategori"><input className={styles.input} value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })} /></Field><Field label="Poin/Halaman"><input className={styles.input} type="number" value={data.poin_per_halaman} onChange={(e) => setData({ ...data, poin_per_halaman: Number(e.target.value) })} /></Field><Field label="Kelas"><select className={styles.select} value={data.grade_level} onChange={(e) => setData({ ...data, grade_level: e.target.value })}><option value="1">Kelas 1</option><option value="2">Kelas 2</option><option value="3">Kelas 3</option><option value="all">Semua Kelas</option></select></Field><Field label="PDF"><input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(e: ChangeEvent<HTMLInputElement>) => setData({ ...data, pdf_file: e.target.files?.[0] || null })} /></Field><Field label="Cover"><input className={styles.fileInput} type="file" accept="image/*" onChange={(e) => setData({ ...data, cover_image: e.target.files?.[0] || null })} /></Field></div><FormActions saving={saving} onCancel={onClose} /></form></FormBox>;
+  return (
+    <FormBox title={editing ? 'Edit E-Book' : 'Tambah E-Book'} onClose={onClose}>
+      <form onSubmit={submit}>
+        <ErrorBox message={error} />
+        <div className={styles.formGrid}>
+          <Field label="Judul Buku"><input className={styles.input} value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} /></Field>
+          <Field label="Pengarang"><input className={styles.input} value={data.author} onChange={(e) => setData({ ...data, author: e.target.value })} /></Field>
+          <Field label="Halaman"><input className={styles.input} type="number" min="1" value={data.pages} onChange={(e) => setData({ ...data, pages: Number(e.target.value) })} /></Field>
+          <Field label="Kategori"><input className={styles.input} value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })} /></Field>
+          <Field label="Poin/Halaman"><input className={styles.input} type="number" min="1" value={data.poin_per_halaman} onChange={(e) => setData({ ...data, poin_per_halaman: Number(e.target.value) })} /></Field>
+          <Field label="Kelas">
+            <select className={styles.select} value={data.grade_level} onChange={(e) => setData({ ...data, grade_level: e.target.value })}>
+              <option value="1">Kelas 1</option><option value="2">Kelas 2</option><option value="3">Kelas 3</option><option value="all">Semua Kelas</option>
+            </select>
+          </Field>
+          <Field label="File PDF Buku">
+            <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(e: ChangeEvent<HTMLInputElement>) => setData({ ...data, pdf_file: e.target.files?.[0] || null })} />
+            <small>{data.pdf_file?.name || (editing ? 'PDF saat ini tetap digunakan jika tidak diganti.' : 'Pilih file PDF (maksimal 200 MB).')}</small>
+          </Field>
+          <Field label="Gambar Cover">
+            <input className={styles.fileInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setData({ ...data, cover_image: e.target.files?.[0] || null })} />
+            <small>{data.cover_image?.name || (editing ? 'Cover saat ini tetap digunakan jika tidak diganti.' : 'Pilih gambar JPG, PNG, atau WebP.')}</small>
+          </Field>
+        </div>
+        <FormActions saving={saving} onCancel={onClose} />
+      </form>
+    </FormBox>
+  );
 }
 
 function RewardsTab() {
@@ -455,20 +484,47 @@ function RewardsTab() {
   async function load() { try { setLoading(true); setError(''); setItems(extractArray<Reward>(await api.rewards.list())); } catch (error) { setError(errText(error, 'Gagal memuat reward')); } finally { setLoading(false); } }
   useEffect(() => { load(); }, []);
   const filtered = useMemo(() => items.filter((x) => `${x.name} ${x.description ?? ''}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
-  async function remove(id: number) { if (!confirm('Hapus reward ini?')) return; try { await api.rewards.delete(id); await load(); } catch (error) { setError(errText(error, 'Gagal menghapus reward')); } }
+  async function remove(id: number) { if (!confirm('Hapus permanen reward ini? Riwayat penukaran dan gambar reward terkait juga akan dihapus.')) return; try { await api.rewards.delete(id); await load(); } catch (error) { setError(errText(error, 'Gagal menghapus reward')); } }
   return <div><SectionHeader eyebrow="Manajemen Hadiah" title="Kelola Reward" desc="Atur hadiah, stok, dan poin penukaran siswa." Icon={Gift} /><div className={styles.managementShell}>{formOpen && <RewardForm editing={editing} onClose={() => { setFormOpen(false); setEditing(null); }} onSaved={load} />}<div className={styles.toolbar}><SearchBox value={query} onChange={setQuery} placeholder="Cari reward..." />{!formOpen && <button className={styles.primaryButton} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus size={18} />Tambah Reward</button>}</div><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat reward...</div> : filtered.length === 0 ? <Empty text="Reward belum ditemukan." /> : <div className={styles.cardGrid}>{filtered.map((reward) => <RewardCard key={reward.id} reward={reward} onEdit={() => { setEditing(reward); setFormOpen(true); }} onDelete={() => remove(reward.id)} />)}</div>}</div></div>;
 }
 
 function RewardCard({ reward, onEdit, onDelete }: { reward: Reward; onEdit: () => void; onDelete: () => void }) {
   const image = normalizeFileUrl(reward.image_url || reward.image);
-  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || 'ðŸŽ'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  const pdf = normalizeFileUrl(reward.pdf_file_url || reward.pdf_file);
+  return <article className={styles.itemCard}><div className={styles.cover}>{image ? <img src={image} alt={reward.name} /> : <div className={styles.coverFallback}>{reward.icon || 'ðŸŽ'}</div>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{reward.name}</h3><p className={styles.itemDescription}>{reward.description || '-'}</p></div><Status value={reward.is_active} /></div><p className={styles.itemMeta}>{fmt(reward.points_required)} poin</p><p className={styles.itemMeta}>{fmt(reward.stock)} tersedia</p>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">Buka lampiran PDF</a>}<div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
 }
 
 function RewardForm({ editing, onClose, onSaved }: { editing: Reward | null; onClose: () => void; onSaved: () => Promise<void> }) {
-  const [data, setData] = useState({ name: editing?.name || '', description: editing?.description || '', points_required: n(editing?.points_required) || 100, stock: n(editing?.stock) || 0, category: (editing as any)?.category || 'umum', image: null as File | null });
+  const [data, setData] = useState({ name: editing?.name || '', description: editing?.description || '', points_required: n(editing?.points_required) || 100, stock: n(editing?.stock) || 0, category: (editing as any)?.category || 'umum', image: null as File | null, pdf_file: null as File | null });
   const [error, setError] = useState(''); const [saving, setSaving] = useState(false);
   async function submit(e: FormEvent) { e.preventDefault(); setError(''); if (!data.name || !data.description) return setError('Nama dan deskripsi wajib diisi'); const fd = new FormData(); Object.entries(data).forEach(([key, value]) => { if (value !== null && value !== undefined) fd.append(key, value instanceof File ? value : String(value)); }); try { setSaving(true); editing ? await api.rewards.update(editing.id, fd) : await api.rewards.create(fd); await onSaved(); onClose(); } catch (error) { setError(errText(error, 'Gagal menyimpan reward')); } finally { setSaving(false); } }
-  return <FormBox title={editing ? 'Edit Reward' : 'Tambah Reward'} onClose={onClose}><form onSubmit={submit}><ErrorBox message={error} /><div className={styles.formGrid}><Field label="Nama Reward"><input className={styles.input} value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} /></Field><Field label="Poin"><input className={styles.input} type="number" value={data.points_required} onChange={(e) => setData({ ...data, points_required: Number(e.target.value) })} /></Field><Field label="Stok"><input className={styles.input} type="number" value={data.stock} onChange={(e) => setData({ ...data, stock: Number(e.target.value) })} /></Field><Field label="Kategori"><select className={styles.select} value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })}><option value="umum">Umum</option><option value="alat_tulis">Alat Tulis</option><option value="buku">Buku</option><option value="voucher">Voucher</option><option value="elektronik">Elektronik</option></select></Field><Field label="Gambar"><input className={styles.fileInput} type="file" accept="image/*" onChange={(e) => setData({ ...data, image: e.target.files?.[0] || null })} /></Field><Field label="Deskripsi" full><textarea className={styles.textarea} value={data.description} onChange={(e) => setData({ ...data, description: e.target.value })} /></Field></div><FormActions saving={saving} onCancel={onClose} /></form></FormBox>;
+  return (
+    <FormBox title={editing ? 'Edit Reward' : 'Tambah Reward'} onClose={onClose}>
+      <form onSubmit={submit}>
+        <ErrorBox message={error} />
+        <div className={styles.formGrid}>
+          <Field label="Nama Reward"><input className={styles.input} value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} /></Field>
+          <Field label="Poin"><input className={styles.input} type="number" min="1" value={data.points_required} onChange={(e) => setData({ ...data, points_required: Number(e.target.value) })} /></Field>
+          <Field label="Stok"><input className={styles.input} type="number" min="0" value={data.stock} onChange={(e) => setData({ ...data, stock: Number(e.target.value) })} /></Field>
+          <Field label="Kategori">
+            <select className={styles.select} value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })}>
+              <option value="umum">Umum</option><option value="alat_tulis">Alat Tulis</option><option value="buku">Buku</option><option value="voucher">Voucher</option><option value="elektronik">Elektronik</option>
+            </select>
+          </Field>
+          <Field label="Gambar Reward">
+            <input className={styles.fileInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setData({ ...data, image: e.target.files?.[0] || null })} />
+            <small>{data.image?.name || (editing?.image ? 'Gambar saat ini tetap digunakan jika tidak diganti.' : 'Pilih gambar JPG, PNG, atau WebP.')}</small>
+          </Field>
+          <Field label="Lampiran PDF (Opsional)">
+            <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(e) => setData({ ...data, pdf_file: e.target.files?.[0] || null })} />
+            <small>{data.pdf_file?.name || (editing?.pdf_file ? 'PDF saat ini tetap digunakan jika tidak diganti.' : 'Pilih PDF maksimal 20 MB.')}</small>
+          </Field>
+          <Field label="Deskripsi" full><textarea className={styles.textarea} value={data.description} onChange={(e) => setData({ ...data, description: e.target.value })} /></Field>
+        </div>
+        <FormActions saving={saving} onCancel={onClose} />
+      </form>
+    </FormBox>
+  );
 }
 
 function UsersTab() {
@@ -496,26 +552,11 @@ function UsersTab() {
   const filtered = useMemo(() => items.filter((x) => `${x.name} ${x.email} ${x.class_name ?? ''}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
 
   async function remove(id: number) {
-    if (!confirm('Hapus akun guru ini?')) return;
+    if (!confirm('Hapus permanen akun guru ini? Semua data terkait akun akan dihapus. Tindakan ini tidak dapat dibatalkan.')) return;
     try {
       await api.users.delete(id);
       await load();
-    } catch (error: any) {
-      // Check if error is due to existing activity records
-      const errorMsg = error?.message || String(error);
-      if (errorMsg.includes('existing activity records') || errorMsg.includes('foreign key') || errorMsg.includes('Cannot delete')) {
-        // Ask for force delete confirmation
-        if (confirm('Guru ini memiliki data aktivitas. Hapus permanen termasuk semua data terkait?')) {
-          try {
-            await api.users.delete(id, { force: true, confirm_force_delete: true });
-            await load();
-            return;
-          } catch (forceError) {
-            setError(errText(forceError, 'Gagal menghapus guru secara permanen'));
-            return;
-          }
-        }
-      }
+    } catch (error) {
       setError(errText(error, 'Gagal menghapus guru'));
     }
   }
@@ -548,26 +589,11 @@ function StudentsTab() {
   const filtered = useMemo(() => items.filter((x) => `${x.name} ${x.email} ${x.class_name ?? ''}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
 
   async function remove(id: number) {
-    if (!confirm('Hapus akun siswa ini?')) return;
+    if (!confirm('Hapus permanen akun siswa ini? Semua data terkait termasuk progres membaca, kuis, dan poin akan dihapus. Tindakan ini tidak dapat dibatalkan.')) return;
     try {
       await api.users.delete(id);
       await load();
-    } catch (error: any) {
-      // Check if error is due to existing activity records
-      const errorMsg = error?.message || String(error);
-      if (errorMsg.includes('existing activity records') || errorMsg.includes('foreign key') || errorMsg.includes('Cannot delete')) {
-        // Ask for force delete confirmation
-        if (confirm('Siswa ini memiliki data aktivitas. Hapus permanen termasuk semua data terkait (reading progress, quiz, points)?')) {
-          try {
-            await api.users.delete(id, { force: true, confirm_force_delete: true });
-            await load();
-            return;
-          } catch (forceError) {
-            setError(errText(forceError, 'Gagal menghapus siswa secara permanen'));
-            return;
-          }
-        }
-      }
+    } catch (error) {
       setError(errText(error, 'Gagal menghapus siswa'));
     }
   }
@@ -600,26 +626,11 @@ function AdminsTab() {
   const filtered = useMemo(() => items.filter((x) => `${x.name} ${x.email}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
 
   async function remove(id: number) {
-    if (!confirm('Hapus akun admin ini?')) return;
+    if (!confirm('Hapus permanen akun admin ini? Semua data terkait akun akan dihapus. Tindakan ini tidak dapat dibatalkan.')) return;
     try {
       await api.users.delete(id);
       await load();
-    } catch (error: any) {
-      // Check if error is due to existing activity records
-      const errorMsg = error?.message || String(error);
-      if (errorMsg.includes('existing activity records') || errorMsg.includes('foreign key') || errorMsg.includes('Cannot delete')) {
-        // Ask for force delete confirmation
-        if (confirm('Admin ini memiliki data terkait. Hapus permanen termasuk semua data?')) {
-          try {
-            await api.users.delete(id, { force: true, confirm_force_delete: true });
-            await load();
-            return;
-          } catch (forceError) {
-            setError(errText(forceError, 'Gagal menghapus admin secara permanen'));
-            return;
-          }
-        }
-      }
+    } catch (error) {
       setError(errText(error, 'Gagal menghapus admin'));
     }
   }

@@ -96,7 +96,7 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
     if (fetchedRef.current) return;
     fetchedRef.current = true;
     void loadEbook();
-  }, [loading, isAuthenticated, user, ebookId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loading, isAuthenticated, user, ebookId]);
 
   const updateActivity = useCallback(() => {
     if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);
@@ -357,7 +357,15 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
         {loading ? (
           <div className="mt-20 text-center"><div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-emerald-500" /><p className="text-sm font-bold">Menyiapkan PDF...</p></div>
         ) : error ? (
-          <div className="mt-20 max-w-xs rounded-3xl bg-white p-6 text-center text-slate-900 shadow-xl"><div className="mb-3 text-5xl">📄</div><p className="text-sm font-black">{error}</p><a href={src} target="_blank" rel="noreferrer" className="mt-4 block rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white">Buka PDF langsung</a></div>
+          <div className="flex min-h-[65vh] w-full flex-col gap-3 p-2 sm:p-4">
+            <p className="rounded-xl bg-white px-4 py-3 text-center text-sm font-bold text-slate-700">{error} Menampilkan PDF dengan pembaca bawaan browser.</p>
+            <iframe
+              src={src}
+              title={`PDF ${title}`}
+              className="min-h-[65vh] w-full flex-1 rounded-xl border-0 bg-white"
+            />
+            <a href={src} target="_blank" rel="noreferrer" className="block rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-black text-white">Buka PDF di tab baru</a>
+          </div>
         ) : (
           <div className="relative rounded-xl bg-white p-1 shadow-2xl">
             {rendering && <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/70 text-sm font-black text-slate-700">Memuat halaman...</div>}

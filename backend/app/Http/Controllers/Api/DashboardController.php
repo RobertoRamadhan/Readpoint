@@ -261,9 +261,16 @@ class DashboardController extends Controller
     {
         try {
             $books = Ebook::where('is_active', true)
-                ->select('id', 'title', 'author', 'pages', 'poin_per_halaman', 'category', 'cover_image')
+                ->select('id', 'title', 'author', 'pages', 'poin_per_halaman', 'category', 'cover_image', 'file_path')
                 ->orderBy('created_at', 'desc')
                 ->paginate(12);
+
+            $books->getCollection()->transform(function (Ebook $book) {
+                $book->cover_image_url = \App\Services\StorageHelper::url($book->cover_image, 'cover');
+                $book->pdf_file_url = \App\Services\StorageHelper::url($book->file_path, 'ebook');
+
+                return $book;
+            });
 
             return response()->json($books);
         } catch (\Exception $e) {
@@ -305,7 +312,15 @@ class DashboardController extends Controller
     {
         try {
             $rewards = Reward::where('is_active', true)
-                ->get(['id', 'name', 'description', 'points_required', 'stock', 'category']);
+                ->get(['id', 'name', 'description', 'points_required', 'stock', 'category', 'icon', 'image', 'pdf_file'])
+                ->map(function (Reward $reward) {
+                    $reward->image_url = \App\Services\StorageHelper::url($reward->image, 'reward');
+                    $reward->pdf_file_url = $reward->pdf_file
+                        ? \App\Services\StorageHelper::url($reward->pdf_file, 'reward_pdf')
+                        : null;
+
+                    return $reward;
+                });
 
             return response()->json($rewards);
         } catch (\Exception $e) {

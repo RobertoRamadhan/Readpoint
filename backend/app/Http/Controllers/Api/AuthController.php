@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -144,23 +145,35 @@ class AuthController extends Controller
             $name     = $payload['name'] ?? $email;
             $googleId = $payload['sub'] ?? null;
 
-            // Find or create user
-            $user = User::where('email', $email)->first();
+            // Include legacy soft-deleted accounts so their unique email is reused.
+            $user = User::withTrashed()->where('email', $email)->first();
 
             if (!$user) {
-                $user = User::create([
-                    'name'              => $name,
-                    'email'             => $email,
-                    'password'          => Hash::make(\Illuminate\Support\Str::random(32)),
-                    'role'              => 'siswa',
-                    'grade_level'       => null, // Siswa baru harus melengkapi profil
-                    'google_id'         => $googleId,
-                    'email_verified_at' => now(),
-                ]);
-            } else {
-                if (!$user->google_id && $googleId) {
-                    $user->update(['google_id' => $googleId]);
+                try {
+                    $user = User::create([
+                        'name'              => $name,
+                        'email'             => $email,
+                        'password'          => Hash::make(Str::random(32)),
+                        'role'              => 'siswa',
+                        'grade_level'       => null, // Siswa baru harus melengkapi profil
+                        'google_id'         => $googleId,
+                        'email_verified_at' => now(),
+                    ]);
+                } catch (QueryException $exception) {
+                    // A concurrent Google login may have created this email first.
+                    $user = User::withTrashed()->where('email', $email)->first();
+                    if (!$user) {
+                        throw $exception;
+                    }
                 }
+            }
+
+            if ($user->trashed()) {
+                $user->restore();
+            }
+
+            if (!$user->google_id && $googleId) {
+                $user->update(['google_id' => $googleId]);
             }
 
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -171,9 +184,11 @@ class AuthController extends Controller
                 'token'   => $token,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
-                'message' => 'Google login gagal: ' . $e->getMessage(),
+                'message' => 'Google login gagal. Silakan coba kembali beberapa saat lagi.',
             ], 500);
         }
     }
