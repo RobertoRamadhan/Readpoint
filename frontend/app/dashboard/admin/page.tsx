@@ -4,6 +4,7 @@ import AdminSidebar from '@/components/shared/AdminSidebar';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { normalizeFileUrl } from '@/lib/file-url';
+import mammoth from 'mammoth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import AdminLaporanTab from './laporan/page';
@@ -13,6 +14,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Gift,
+  FileText,
   GraduationCap,
   History,
   Library,
@@ -63,6 +65,18 @@ type Ebook = {
   pdf_file?: string;
   pdf_url?: string;
   pdf_file_url?: string;     
+};
+type WordQuizQuestion = {
+  question_text: string;
+  question_type: 'multiple_choice' | 'essay';
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_answer: string | null;
+  model_answer: string;
+  explanation: string;
+  source_pages: number[];
 };
 
 type Reward = {
@@ -406,6 +420,7 @@ function EbooksTab() {
   const [query, setQuery] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Ebook | null>(null);
+  const [wordImportBook, setWordImportBook] = useState<Ebook | null>(null);
 
   async function load() {
     try { setLoading(true); setError(''); setItems(extractArray<Ebook>(await api.ebooks.list())); }
@@ -421,14 +436,104 @@ function EbooksTab() {
     try { await api.ebooks.delete(id); await load(); } catch (error) { setError(errText(error, 'Gagal menghapus e-book')); }
   }
 
-  return <div><SectionHeader eyebrow="Manajemen Konten" title="Kelola E-Book" desc="Tambah, edit, cari, dan hapus koleksi bacaan digital." Icon={BookOpen} /><div className={styles.managementShell}>{formOpen && <EbookForm editing={editing} onClose={() => { setFormOpen(false); setEditing(null); }} onSaved={load} />}<div className={styles.toolbar}><SearchBox value={query} onChange={setQuery} placeholder="Cari e-book..." />{!formOpen && <button className={styles.primaryButton} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus size={18} />Tambah E-Book</button>}</div><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat e-book...</div> : filtered.length === 0 ? <Empty text="E-book belum ditemukan." /> : <div className={styles.cardGrid}>{filtered.map((book) => <BookCard key={book.id} book={book} onEdit={() => { setEditing(book); setFormOpen(true); }} onDelete={() => remove(book.id)} />)}</div>}</div></div>;
+  return <div><SectionHeader eyebrow="Manajemen Konten" title="Kelola E-Book" desc="Tambah, edit, cari, dan hapus koleksi bacaan digital." Icon={BookOpen} /><div className={styles.managementShell}>{formOpen && <EbookForm editing={editing} onClose={() => { setFormOpen(false); setEditing(null); }} onSaved={load} />}{wordImportBook && <WordQuizImport ebook={wordImportBook} onClose={() => setWordImportBook(null)} onSaved={load} />}<div className={styles.toolbar}><SearchBox value={query} onChange={setQuery} placeholder="Cari e-book..." />{!formOpen && <button className={styles.primaryButton} onClick={() => { setEditing(null); setFormOpen(true); }}><Plus size={18} />Tambah E-Book</button>}</div><ErrorBox message={error} />{loading ? <div className={styles.loading}>Memuat e-book...</div> : filtered.length === 0 ? <Empty text="E-book belum ditemukan." /> : <div className={styles.cardGrid}>{filtered.map((book) => <BookCard key={book.id} book={book} onEdit={() => { setEditing(book); setFormOpen(true); }} onDelete={() => remove(book.id)} onImport={() => setWordImportBook(book)} />)}</div>}</div></div>;
 }
 
-function BookCard({ book, onEdit, onDelete }: { book: Ebook; onEdit: () => void; onDelete: () => void }) {
+function BookCard({ book, onEdit, onDelete, onImport }: { book: Ebook; onEdit: () => void; onDelete: () => void; onImport: () => void }) {
   // Prioritaskan URL storage dari backend (cover_image_url), fallback ke path lama
   const cover = normalizeFileUrl(book.cover_image_url || book.cover_url || book.cover_image);
   const pdf   = normalizeFileUrl(book.pdf_file_url   || book.pdf_url   || book.pdf_file);
-  return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={cover} alt={book.title} /> : <div className={styles.coverFallback}>ðŸ“š</div>}</div>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>ðŸ·ï¸ {book.category || '-'}</p><p className={styles.itemMeta}>â­ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+  return <article className={styles.itemCard}><div><div className={styles.cover}>{cover ? <img src={cover} alt={book.title} /> : <div className={styles.coverFallback}>ðŸ“š</div>}</div>{pdf && <a className={styles.smallButton} href={pdf} target="_blank" rel="noreferrer">PDF</a>}</div><div className={styles.cardBody}><div className={styles.cardTop}><div className="min-w-0"><h3 className={styles.itemTitle}>{book.title}</h3><p className={styles.itemMeta}>{book.author || '-'}</p></div><Status value={book.is_active} /></div><p className={styles.itemMeta}>{fmt(book.pages)} halaman</p><p className={styles.itemMeta}>ðŸ·ï¸ {book.category || '-'}</p><p className={styles.itemMeta}>â­ {fmt(book.poin_per_halaman)} poin/halaman</p><div className={styles.cardActions}><button className={styles.editButton} onClick={onImport}><FileText size={13} />Impor Soal Word</button><button className={styles.editButton} onClick={onEdit}>Edit</button><button className={styles.dangerButton} onClick={onDelete}><Trash2 size={13} />Hapus</button></div></div></article>;
+}
+
+function WordQuizImport({ ebook, onClose, onSaved }: { ebook: Ebook; onClose: () => void; onSaved: () => Promise<void> }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [questions, setQuestions] = useState<WordQuizQuestion[]>([]);
+  const [error, setError] = useState('');
+  const [warning, setWarning] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function preview() {
+    setError('');
+    setWarning('');
+    setQuestions([]);
+    if (!file) return setError('Pilih dokumen Word terlebih dahulu.');
+    if (!file.name.toLowerCase().endsWith('.docx')) return setError('Format yang didukung adalah .docx.');
+    if (file.size > 10 * 1024 * 1024) return setError('Ukuran dokumen maksimal 10 MB.');
+
+    try {
+      setBusy(true);
+      const extracted = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      if (!extracted.value.trim()) throw new Error('Tidak ada teks yang dapat dibaca dari dokumen.');
+      const response = await api.quiz.previewWordImport(ebook.id, extracted.value);
+      const payload = record(response.data);
+      if (!payload || !Array.isArray(payload.questions)) throw new Error('Respons pratinjau soal tidak valid.');
+      setQuestions(payload.questions as WordQuizQuestion[]);
+      if (extracted.messages.length > 0) setWarning('Dokumen memiliki format yang tidak biasa; periksa semua soal dan kuncinya sebelum menyimpan.');
+    } catch (reason) {
+      setError(errText(reason, 'Gagal membaca dokumen Word.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveQuestions() {
+    setError('');
+    try {
+      setBusy(true);
+      await api.quiz.importWordQuestions(ebook.id, questions.map((question) => ({ ...question })));
+      await onSaved();
+      onClose();
+    } catch (reason) {
+      setError(errText(reason, 'Gagal menyimpan soal.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <FormBox title={`Impor Soal Word — ${ebook.title}`} onClose={onClose}>
+      <div className="space-y-4">
+        <p className="text-sm text-slate-600">
+          Format: soal bernomor, pilihan <strong>A.</strong> sampai <strong>D.</strong>, lalu <strong>Kunci: A</strong>.
+          Soal esai memakai <strong>Jenis: Esai</strong> dan <strong>Jawaban: ...</strong>. Pembahasan dan halaman sumber bersifat opsional.
+        </p>
+        <Field label="Dokumen Word (.docx)">
+          <input className={styles.fileInput} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => { setFile(event.target.files?.[0] ?? null); setQuestions([]); }} />
+          <small>{file?.name ?? 'Pilih file .docx (maksimal 10 MB).'}</small>
+        </Field>
+        <ErrorBox message={error} />
+        {warning && <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{warning}</p>}
+        {!questions.length ? (
+          <button type="button" className={styles.primaryButton} disabled={busy || !file} onClick={preview}>
+            {busy ? <Loader2 className="animate-spin" size={16} /> : <FileText size={16} />} Pratinjau Soal
+          </button>
+        ) : (
+          <>
+            <p className="text-sm font-bold text-emerald-700">{questions.length} soal ditemukan. Soal lama tidak akan dihapus.</p>
+            <div className="max-h-80 space-y-3 overflow-y-auto">
+              {questions.map((question, index) => (
+                <article key={`${index}-${question.question_text}`} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm">
+                  <p className="font-bold">{index + 1}. {question.question_text}</p>
+                  {question.question_type === 'multiple_choice' ? (
+                    <div className="mt-2 grid gap-1 text-slate-600 sm:grid-cols-2">
+                      {(['a', 'b', 'c', 'd'] as const).map((key) => <p key={key}>{key.toUpperCase()}. {question[`option_${key}`]}</p>)}
+                      <p className="font-semibold text-emerald-700">Kunci: {question.correct_answer?.toUpperCase()}</p>
+                    </div>
+                  ) : <p className="mt-2 text-slate-600">Jawaban panduan: {question.model_answer}</p>}
+                  {question.explanation && <p className="mt-1 text-slate-500">Pembahasan: {question.explanation}</p>}
+                </article>
+              ))}
+            </div>
+            <div className={styles.formActions}>
+              <button type="button" className={styles.secondaryButton} disabled={busy} onClick={() => setQuestions([])}>Pilih Ulang</button>
+              <button type="button" className={styles.primaryButton} disabled={busy} onClick={saveQuestions}>{busy ? <Loader2 className="animate-spin" size={16} /> : null}Simpan {questions.length} Soal</button>
+            </div>
+          </>
+        )}
+      </div>
+    </FormBox>
+  );
 }
 
 function EbookForm({ editing, onClose, onSaved }: { editing: Ebook | null; onClose: () => void; onSaved: () => Promise<void> }) {

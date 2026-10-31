@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReadingActivity extends Model
 {
+    public const MAX_ACTIVE_BOOKS = 3;
+
     protected $fillable = [
         'user_id',
         'ebook_id',
@@ -49,4 +51,3 @@ class ReadingActivity extends Model
         return $this->hasMany(PointTransaction::class);
     }
 }
-

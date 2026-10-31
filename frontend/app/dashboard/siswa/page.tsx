@@ -21,6 +21,10 @@ interface Ebook {
   cover_image?: string; cover_image_url?: string;
   pdf_file?: string; pdf_file_url?: string;
 }
+interface ReadingProgressItem {
+  id: number; ebook_id: number; current_page: number; total_pages: number;
+  progress_percentage: number; last_read_at: string;
+}
 interface Reward {
   id: number; name: string; description: string;
   points_required: number; stock: number;
@@ -70,6 +74,7 @@ interface HistoryData {
 let dashboardCache: {
   stats: SiswaStats | null; ebooks: Ebook[]; rewards: Reward[];
   quizzes: Quiz[]; activities: ReadingActivityItem[]; cachedAt: number;
+  readingProgress: ReadingProgressItem[];
 } | null = null;
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -123,6 +128,7 @@ export default function SiswaDashboard() {
   const [rewards, setRewards]           = useState<Reward[]>(dashboardCache?.rewards ?? []);
   const [quizzes, setQuizzes]           = useState<Quiz[]>(dashboardCache?.quizzes ?? []);
   const [activities, setActivities]     = useState<ReadingActivityItem[]>(dashboardCache?.activities ?? []);
+  const [readingProgress, setReadingProgress] = useState<ReadingProgressItem[]>(dashboardCache?.readingProgress ?? []);
   const [historyData, setHistoryData]   = useState<HistoryData | null>(null);
   const [historyLoading, setHLoading]   = useState(false);
   const [loadingData, setLoadingData]   = useState(true);
@@ -146,6 +152,7 @@ export default function SiswaDashboard() {
       setEbooks(dashboardCache!.ebooks);
       setRewards(dashboardCache!.rewards);
       setQuizzes(dashboardCache!.quizzes);
+      setReadingProgress(dashboardCache!.readingProgress);
       setLoadingData(false);
       return;
     }
@@ -157,17 +164,19 @@ export default function SiswaDashboard() {
   async function loadData() {
     try {
       setLoadingData(true); setError(null);
-      const [sR, eR, rR, qR, aR] = await Promise.allSettled([
+      const [sR, eR, rR, qR, aR, pR] = await Promise.allSettled([
         api.dashboard.siswaStats(), api.ebooks.list(),
         api.rewards.list(), api.getAllQuizzes(), api.getMyActivities(),
+        api.getReadingProgress(),
       ]);
       const ns = sR.status === 'fulfilled' ? getStats(sR.value) : null;
       const ne = eR.status === 'fulfilled' ? getArr<Ebook>(eR.value)                : [];
       const nr = rR.status === 'fulfilled' ? getArr<Reward>(rR.value)               : [];
       const nq = qR.status === 'fulfilled' ? getArr<Quiz>(qR.value)                 : [];
       const na = aR.status === 'fulfilled' ? getArr<ReadingActivityItem>(aR.value)  : [];
-      setStats(ns); setEbooks(ne); setRewards(nr); setQuizzes(nq); setActivities(na);
-      dashboardCache = { stats: ns, ebooks: ne, rewards: nr, quizzes: nq, activities: na, cachedAt: Date.now() };
+      const np = pR.status === 'fulfilled' ? getArr<ReadingProgressItem>(pR.value) : [];
+      setStats(ns); setEbooks(ne); setRewards(nr); setQuizzes(nq); setActivities(na); setReadingProgress(np);
+      dashboardCache = { stats: ns, ebooks: ne, rewards: nr, quizzes: nq, activities: na, readingProgress: np, cachedAt: Date.now() };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat dashboard');
     } finally {
@@ -194,13 +203,33 @@ export default function SiswaDashboard() {
   }, [ebooks, searchQuery]);
 
   const totalPoints     = stats?.total_points ?? 0;
-  const ongoing         = activities.find((a) => a.status === 'ongoing') ?? activities[0] ?? null;
-  const continueBook    = ongoing ? (ebooks.find((e) => e.id === ongoing.ebook_id) ?? ebooks[0] ?? null) : ebooks[0] ?? null;
-  const continueProgress = ongoing && continueBook
-    ? Math.min(100, Math.round((ongoing.current_page / (continueBook.pages || 1)) * 100))
+  const ongoing = activities.find((activity) => activity.status === 'ongoing') ?? null;
+  const latestActivityStatusByBook = new Map<number, string>();
+  activities.forEach((activity) => {
+    if (!latestActivityStatusByBook.has(activity.ebook_id)) {
+      latestActivityStatusByBook.set(activity.ebook_id, activity.status);
+    }
+  });
+  const latestSavedProgress = readingProgress.find((progress) =>
+    progress.current_page < progress.total_pages
+      && !['pending_validation', 'completed'].includes(latestActivityStatusByBook.get(progress.ebook_id) ?? '')
+      && ebooks.some((book) => book.id === progress.ebook_id),
+  ) ?? null;
+  const continueBook = (ongoing && ebooks.find((book) => book.id === ongoing.ebook_id))
+    ?? (latestSavedProgress && ebooks.find((book) => book.id === latestSavedProgress.ebook_id))
+    ?? ebooks[0]
+    ?? null;
+  const continueProgress = continueBook
+    ? Math.min(100, latestSavedProgress?.ebook_id === continueBook.id
+      ? latestSavedProgress.progress_percentage
+      : Math.round(((ongoing?.current_page ?? 0) / (continueBook.pages || 1)) * 100))
     : 0;
 
   const handleLogout = async () => { await logout(); router.push('/login'); };
+  const openBook = (id: number) => {
+    dashboardCache = null;
+    router.push(`/dashboard/siswa/read/${id}`);
+  };
   const redeemReward = async (id: number) => {
     try { await api.rewards.redeem(id, { quantity: 1 }); dashboardCache = null; fetchedRef.current = false; await loadData(); }
     catch (err) { alert(err instanceof Error ? err.message : 'Gagal menukar reward'); }
@@ -229,11 +258,11 @@ export default function SiswaDashboard() {
                   continueBook={continueBook} continueProgress={continueProgress}
                   books={filteredBooks} rewards={rewards.slice(0, 4)}
                   totalPoints={totalPoints} activities={activities}
-                  onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)}
+                  onRead={openBook}
                   onRedeem={redeemReward} setActiveTab={setActiveTab}
                 />
               )}
-              {activeTab === 'ebooks'  && <BooksScreen  books={filteredBooks} onRead={(id) => router.push(`/dashboard/siswa/read/${id}`)} />}
+              {activeTab === 'ebooks'  && <BooksScreen  books={filteredBooks} onRead={openBook} />}
               {activeTab === 'quizzes' && <QuizzesScreen quizzes={quizzes}    onStart={(id) => router.push(`/dashboard/siswa/quiz/${id}`)} />}
               {activeTab === 'rewards' && <RewardsScreen rewards={rewards} totalPoints={totalPoints} onRedeem={redeemReward} activities={activities} />}
               {activeTab === 'history' && <HistoryScreen data={historyData} loading={historyLoading} />}
@@ -417,6 +446,7 @@ function Panel({ title, subtitle, action, onAction, compact = false, children }:
 function BooksScreen({ books, onRead }: { books: Ebook[]; onRead: (id: number) => void }) {
   return (
     <Panel title="Semua E-Book" subtitle="Pilih buku dan mulai membaca">
+      <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Maksimal 3 buku dapat dibaca secara bersamaan. Selesaikan bacaan untuk membuka slot buku berikutnya.</p>
       {books.length > 0 ? (
         <div className={s.booksGrid}>
           {books.map((book) => <BookCard key={book.id} book={book} onClick={() => onRead(book.id)} />)}

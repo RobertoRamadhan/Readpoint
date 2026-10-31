@@ -38,6 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('ebooks',        [EbookController::class, 'store']);
         Route::put('ebooks/{id}',    [EbookController::class, 'update']);
         Route::delete('ebooks/{id}', [EbookController::class, 'destroy']);
+        Route::post('admin/quizzes/word-preview', [QuizController::class, 'previewWordImport']);
+        Route::post('admin/quizzes/word-import', [QuizController::class, 'storeWordImport']);
     });
 
     // Reading Activities

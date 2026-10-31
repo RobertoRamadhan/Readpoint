@@ -130,6 +130,9 @@ export const api = {
 
   // â”€â”€ Reading Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   getReadingProgress: () => apiCall('/reading-progress'),
+  getReadingProgressForEbook: (ebookId: number) => apiCall(`/reading-progress/${ebookId}`),
+  saveReadingProgress: (data: { ebook_id: number; current_page: number; total_pages: number }) =>
+    apiCall('/reading-progress', { method: 'POST', body: JSON.stringify(data) }),
   updateReadingProgress: (id: number, data: Record<string, unknown>) =>
     apiCall(`/reading-progress/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
@@ -151,6 +154,10 @@ export const api = {
   getMyQuizAttempts: () => apiCall('/quiz/my-attempts'),
 
   quiz: {
+    previewWordImport: (ebookId: number, text: string) =>
+      apiCall('/admin/quizzes/word-preview', { method: 'POST', body: JSON.stringify({ ebook_id: ebookId, text }) }),
+    importWordQuestions: (ebookId: number, questions: Record<string, unknown>[]) =>
+      apiCall('/admin/quizzes/word-import', { method: 'POST', body: JSON.stringify({ ebook_id: ebookId, questions }) }),
     getEssayReviews: () => apiCall('/quiz/essay-reviews'),
     gradeEssayAttempt: (id: number, data: Record<string, unknown>) => apiCall(`/quiz/attempts/${id}/grade`, { method: 'PUT', body: JSON.stringify(data) }),
     create: (data: Record<string, unknown>) => apiCall('/quiz/create', { method: 'POST', body: JSON.stringify(data) }),
@@ -296,6 +303,7 @@ export const api = {
   ebooks: {
     list: () => apiCall('/ebooks'),
     get: (id: number) => apiCall(`/ebooks/${id}`),
+    getProgress: (id: number) => apiCall(`/ebooks/${id}/progress`),
 
     create: async (data: FormData | Record<string, unknown>): Promise<ApiResponse> => {
       if (data instanceof FormData) return uploadFormData('POST', '/ebooks', data);

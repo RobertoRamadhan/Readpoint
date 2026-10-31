@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\ReadingActivity;
+use App\Models\Ebook;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -16,19 +18,47 @@ class ReadingActivityController extends Controller
             'ebook_id' => 'required|exists:ebooks,id',
         ]);
 
-        $activity = ReadingActivity::create([
-            'user_id' => $request->user()->id,
-            'ebook_id' => $validated['ebook_id'],
-            'started_at' => now(),
-            'current_page' => 1,
-            'duration_minutes' => 0,
-            'status' => 'ongoing',
-        ]);
+        $activity = DB::transaction(function () use ($request, $validated) {
+            $user = User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+            $ebook = Ebook::where('is_active', true)->findOrFail($validated['ebook_id']);
+
+            $existingActivity = ReadingActivity::where('user_id', $user->id)
+                ->where('ebook_id', $ebook->id)
+                ->where('status', 'ongoing')
+                ->latest('id')
+                ->first();
+
+            if ($existingActivity) {
+                return $existingActivity;
+            }
+
+            $activeBookCount = ReadingActivity::where('user_id', $user->id)
+                ->where('status', 'ongoing')
+                ->distinct('ebook_id')
+                ->count('ebook_id');
+
+            if ($activeBookCount >= ReadingActivity::MAX_ACTIVE_BOOKS) {
+                abort(response()->json([
+                    'message' => 'Batas ' . ReadingActivity::MAX_ACTIVE_BOOKS . ' buku yang sedang dibaca sudah tercapai. Selesaikan salah satu buku terlebih dahulu.',
+                    'max_active_books' => ReadingActivity::MAX_ACTIVE_BOOKS,
+                    'active_books' => $activeBookCount,
+                ], 409));
+            }
+
+            return ReadingActivity::create([
+                'user_id' => $user->id,
+                'ebook_id' => $ebook->id,
+                'started_at' => now(),
+                'current_page' => 1,
+                'duration_minutes' => 0,
+                'status' => 'ongoing',
+            ]);
+        });
 
         return response()->json([
             'message' => 'Reading session started',
             'data' => $activity,
-        ], 201);
+        ], $activity->wasRecentlyCreated ? 201 : 200);
     }
 
     // Update progress membaca

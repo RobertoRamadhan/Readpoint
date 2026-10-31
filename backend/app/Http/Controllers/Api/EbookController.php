@@ -44,9 +44,28 @@ class EbookController extends Controller
     }
 
     // Get e-book by ID
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $ebook = Ebook::where('is_active', true)->findOrFail($id);
+        if ($request->user()?->role === 'siswa') {
+            $hasOngoingActivity = ReadingActivity::where('user_id', $request->user()->id)
+                ->where('ebook_id', $ebook->id)
+                ->where('status', 'ongoing')
+                ->exists();
+            $activeBookCount = ReadingActivity::where('user_id', $request->user()->id)
+                ->where('status', 'ongoing')
+                ->distinct('ebook_id')
+                ->count('ebook_id');
+
+            if (!$hasOngoingActivity && $activeBookCount >= ReadingActivity::MAX_ACTIVE_BOOKS) {
+                return response()->json([
+                    'message' => 'Batas ' . ReadingActivity::MAX_ACTIVE_BOOKS . ' buku yang sedang dibaca sudah tercapai. Selesaikan salah satu buku terlebih dahulu.',
+                    'max_active_books' => ReadingActivity::MAX_ACTIVE_BOOKS,
+                    'active_books' => $activeBookCount,
+                ], 409);
+            }
+        }
+
         $ebook->cover_image_url = $this->fileUrl($ebook->cover_image, 'cover');
         $ebook->pdf_file_url    = $this->fileUrl($ebook->file_path, 'ebook');
         return response()->json(['data' => $ebook]);
@@ -241,7 +260,7 @@ class EbookController extends Controller
     {
         $activity = \App\Models\ReadingActivity::where('user_id', $request->user()->id)
             ->where('ebook_id', $ebookId)
-            ->latest()
+            ->latest('id')
             ->first();
         return response()->json(['data' => $activity]);
     }

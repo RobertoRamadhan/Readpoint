@@ -32,12 +32,18 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   const [readingActivityId, setReadingActivityId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [initialPage, setInitialPage] = useState(1);
+  const [pdfTotalPages, setPdfTotalPages] = useState(0);
+  const [progressError, setProgressError] = useState('');
   const [readingTime, setReadingTime] = useState(0);
   const [showPointsModal, setShowPointsModal] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
 
   const fetchedRef = useRef(false);
   const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedProgressRef = useRef('');
+  const progressSaveQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   async function loadEbook() {
     try {
@@ -58,9 +64,35 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
         throw new Error('Gagal memuat data e-book');
       }
 
+      const [progressResult, activityResult] = await Promise.allSettled([
+        api.getReadingProgressForEbook(ebookId),
+        api.ebooks.getProgress(ebookId),
+      ]);
+      const progress = progressResult.status === 'fulfilled'
+        ? progressResult.value.data as { current_page?: number; total_pages?: number; progress_percentage?: number } | null
+        : null;
+      const latestActivity = activityResult.status === 'fulfilled'
+        ? activityResult.value.data as { status?: string } | null
+        : null;
+      if (progressResult.status === 'rejected') {
+        console.error('Failed to load reading progress:', progressResult.reason);
+        setProgressError('Progres baca belum dapat dimuat. Buku dibuka dari halaman pertama.');
+      }
+      if (activityResult.status === 'rejected') {
+        console.error('Failed to load latest reading activity:', activityResult.reason);
+      }
+      const completedActivity = latestActivity?.status === 'pending_validation' || latestActivity?.status === 'completed';
+      if (progress?.current_page && !completedActivity) {
+        setInitialPage(progress.current_page);
+        setCurrentPage(progress.current_page);
+        setPdfTotalPages(progress.total_pages ?? 0);
+        setReadingProgress(progress.progress_percentage ?? 0);
+      }
+
       void startReadingActivity();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal memuat e-book');
+      const message = err instanceof Error ? err.message : 'Gagal memuat e-book';
+      setError(message);
     } finally {
       setLoadingEbook(false);
     }
@@ -69,10 +101,16 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   async function startReadingActivity() {
     try {
       const response = await api.startReading(ebookId);
-      const data = response as unknown as { data?: { id?: number } };
-      setReadingActivityId(data?.data?.id || null);
-    } catch {
-      // Aktivitas baca tidak boleh memblokir pembaca.
+      const data = response.data as { id?: number } | undefined;
+      setReadingActivityId(data?.id || null);
+    } catch (activityError) {
+      const message = activityError instanceof Error ? activityError.message : 'Sesi membaca tidak dapat disimpan.';
+      if (message.includes('Batas 3 buku')) {
+        setError(message);
+      } else {
+        console.error('Failed to start reading activity:', activityError);
+        setProgressError('Sesi membaca tidak tersimpan. Periksa koneksi internet Anda.');
+      }
     }
   }
 
@@ -136,10 +174,30 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   };
 
   const pdfUrl = useMemo(() => normalizeFileUrl(ebook?.pdf_file_url || ebook?.pdf_file), [ebook]);
-  const pagesRead = Math.max(1, Math.round((readingProgress / 100) * (ebook?.pages || 10)));
+  const totalPages = pdfTotalPages || ebook?.pages || 10;
+  const pagesRead = Math.max(1, Math.round((readingProgress / 100) * totalPages));
+  const handlePageChange = useCallback((page: number, totalPages: number) => {
+    setCurrentPage(page);
+    setPdfTotalPages(totalPages);
+    setReadingProgress(Math.round((page / totalPages) * 100));
+    setProgressError('');
+    const progressKey = `${page}:${totalPages}`;
+    if (lastSavedProgressRef.current === progressKey) return;
+    if (!lastSavedProgressRef.current && page === initialPage) {
+      lastSavedProgressRef.current = progressKey;
+      return;
+    }
+    lastSavedProgressRef.current = progressKey;
+    progressSaveQueueRef.current = progressSaveQueueRef.current
+      .then(() => api.saveReadingProgress({ ebook_id: ebookId, current_page: page, total_pages: totalPages }).then(() => undefined))
+      .catch(() => {
+        lastSavedProgressRef.current = '';
+        setProgressError('Progres gagal disimpan. Periksa koneksi internet Anda.');
+      });
+  }, [ebookId, initialPage]);
 
   const completeReading = async () => {
-    const totalPages = ebook?.pages || 10;
+    const totalPages = pdfTotalPages || ebook?.pages || 10;
     // Gunakan progress nyata, bukan paksa 100%
     const finalPagesRead = Math.max(1, Math.round((readingProgress / 100) * totalPages));
     const points = finalPagesRead * (ebook?.poin_per_halaman || 10);
@@ -200,11 +258,12 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
 
       <section className="shrink-0 border-b border-slate-200 bg-white px-3 py-1.5 sm:px-4">
         <div className="mx-auto max-w-7xl">
+          {progressError && <p role="status" className="mb-1 text-center text-xs font-semibold text-amber-700">{progressError}</p>}
           <div className="flex items-center gap-3">
             <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-emerald-600 transition-all duration-500" style={{ width: `${Math.max(readingProgress, 2)}%` }} /></div>
             <span className="w-12 text-right text-xs font-black text-emerald-700">{readingProgress}%</span>
           </div>
-          <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs"><span>Waktu: {formatTime(readingTime)}</span><span>Halaman {pagesRead}/{ebook.pages || 10}</span></div>
+          <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs"><span>Waktu: {formatTime(readingTime)}</span><span>Halaman {currentPage}/{pdfTotalPages || ebook.pages || 10}</span></div>
         </div>
       </section>
 
@@ -222,9 +281,17 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
 
       <main className="min-h-0 flex-1">
         <div className="pdf-viewer-container relative h-full min-h-0 overflow-auto bg-slate-200">
-          {showPointsModal && <PointsModal earnedPoints={earnedPoints} readingProgress={readingProgress} pagesRead={pagesRead} totalPages={ebook.pages || 10} />}
+          {showPointsModal && <PointsModal earnedPoints={earnedPoints} readingProgress={readingProgress} pagesRead={pagesRead} totalPages={pdfTotalPages || ebook.pages || 10} />}
           {pdfUrl ? (
-            <PdfCanvasViewer src={pdfUrl} title={ebook.title} isMobile={isMobile} zoom={zoom} fitWidth={fitWidth} onProgressChange={setReadingProgress} />
+            <PdfCanvasViewer
+              src={pdfUrl}
+              title={ebook.title}
+              isMobile={isMobile}
+              zoom={zoom}
+              fitWidth={fitWidth}
+              initialPage={initialPage}
+              onPageChange={handlePageChange}
+            />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white"><div className="text-6xl">📚</div><p className="font-semibold">PDF tidak tersedia</p><p className="text-sm text-slate-300">Hubungi guru untuk informasi lebih lanjut.</p></div>
           )}
@@ -234,12 +301,12 @@ export default function ReadEbookPage({ params }: { params: Promise<{ ebookId: s
   );
 }
 
-function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChange }: { src: string; title: string; isMobile: boolean; zoom: number; fitWidth: boolean; onProgressChange: (progress: number) => void }) {
+function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, initialPage, onPageChange }: { src: string; title: string; isMobile: boolean; zoom: number; fitWidth: boolean; initialPage: number; onPageChange: (page: number, totalPages: number) => void }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfRef = useRef<any>(null);
   const renderTaskRef = useRef<any>(null);
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [rendering, setRendering] = useState(false);
@@ -259,8 +326,7 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
         if (cancelled) return;
         pdfRef.current = pdf;
         setTotalPages(pdf.numPages || 1);
-        setPageNumber(1);
-        onProgressChange(Math.max(1, Math.round((1 / Math.max(pdf.numPages || 1, 1)) * 100)));
+        setPageNumber(Math.min(Math.max(initialPage, 1), pdf.numPages || 1));
       } catch {
         if (!cancelled) setError('PDF belum bisa ditampilkan di aplikasi. Gunakan tombol buka langsung.');
       } finally {
@@ -275,7 +341,7 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
       pdfRef.current?.destroy?.();
       pdfRef.current = null;
     };
-  }, [src, onProgressChange]);
+  }, [src, initialPage]);
 
   useEffect(() => {
     let cancelled = false;
@@ -316,8 +382,7 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
         renderTaskRef.current = renderTask;
         await renderTask.promise;
         if (!cancelled) {
-          const progress = Math.max(1, Math.min(100, Math.round((pageNumber / Math.max(totalPages, 1)) * 100)));
-          onProgressChange(progress);
+          onPageChange(pageNumber, Math.max(totalPages, 1));
         }
       } catch (err) {
         if (!cancelled && !(err instanceof Error && err.name === 'RenderingCancelledException')) {
@@ -333,7 +398,7 @@ function PdfCanvasViewer({ src, title, isMobile, zoom, fitWidth, onProgressChang
       cancelled = true;
       if (renderTaskRef.current) renderTaskRef.current.cancel?.();
     };
-  }, [pageNumber, totalPages, isMobile, zoom, fitWidth, onProgressChange]);
+  }, [pageNumber, totalPages, isMobile, zoom, fitWidth, onPageChange]);
 
   return (
     <div ref={wrapperRef} className="flex min-h-full flex-col bg-slate-200 text-slate-900">

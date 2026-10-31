@@ -6,13 +6,105 @@ use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
 use App\Models\PointTransaction;
 use App\Models\Validation;
+use App\Models\Ebook;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use App\Services\QuizQuestionGenerator;
+use App\Services\WordQuizQuestionParser;
 
 class QuizController extends Controller
 {
+    // Admin: parse Word-extracted text for review without saving questions.
+    public function previewWordImport(Request $request, WordQuizQuestionParser $parser)
+    {
+        $validated = $request->validate([
+            'ebook_id' => 'required|exists:ebooks,id',
+            'text' => 'required|string|min:10|max:150000',
+        ]);
+
+        Ebook::where('is_active', true)->findOrFail($validated['ebook_id']);
+
+        return response()->json([
+            'data' => [
+                'questions' => $parser->parse($validated['text']),
+            ],
+        ]);
+    }
+
+    // Admin: append reviewed Word questions without replacing existing questions.
+    public function storeWordImport(Request $request)
+    {
+        $validated = $request->validate([
+            'ebook_id' => 'required|exists:ebooks,id',
+            'questions' => 'required|array|min:1|max:12',
+            'questions.*.question_text' => 'required|string|max:5000',
+            'questions.*.question_type' => 'required|in:multiple_choice,essay',
+            'questions.*.option_a' => 'nullable|string|max:255',
+            'questions.*.option_b' => 'nullable|string|max:255',
+            'questions.*.option_c' => 'nullable|string|max:255',
+            'questions.*.option_d' => 'nullable|string|max:255',
+            'questions.*.correct_answer' => 'nullable|in:a,b,c,d',
+            'questions.*.model_answer' => 'nullable|string|max:5000',
+            'questions.*.explanation' => 'nullable|string|max:5000',
+            'questions.*.source_pages' => 'nullable|array',
+            'questions.*.source_pages.*' => 'integer|min:1',
+        ]);
+
+        $ebook = Ebook::where('is_active', true)->findOrFail($validated['ebook_id']);
+        foreach ($validated['questions'] as $index => $question) {
+            if ($question['question_type'] === 'multiple_choice') {
+                foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
+                    if (trim((string) ($question[$option] ?? '')) === '') {
+                        throw ValidationException::withMessages([
+                            "questions.$index.$option" => 'Semua opsi pilihan ganda wajib diisi.',
+                        ]);
+                    }
+                }
+                if (!in_array($question['correct_answer'] ?? null, ['a', 'b', 'c', 'd'], true)) {
+                    throw ValidationException::withMessages([
+                        "questions.$index.correct_answer" => 'Kunci jawaban pilihan ganda wajib dipilih.',
+                    ]);
+                }
+            } elseif (trim((string) ($question['model_answer'] ?? '')) === '') {
+                throw ValidationException::withMessages([
+                    "questions.$index.model_answer" => 'Jawaban panduan soal esai wajib diisi.',
+                ]);
+            }
+        }
+
+        if (QuizAttempt::where('ebook_id', $ebook->id)->where('pending_review', true)->exists()) {
+            return response()->json([
+                'message' => 'Selesaikan penilaian esai yang tertunda sebelum menambah soal kuis.',
+            ], 409);
+        }
+
+        $createdQuestions = DB::transaction(function () use ($validated, $ebook, $request) {
+            return collect($validated['questions'])->map(function (array $question) use ($ebook, $request) {
+                return QuizQuestion::create([
+                    'ebook_id' => $ebook->id,
+                    'created_by' => $request->user()->id,
+                    'question' => $question['question_text'],
+                    'question_type' => $question['question_type'],
+                    'option_a' => $question['option_a'] ?? '',
+                    'option_b' => $question['option_b'] ?? '',
+                    'option_c' => $question['option_c'] ?? '',
+                    'option_d' => $question['option_d'] ?? '',
+                    'correct_answer' => $question['correct_answer'] ?? 'a',
+                    'model_answer' => $question['model_answer'] ?? null,
+                    'explanation' => $question['explanation'] ?? null,
+                    'source_pages' => $question['source_pages'] ?? null,
+                ]);
+            })->all();
+        });
+
+        return response()->json([
+            'message' => count($createdQuestions) . ' soal berhasil ditambahkan.',
+            'data' => $createdQuestions,
+        ], 201);
+    }
+
     // Get quiz untuk validasi membaca — correct_answer TIDAK dikirim ke client
     public function getQuizForBook(Request $request, $ebookId)
     {

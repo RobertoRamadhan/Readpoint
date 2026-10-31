@@ -30,9 +30,13 @@ class ReadingProgressController extends Controller
     {
         $validated = $request->validate([
             'ebook_id'    => 'required|exists:ebooks,id',
-            'current_page' => 'required|integer|min:0',
+            'current_page' => 'required|integer|min:1',
             'total_pages'  => 'required|integer|min:1',
         ]);
+
+        if ($validated['current_page'] > $validated['total_pages']) {
+            return response()->json(['message' => 'Halaman saat ini tidak boleh melebihi jumlah halaman buku.'], 422);
+        }
 
         $percentage = $validated['total_pages'] > 0
             ? (int) round(($validated['current_page'] / $validated['total_pages']) * 100)
@@ -65,6 +69,7 @@ class ReadingProgressController extends Controller
         $progress = ReadingProgress::where('user_id', $request->user()->id)
             ->where('ebook_id', $ebookId)
             ->with('ebook:id,title,author,pages')
+            ->latest('last_read_at')
             ->first();
 
         if (!$progress) {
@@ -84,11 +89,15 @@ class ReadingProgressController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'current_page' => 'required|integer|min:0',
+            'current_page' => 'required|integer|min:1',
             'total_pages'  => 'sometimes|integer|min:1',
         ]);
 
         $totalPages = $validated['total_pages'] ?? $progress->total_pages;
+        if ($validated['current_page'] > $totalPages) {
+            return response()->json(['message' => 'Halaman saat ini tidak boleh melebihi jumlah halaman buku.'], 422);
+        }
+
         $percentage = $totalPages > 0
             ? (int) round(($validated['current_page'] / $totalPages) * 100)
             : 0;
