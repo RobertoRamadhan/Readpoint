@@ -642,13 +642,14 @@
 
   .heroVisual {
     width: calc(100% - 12px);
-    height: min(112vw, 470px);
+    height: auto;
+    aspect-ratio: 7 / 3;
     margin-top: 0;
   }
 
   .visualNote {
-    right: -12px;
-    bottom: 52px;
+    right: 10px;
+    bottom: 35px;
     padding: 12px 14px;
     font-size: 10px;
   }
