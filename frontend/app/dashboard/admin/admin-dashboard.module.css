@@ -1785,3 +1785,111 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+.page {
+  background: #f7f5ed;
+}
+
+.content {
+  background: #f7f5ed;
+}
+
+.hero {
+  border: 1px solid #335c43;
+  border-radius: 14px;
+  background: #173c2c;
+}
+
+.heroPanel,
+.accountPill,
+.heroMiniCard {
+  border-color: rgba(232, 237, 222, 0.18);
+  border-radius: 10px;
+  background: rgba(251, 250, 246, 0.08);
+  backdrop-filter: none;
+}
+
+.metricCard,
+.panel,
+.priorityCard,
+.sectionHeader,
+.profileCard,
+.leaderItem {
+  border-color: #dedfd3;
+  border-radius: 12px;
+  background: #fbfaf6;
+  box-shadow: 0 3px 12px rgba(32, 42, 35, 0.045);
+}
+
+.todayCard,
+.empty,
+.loading {
+  border-color: #dedfd3;
+  border-radius: 10px;
+  background: #f1efe6;
+}
+
+.iconBox,
+.todayCardIcon {
+  border-radius: 9px;
+  background: #e4e9df;
+  color: #24543d;
+}
+
+.page h1,
+.page h2,
+.page h3,
+.heroTitle,
+.metricValue,
+.panelTitle,
+.sectionTitle,
+.leaderName,
+.priorityCard h3 {
+  color: #202a23 !important;
+}
+
+.page .heroTitle {
+  color: #fbfaf6 !important;
+}
+
+.heroTitle,
+.heroText,
+.hero .kicker,
+.hero .bigNumber,
+.hero .accountPill p,
+.hero .heroMiniCard p {
+  color: #fbfaf6 !important;
+}
+
+.hero .badge {
+  border-color: rgba(232, 237, 222, 0.3);
+  border-radius: 4px;
+  background: transparent;
+  color: #e8d7a1;
+}
+
+.primaryButton,
+.rank {
+  background: #24543d;
+}
+
+.primaryButton:hover {
+  background: #173c2c;
+}
+
+.input,
+.select,
+.textarea,
+.searchInput {
+  border-color: #dedfd3 !important;
+  border-radius: 8px !important;
+  background: #fbfaf6 !important;
+  color: #202a23 !important;
+}
+
+.page input:focus,
+.page select:focus,
+.page textarea:focus {
+  border-color: #50785e !important;
+  box-shadow: 0 0 0 3px rgba(36, 84, 61, 0.12) !important;
+}

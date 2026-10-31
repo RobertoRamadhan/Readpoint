@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "./styles/landing.css";
 import "./styles/readpoint-theme.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";

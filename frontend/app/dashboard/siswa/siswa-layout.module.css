@@ -186,15 +186,15 @@
 .siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] nav button.bg-emerald-600),
 .siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] nav button.bg-emerald-700) {
   border-color: rgba(167, 243, 208, 0.25) !important;
-  background: #0f766e !important;
+  background: #24543d !important;
   color: #fff !important;
-  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22) !important;
+  box-shadow: 0 6px 14px rgba(23, 60, 44, 0.2) !important;
 }
 
 .siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] > button:first-child) {
   background: #f4fbf7 !important;
-  color: #0f766e !important;
-  box-shadow: 0 10px 22px rgba(15, 118, 110, 0.18) !important;
+  color: #24543d !important;
+  box-shadow: 0 8px 18px rgba(23, 60, 44, 0.18) !important;
 }
 
 .siswaArea :global(aside.sticky.hidden.h-screen.w-\[120px\] > div:last-of-type) {
@@ -203,9 +203,9 @@
 }
 
 .siswaArea :global(header.sticky.top-0.z-40) {
-  border-bottom-color: #d8e6e1 !important;
-  background: rgba(250, 253, 251, 0.9) !important;
-  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05) !important;
+  border-bottom-color: #dedfd3 !important;
+  background: rgba(251, 250, 246, 0.96) !important;
+  box-shadow: 0 4px 14px rgba(32, 42, 35, 0.045) !important;
 }
 
 @media (max-width: 767px) {

@@ -1532,3 +1532,110 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+.shell {
+  background: #f7f5ed;
+  color: #202a23;
+}
+
+.header {
+  border-bottom-color: #dedfd3;
+  background: rgba(251, 250, 246, 0.96);
+  backdrop-filter: blur(8px);
+}
+
+.headerTitle,
+.statsSectionTitle,
+.statCardValue,
+.panelTitle,
+.continueTitle,
+.bookTitle,
+.quizCardTitle,
+.pointsBannerValue,
+.rewardRowName,
+.rewardCardName {
+  color: #202a23;
+}
+
+.headerSubtitle,
+.statCardHelper,
+.continueBadge,
+.continueProgressFill,
+.continueBtn,
+.quizCardEyebrow,
+.quizCardScorePass,
+.quizCardCtaNew,
+.rewardRowPts,
+.rewardRowBtn {
+  color: #24543d;
+}
+
+.headerAvatar {
+  background: #173c2c;
+}
+
+.statCard,
+.panel,
+.continueCard,
+.quizCard,
+.pointsBanner,
+.rewardRow,
+.rewardCard,
+.sectionHeader {
+  border-color: #dedfd3;
+  border-radius: 12px;
+  background: #fbfaf6;
+  box-shadow: 0 3px 12px rgba(32, 42, 35, 0.045);
+}
+
+.statCardIcon,
+.continueBadge,
+.panelAction,
+.bookTagGreen,
+.quizCardScorePass,
+.quizCardCtaNew,
+.rewardCardImg {
+  background: #e4e9df;
+  color: #24543d;
+}
+
+.searchBar {
+  border-color: #dedfd3;
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+
+.searchBar input {
+  color: #202a23;
+}
+
+.searchBar input::placeholder,
+.statsSectionDesc,
+.statCardLabel,
+.panelSubtitle,
+.continueAuthor,
+.continueProgressLabel,
+.bookAuthor,
+.quizCardMeta,
+.pointsBannerLabel,
+.rewardCardDesc {
+  color: #687168;
+}
+
+.continueBtn,
+.rewardRowBtn {
+  border-radius: 8px;
+  background: #24543d;
+  color: #fff;
+}
+
+.continueBtn:hover,
+.rewardRowBtn:hover {
+  background: #173c2c;
+}
+
+.shell :global(button:focus-visible),
+.shell :global(a:focus-visible),
+.shell input:focus-visible {
+  outline-color: rgba(36, 84, 61, 0.55);
+}

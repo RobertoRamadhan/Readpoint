@@ -5,37 +5,45 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Emerald Color System - Primary */
-  --primary-50: #f0fdf4;
-  --primary-100: #dcfce7;
-  --primary-200: #a7f3d0;
-  --primary-300: #6ee7b7;
-  --primary-400: #2dd4bf;
-  --primary-500: #10b981;
-  --primary-600: #059669;
-  --primary-700: #047857;
-  --primary-800: #065f46;
-  --primary-900: #064e3b;
-  --primary-950: #022c22;
+  --primary-50: #f2f4ee;
+  --primary-100: #e4e9df;
+  --primary-200: #c9d5c6;
+  --primary-300: #a8bea9;
+  --primary-400: #76977f;
+  --primary-500: #50785e;
+  --primary-600: #3b654b;
+  --primary-700: #24543d;
+  --primary-800: #1b4432;
+  --primary-900: #173c2c;
+  --primary-950: #10291e;
 
   /* Neutral Color System */
-  --gray-50: #f1f5f9;
-  --gray-100: #e2e8f0;
-  --gray-200: #cbd5e1;
-  --gray-300: #94a3b8;
-  --gray-400: #64748b;
-  --gray-500: #475569;
-  --gray-600: #334155;
-  --gray-700: #1e293b;
-  --gray-800: #0f172a;
-  --gray-900: #020617;
+  --gray-50: #fbfaf6;
+  --gray-100: #f1efe6;
+  --gray-200: #dedfd3;
+  --gray-300: #c2c6b8;
+  --gray-400: #969d91;
+  --gray-500: #737d73;
+  --gray-600: #59665c;
+  --gray-700: #3e4b41;
+  --gray-800: #29372d;
+  --gray-900: #202a23;
+
+  --rp-bg: #f7f5ed;
+  --rp-surface: #fbfaf6;
+  --rp-soft: #f1efe6;
+  --rp-ink: #202a23;
+  --rp-muted: #687168;
+  --rp-forest: #24543d;
+  --rp-forest-deep: #173c2c;
+  --rp-line: #dedfd3;
 
   /* Semantic Colors */
-  --primary: oklch(0.205 0 0);
-  --primary-dark: var(--primary-700);
+  --primary: var(--rp-forest);
+  --primary-dark: var(--rp-forest-deep);
   --primary-light: var(--primary-500);
-  --success: var(--primary-600);
-  --warning: #f59e0b;
+  --success: #50785e;
+  --warning: #9c8954;
   --danger: #ef4444;
   --muted: oklch(0.97 0 0);
   --border: oklch(0.922 0 0);
@@ -68,35 +76,35 @@
   --mobile-breakpoint: 768px;
   --tablet-breakpoint: 1024px;
   --desktop-breakpoint: 1280px;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: #f7f5ed;
+  --foreground: #202a23;
+  --card: #fbfaf6;
+  --card-foreground: #202a23;
+  --popover: #fbfaf6;
+  --popover-foreground: #202a23;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: #f1efe6;
+  --secondary-foreground: #29372d;
+  --muted-foreground: #687168;
+  --accent: #e4e9df;
+  --accent-foreground: #24543d;
   --destructive: oklch(0.577 0.245 27.325);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --input: #dedfd3;
+  --ring: #50785e;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #fbfaf6;
+  --sidebar-foreground: #202a23;
+  --sidebar-primary: #24543d;
+  --sidebar-primary-foreground: #fbfaf6;
+  --sidebar-accent: #f1efe6;
+  --sidebar-accent-foreground: #24543d;
+  --sidebar-border: #dedfd3;
+  --sidebar-ring: #50785e;
 }
 
 * {
@@ -118,7 +126,7 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: var(--rp-bg);
   line-height: 1.6;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -154,7 +162,7 @@ body {
 
 /* â”€â”€â”€ Selection â”€â”€â”€ */
 ::selection {
-  background: var(--primary-300);
+  background: var(--primary-200);
   color: var(--primary-900);
   text-shadow: none;
 }
@@ -463,8 +471,8 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--primary-500);
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+  background-color: var(--rp-surface);
+  box-shadow: 0 0 0 3px rgba(36, 84, 61, 0.14);
 }
 
 input:disabled,

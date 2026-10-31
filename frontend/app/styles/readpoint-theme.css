@@ -1,16 +1,16 @@
-/* READPOINT Professional Theme
-   Global palette: slate, white, emerald. */
+/* Shared READPOINT palette for dashboards and learning pages. */
 
 :root {
-  --rp-bg: #F8FAFC;
-  --rp-surface: #FFFFFF;
-  --rp-soft: #F1F5F9;
-  --rp-navy: #0F172A;
-  --rp-green: #047857;
-  --rp-green-dark: #065F46;
-  --rp-text: #1F2937;
-  --rp-muted: #64748B;
-  --rp-border: #E2E8F0;
+  --rp-bg: #f7f5ed;
+  --rp-surface: #fbfaf6;
+  --rp-soft: #f1efe6;
+  --rp-navy: #202a23;
+  --rp-green: #24543d;
+  --rp-green-dark: #173c2c;
+  --rp-forest-deep: #173c2c;
+  --rp-text: #29372d;
+  --rp-muted: #687168;
+  --rp-border: #dedfd3;
 }
 
 html,
@@ -26,26 +26,10 @@ body {
   background: var(--rp-bg) !important;
 }
 
-main,
-section,
-nav,
-footer {
-  max-width: 100%;
-}
-
 .flex-1,
 .flex-1.flex,
 .flex-1.overflow-y-auto {
   min-width: 0 !important;
-  width: 100% !important;
-}
-
-.flex-1.overflow-y-auto > div,
-.flex-1.overflow-y-auto > section {
-  width: 100% !important;
-  max-width: 1440px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
 }
 
 ::-webkit-scrollbar {
@@ -54,16 +38,16 @@ footer {
 }
 
 ::-webkit-scrollbar-track {
-  background: #E5E7EB !important;
+  background: var(--rp-soft) !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #94A3B8 !important;
+  background: #a4aa9c !important;
   border-radius: 999px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--rp-navy) !important;
+  background: var(--rp-green-dark) !important;
 }
 
 /* Remove old cream / amber / orange theme */
@@ -109,39 +93,6 @@ footer {
 [class*="bg-[#1E3A5F]"],
 [class*="bg-[#172F4D]"] {
   background-color: var(--rp-navy) !important;
-}
-
-.text-amber-300,
-.text-amber-400,
-.text-amber-500,
-.text-amber-600,
-.text-amber-700,
-.text-orange-500,
-.text-yellow-500,
-[class*="text-[#F4B400]"],
-[class*="text-[#D9A441]"],
-[class*="text-[#2E7D32]"] {
-  color: var(--rp-green) !important;
-}
-
-.text-amber-800,
-.text-amber-900,
-.text-stone-800,
-.text-gray-900,
-.text-slate-900,
-[class*="text-[#1E3A5F]"],
-[class*="text-[#2D2D2D]"] {
-  color: var(--rp-navy) !important;
-}
-
-.text-gray-600,
-.text-slate-600,
-.text-gray-700,
-.text-slate-700,
-.text-stone-600,
-[class*="text-[#5A5146]"],
-[class*="text-[#9B8A72]"] {
-  color: var(--rp-muted) !important;
 }
 
 .border-amber-100,
@@ -219,45 +170,34 @@ footer {
 [class*="bg-white/90"] {
   background: var(--rp-surface) !important;
   border-color: var(--rp-border) !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  box-shadow: 0 5px 18px rgba(32, 42, 35, 0.055) !important;
 }
 
 /* High-contrast text helpers */
-.text-slate-400,
-.text-slate-500,
-.text-slate-600,
-.text-slate-700,
-.text-gray-400,
-.text-gray-500,
-.text-gray-600,
-.text-gray-700,
-.text-zinc-400,
-.text-zinc-500,
-.text-zinc-600,
-.text-zinc-700,
-[class*="text-[#64748B]"],
-[class*="text-[#94A3B8]"],
-[class*="text-[#6B7280]"],
-[class*="text-[#475569]"] {
-  color: #1e293b !important;
+.readpoint-dashboard-main .text-slate-400,
+.readpoint-dashboard-main .text-slate-500,
+.readpoint-dashboard-main .text-slate-600,
+.readpoint-dashboard-main .text-gray-400,
+.readpoint-dashboard-main .text-gray-500,
+.readpoint-dashboard-main .text-gray-600,
+.quiz-page .text-slate-400,
+.quiz-page .text-slate-500,
+.quiz-page .text-slate-600,
+.siswa-reader-page .text-slate-400,
+.siswa-reader-page .text-slate-500,
+.siswa-reader-page .text-slate-600 {
+  color: var(--rp-muted) !important;
 }
 
-.text-slate-300,
-.text-gray-300,
-.text-zinc-300,
-[class*="text-[#CBD5E1]"],
-[class*="text-[#E2E8F0]"] {
-  color: #475569 !important;
-}
-
-.text-slate-800,
-.text-slate-900,
-.text-gray-800,
-.text-gray-900,
-.text-zinc-800,
-.text-zinc-900,
-[class*="text-[#0F172A]"] {
-  color: #0f172a !important;
+.readpoint-dashboard-main .text-slate-800,
+.readpoint-dashboard-main .text-slate-900,
+.readpoint-dashboard-main .text-gray-800,
+.readpoint-dashboard-main .text-gray-900,
+.quiz-page .text-slate-800,
+.quiz-page .text-slate-900,
+.siswa-reader-page .text-slate-800,
+.siswa-reader-page .text-slate-900 {
+  color: var(--rp-navy) !important;
 }
 
 .placeholder\:text-slate-400::placeholder,
@@ -266,7 +206,7 @@ footer {
 .placeholder\:text-slate-500::placeholder,
 .placeholder\:text-gray-500::placeholder,
 .placeholder\:text-zinc-500::placeholder {
-  color: #64748b !important;
+  color: var(--rp-muted) !important;
   opacity: 1 !important;
 }
 
@@ -276,11 +216,67 @@ footer {
 .bg-gray-100,
 .bg-zinc-50,
 .bg-zinc-100 {
-  background-color: #f8fafc !important;
+  background-color: var(--rp-bg) !important;
+}
+
+.bg-slate-200,
+.bg-gray-200,
+.bg-zinc-200 {
+  background-color: var(--rp-soft) !important;
+}
+
+.bg-slate-950 {
+  background-color: var(--rp-forest-deep) !important;
+}
+
+.bg-emerald-50,
+.bg-green-50 {
+  background-color: #edf2e9 !important;
+}
+
+.bg-emerald-100,
+.bg-green-100 {
+  background-color: #e2eadd !important;
+}
+
+.bg-emerald-600,
+.bg-emerald-700,
+.bg-green-600,
+.bg-green-700 {
+  background-color: var(--rp-green) !important;
+}
+
+.bg-emerald-800,
+.bg-emerald-900,
+.bg-green-800,
+.bg-green-900 {
+  background-color: var(--rp-green-dark) !important;
+}
+
+.text-emerald-500,
+.text-emerald-600,
+.text-emerald-700,
+.text-green-600,
+.text-green-700 {
+  color: var(--rp-green) !important;
+}
+
+.text-emerald-800,
+.text-emerald-900,
+.text-green-800,
+.text-green-900 {
+  color: var(--rp-green-dark) !important;
+}
+
+.border-emerald-100,
+.border-emerald-200,
+.border-green-100,
+.border-green-200 {
+  border-color: #d3ddce !important;
 }
 
 .bg-white {
-  background-color: #ffffff !important;
+  background-color: var(--rp-surface) !important;
 }
 
 .card::before {
@@ -311,37 +307,26 @@ button[class*="bg-[#2E7D32]"]:hover {
 }
 
 /* Forms */
-.input-professional,
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="date"],
-textarea,
-select {
-  height: 3.5rem;
+.input-professional {
+  min-height: 2.75rem;
   width: 100%;
-  border-radius: 1rem;
+  border-radius: 0.55rem;
   border: 1px solid var(--rp-border) !important;
-  background-color: #FFFFFF !important;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  background-color: var(--rp-surface) !important;
+  padding: 0.65rem 0.8rem;
   color: var(--rp-text) !important;
   outline: none !important;
 }
 
-textarea {
+.input-professional:where(textarea) {
   min-height: 8rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
 }
 
-.input-professional:focus,
-input:focus,
-textarea:focus,
-select:focus {
+.input-professional:focus {
   border-color: var(--rp-green) !important;
-  box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.10) !important;
+  box-shadow: 0 0 0 3px rgba(36, 84, 61, 0.13) !important;
 }
 
 /* Tables */
@@ -365,7 +350,7 @@ td {
 }
 
 tbody tr:hover {
-  background: #F8FAFC !important;
+  background: var(--rp-bg) !important;
 }
 
 .bg-gray-50,
@@ -375,9 +360,65 @@ tbody tr:hover {
   background-color: var(--rp-soft) !important;
 }
 
+.readpoint-dashboard-shell,
+.readpoint-dashboard-main,
+.readpoint-admin-sidebar,
+.readpoint-guru-sidebar,
+.siswa-reader-page,
+.quiz-page {
+  --rp-bg: #f7f5ed;
+  --rp-surface: #fbfaf6;
+  --rp-soft: #f1efe6;
+  --rp-ink: #202a23;
+  --rp-muted: #687168;
+  --rp-forest: #24543d;
+  --rp-forest-deep: #173c2c;
+  --rp-line: #dedfd3;
+}
+
+.readpoint-dashboard-shell,
+.readpoint-dashboard-main {
+  background: var(--rp-bg) !important;
+  color: var(--rp-ink) !important;
+}
+
+.readpoint-dashboard-header,
+.readpoint-dashboard-footer {
+  border-color: var(--rp-line) !important;
+  background: rgba(251, 250, 246, 0.96) !important;
+}
+
+.readpoint-admin-sidebar,
+.readpoint-guru-sidebar {
+  background: var(--rp-forest-deep) !important;
+}
+
+.quiz-page,
+.siswa-reader-page {
+  background-color: var(--rp-bg) !important;
+  color: var(--rp-ink) !important;
+}
+
+.quiz-page > header {
+  border-color: var(--rp-line) !important;
+  background: rgba(251, 250, 246, 0.96) !important;
+}
+
+.quiz-header-inner,
+.quiz-shell {
+  color: var(--rp-ink);
+}
+
+.quiz-card,
+.quiz-number-nav {
+  border-color: var(--rp-line) !important;
+  background: var(--rp-surface) !important;
+  box-shadow: 0 8px 24px rgba(32, 42, 35, 0.06) !important;
+}
+
 /* Charts */
 .recharts-cartesian-grid line {
-  stroke: #E5E7EB !important;
+  stroke: var(--rp-border) !important;
 }
 
 .recharts-cartesian-axis-tick-value,
@@ -451,7 +492,7 @@ tbody tr:hover {
 .readpoint-dashboard-brand-title {
   display: block !important;
   margin: 0 !important;
-  color: #0f172a !important;
+  color: var(--rp-navy) !important;
   font-size: 16px !important;
   font-weight: 900 !important;
   line-height: 1 !important;
@@ -462,7 +503,7 @@ tbody tr:hover {
 .readpoint-dashboard-brand-subtitle {
   display: block !important;
   margin-top: 4px !important;
-  color: #047857 !important;
+  color: var(--rp-green) !important;
   font-size: 11px !important;
   font-weight: 800 !important;
   line-height: 1 !important;
@@ -479,14 +520,14 @@ tbody tr:hover {
 }
 
 .readpoint-dashboard-user-name {
-  color: #0f172a !important;
+  color: var(--rp-navy) !important;
   font-size: 14px !important;
   font-weight: 900 !important;
 }
 
 .readpoint-dashboard-user-role {
   margin-top: 3px !important;
-  color: #64748b !important;
+  color: var(--rp-muted) !important;
   font-size: 12px !important;
   font-weight: 700 !important;
 }
@@ -532,7 +573,7 @@ tbody tr:hover {
   width: var(--readpoint-dashboard-sidebar-width) !important;
   min-width: var(--readpoint-dashboard-sidebar-width) !important;
   max-width: var(--readpoint-dashboard-sidebar-width) !important;
-  background: #020617 !important;
+  background: var(--rp-forest-deep) !important;
 }
 
 .readpoint-admin-sidebar .readpoint-admin-brand,
@@ -545,7 +586,7 @@ tbody tr:hover {
   border-radius: 24px !important;
   padding: 0 !important;
   border: 1px solid rgba(148, 163, 184, 0.18) !important;
-  background: #1a1f32 !important;
+  background: #204735 !important;
   overflow: hidden !important;
 }
 
@@ -604,8 +645,8 @@ tbody tr:hover {
   justify-content: space-between !important;
   border-radius: 14px !important;
   padding: 0 12px !important;
-  background: #171c2e !important;
-  color: #cbd5e1 !important;
+  background: #1d4633 !important;
+  color: #dce8dc !important;
   box-shadow: none !important;
   font-size: 13px !important;
   font-weight: 800 !important;
@@ -613,15 +654,15 @@ tbody tr:hover {
 
 .readpoint-admin-sidebar .readpoint-admin-menu-item:hover,
 .readpoint-guru-sidebar .readpoint-admin-menu-item:hover {
-  background: #20263a !important;
+  background: #28563e !important;
   color: #ffffff !important;
   transform: none !important;
 }
 
 .readpoint-admin-sidebar .readpoint-admin-menu-item[class*="bg-white"],
 .readpoint-guru-sidebar .readpoint-admin-menu-item[class*="bg-white"] {
-  background: #ffffff !important;
-  color: #020617 !important;
+  background: #e7eadb !important;
+  color: var(--rp-forest-deep) !important;
 }
 
 .readpoint-admin-sidebar .readpoint-admin-menu-item > span,

@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowRight, BookOpen, Check, Library } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import styles from './login.module.css';
 
 declare global {
   interface Window {
@@ -143,7 +145,7 @@ export default function LoginPage() {
           size: 'large',
           text: 'signin_with',
           shape: 'pill',
-          width: 360,
+          width: Math.max(200, Math.min(360, googleButtonRef.current.clientWidth || 360)),
         });
       } catch (err) {
         console.error('[Google Sign-In] Initialization error:', err);
@@ -185,109 +187,123 @@ export default function LoginPage() {
   }, [login, router]);
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-50 px-6 py-6 text-slate-900 sm:px-10 sm:py-8 lg:px-12 lg:py-12">
-      <div
-        className="mx-auto grid w-full overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-xl sm:rounded-3xl sm:shadow-2xl lg:grid-cols-[0.85fr_1.15fr]"
-        style={{ maxWidth: '1480px' }}
-      >
-        <section
-          className="relative flex min-h-[180px] flex-col justify-between overflow-hidden bg-cover bg-center text-white sm:min-h-[220px] lg:min-h-[600px]"
-          style={{ backgroundImage: 'url("/perpus.jpg")' }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-emerald-800/60 to-emerald-900/70" />
+    <main className={styles.page}>
+      <div className={styles.frame}>
+        <section className={styles.storyPanel} aria-label="Tentang READPOINT">
+          <div className={styles.photo} aria-hidden="true" />
+          <div className={styles.storyContent}>
+            <Link href="/" className={styles.brand} aria-label="READPOINT beranda">
+              <span className={styles.brandMark}>
+                <Library size={19} strokeWidth={2.2} aria-hidden="true" />
+              </span>
+              <span className={styles.brandName}>READPOINT</span>
+            </Link>
 
-          <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-            <Link href="/" className="inline-flex items-center gap-2 lg:gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-emerald-700 shadow-lg lg:h-11 lg:w-11">
-                RP
+            <div className={styles.storyCopy}>
+              <p className={styles.storyEyebrow}>Ruang baca digital sekolah</p>
+              <h1>
+                Buka buku.
+                <br />
+                <em>Buka kemungkinan.</em>
+              </h1>
+              <p className={styles.storyDescription}>
+                Setiap halaman membawa cerita. Setiap bacaan membangun kebiasaan.
+              </p>
+            </div>
+
+            <div className={styles.readingPath}>
+              <div className={styles.pathIcon}>
+                <BookOpen size={18} aria-hidden="true" />
               </div>
               <div>
-                <p className="text-base font-black text-white lg:text-lg">READPOINT</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-100 sm:text-xs">
-                  Literasi Digital
+                <p className={styles.pathTitle}>Perjalanan membaca</p>
+                <p className={styles.pathSteps}>
+                  <span>Baca</span>
+                  <span className={styles.pathDot} />
+                  <span>Pahami</span>
+                  <span className={styles.pathDot} />
+                  <span>Dapatkan poin</span>
                 </p>
               </div>
+            </div>
+          </div>
+          <span className={styles.imageCaption}>PERPUSTAKAAN · READPOINT</span>
+        </section>
+
+        <section className={styles.formPanel} aria-labelledby="login-heading">
+          <div className={styles.formTopline}>
+            <span className={styles.formKicker}>AKUN READPOINT</span>
+            <Link href="/" className={styles.homeLink}>
+              Beranda <ArrowRight size={14} aria-hidden="true" />
             </Link>
           </div>
 
-          <div className="relative z-10 hidden p-8 lg:block">
-            <p className="text-sm text-emerald-100">Tingkatkan minat baca dengan sistem reward digital</p>
-          </div>
-        </section>
-
-        <section className="flex min-h-0 items-center justify-center px-6 py-8 sm:px-8 sm:py-10 lg:min-h-[600px] lg:px-16 lg:py-12 xl:px-20">
-          <div className="mx-auto w-full" style={{ maxWidth: '540px' }}>
-            <div className="mb-7 text-center lg:hidden">
-              <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
-              <h2 className="mt-3 text-2xl font-black leading-tight text-slate-900 sm:text-3xl">Masuk ke akun</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-700 sm:text-base">
-                Masukkan email dan password untuk membuka dashboard READPOINT.
-              </p>
-            </div>
-
-            <div className="mb-8 hidden text-center lg:block lg:text-left">
-              <p className="text-base font-black uppercase tracking-widest text-emerald-600">Selamat Datang</p>
-              <h2 className="mt-3 text-4xl font-black leading-tight text-slate-900">Masuk ke akun</h2>
-              <p className="mt-3 text-base leading-7 text-slate-700">
-                Masukkan email dan password untuk membuka dashboard READPOINT.
-              </p>
-            </div>
+          <div className={styles.formContent}>
+            <p className={styles.welcome}>Selamat datang kembali</p>
+            <h2 id="login-heading">Lanjutkan ceritamu.</h2>
+            <p className={styles.formDescription}>
+              Masuk untuk melanjutkan bacaan dan melihat perkembangan literasimu.
+            </p>
 
             {error && (
-              <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700 sm:rounded-xl sm:p-4 sm:text-sm">
+              <div className={styles.error} role="alert" aria-live="polite">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" style={{ width: '100%', maxWidth: '540px' }}>
-              <div>
-                <label className="mb-2 block text-sm font-black text-slate-800 sm:text-base">Email</label>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.field}>
+                <label htmlFor="email">Email</label>
                 <input
+                  id="email"
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-14 sm:rounded-xl sm:px-4 sm:text-base"
                   placeholder="nama@email.com"
                   disabled={loading}
                   required
                 />
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-black text-slate-800 sm:text-base">Password</label>
+              <div className={styles.field}>
+                <label htmlFor="password">Password</label>
                 <input
+                  id="password"
                   type="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-700/10 sm:h-14 sm:rounded-xl sm:px-4 sm:text-base"
                   placeholder="Masukkan password"
                   disabled={loading}
                   required
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="h-12 w-full rounded-lg bg-emerald-700 px-4 text-sm font-black text-white shadow-md shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:rounded-xl sm:px-6 sm:text-base sm:shadow-lg"
-              >
-                {loading ? 'Memproses...' : 'Masuk'}
+              <button type="submit" disabled={loading} className={styles.submitButton}>
+                <span>{loading ? 'Memproses...' : 'Masuk ke akun'}</span>
+                {!loading && <ArrowRight size={18} aria-hidden="true" />}
               </button>
             </form>
 
-            <div className="my-6 flex items-center gap-3">
-              <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-xs font-black uppercase tracking-[0.25em] text-slate-600">atau</span>
-              <div className="h-px flex-1 bg-slate-200" />
+            <div className={styles.divider}>
+              <span />
+              <span className={styles.dividerLabel}>atau masuk dengan</span>
+              <span />
             </div>
 
-            <div ref={googleButtonRef} className="flex justify-center" />
+            <div ref={googleButtonRef} className={styles.googleButton} />
 
-            <p className="mt-6 text-center text-sm font-semibold text-slate-700 sm:text-base">
+            <p className={styles.registerPrompt}>
               Belum punya akun?{' '}
-              <Link href="/register" className="font-black text-emerald-700 hover:text-emerald-800">
-                Daftar di sini
+              <Link href="/register">
+                Daftar sebagai siswa <ArrowRight size={14} aria-hidden="true" />
               </Link>
+            </p>
+
+            <p className={styles.pointsNote}>
+              <Check size={14} aria-hidden="true" />
+              Poin membaca diberikan setelah validasi guru.
             </p>
           </div>
         </section>
